@@ -4096,6 +4096,7 @@ Karaktärer: ${chars}`;
         oates: 'Intressant. Men vad tänker Frank egentligen på i det ögonblicket? Det yttre är tydligt — det inre är fortfarande gömt.'
       };
       appendCoachMsg('ai', mockReplies[activeCoach] || 'Intressant. Berätta mer.');
+      isCoachThinking = false;
     } else {
       // LIVE CLAUDE API
       try {
@@ -4118,16 +4119,23 @@ Karaktärer: ${chars}`;
         );
         const data = await response.json();
         thinkDiv.remove();
-        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Något gick fel. Försök igen.';
-        appendCoachMsg('ai', reply);
-        const badge = document.getElementById('coachApiStatus') || document.getElementById('coachApiBadge');
-        if(badge) { badge.textContent = '✓ Kopplad till Gemini'; badge.style.color = 'var(--accent-n)'; }
+        if(data.error) {
+          console.error('Gemini API error:', data.error);
+          appendCoachMsg('ai', `API-fel: ${data.error.message || 'Okänt fel. Kontrollera din nyckel.'}`);
+        } else {
+          const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Något gick fel. Försök igen.';
+          appendCoachMsg('ai', reply);
+          const badge = document.getElementById('coachApiStatus') || document.getElementById('coachApiBadge');
+          if(badge) { badge.textContent = '✓ Kopplad till Gemini'; badge.style.color = 'var(--accent-n)'; }
+        }
       } catch(e) {
         thinkDiv.remove();
-        appendCoachMsg('ai', 'Kunde inte nå Gemini API. Kontrollera din nyckel.');
+        console.error('Gemini fetch error:', e);
+        appendCoachMsg('ai', 'Kunde inte nå Gemini API. Kontrollera din nyckel och att den är aktiv.');
+      } finally {
+        isCoachThinking = false;
       }
     }
-    isCoachThinking = false;
   }
 
   function sendQuickPrompt(btn) {
@@ -4623,8 +4631,20 @@ VIKTIGT:
       document.getElementById('coachApiStatus').innerHTML = '<span style="color:#c84040;">⚠ Klistra in din nyckel först</span>';
       return;
     }
+    localStorage.setItem('writeon_gemini_key', key);
     document.getElementById('coachApiStatus').innerHTML = '<span style="color:#4a8a5a;">✓ Nyckel sparad — live-läge aktivt</span>';
   }
+
+  (function loadSavedApiKey() {
+    const saved = localStorage.getItem('writeon_gemini_key');
+    if(saved) {
+      const input = document.getElementById('apiKeyInput');
+      if(input) {
+        input.value = saved;
+        document.getElementById('coachApiStatus').innerHTML = '<span style="color:#4a8a5a;">✓ Nyckel laddad — live-läge aktivt</span>';
+      }
+    }
+  })();
 
   // ─── UNDER MANUS ───
   function toggleBmSection(id) {
