@@ -8,6 +8,9 @@
 <meta http-equiv="Expires" content="0">
 <title>WriteON – Fallet [Gemini v3]</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -5197,13 +5200,171 @@ VIKTIGT:
 <body>${content}</body></html>`;
   }
 
-  function _doExport(fmt) {
+  function _downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 15000);
+  }
+
+  async function _exportPdf(title) {
+    const { jsPDF } = window.jspdf;
+    const wa = document.getElementById('writingArea');
+    const el = document.createElement('div');
+    el.style.cssText = 'position:absolute;left:-9999px;top:0;width:750px;padding:60px 70px;background:#fff;color:#111;font-family:Georgia,serif;font-size:13pt;line-height:1.9;';
+    el.innerHTML = `<h2 style="font-family:Georgia,serif;margin:0 0 32px;font-size:18pt;">${title}</h2>` + wa.innerHTML;
+    document.body.appendChild(el);
+    const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+    document.body.removeChild(el);
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgW = pageW;
+    const imgH = (canvas.height * imgW) / canvas.width;
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    let y = 0;
+    while (y < imgH) {
+      if (y > 0) pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, -y, imgW, imgH);
+      y += pageH;
+    }
+    pdf.save(title + '.pdf');
+  }
+
+  async function _exportDocx(title) {
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
+    const wa = document.getElementById('writingArea');
+
+    function parseInline(el) {
+      const runs = [];
+      el.childNodes.forEach(n => {
+        if (n.nodeType === 3) {
+          if (n.textContent) runs.push(new TextRun({ text: n.textContent, font: 'Garamond', size: 24 }));
+        } else {
+          const t = n.tagName;
+          const txt = n.textContent;
+          if (t === 'STRONG' || t === 'B') runs.push(new TextRun({ text: txt, bold: true, font: 'Garamond', size: 24 }));
+          else if (t === 'EM' || t === 'I') runs.push(new TextRun({ text: txt, italics: true, font: 'Garamond', size: 24 }));
+          else if (t === 'U') runs.push(new TextRun({ text: txt, underline: {}, font: 'Garamond', size: 24 }));
+          else if (txt) runs.push(new TextRun({ text: txt, font: 'Garamond', size: 24 }));
+        }
+      });
+      return runs.length ? runs : [new TextRun({ text: '' })];
+    }
+
+    const children = [];
+    children.push(new Paragraph({ text: title, heading: HeadingLevel.TITLE, spacing: { after: 400 } }));
+    wa.childNodes.forEach(node => {
+      if (node.nodeType !== 1) return;
+      const tag = node.tagName;
+      if (tag === 'H1') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_1, spacing: { before: 320, after: 160 } }));
+      else if (tag === 'H2') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_2, spacing: { before: 240, after: 120 } }));
+      else if (tag === 'H3') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_3, spacing: { before: 200, after: 80 } }));
+      else if (tag === 'P') children.push(new Paragraph({ children: parseInline(node), spacing: { after: 120 }, indent: { firstLine: 480 } }));
+    });
+
+    const doc = new Document({
+      sections: [{ properties: { page: { margin: { top: 1440, bottom: 1440, left: 1440, right: 1440 } } }, children }]
+    });
+    const blob = await Packer.toBlob(doc);
+    _downloadBlob(blob, title + '.docx');
+  }
+
+  async function _exportEpub(title) {
+    const zip = new JSZip();
+    const content = document.getElementById('writingArea').innerHTML;
+    const uuid = 'urn:uuid:' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    const now = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+
+    zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
+    zip.folder('META-INF').file('container.xml',
+      `<?xml version="1.0" encoding="UTF-8"?><container version="1.0" xmlns="urn:oasis:schemas:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`);
+
+    const oebps = zip.folder('OEBPS');
+    oebps.file('content.opf',
+      `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title>${title}</dc:title><dc:language>sv</dc:language>
+    <dc:identifier id="uid">${uuid}</dc:identifier>
+    <meta property="dcterms:modified">${now}</meta>
+  </metadata>
+  <manifest>
+    <item id="content" href="content.xhtml" media-type="application/xhtml+xml"/>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item id="css" href="style.css" media-type="text/css"/>
+  </manifest>
+  <spine><itemref idref="content"/></spine>
+</package>`);
+
+    oebps.file('content.xhtml',
+      `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="sv">
+<head><meta charset="UTF-8"/><title>${title}</title><link rel="stylesheet" type="text/css" href="style.css"/></head>
+<body><h1>${title}</h1>${content}</body></html>`);
+
+    oebps.file('nav.xhtml',
+      `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="sv">
+<head><meta charset="UTF-8"/><title>Innehåll</title></head>
+<body><nav epub:type="toc"><ol><li><a href="content.xhtml">${title}</a></li></ol></nav></body></html>`);
+
+    oebps.file('style.css',
+      `body{font-family:Georgia,"Times New Roman",serif;font-size:1em;line-height:1.8;margin:0.5em 1.2em;}
+h1,h2,h3{font-family:Georgia,serif;margin:1.4em 0 0.5em;}
+p{margin:0 0 0.7em;text-indent:1.2em;}
+p:first-of-type{text-indent:0;}`);
+
+    const blob = await zip.generateAsync({ type: 'blob', mimeType: 'application/epub+zip' });
+    _downloadBlob(blob, title + '.epub');
+  }
+
+  function _exportMarkdown(title) {
+    const wa = document.getElementById('writingArea');
+    function inlineMd(el) {
+      let s = '';
+      el.childNodes.forEach(n => {
+        if (n.nodeType === 3) s += n.textContent;
+        else {
+          const t = n.tagName;
+          if (t === 'STRONG' || t === 'B') s += '**' + n.textContent + '**';
+          else if (t === 'EM' || t === 'I') s += '*' + n.textContent + '*';
+          else s += n.textContent;
+        }
+      });
+      return s;
+    }
+    let md = '# ' + title + '\n\n';
+    wa.childNodes.forEach(n => {
+      if (n.nodeType !== 1) return;
+      const t = n.tagName;
+      if (t === 'H1') md += '# ' + n.textContent.trim() + '\n\n';
+      else if (t === 'H2') md += '## ' + n.textContent.trim() + '\n\n';
+      else if (t === 'H3') md += '### ' + n.textContent.trim() + '\n\n';
+      else if (t === 'P') { const line = inlineMd(n).trim(); if (line) md += line + '\n\n'; }
+    });
+    _download(title + '.md', md.trim() + '\n', 'text/markdown');
+  }
+
+  async function _doExport(fmt) {
     document.getElementById('exportModal').style.display = 'none';
     const title = _getProjectTitle();
-    if (fmt === 'txt')  _download(title + '.txt',  _buildTxt(),       'text/plain');
-    if (fmt === 'doc')  _download(title + '.doc',  _buildDoc(title),  'application/msword');
-    if (fmt === 'html') _download(title + '.html', _buildHtml(title), 'text/html');
-    showAutosaveMsg('Sparad som .' + fmt + ' ✓');
+    showAutosaveMsg('Exporterar…');
+    try {
+      if (fmt === 'txt')  { _download(title + '.txt',  _buildTxt(),      'text/plain');     }
+      if (fmt === 'html') { _download(title + '.html', _buildHtml(title),'text/html');       }
+      if (fmt === 'pdf')  { await _exportPdf(title);                                         }
+      if (fmt === 'docx') { await _exportDocx(title);                                        }
+      if (fmt === 'epub') { await _exportEpub(title);                                        }
+      if (fmt === 'md')   { _exportMarkdown(title);                                          }
+      showAutosaveMsg('Exporterad som .' + fmt + ' ✓');
+    } catch(e) {
+      console.error('Export misslyckades:', e);
+      showAutosaveMsg('Export misslyckades ✗');
+    }
   }
 
   function filSpara()    { _closeDropdowns(); document.getElementById('exportModal').style.display = 'flex'; }
@@ -5254,27 +5415,42 @@ VIKTIGT:
 
 <!-- EXPORT FORMAT MODAL -->
 <div id="exportModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:var(--bg-card);border-radius:14px;padding:28px 30px;width:420px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.22);font-family:'DM Sans',sans-serif;">
+  <div style="background:var(--bg-card);border-radius:14px;padding:28px 30px;width:500px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.22);font-family:'DM Sans',sans-serif;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-      <h2 style="margin:0;font-size:1.05rem;font-weight:700;">Välj format</h2>
+      <h2 style="margin:0;font-size:1.05rem;font-weight:700;">Exportera / Kompilera</h2>
       <button onclick="document.getElementById('exportModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--text-muted);padding:2px 6px;border-radius:6px;">✕</button>
     </div>
-    <p style="font-size:0.78rem;color:var(--text-muted);margin:0 0 4px;">Välj vilket filformat du vill spara manuset i.</p>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin:0 0 14px;">Välj format att exportera manuset till.</p>
     <div class="export-fmt-grid">
+      <button class="export-fmt-btn" onclick="_doExport('pdf')">
+        <span class="export-fmt-icon">🖨</span>
+        <span class="export-fmt-label">PDF</span>
+        <span class="export-fmt-desc">Utskrift & distribution</span>
+      </button>
+      <button class="export-fmt-btn" onclick="_doExport('docx')">
+        <span class="export-fmt-icon">📝</span>
+        <span class="export-fmt-label">DOCX</span>
+        <span class="export-fmt-desc">Word & LibreOffice</span>
+      </button>
+      <button class="export-fmt-btn" onclick="_doExport('epub')">
+        <span class="export-fmt-icon">📖</span>
+        <span class="export-fmt-label">ePub</span>
+        <span class="export-fmt-desc">E-läsare, Kindle, Kobo</span>
+      </button>
       <button class="export-fmt-btn" onclick="_doExport('txt')">
         <span class="export-fmt-icon">📄</span>
-        <span class="export-fmt-label">.TXT</span>
+        <span class="export-fmt-label">TXT</span>
         <span class="export-fmt-desc">Ren text, inga stilar</span>
       </button>
-      <button class="export-fmt-btn" onclick="_doExport('doc')">
-        <span class="export-fmt-icon">📝</span>
-        <span class="export-fmt-label">.DOC</span>
-        <span class="export-fmt-desc">Öppnas i Word & LibreOffice</span>
+      <button class="export-fmt-btn" onclick="_doExport('md')">
+        <span class="export-fmt-icon">✍</span>
+        <span class="export-fmt-label">Markdown</span>
+        <span class="export-fmt-desc">Notion, Obsidian m.fl.</span>
       </button>
       <button class="export-fmt-btn" onclick="_doExport('html')">
         <span class="export-fmt-icon">🌐</span>
-        <span class="export-fmt-label">.HTML</span>
-        <span class="export-fmt-desc">Webb-format, allt bevarat</span>
+        <span class="export-fmt-label">HTML</span>
+        <span class="export-fmt-desc">Webb-format</span>
       </button>
     </div>
   </div>

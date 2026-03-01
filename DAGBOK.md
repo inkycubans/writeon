@@ -45,11 +45,19 @@ En modal visas med tre format att välja på:
 
 *(Skriv ditt manus här imorgon)*
 
-### Kompilera / Exportera – planerade format
-Formatväljaren vid Exportera / Kompilera ska utökas med:
-- **ePub** – för e-läsare (Kindle, Kobo, Apple Books)
-- **PDF** – för utskrift och distribution
-- **DOCX** – riktigt Word-format (inte Word-HTML-tricket)
-- Eventuellt: Markdown (.md), RTF, Fountain (för manus/screenplay)
+### Kompilera / Exportera – implementerat samma session
+
+Exportdialogen uppdaterades med 6 riktiga format via CDN-bibliotek:
+
+| Format | Bibliotek | Öppnas i |
+|--------|-----------|----------|
+| **PDF** | jsPDF + html2canvas | Alla PDF-läsare |
+| **DOCX** | docx.js 8.x | Word, LibreOffice, Pages |
+| **ePub** | JSZip (manuell ePub-struktur) | Kindle, Kobo, Apple Books |
+| **TXT** | – | Anteckningar, TextEdit |
+| **Markdown** | – (inbyggd konvertering) | Notion, Obsidian, GitHub |
+| **HTML** | – | Alla webbläsare |
+
+DOCX exporteras med Garamond 12pt, 1,9 radavstånd, styckeindragning.
 
 ---
