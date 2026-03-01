@@ -3990,13 +3990,18 @@
   let coachHistory = { king: [], lamott: [], hemingway: [], gaiman: [], marquez: [], oates: [] };
   let isCoachThinking = false;
 
+  // Returns the currently visible coach container (full-screen view or embedded panel)
+  function coachContainer() {
+    return document.querySelector('.coach-view-wrap.active') || document.querySelector('.coach-panel');
+  }
+
   function toggleCoachPanel() {
     const panel = document.getElementById('coachPanel');
     const btn = document.getElementById('coachOpenBtn');
     const isOpen = panel.classList.toggle('open');
     btn.classList.toggle('active', isOpen);
     btn.textContent = isOpen ? '↓ Stäng coach' : '✦ AI-coach';
-    if(isOpen) document.getElementById('coachInput').focus();
+    if(isOpen) coachContainer().querySelector('textarea.coach-input').focus();
   }
 
   function selectCoach(id, tabEl) {
@@ -4019,9 +4024,9 @@
       document.getElementById('coachInfoName').textContent = c.name;
       document.getElementById('coachInfoDesc').textContent = c.desc;
     }
-    document.getElementById('coachInput').placeholder = c.placeholder;
+    coachContainer().querySelector('textarea.coach-input').placeholder = c.placeholder;
     // Load or init messages
-    const msgs = document.getElementById('coachMessages');
+    const msgs = coachContainer().querySelector('.coach-messages');
     msgs.innerHTML = '';
     if(coachHistory[id].length === 0) {
       appendCoachMsg('ai', c.greeting);
@@ -4029,12 +4034,12 @@
       coachHistory[id].forEach(m => appendCoachMsg(m.role, m.text, true));
     }
     // Show quick prompts again
-    const qr = document.getElementById('coachQuickRow');
+    const qr = coachContainer().querySelector('.coach-quick-row');
     if(qr) qr.style.display = 'flex';
   }
 
   function appendCoachMsg(role, text, skipHistory = false) {
-    const msgs = document.getElementById('coachMessages');
+    const msgs = coachContainer().querySelector('.coach-messages');
     const div = document.createElement('div');
     div.className = 'coach-msg coach-msg-' + (role === 'ai' ? 'ai' : 'user');
     const bubble = document.createElement('div');
@@ -4061,14 +4066,16 @@ Karaktärer: ${chars}`;
 
   async function sendCoachMessage() {
     if(isCoachThinking) return;
-    const input = document.getElementById('coachInput');
+    const cc = coachContainer();
+    const input = cc.querySelector('textarea.coach-input');
     const text = input.value.trim();
     if(!text) return;
     input.value = '';
     input.style.height = 'auto';
 
     appendCoachMsg('user', text);
-    document.getElementById('coachQuickRow').style.display = 'none';
+    const qrow = cc.querySelector('.coach-quick-row');
+    if(qrow) qrow.style.display = 'none';
 
     // Show thinking indicator
     isCoachThinking = true;
@@ -4076,8 +4083,9 @@ Karaktärer: ${chars}`;
     thinkDiv.className = 'coach-msg coach-msg-ai';
     thinkDiv.id = 'coachThinking';
     thinkDiv.innerHTML = '<div class="coach-bubble thinking">✦ ' + COACHES[activeCoach].name + ' tänker...</div>';
-    document.getElementById('coachMessages').appendChild(thinkDiv);
-    document.getElementById('coachMessages').scrollTop = 99999;
+    const msgsEl = cc.querySelector('.coach-messages');
+    msgsEl.appendChild(thinkDiv);
+    msgsEl.scrollTop = 99999;
 
     const apiKey = document.getElementById('apiKeyInput')?.value || '';
 
@@ -4137,7 +4145,7 @@ Karaktärer: ${chars}`;
   }
 
   function sendQuickPrompt(btn) {
-    document.getElementById('coachInput').value = btn.textContent;
+    coachContainer().querySelector('textarea.coach-input').value = btn.textContent;
     sendCoachMessage();
   }
 
