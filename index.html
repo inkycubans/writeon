@@ -1913,6 +1913,19 @@
   .bm-history-entry { font-size: 0.75rem; color: var(--text-muted); padding: 5px 0; border-bottom: 1px solid var(--border); }
   .bm-history-close { margin-top: 12px; padding: 6px 16px; border-radius: 8px; border: 1px solid var(--border-strong); background: transparent; cursor: pointer; font-size: 0.75rem; font-family: "DM Sans", sans-serif; }
 
+  /* ─── EXPORT FORMAT MODAL ─── */
+  .export-fmt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+  .export-fmt-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 18px 12px; border-radius: 10px; border: 1.5px solid var(--border);
+    background: var(--bg-soft); cursor: pointer; transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .export-fmt-btn:hover { border-color: var(--accent-n); background: var(--bg-card); box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .export-fmt-icon { font-size: 1.8rem; line-height: 1; }
+  .export-fmt-label { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+  .export-fmt-desc { font-size: 0.72rem; color: var(--text-muted); text-align: center; line-height: 1.3; }
+
   /* ─── NAV DROPDOWN ─── */
   .nav-dropdown { position: relative; }
   .nav-dropdown-menu {
@@ -5142,41 +5155,60 @@ VIKTIGT:
     inp.click();
   }
 
-  function filSpara() {
-    _closeDropdowns();
-    const title = _getProjectTitle();
-    const content = document.getElementById('writingArea')?.innerHTML || '';
-    const blob = new Blob(
-      [`<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8"><title>${title}</title></head><body>${content}</body></html>`],
-      { type: 'text/html' }
-    );
+  function _download(filename, content, mime) {
+    const blob = new Blob([content], { type: mime });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = title + '.html';
+    a.download = filename;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 10000);
   }
 
-  async function filSparasom() {
-    _closeDropdowns();
-    const title = _getProjectTitle();
-    const content = document.getElementById('writingArea')?.innerHTML || '';
-    const html = `<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8"><title>${title}</title></head><body>${content}</body></html>`;
-    if ('showSaveFilePicker' in window) {
-      try {
-        const fh = await window.showSaveFilePicker({
-          suggestedName: title + '.html',
-          types: [{ description: 'HTML-fil', accept: { 'text/html': ['.html'] } }]
-        });
-        const w = await fh.createWritable();
-        await w.write(html);
-        await w.close();
-        showAutosaveMsg('Sparad ✓');
-      } catch(e) { if (e.name !== 'AbortError') alert('Kunde inte spara: ' + e.message); }
-    } else {
-      filSpara();
-    }
+  function _buildTxt() {
+    const wa = document.getElementById('writingArea');
+    return wa ? (wa.innerText || wa.textContent) : '';
   }
+
+  function _buildDoc(title) {
+    const content = document.getElementById('writingArea')?.innerHTML || '';
+    return `<html xmlns:o='urn:schemas-microsoft-com:office:office'
+      xmlns:w='urn:schemas-microsoft-com:office:word'
+      xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset="UTF-8"><title>${title}</title>
+<style>
+  body { font-family: "Times New Roman", serif; font-size: 12pt; line-height: 1.8; margin: 2.5cm; color: #111; }
+  p { margin: 0 0 8pt; }
+  h1 { font-size: 18pt; margin: 24pt 0 8pt; }
+  h2 { font-size: 14pt; margin: 18pt 0 6pt; }
+  b, strong { font-weight: bold; }
+  i, em { font-style: italic; }
+</style></head>
+<body>${content}</body></html>`;
+  }
+
+  function _buildHtml(title) {
+    const content = document.getElementById('writingArea')?.innerHTML || '';
+    return `<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8">
+<title>${title}</title>
+<style>
+  body { font-family: Georgia, serif; font-size: 1rem; line-height: 1.8; max-width: 700px; margin: 40px auto; color: #222; }
+  p { margin: 0 0 1em; }
+</style></head>
+<body>${content}</body></html>`;
+  }
+
+  function _doExport(fmt) {
+    document.getElementById('exportModal').style.display = 'none';
+    const title = _getProjectTitle();
+    if (fmt === 'txt')  _download(title + '.txt',  _buildTxt(),       'text/plain');
+    if (fmt === 'doc')  _download(title + '.doc',  _buildDoc(title),  'application/msword');
+    if (fmt === 'html') _download(title + '.html', _buildHtml(title), 'text/html');
+    showAutosaveMsg('Sparad som .' + fmt + ' ✓');
+  }
+
+  function filSpara()    { _closeDropdowns(); document.getElementById('exportModal').style.display = 'flex'; }
+  function filSparasom() { _closeDropdowns(); document.getElementById('exportModal').style.display = 'flex'; }
+  function filExportera(){ _closeDropdowns(); document.getElementById('exportModal').style.display = 'flex'; }
 
   function filImportera() {
     _closeDropdowns();
@@ -5189,29 +5221,17 @@ VIKTIGT:
       const text = await file.text();
       const wa = document.getElementById('writingArea');
       if (!wa) return;
-      if (file.name.endsWith('.html')) {
+      if (file.name.endsWith('.html') || file.name.endsWith('.doc')) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
-        wa.innerHTML = doc.body.innerHTML;
+        const srcWa = doc.getElementById('writingArea');
+        wa.innerHTML = srcWa ? srcWa.innerHTML : doc.body.innerHTML;
       } else {
         wa.innerHTML = text.split(/\n{2,}/).filter(p => p.trim())
           .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
       }
     };
     inp.click();
-  }
-
-  function filExportera() {
-    _closeDropdowns();
-    const title = _getProjectTitle();
-    const wa = document.getElementById('writingArea');
-    const text = wa ? (wa.innerText || wa.textContent) : '';
-    const blob = new Blob([text], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = title + '.txt';
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
   }
 
   function filSkrivUt() {
@@ -5231,6 +5251,34 @@ VIKTIGT:
   // ──────────────────────────────────────────────────────────────────────────
 
 </script>
+
+<!-- EXPORT FORMAT MODAL -->
+<div id="exportModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-card);border-radius:14px;padding:28px 30px;width:420px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.22);font-family:'DM Sans',sans-serif;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <h2 style="margin:0;font-size:1.05rem;font-weight:700;">Välj format</h2>
+      <button onclick="document.getElementById('exportModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--text-muted);padding:2px 6px;border-radius:6px;">✕</button>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin:0 0 4px;">Välj vilket filformat du vill spara manuset i.</p>
+    <div class="export-fmt-grid">
+      <button class="export-fmt-btn" onclick="_doExport('txt')">
+        <span class="export-fmt-icon">📄</span>
+        <span class="export-fmt-label">.TXT</span>
+        <span class="export-fmt-desc">Ren text, inga stilar</span>
+      </button>
+      <button class="export-fmt-btn" onclick="_doExport('doc')">
+        <span class="export-fmt-icon">📝</span>
+        <span class="export-fmt-label">.DOC</span>
+        <span class="export-fmt-desc">Öppnas i Word & LibreOffice</span>
+      </button>
+      <button class="export-fmt-btn" onclick="_doExport('html')">
+        <span class="export-fmt-icon">🌐</span>
+        <span class="export-fmt-label">.HTML</span>
+        <span class="export-fmt-desc">Webb-format, allt bevarat</span>
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- BACKUP-DIALOG -->
 <div id="backupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
