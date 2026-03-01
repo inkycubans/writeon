@@ -1976,17 +1976,17 @@
       <div class="nav-dropdown" id="filMenu">
         <button class="nav-item nav-item-arrow" onclick="toggleNavDropdown('filMenu')">Fil <span style="font-size:0.65rem;opacity:0.7;">▾</span></button>
         <div class="nav-dropdown-menu">
-          <div class="nav-dd-item">Nytt projekt <span class="nav-dd-sc">⌘N</span></div>
-          <div class="nav-dd-item">Öppna… <span class="nav-dd-sc">⌘O</span></div>
+          <div class="nav-dd-item" onclick="filNyttProjekt()">Nytt projekt <span class="nav-dd-sc">⌘N</span></div>
+          <div class="nav-dd-item" onclick="filOppna()">Öppna… <span class="nav-dd-sc">⌘O</span></div>
           <div class="nav-dd-item nav-dd-disabled">Öppna senaste ▸</div>
           <div class="nav-dd-sep"></div>
-          <div class="nav-dd-item">Spara <span class="nav-dd-sc">⌘S</span></div>
-          <div class="nav-dd-item">Spara som…</div>
+          <div class="nav-dd-item" onclick="filSpara()">Spara <span class="nav-dd-sc">⌘S</span></div>
+          <div class="nav-dd-item" onclick="filSparasom()">Spara som…</div>
           <div class="nav-dd-sep"></div>
-          <div class="nav-dd-item">Importera</div>
-          <div class="nav-dd-item">Exportera / Kompilera…</div>
+          <div class="nav-dd-item" onclick="filImportera()">Importera</div>
+          <div class="nav-dd-item" onclick="filExportera()">Exportera / Kompilera…</div>
           <div class="nav-dd-sep"></div>
-          <div class="nav-dd-item">Skriv ut <span class="nav-dd-sc">⌘P</span></div>
+          <div class="nav-dd-item" onclick="filSkrivUt()">Skriv ut <span class="nav-dd-sc">⌘P</span></div>
         </div>
       </div>
       <button class="nav-item">Manus</button>
@@ -5099,6 +5099,134 @@ VIKTIGT:
     if (!e.target.closest('.nav-dropdown')) {
       document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
     }
+  });
+
+  function _closeDropdowns() {
+    document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+  }
+
+  function _getProjectTitle() {
+    return document.querySelector('.project-name')?.textContent?.trim() || 'manus';
+  }
+
+  function filNyttProjekt() {
+    _closeDropdowns();
+    if (!confirm('Skapa nytt projekt? Osparade ändringar försvinner.')) return;
+    const wa = document.getElementById('writingArea');
+    if (wa) wa.innerHTML = '<p></p>';
+    const heading = document.querySelector('.chapter-heading');
+    if (heading) heading.textContent = 'Nytt kapitel';
+  }
+
+  function filOppna() {
+    _closeDropdowns();
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = '.html,.txt';
+    inp.onchange = async function() {
+      const file = inp.files[0];
+      if (!file) return;
+      const text = await file.text();
+      const wa = document.getElementById('writingArea');
+      if (!wa) return;
+      if (file.name.endsWith('.html')) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const srcWa = doc.getElementById('writingArea');
+        wa.innerHTML = srcWa ? srcWa.innerHTML : doc.body.innerHTML;
+      } else {
+        wa.innerHTML = text.split(/\n{2,}/).filter(p => p.trim())
+          .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+      }
+    };
+    inp.click();
+  }
+
+  function filSpara() {
+    _closeDropdowns();
+    const title = _getProjectTitle();
+    const content = document.getElementById('writingArea')?.innerHTML || '';
+    const blob = new Blob(
+      [`<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8"><title>${title}</title></head><body>${content}</body></html>`],
+      { type: 'text/html' }
+    );
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = title + '.html';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  }
+
+  async function filSparasom() {
+    _closeDropdowns();
+    const title = _getProjectTitle();
+    const content = document.getElementById('writingArea')?.innerHTML || '';
+    const html = `<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8"><title>${title}</title></head><body>${content}</body></html>`;
+    if ('showSaveFilePicker' in window) {
+      try {
+        const fh = await window.showSaveFilePicker({
+          suggestedName: title + '.html',
+          types: [{ description: 'HTML-fil', accept: { 'text/html': ['.html'] } }]
+        });
+        const w = await fh.createWritable();
+        await w.write(html);
+        await w.close();
+        showAutosaveMsg('Sparad ✓');
+      } catch(e) { if (e.name !== 'AbortError') alert('Kunde inte spara: ' + e.message); }
+    } else {
+      filSpara();
+    }
+  }
+
+  function filImportera() {
+    _closeDropdowns();
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = '.html,.txt';
+    inp.onchange = async function() {
+      const file = inp.files[0];
+      if (!file) return;
+      const text = await file.text();
+      const wa = document.getElementById('writingArea');
+      if (!wa) return;
+      if (file.name.endsWith('.html')) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        wa.innerHTML = doc.body.innerHTML;
+      } else {
+        wa.innerHTML = text.split(/\n{2,}/).filter(p => p.trim())
+          .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+      }
+    };
+    inp.click();
+  }
+
+  function filExportera() {
+    _closeDropdowns();
+    const title = _getProjectTitle();
+    const wa = document.getElementById('writingArea');
+    const text = wa ? (wa.innerText || wa.textContent) : '';
+    const blob = new Blob([text], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = title + '.txt';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  }
+
+  function filSkrivUt() {
+    _closeDropdowns();
+    window.print();
+  }
+
+  // Tangentbordsgenvägar för Fil-menyn
+  document.addEventListener('keydown', function(e) {
+    const mod = e.ctrlKey || e.metaKey;
+    if (!mod) return;
+    if (e.key === 's' && !e.shiftKey) { e.preventDefault(); filSpara(); }
+    if (e.key === 's' && e.shiftKey)  { e.preventDefault(); filSparasom(); }
+    if (e.key === 'o') { e.preventDefault(); filOppna(); }
+    if (e.key === 'p') { e.preventDefault(); filSkrivUt(); }
   });
   // ──────────────────────────────────────────────────────────────────────────
 
