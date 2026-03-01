@@ -98,31 +98,28 @@ const App = () => {
     }
   };
 
-  const callClaudeAPI = async (prompt, userContent) => {
+  const callGeminiAPI = async (prompt, userContent) => {
     if (!apiKey) {
-      alert('Vänligen ange din Anthropic API-nyckel i inställningarna först!');
+      alert('Vänligen ange din Gemini API-nyckel i inställningarna först!');
       setShowSettings(true);
       return null;
     }
 
     setIsProcessing(true);
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 2000,
-          messages: [{
-            role: 'user',
-            content: `${prompt}\n\nAktuell text:\n${userContent}`
-          }]
-        })
-      });
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: `${prompt}\n\nAktuell text:\n${userContent}` }]
+            }],
+            generationConfig: { maxOutputTokens: 2000 }
+          })
+        }
+      );
 
       if (!response.ok) {
         const error = await response.json();
@@ -130,7 +127,7 @@ const App = () => {
       }
 
       const data = await response.json();
-      return data.content[0].text;
+      return data.candidates[0].content.parts[0].text;
     } catch (error) {
       alert(`Fel vid AI-anrop: ${error.message}\n\nKontrollera att din API-nyckel är korrekt i inställningarna.`);
       return null;
@@ -168,7 +165,7 @@ const App = () => {
         return;
     }
 
-    const result = await callClaudeAPI(prompt, textToProcess);
+    const result = await callGeminiAPI(prompt, textToProcess);
     if (result) {
       if (selection) {
         // Replace selection
@@ -211,7 +208,7 @@ const App = () => {
           <div className="text-center mb-6">
             <Sparkles className="w-16 h-16 mx-auto mb-4 text-indigo-600" />
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Välkommen till WriteOn</h1>
-            <p className="text-gray-600">Ett kraftfullt verktyg för författare, drivet av Claude AI</p>
+            <p className="text-gray-600">Ett kraftfullt verktyg för författare, drivet av Gemini AI</p>
           </div>
           <div className="bg-indigo-50 rounded-lg p-4 mb-6">
             <h3 className="font-semibold text-indigo-900 mb-2">Vad kan du göra?</h3>
@@ -225,10 +222,10 @@ const App = () => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Anthropic API-nyckel
-                <a 
-                  href="https://console.anthropic.com" 
-                  target="_blank" 
+                Google Gemini API-nyckel
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="ml-2 text-indigo-600 hover:text-indigo-700 text-xs"
                 >
@@ -239,7 +236,7 @@ const App = () => {
                 type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="sk-ant-..."
+                placeholder="AIzaSy..."
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
@@ -404,7 +401,7 @@ const App = () => {
                 {isProcessing && (
                   <div className="flex items-center space-x-2 mt-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
-                    <p className="text-sm text-indigo-600">Claude arbetar...</p>
+                    <p className="text-sm text-indigo-600">Gemini arbetar...</p>
                   </div>
                 )}
               </div>
@@ -488,10 +485,10 @@ const App = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Anthropic API-nyckel
-                  <a 
-                    href="https://console.anthropic.com" 
-                    target="_blank" 
+                  Google Gemini API-nyckel
+                  <a
+                    href="https://aistudio.google.com/app/apikey"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="ml-2 text-indigo-600 hover:text-indigo-700 text-xs"
                   >
@@ -503,7 +500,7 @@ const App = () => {
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="sk-ant-..."
+                  placeholder="AIzaSy..."
                 />
                 <p className="text-xs text-gray-500 mt-1">Sparas säkert i din webbläsare</p>
               </div>
