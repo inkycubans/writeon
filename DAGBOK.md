@@ -43,7 +43,29 @@ En modal visas med tre format att välja på:
 
 ## Nästa session – Att göra
 
-*(Skriv ditt manus här imorgon)*
+### Film- och teatermanus (HÖGSTA PRIORITET)
+WriteON ska ha förstklassigt stöd för att skriva film- och teatermanus — inte bara romaner. Det är en kärnfunktion.
+
+**Fountain-formatet** (`.fountain`) är industristandard för filmmanuskript. Det är ren text med enkla regler:
+- `INT. KONTOR - DAG` → scenhuvud
+- `FRANK` (ensam på rad med versaler) → replikgivare
+- `(mumlar)` → parentes/regianvisning
+- Vanlig text → handling/beskrivning
+- `> FADE OUT. <` → övergångar
+
+**Inför nästa session — studera dessa tre:**
+
+| App | Vad att titta på |
+|-----|-----------------|
+| **Final Draft** | Branschstandard för filmmanuskript. Hur hanterar de scenhuvud, replik, parentes, övergångar? Tangentbordsflöde — hur hoppar man snabbt mellan element? |
+| **Scrivener** | Har både roman- och manusläge. Hur växlar man? Hur ser deras kompilera-funktion ut för screenplay? |
+| **Living Writer** | Webbaserat, modernt. Hur integrerar de manus-element i sitt gränssnitt? Liknar WriteON mest av de tre. |
+
+**Att implementera:**
+- Eget manusläge (växla mellan roman/film/teater)
+- Auto-formatering: tryck Tab för att växla element (scenhuvud → handling → replikgivare → replik → parentes)
+- Export till `.fountain` och korrekt PDF-formatering (Courier 12pt, specifika marginaler)
+- Eventuellt: FDX-format (Final Draft XML) för kompatibilitet
 
 ### Kompilera / Exportera – implementerat samma session
 
