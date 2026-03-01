@@ -2012,6 +2012,11 @@
 
   <span class="word-count-toolbar" id="wordCountToolbar">0 ord</span>
 
+  <div class="toolbar-divider"></div>
+
+  <button class="tb-btn" id="dropboxConnectBtn" onclick="selectSaveFolder()" title="Koppla en mapp för autospar (t.ex. din Dropbox-mapp)">☁ Koppla mapp</button>
+  <span id="autosaveIndicator" style="font-size:0.7rem;color:#4a8a5a;margin-left:6px;opacity:0;transition:opacity 0.6s;white-space:nowrap;"></span>
+
 </div>
 
 <!-- VIEW SWITCHER -->
@@ -3813,6 +3818,7 @@
     const text = writingArea.innerText.trim();
     const words = text ? text.split(/\s+/).length : 0;
     wordCountToolbar.textContent = words + ' ord';
+    scheduleAutoSave();
   });
 
   // Font size
@@ -4631,6 +4637,118 @@ VIKTIGT:
 
 
 
+  // ─── AUTOSPAR TILL MAPP (t.ex. Dropbox) ───────────────────────────────────
+  let saveFolderHandle = null;
+  let autoSaveTimer = null;
+  const AUTOSAVE_DELAY = 2000; // 2 sekunder efter sista tangenttryckning
+
+  // Spara mapphandtag i IndexedDB så det överlever sidladdning
+  function openHandleStore() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('writeon_sync', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('handles');
+      req.onsuccess = e => resolve(e.target.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function persistFolderHandle(handle) {
+    try {
+      const db = await openHandleStore();
+      const tx = db.transaction('handles', 'readwrite');
+      tx.objectStore('handles').put(handle, 'saveFolder');
+      await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+    } catch(e) { console.warn('Kunde inte spara mapphandtag:', e); }
+  }
+
+  async function loadFolderHandle() {
+    try {
+      const db = await openHandleStore();
+      const tx = db.transaction('handles', 'readonly');
+      const req = tx.objectStore('handles').get('saveFolder');
+      return await new Promise((res, rej) => { req.onsuccess = () => res(req.result); req.onerror = rej; });
+    } catch(e) { return null; }
+  }
+
+  async function selectSaveFolder() {
+    if (!('showDirectoryPicker' in window)) {
+      alert('Din webbläsare stöder inte mappval. Använd Chrome eller Edge.');
+      return;
+    }
+    try {
+      saveFolderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      await persistFolderHandle(saveFolderHandle);
+      updateFolderBtn(true);
+      showAutosaveMsg('Mapp kopplad — autospar aktivt ✓');
+    } catch(e) {
+      if (e.name !== 'AbortError') showAutosaveMsg('Fel vid mappval');
+    }
+  }
+
+  function getProjectName() {
+    const el = document.querySelector('.project-item.active .proj-name, .proj-name');
+    const raw = el ? el.textContent.trim() : 'Manus';
+    return raw.replace(/[^\wåäöÅÄÖ\s\-]/g, '').trim() || 'Manus';
+  }
+
+  async function doAutoSave() {
+    if (!saveFolderHandle) return;
+    try {
+      const perm = await saveFolderHandle.queryPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') {
+        const asked = await saveFolderHandle.requestPermission({ mode: 'readwrite' });
+        if (asked !== 'granted') return;
+      }
+      const content = document.getElementById('writingArea').innerHTML;
+      const name = getProjectName();
+      const fh = await saveFolderHandle.getFileHandle(name + '.html', { create: true });
+      const writable = await fh.createWritable();
+      await writable.write(
+        `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name}</title></head><body style="font-family:Georgia,serif;max-width:700px;margin:40px auto;line-height:1.8;">${content}</body></html>`
+      );
+      await writable.close();
+      showAutosaveMsg('Sparat ✓');
+    } catch(e) {
+      console.warn('Autospar misslyckades:', e);
+    }
+  }
+
+  function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(doAutoSave, AUTOSAVE_DELAY);
+  }
+
+  function showAutosaveMsg(msg) {
+    const el = document.getElementById('autosaveIndicator');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(el._fadeTimer);
+    el._fadeTimer = setTimeout(() => { el.style.opacity = '0'; }, 3000);
+  }
+
+  function updateFolderBtn(connected) {
+    const btn = document.getElementById('dropboxConnectBtn');
+    if (!btn) return;
+    if (connected) {
+      btn.textContent = '☁ Mapp kopplad';
+      btn.style.color = '#4a8a5a';
+    } else {
+      btn.textContent = '☁ Koppla mapp';
+      btn.style.color = '';
+    }
+  }
+
+  // Återställ sparad mapp vid sidladdning
+  (async function initAutoSave() {
+    const handle = await loadFolderHandle();
+    if (handle) {
+      saveFolderHandle = handle;
+      updateFolderBtn(true);
+    }
+  })();
+  // ──────────────────────────────────────────────────────────────────────────
+
   function saveApiKey() {
     const key = document.getElementById('apiKeyInput').value.trim();
     if(!key) {
@@ -4769,6 +4887,193 @@ VIKTIGT:
     setTimeout(() => clone.style.outline = '', 1000);
   }
 
+
+  // ─── BACKUP-SYSTEM ────────────────────────────────────────────────────────
+  const backupSettings = {
+    autoBackup: true,
+    maxBackups: 5,
+    folderHandle: null,
+    folderName: null
+  };
+
+  async function loadBackupSettings() {
+    try {
+      const saved = localStorage.getItem('writeon_backup_settings');
+      if (saved) {
+        const s = JSON.parse(saved);
+        backupSettings.autoBackup = s.autoBackup ?? true;
+        backupSettings.maxBackups = s.maxBackups ?? 5;
+        backupSettings.folderName = s.folderName;
+      }
+      const db = await openHandleStore();
+      const tx = db.transaction('handles', 'readonly');
+      const req = tx.objectStore('handles').get('backupFolder');
+      const handle = await new Promise((res, rej) => { req.onsuccess = () => res(req.result); req.onerror = rej; });
+      if (handle) {
+        backupSettings.folderHandle = handle;
+        backupSettings.folderName = handle.name;
+      }
+    } catch(e) { /* inget sparad backup-mapp */ }
+  }
+
+  function saveBackupMetaToLS() {
+    localStorage.setItem('writeon_backup_settings', JSON.stringify({
+      autoBackup: backupSettings.autoBackup,
+      maxBackups: backupSettings.maxBackups,
+      folderName: backupSettings.folderName
+    }));
+  }
+
+  async function persistBackupFolderHandle(handle) {
+    const db = await openHandleStore();
+    const tx = db.transaction('handles', 'readwrite');
+    tx.objectStore('handles').put(handle, 'backupFolder');
+    await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+  }
+
+  function openBackupDialog() {
+    document.getElementById('backupModal').style.display = 'flex';
+    updateBackupDialogUI();
+  }
+
+  function closeBackupDialog() {
+    document.getElementById('backupModal').style.display = 'none';
+  }
+
+  function getBackupFilename() {
+    const name = getProjectName();
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    const stamp = `${d.getFullYear()}_${p(d.getMonth()+1)}_${p(d.getDate())}_${p(d.getHours())}_${p(d.getMinutes())}_${p(d.getSeconds())}`;
+    return `${name} [${stamp}].html`;
+  }
+
+  function updateBackupDialogUI() {
+    const folderEl = document.getElementById('backupFolderName');
+    if (folderEl) folderEl.textContent = backupSettings.folderName || 'Ingen mapp vald';
+    const autoEl = document.getElementById('backupAutoCheck');
+    if (autoEl) autoEl.checked = backupSettings.autoBackup;
+    const fileEl = document.getElementById('backupFilenamePreview');
+    if (fileEl) fileEl.textContent = getBackupFilename();
+  }
+
+  async function selectBackupFolder() {
+    if (!('showDirectoryPicker' in window)) {
+      alert('Din webbläsare stöder inte mappval. Använd Chrome eller Edge.');
+      return;
+    }
+    try {
+      const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      backupSettings.folderHandle = handle;
+      backupSettings.folderName = handle.name;
+      await persistBackupFolderHandle(handle);
+      saveBackupMetaToLS();
+      updateBackupDialogUI();
+    } catch(e) {
+      if (e.name !== 'AbortError') console.error('Mappval misslyckades:', e);
+    }
+  }
+
+  async function pruneOldBackups(projectName) {
+    try {
+      const max = backupSettings.maxBackups || 5;
+      const files = [];
+      for await (const [name, handle] of backupSettings.folderHandle.entries()) {
+        if (name.startsWith(projectName + ' [') && name.endsWith('].html')) {
+          const file = await handle.getFile();
+          files.push({ name, handle, lastModified: file.lastModified });
+        }
+      }
+      files.sort((a, b) => b.lastModified - a.lastModified);
+      for (let i = max; i < files.length; i++) {
+        await backupSettings.folderHandle.removeEntry(files[i].name);
+      }
+    } catch(e) { console.warn('Kunde inte rensa gamla backuper:', e); }
+  }
+
+  async function runBackup(silent = false) {
+    if (!backupSettings.folderHandle) {
+      if (!silent) alert('Välj en mapp för säkerhetskopior först.');
+      return false;
+    }
+    try {
+      const perm = await backupSettings.folderHandle.queryPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') {
+        const asked = await backupSettings.folderHandle.requestPermission({ mode: 'readwrite' });
+        if (asked !== 'granted') return false;
+      }
+      const content = document.getElementById('writingArea').innerHTML;
+      const name = getProjectName();
+      const filename = getBackupFilename();
+      const fh = await backupSettings.folderHandle.getFileHandle(filename, { create: true });
+      const writable = await fh.createWritable();
+      await writable.write(
+        `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name}</title></head>` +
+        `<body style="font-family:Georgia,serif;max-width:700px;margin:40px auto;line-height:1.8;"><h1>${name}</h1><div>${content}</div></body></html>`
+      );
+      await writable.close();
+      await pruneOldBackups(name);
+      if (!silent) {
+        showAutosaveMsg('Säkerhetskopia sparad ✓');
+        closeBackupDialog();
+      }
+      return true;
+    } catch(e) {
+      console.error('Backup misslyckades:', e);
+      if (!silent) alert('Backup misslyckades: ' + e.message);
+      return false;
+    }
+  }
+
+  // Auto-backup vid sessionsslut
+  window.addEventListener('beforeunload', () => {
+    if (backupSettings.autoBackup && backupSettings.folderHandle) {
+      runBackup(true);
+    }
+  });
+
+  (async function initBackup() {
+    await loadBackupSettings();
+    const verBtn = document.querySelector('[data-tip="Versioner"]');
+    if (verBtn) verBtn.addEventListener('click', openBackupDialog);
+  })();
+  // ──────────────────────────────────────────────────────────────────────────
+
 </script>
+
+<!-- BACKUP-DIALOG -->
+<div id="backupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-main);border-radius:12px;padding:28px 30px;width:430px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.3);font-family:inherit;color:var(--text-primary);">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+      <h2 style="margin:0;font-size:1rem;font-weight:700;letter-spacing:0.01em;">Säkerhetskopiera</h2>
+      <button onclick="closeBackupDialog()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;line-height:1;color:var(--text-muted);padding:0 4px;">✕</button>
+    </div>
+
+    <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Plats för säkerhetskopior</label>
+    <div style="display:flex;gap:8px;margin-bottom:6px;">
+      <div id="backupFolderName" style="flex:1;padding:8px 12px;background:var(--bg-soft);border-radius:6px;font-size:0.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-secondary);">Ingen mapp vald</div>
+      <button onclick="selectBackupFolder()" style="padding:8px 14px;background:var(--accent-n);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.82rem;white-space:nowrap;font-weight:600;">Välj mapp…</button>
+    </div>
+    <p style="font-size:0.72rem;color:var(--text-muted);margin:0 0 18px;">
+      Välj din <strong>Google Drive-</strong> eller <strong>Dropbox-mapp</strong> så synkas kopian till molnet automatiskt. Kräver att deras skrivbordsapp är installerad.
+    </p>
+
+    <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Filnamn</label>
+    <div id="backupFilenamePreview" style="padding:8px 12px;background:var(--bg-soft);border-radius:6px;font-size:0.8rem;margin-bottom:20px;color:var(--text-secondary);font-family:monospace;"></div>
+
+    <label style="display:flex;align-items:center;gap:10px;font-size:0.85rem;cursor:pointer;margin-bottom:22px;">
+      <input type="checkbox" id="backupAutoCheck" onchange="backupSettings.autoBackup=this.checked;saveBackupMetaToLS();" style="width:16px;height:16px;cursor:pointer;">
+      Säkerhetskopiera automatiskt när du stänger sidan
+    </label>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;">
+      <button onclick="closeBackupDialog()" style="padding:9px 20px;background:var(--bg-soft);border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;color:var(--text-primary);">Stäng</button>
+      <button onclick="runBackup(false)" style="padding:9px 20px;background:var(--accent-n);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:700;">Backup nu</button>
+    </div>
+
+  </div>
+</div>
+
 </body>
 </html>
