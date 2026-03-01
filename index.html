@@ -3019,7 +3019,7 @@
     <div class="coach-api-box">
       <div class="coach-context-label">API-nyckel</div>
       <div style="display:flex;gap:6px;margin-top:4px;">
-        <input type="text" id="apiKeyInput" placeholder="sk-ant-api03-..." 
+        <input type="text" id="apiKeyInput" placeholder="AIzaSy..." 
           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
           style="flex:1;padding:6px 8px;border-radius:7px;border:1px solid var(--border-strong);
           background:var(--bg-soft);font-size:0.72rem;color:var(--text-secondary);
@@ -4104,30 +4104,27 @@ Karaktärer: ${chars}`;
           .filter(m => m.text !== COACHES[activeCoach].greeting)
           .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }));
 
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01',
-            'anthropic-dangerous-direct-browser-access': 'true'
-          },
-          body: JSON.stringify({
-            model: 'claude-opus-4-20250514',
-            max_tokens: 600,
-            system: COACHES[activeCoach].systemPrompt + '\n\n' + context,
-            messages: [...messages, { role: 'user', content: text }]
-          })
-        });
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: COACHES[activeCoach].systemPrompt + '\n\n' + context }] },
+              contents: [...messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })), { role: 'user', parts: [{ text: text }] }],
+              generationConfig: { maxOutputTokens: 600 }
+            })
+          }
+        );
         const data = await response.json();
         thinkDiv.remove();
-        const reply = data.content?.[0]?.text || 'Något gick fel. Försök igen.';
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Något gick fel. Försök igen.';
         appendCoachMsg('ai', reply);
         const badge = document.getElementById('coachApiStatus') || document.getElementById('coachApiBadge');
-        if(badge) { badge.textContent = '✓ Kopplad till Claude'; badge.style.color = 'var(--accent-n)'; }
+        if(badge) { badge.textContent = '✓ Kopplad till Gemini'; badge.style.color = 'var(--accent-n)'; }
       } catch(e) {
         thinkDiv.remove();
-        appendCoachMsg('ai', 'Kunde inte nå Claude API. Kontrollera din nyckel.');
+        appendCoachMsg('ai', 'Kunde inte nå Gemini API. Kontrollera din nyckel.');
       }
     }
     isCoachThinking = false;
@@ -4267,28 +4264,25 @@ VIKTIGT:
       try {
         const messages = charHistory.filter(m => m.role !== 'assistant' || charHistory.indexOf(m) > 0)
           .slice(-10);
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01',
-            'anthropic-dangerous-direct-browser-access': 'true'
-          },
-          body: JSON.stringify({
-            model: 'claude-opus-4-20250514',
-            max_tokens: 300,
-            system: charSystemPrompt,
-            messages: messages
-          })
-        });
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: charSystemPrompt }] },
+              contents: messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
+              generationConfig: { maxOutputTokens: 300 }
+            })
+          }
+        );
         const data = await response.json();
         thinking.remove();
-        appendCharMsg('ai', data.content?.[0]?.text || 'Något gick fel.');
-        document.getElementById('charApiStatus').innerHTML = '<span style="font-size:0.67rem;color:var(--accent-n);">✓ Kopplad till Claude</span>';
+        appendCharMsg('ai', data.candidates?.[0]?.content?.parts?.[0]?.text || 'Något gick fel.');
+        document.getElementById('charApiStatus').innerHTML = '<span style="font-size:0.67rem;color:var(--accent-n);">✓ Kopplad till Gemini</span>';
       } catch(e) {
         thinking.remove();
-        appendCharMsg('ai', 'Kunde inte nå Claude. Kontrollera din API-nyckel.');
+        appendCharMsg('ai', 'Kunde inte nå Gemini. Kontrollera din API-nyckel.');
       }
     }
   }
@@ -4597,28 +4591,25 @@ VIKTIGT:
       try {
         const messages = charHistory.filter(m => m.role !== 'assistant' || charHistory.indexOf(m) > 0)
           .slice(-10);
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01',
-            'anthropic-dangerous-direct-browser-access': 'true'
-          },
-          body: JSON.stringify({
-            model: 'claude-opus-4-20250514',
-            max_tokens: 300,
-            system: charSystemPrompt,
-            messages: messages
-          })
-        });
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: charSystemPrompt }] },
+              contents: messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
+              generationConfig: { maxOutputTokens: 300 }
+            })
+          }
+        );
         const data = await response.json();
         thinking.remove();
-        appendCharMsg('ai', data.content?.[0]?.text || 'Något gick fel.');
-        document.getElementById('charApiStatus').innerHTML = '<span style="font-size:0.67rem;color:var(--accent-n);">✓ Kopplad till Claude</span>';
+        appendCharMsg('ai', data.candidates?.[0]?.content?.parts?.[0]?.text || 'Något gick fel.');
+        document.getElementById('charApiStatus').innerHTML = '<span style="font-size:0.67rem;color:var(--accent-n);">✓ Kopplad till Gemini</span>';
       } catch(e) {
         thinking.remove();
-        appendCharMsg('ai', 'Kunde inte nå Claude. Kontrollera din API-nyckel.');
+        appendCharMsg('ai', 'Kunde inte nå Gemini. Kontrollera din API-nyckel.');
       }
     }
   }
