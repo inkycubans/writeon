@@ -2012,6 +2012,11 @@
 
   <span class="word-count-toolbar" id="wordCountToolbar">0 ord</span>
 
+  <div class="toolbar-divider"></div>
+
+  <button class="tb-btn" id="dropboxConnectBtn" onclick="selectSaveFolder()" title="Koppla en mapp för autospar (t.ex. din Dropbox-mapp)">☁ Koppla mapp</button>
+  <span id="autosaveIndicator" style="font-size:0.7rem;color:#4a8a5a;margin-left:6px;opacity:0;transition:opacity 0.6s;white-space:nowrap;"></span>
+
 </div>
 
 <!-- VIEW SWITCHER -->
@@ -3813,6 +3818,7 @@
     const text = writingArea.innerText.trim();
     const words = text ? text.split(/\s+/).length : 0;
     wordCountToolbar.textContent = words + ' ord';
+    scheduleAutoSave();
   });
 
   // Font size
@@ -4630,6 +4636,118 @@ VIKTIGT:
 
 
 
+
+  // ─── AUTOSPAR TILL MAPP (t.ex. Dropbox) ───────────────────────────────────
+  let saveFolderHandle = null;
+  let autoSaveTimer = null;
+  const AUTOSAVE_DELAY = 2000; // 2 sekunder efter sista tangenttryckning
+
+  // Spara mapphandtag i IndexedDB så det överlever sidladdning
+  function openHandleStore() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('writeon_sync', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('handles');
+      req.onsuccess = e => resolve(e.target.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function persistFolderHandle(handle) {
+    try {
+      const db = await openHandleStore();
+      const tx = db.transaction('handles', 'readwrite');
+      tx.objectStore('handles').put(handle, 'saveFolder');
+      await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+    } catch(e) { console.warn('Kunde inte spara mapphandtag:', e); }
+  }
+
+  async function loadFolderHandle() {
+    try {
+      const db = await openHandleStore();
+      const tx = db.transaction('handles', 'readonly');
+      const req = tx.objectStore('handles').get('saveFolder');
+      return await new Promise((res, rej) => { req.onsuccess = () => res(req.result); req.onerror = rej; });
+    } catch(e) { return null; }
+  }
+
+  async function selectSaveFolder() {
+    if (!('showDirectoryPicker' in window)) {
+      alert('Din webbläsare stöder inte mappval. Använd Chrome eller Edge.');
+      return;
+    }
+    try {
+      saveFolderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      await persistFolderHandle(saveFolderHandle);
+      updateFolderBtn(true);
+      showAutosaveMsg('Mapp kopplad — autospar aktivt ✓');
+    } catch(e) {
+      if (e.name !== 'AbortError') showAutosaveMsg('Fel vid mappval');
+    }
+  }
+
+  function getProjectName() {
+    const el = document.querySelector('.project-item.active .proj-name, .proj-name');
+    const raw = el ? el.textContent.trim() : 'Manus';
+    return raw.replace(/[^\wåäöÅÄÖ\s\-]/g, '').trim() || 'Manus';
+  }
+
+  async function doAutoSave() {
+    if (!saveFolderHandle) return;
+    try {
+      const perm = await saveFolderHandle.queryPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') {
+        const asked = await saveFolderHandle.requestPermission({ mode: 'readwrite' });
+        if (asked !== 'granted') return;
+      }
+      const content = document.getElementById('writingArea').innerHTML;
+      const name = getProjectName();
+      const fh = await saveFolderHandle.getFileHandle(name + '.html', { create: true });
+      const writable = await fh.createWritable();
+      await writable.write(
+        `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name}</title></head><body style="font-family:Georgia,serif;max-width:700px;margin:40px auto;line-height:1.8;">${content}</body></html>`
+      );
+      await writable.close();
+      showAutosaveMsg('Sparat ✓');
+    } catch(e) {
+      console.warn('Autospar misslyckades:', e);
+    }
+  }
+
+  function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(doAutoSave, AUTOSAVE_DELAY);
+  }
+
+  function showAutosaveMsg(msg) {
+    const el = document.getElementById('autosaveIndicator');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(el._fadeTimer);
+    el._fadeTimer = setTimeout(() => { el.style.opacity = '0'; }, 3000);
+  }
+
+  function updateFolderBtn(connected) {
+    const btn = document.getElementById('dropboxConnectBtn');
+    if (!btn) return;
+    if (connected) {
+      btn.textContent = '☁ Mapp kopplad';
+      btn.style.color = '#4a8a5a';
+    } else {
+      btn.textContent = '☁ Koppla mapp';
+      btn.style.color = '';
+    }
+  }
+
+  // Återställ sparad mapp vid sidladdning
+  (async function initAutoSave() {
+    const handle = await loadFolderHandle();
+    if (handle) {
+      saveFolderHandle = handle;
+      updateFolderBtn(true);
+    }
+  })();
+  // ──────────────────────────────────────────────────────────────────────────
 
   function saveApiKey() {
     const key = document.getElementById('apiKeyInput').value.trim();
