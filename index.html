@@ -3,8 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WriteON – Fallet</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>WriteON – Fallet [Gemini v3]</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1910,6 +1916,53 @@
   .bm-history-entry { font-size: 0.75rem; color: var(--text-muted); padding: 5px 0; border-bottom: 1px solid var(--border); }
   .bm-history-close { margin-top: 12px; padding: 6px 16px; border-radius: 8px; border: 1px solid var(--border-strong); background: transparent; cursor: pointer; font-size: 0.75rem; font-family: "DM Sans", sans-serif; }
 
+  /* ─── EXPORT FORMAT MODAL ─── */
+  .export-fmt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+  .export-fmt-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 18px 12px; border-radius: 10px; border: 1.5px solid var(--border);
+    background: var(--bg-soft); cursor: pointer; transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .export-fmt-btn:hover { border-color: var(--accent-n); background: var(--bg-card); box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .export-fmt-icon { font-size: 1.8rem; line-height: 1; }
+  .export-fmt-label { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+  .export-fmt-desc { font-size: 0.72rem; color: var(--text-muted); text-align: center; line-height: 1.3; }
+
+  /* ─── NAV DROPDOWN ─── */
+  .nav-dropdown { position: relative; }
+  .nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.14);
+    min-width: 220px;
+    padding: 5px 0;
+    z-index: 9000;
+  }
+  .nav-dropdown.open .nav-dropdown-menu { display: block; }
+  .nav-item-arrow { display: flex; align-items: center; gap: 4px; }
+  .nav-dd-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 16px;
+    font-size: 0.82rem;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .nav-dd-item:hover { background: var(--bg-soft); }
+  .nav-dd-disabled { color: var(--text-muted) !important; cursor: default; }
+  .nav-dd-disabled:hover { background: none; }
+  .nav-dd-sc { color: var(--text-muted); font-size: 0.75rem; margin-left: 24px; }
+  .nav-dd-sep { height: 1px; background: var(--border); margin: 4px 0; }
+
   </style>
 </head>
 <body>
@@ -1936,13 +1989,30 @@
       Synkad 16:38
     </div>
     <div class="nav-menu">
+      <div class="nav-dropdown" id="filMenu">
+        <button class="nav-item nav-item-arrow" onclick="toggleNavDropdown('filMenu')">Fil <span style="font-size:0.65rem;opacity:0.7;">▾</span></button>
+        <div class="nav-dropdown-menu">
+          <div class="nav-dd-item" onclick="filNyttProjekt()">Nytt projekt <span class="nav-dd-sc">⌘N</span></div>
+          <div class="nav-dd-item" onclick="filOppna()">Öppna… <span class="nav-dd-sc">⌘O</span></div>
+          <div class="nav-dd-item nav-dd-disabled">Öppna senaste ▸</div>
+          <div class="nav-dd-sep"></div>
+          <div class="nav-dd-item" onclick="filSpara()">Spara <span class="nav-dd-sc">⌘S</span></div>
+          <div class="nav-dd-item" onclick="filSparasom()">Spara som…</div>
+          <div class="nav-dd-sep"></div>
+          <div class="nav-dd-item" onclick="filImportera()">Importera</div>
+          <div class="nav-dd-item" onclick="filExportera()">Exportera / Kompilera…</div>
+          <div class="nav-dd-sep"></div>
+          <div class="nav-dd-item" onclick="filSkrivUt()">Skriv ut <span class="nav-dd-sc">⌘P</span></div>
+        </div>
+      </div>
       <button class="nav-item">Manus</button>
       <button class="nav-item">Redigera</button>
       <button class="nav-item">Infoga</button>
       <button class="nav-item">Format</button>
       <button class="nav-item">AI-verktyg</button>
       <button class="nav-item">Vy</button>
-      <button class="nav-item">Revisioner</button>
+      <button class="nav-item" onclick="openBackupDialog()">Revisioner</button>
+      <button class="nav-item" id="dropboxConnectBtn" onclick="selectSaveFolder()" title="Koppla autospar-mapp (Dropbox, Google Drive…)">☁ Molnet</button>
     </div>
   </div>
 
@@ -2008,6 +2078,8 @@
   <button class="tb-btn" title="Zoom">100%</button>
 
   <span class="word-count-toolbar" id="wordCountToolbar">0 ord</span>
+
+  <span id="autosaveIndicator" style="font-size:0.7rem;color:#4a8a5a;margin-left:6px;opacity:0;transition:opacity 0.6s;white-space:nowrap;"></span>
 
 </div>
 
@@ -2312,12 +2384,7 @@
           </button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <div class="coach-api-badge" id="coachApiBadge">⚡ API ej kopplat — mock-läge</div>
-          <input type="password" id="apiKeyInputOld" placeholder="sk-ant-... (API-nyckel)" 
-            style="padding:4px 8px;border-radius:6px;border:1px solid var(--border-strong);
-            background:var(--bg-soft);font-size:0.68rem;color:var(--text-secondary);
-            font-family:'DM Sans',sans-serif;width:180px;outline:none;"
-            title="Klistra in din Anthropic API-nyckel här">
+          <div class="coach-api-badge" id="coachApiBadge">⚡ Gemini ej kopplat — mock-läge</div>
           <button class="coach-close-btn" onclick="toggleCoachPanel()">↓ Stäng</button>
         </div>
       </div>
@@ -3815,6 +3882,7 @@
     const text = writingArea.innerText.trim();
     const words = text ? text.split(/\s+/).length : 0;
     wordCountToolbar.textContent = words + ' ord';
+    scheduleAutoSave();
   });
 
   // Font size
@@ -3992,13 +4060,18 @@
   let coachHistory = { king: [], lamott: [], hemingway: [], gaiman: [], marquez: [], oates: [] };
   let isCoachThinking = false;
 
+  // Returns the currently visible coach container (full-screen view or embedded panel)
+  function coachContainer() {
+    return document.querySelector('.coach-view-wrap.active') || document.querySelector('.coach-panel');
+  }
+
   function toggleCoachPanel() {
     const panel = document.getElementById('coachPanel');
     const btn = document.getElementById('coachOpenBtn');
     const isOpen = panel.classList.toggle('open');
     btn.classList.toggle('active', isOpen);
     btn.textContent = isOpen ? '↓ Stäng coach' : '✦ AI-coach';
-    if(isOpen) document.getElementById('coachInput').focus();
+    if(isOpen) coachContainer().querySelector('textarea.coach-input').focus();
   }
 
   function selectCoach(id, tabEl) {
@@ -4021,9 +4094,9 @@
       document.getElementById('coachInfoName').textContent = c.name;
       document.getElementById('coachInfoDesc').textContent = c.desc;
     }
-    document.getElementById('coachInput').placeholder = c.placeholder;
+    coachContainer().querySelector('textarea.coach-input').placeholder = c.placeholder;
     // Load or init messages
-    const msgs = document.getElementById('coachMessages');
+    const msgs = coachContainer().querySelector('.coach-messages');
     msgs.innerHTML = '';
     if(coachHistory[id].length === 0) {
       appendCoachMsg('ai', c.greeting);
@@ -4031,12 +4104,12 @@
       coachHistory[id].forEach(m => appendCoachMsg(m.role, m.text, true));
     }
     // Show quick prompts again
-    const qr = document.getElementById('coachQuickRow');
+    const qr = coachContainer().querySelector('.coach-quick-row');
     if(qr) qr.style.display = 'flex';
   }
 
   function appendCoachMsg(role, text, skipHistory = false) {
-    const msgs = document.getElementById('coachMessages');
+    const msgs = coachContainer().querySelector('.coach-messages');
     const div = document.createElement('div');
     div.className = 'coach-msg coach-msg-' + (role === 'ai' ? 'ai' : 'user');
     const bubble = document.createElement('div');
@@ -4063,14 +4136,16 @@ Karaktärer: ${chars}`;
 
   async function sendCoachMessage() {
     if(isCoachThinking) return;
-    const input = document.getElementById('coachInput');
+    const cc = coachContainer();
+    const input = cc.querySelector('textarea.coach-input');
     const text = input.value.trim();
     if(!text) return;
     input.value = '';
     input.style.height = 'auto';
 
     appendCoachMsg('user', text);
-    document.getElementById('coachQuickRow').style.display = 'none';
+    const qrow = cc.querySelector('.coach-quick-row');
+    if(qrow) qrow.style.display = 'none';
 
     // Show thinking indicator
     isCoachThinking = true;
@@ -4078,8 +4153,9 @@ Karaktärer: ${chars}`;
     thinkDiv.className = 'coach-msg coach-msg-ai';
     thinkDiv.id = 'coachThinking';
     thinkDiv.innerHTML = '<div class="coach-bubble thinking">✦ ' + COACHES[activeCoach].name + ' tänker...</div>';
-    document.getElementById('coachMessages').appendChild(thinkDiv);
-    document.getElementById('coachMessages').scrollTop = 99999;
+    const msgsEl = cc.querySelector('.coach-messages');
+    msgsEl.appendChild(thinkDiv);
+    msgsEl.scrollTop = 99999;
 
     const apiKey = document.getElementById('apiKeyInput')?.value || '';
 
@@ -4096,6 +4172,7 @@ Karaktärer: ${chars}`;
         oates: 'Intressant. Men vad tänker Frank egentligen på i det ögonblicket? Det yttre är tydligt — det inre är fortfarande gömt.'
       };
       appendCoachMsg('ai', mockReplies[activeCoach] || 'Intressant. Berätta mer.');
+      isCoachThinking = false;
     } else {
       // LIVE CLAUDE API
       try {
@@ -4105,7 +4182,7 @@ Karaktärer: ${chars}`;
           .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }));
 
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -4118,20 +4195,27 @@ Karaktärer: ${chars}`;
         );
         const data = await response.json();
         thinkDiv.remove();
-        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Något gick fel. Försök igen.';
-        appendCoachMsg('ai', reply);
-        const badge = document.getElementById('coachApiStatus') || document.getElementById('coachApiBadge');
-        if(badge) { badge.textContent = '✓ Kopplad till Gemini'; badge.style.color = 'var(--accent-n)'; }
+        if(data.error) {
+          console.error('Gemini API error:', data.error);
+          appendCoachMsg('ai', `API-fel: ${data.error.message || 'Okänt fel. Kontrollera din nyckel.'}`);
+        } else {
+          const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Något gick fel. Försök igen.';
+          appendCoachMsg('ai', reply);
+          const badge = document.getElementById('coachApiStatus') || document.getElementById('coachApiBadge');
+          if(badge) { badge.textContent = '✓ Kopplad till Gemini'; badge.style.color = 'var(--accent-n)'; }
+        }
       } catch(e) {
         thinkDiv.remove();
-        appendCoachMsg('ai', 'Kunde inte nå Gemini API. Kontrollera din nyckel.');
+        console.error('Gemini fetch error:', e);
+        appendCoachMsg('ai', 'Kunde inte nå Gemini API. Kontrollera din nyckel och att den är aktiv.');
+      } finally {
+        isCoachThinking = false;
       }
     }
-    isCoachThinking = false;
   }
 
   function sendQuickPrompt(btn) {
-    document.getElementById('coachInput').value = btn.textContent;
+    coachContainer().querySelector('textarea.coach-input').value = btn.textContent;
     sendCoachMessage();
   }
 
@@ -4265,7 +4349,7 @@ VIKTIGT:
         const messages = charHistory.filter(m => m.role !== 'assistant' || charHistory.indexOf(m) > 0)
           .slice(-10);
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -4592,7 +4676,7 @@ VIKTIGT:
         const messages = charHistory.filter(m => m.role !== 'assistant' || charHistory.indexOf(m) > 0)
           .slice(-10);
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -4617,14 +4701,138 @@ VIKTIGT:
 
 
 
+  // ─── AUTOSPAR TILL MAPP (t.ex. Dropbox) ───────────────────────────────────
+  let saveFolderHandle = null;
+  let autoSaveTimer = null;
+  const AUTOSAVE_DELAY = 2000; // 2 sekunder efter sista tangenttryckning
+
+  // Spara mapphandtag i IndexedDB så det överlever sidladdning
+  function openHandleStore() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('writeon_sync', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('handles');
+      req.onsuccess = e => resolve(e.target.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function persistFolderHandle(handle) {
+    try {
+      const db = await openHandleStore();
+      const tx = db.transaction('handles', 'readwrite');
+      tx.objectStore('handles').put(handle, 'saveFolder');
+      await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+    } catch(e) { console.warn('Kunde inte spara mapphandtag:', e); }
+  }
+
+  async function loadFolderHandle() {
+    try {
+      const db = await openHandleStore();
+      const tx = db.transaction('handles', 'readonly');
+      const req = tx.objectStore('handles').get('saveFolder');
+      return await new Promise((res, rej) => { req.onsuccess = () => res(req.result); req.onerror = rej; });
+    } catch(e) { return null; }
+  }
+
+  async function selectSaveFolder() {
+    if (!('showDirectoryPicker' in window)) {
+      alert('Din webbläsare stöder inte mappval. Använd Chrome eller Edge.');
+      return;
+    }
+    try {
+      saveFolderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      await persistFolderHandle(saveFolderHandle);
+      updateFolderBtn(true);
+      showAutosaveMsg('Mapp kopplad — autospar aktivt ✓');
+    } catch(e) {
+      if (e.name !== 'AbortError') showAutosaveMsg('Fel vid mappval');
+    }
+  }
+
+  function getProjectName() {
+    const el = document.querySelector('.project-item.active .proj-name, .proj-name');
+    const raw = el ? el.textContent.trim() : 'Manus';
+    return raw.replace(/[^\wåäöÅÄÖ\s\-]/g, '').trim() || 'Manus';
+  }
+
+  async function doAutoSave() {
+    if (!saveFolderHandle) return;
+    try {
+      const perm = await saveFolderHandle.queryPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') {
+        const asked = await saveFolderHandle.requestPermission({ mode: 'readwrite' });
+        if (asked !== 'granted') return;
+      }
+      const content = document.getElementById('writingArea').innerHTML;
+      const name = getProjectName();
+      const fh = await saveFolderHandle.getFileHandle(name + '.html', { create: true });
+      const writable = await fh.createWritable();
+      await writable.write(
+        `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name}</title></head><body style="font-family:Georgia,serif;max-width:700px;margin:40px auto;line-height:1.8;">${content}</body></html>`
+      );
+      await writable.close();
+      showAutosaveMsg('Sparat ✓');
+    } catch(e) {
+      console.warn('Autospar misslyckades:', e);
+    }
+  }
+
+  function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(doAutoSave, AUTOSAVE_DELAY);
+  }
+
+  function showAutosaveMsg(msg) {
+    const el = document.getElementById('autosaveIndicator');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(el._fadeTimer);
+    el._fadeTimer = setTimeout(() => { el.style.opacity = '0'; }, 3000);
+  }
+
+  function updateFolderBtn(connected) {
+    const btn = document.getElementById('dropboxConnectBtn');
+    if (!btn) return;
+    if (connected) {
+      btn.textContent = '☁ Molnet ✓';
+      btn.style.color = '#4a8a5a';
+    } else {
+      btn.textContent = '☁ Molnet';
+      btn.style.color = '';
+    }
+  }
+
+  // Återställ sparad mapp vid sidladdning
+  (async function initAutoSave() {
+    const handle = await loadFolderHandle();
+    if (handle) {
+      saveFolderHandle = handle;
+      updateFolderBtn(true);
+    }
+  })();
+  // ──────────────────────────────────────────────────────────────────────────
+
   function saveApiKey() {
     const key = document.getElementById('apiKeyInput').value.trim();
     if(!key) {
       document.getElementById('coachApiStatus').innerHTML = '<span style="color:#c84040;">⚠ Klistra in din nyckel först</span>';
       return;
     }
+    localStorage.setItem('writeon_gemini_key', key);
     document.getElementById('coachApiStatus').innerHTML = '<span style="color:#4a8a5a;">✓ Nyckel sparad — live-läge aktivt</span>';
   }
+
+  (function loadSavedApiKey() {
+    const saved = localStorage.getItem('writeon_gemini_key');
+    if(saved) {
+      const input = document.getElementById('apiKeyInput');
+      if(input) {
+        input.value = saved;
+        document.getElementById('coachApiStatus').innerHTML = '<span style="color:#4a8a5a;">✓ Nyckel laddad — live-läge aktivt</span>';
+      }
+    }
+  })();
 
   // ─── UNDER MANUS ───
   function toggleBmSection(id) {
@@ -4743,6 +4951,554 @@ VIKTIGT:
     setTimeout(() => clone.style.outline = '', 1000);
   }
 
+
+  // ─── BACKUP-SYSTEM ────────────────────────────────────────────────────────
+  const backupSettings = {
+    autoBackup: true,
+    maxBackups: 5,
+    folderHandle: null,
+    folderName: null
+  };
+
+  async function loadBackupSettings() {
+    try {
+      const saved = localStorage.getItem('writeon_backup_settings');
+      if (saved) {
+        const s = JSON.parse(saved);
+        backupSettings.autoBackup = s.autoBackup ?? true;
+        backupSettings.maxBackups = s.maxBackups ?? 5;
+        backupSettings.folderName = s.folderName;
+      }
+      const db = await openHandleStore();
+      const tx = db.transaction('handles', 'readonly');
+      const req = tx.objectStore('handles').get('backupFolder');
+      const handle = await new Promise((res, rej) => { req.onsuccess = () => res(req.result); req.onerror = rej; });
+      if (handle) {
+        backupSettings.folderHandle = handle;
+        backupSettings.folderName = handle.name;
+      }
+    } catch(e) { /* inget sparad backup-mapp */ }
+  }
+
+  function saveBackupMetaToLS() {
+    localStorage.setItem('writeon_backup_settings', JSON.stringify({
+      autoBackup: backupSettings.autoBackup,
+      maxBackups: backupSettings.maxBackups,
+      folderName: backupSettings.folderName
+    }));
+  }
+
+  async function persistBackupFolderHandle(handle) {
+    const db = await openHandleStore();
+    const tx = db.transaction('handles', 'readwrite');
+    tx.objectStore('handles').put(handle, 'backupFolder');
+    await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+  }
+
+  function openBackupDialog() {
+    document.getElementById('backupModal').style.display = 'flex';
+    updateBackupDialogUI();
+  }
+
+  function closeBackupDialog() {
+    document.getElementById('backupModal').style.display = 'none';
+  }
+
+  function getBackupFilename() {
+    const name = getProjectName();
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    const stamp = `${d.getFullYear()}_${p(d.getMonth()+1)}_${p(d.getDate())}_${p(d.getHours())}_${p(d.getMinutes())}_${p(d.getSeconds())}`;
+    return `${name} [${stamp}].html`;
+  }
+
+  function updateBackupDialogUI() {
+    const folderEl = document.getElementById('backupFolderName');
+    if (folderEl) folderEl.textContent = backupSettings.folderName || 'Ingen mapp vald';
+    const autoEl = document.getElementById('backupAutoCheck');
+    if (autoEl) autoEl.checked = backupSettings.autoBackup;
+    const fileEl = document.getElementById('backupFilenamePreview');
+    if (fileEl) fileEl.textContent = getBackupFilename();
+    const copiesEl = document.getElementById('backupMaxCopiesInput');
+    if (copiesEl) copiesEl.value = backupSettings.maxBackups ?? 5;
+  }
+
+  async function selectBackupFolder() {
+    if (!('showDirectoryPicker' in window)) {
+      alert('Din webbläsare stöder inte mappval. Använd Chrome eller Edge.');
+      return;
+    }
+    try {
+      const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      backupSettings.folderHandle = handle;
+      backupSettings.folderName = handle.name;
+      await persistBackupFolderHandle(handle);
+      saveBackupMetaToLS();
+      updateBackupDialogUI();
+    } catch(e) {
+      if (e.name !== 'AbortError') console.error('Mappval misslyckades:', e);
+    }
+  }
+
+  async function pruneOldBackups(projectName) {
+    try {
+      const max = backupSettings.maxBackups || 5;
+      const files = [];
+      for await (const [name, handle] of backupSettings.folderHandle.entries()) {
+        if (name.startsWith(projectName + ' [') && name.endsWith('].html')) {
+          const file = await handle.getFile();
+          files.push({ name, handle, lastModified: file.lastModified });
+        }
+      }
+      files.sort((a, b) => b.lastModified - a.lastModified);
+      for (let i = max; i < files.length; i++) {
+        await backupSettings.folderHandle.removeEntry(files[i].name);
+      }
+    } catch(e) { console.warn('Kunde inte rensa gamla backuper:', e); }
+  }
+
+  async function runBackup(silent = false) {
+    if (!backupSettings.folderHandle) {
+      if (!silent) alert('Välj en mapp för säkerhetskopior först.');
+      return false;
+    }
+    try {
+      const perm = await backupSettings.folderHandle.queryPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') {
+        const asked = await backupSettings.folderHandle.requestPermission({ mode: 'readwrite' });
+        if (asked !== 'granted') return false;
+      }
+      const content = document.getElementById('writingArea').innerHTML;
+      const name = getProjectName();
+      const filename = getBackupFilename();
+      const fh = await backupSettings.folderHandle.getFileHandle(filename, { create: true });
+      const writable = await fh.createWritable();
+      await writable.write(
+        `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name}</title></head>` +
+        `<body style="font-family:Georgia,serif;max-width:700px;margin:40px auto;line-height:1.8;"><h1>${name}</h1><div>${content}</div></body></html>`
+      );
+      await writable.close();
+      await pruneOldBackups(name);
+      if (!silent) {
+        showAutosaveMsg('Säkerhetskopia sparad ✓');
+        closeBackupDialog();
+      }
+      return true;
+    } catch(e) {
+      console.error('Backup misslyckades:', e);
+      if (!silent) alert('Backup misslyckades: ' + e.message);
+      return false;
+    }
+  }
+
+  // Auto-backup vid sessionsslut
+  window.addEventListener('beforeunload', () => {
+    if (backupSettings.autoBackup && backupSettings.folderHandle) {
+      runBackup(true);
+    }
+  });
+
+  (async function initBackup() {
+    await loadBackupSettings();
+    const verBtn = document.querySelector('[data-tip="Versioner"]');
+    if (verBtn) verBtn.addEventListener('click', openBackupDialog);
+  })();
+
+  // ─── DROPDOWN-MENY (Fil) ──────────────────────────────────────────────────
+  function toggleNavDropdown(id) {
+    const el = document.getElementById(id);
+    const isOpen = el.classList.contains('open');
+    document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+    if (!isOpen) el.classList.add('open');
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-dropdown')) {
+      document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+    }
+  });
+
+  function _closeDropdowns() {
+    document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+  }
+
+  function _getProjectTitle() {
+    return document.querySelector('.project-name')?.textContent?.trim() || 'manus';
+  }
+
+  function filNyttProjekt() {
+    _closeDropdowns();
+    if (!confirm('Skapa nytt projekt? Osparade ändringar försvinner.')) return;
+    const wa = document.getElementById('writingArea');
+    if (wa) wa.innerHTML = '<p></p>';
+    const heading = document.querySelector('.chapter-heading');
+    if (heading) heading.textContent = 'Nytt kapitel';
+  }
+
+  function filOppna() {
+    _closeDropdowns();
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = '.html,.txt';
+    inp.onchange = async function() {
+      const file = inp.files[0];
+      if (!file) return;
+      const text = await file.text();
+      const wa = document.getElementById('writingArea');
+      if (!wa) return;
+      if (file.name.endsWith('.html')) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const srcWa = doc.getElementById('writingArea');
+        wa.innerHTML = srcWa ? srcWa.innerHTML : doc.body.innerHTML;
+      } else {
+        wa.innerHTML = text.split(/\n{2,}/).filter(p => p.trim())
+          .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+      }
+    };
+    inp.click();
+  }
+
+  function _download(filename, content, mime) {
+    const blob = new Blob([content], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  }
+
+  function _buildTxt() {
+    const wa = document.getElementById('writingArea');
+    return wa ? (wa.innerText || wa.textContent) : '';
+  }
+
+  function _buildDoc(title) {
+    const content = document.getElementById('writingArea')?.innerHTML || '';
+    return `<html xmlns:o='urn:schemas-microsoft-com:office:office'
+      xmlns:w='urn:schemas-microsoft-com:office:word'
+      xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset="UTF-8"><title>${title}</title>
+<style>
+  body { font-family: "Times New Roman", serif; font-size: 12pt; line-height: 1.8; margin: 2.5cm; color: #111; }
+  p { margin: 0 0 8pt; }
+  h1 { font-size: 18pt; margin: 24pt 0 8pt; }
+  h2 { font-size: 14pt; margin: 18pt 0 6pt; }
+  b, strong { font-weight: bold; }
+  i, em { font-style: italic; }
+</style></head>
+<body>${content}</body></html>`;
+  }
+
+  function _buildHtml(title) {
+    const content = document.getElementById('writingArea')?.innerHTML || '';
+    return `<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8">
+<title>${title}</title>
+<style>
+  body { font-family: Georgia, serif; font-size: 1rem; line-height: 1.8; max-width: 700px; margin: 40px auto; color: #222; }
+  p { margin: 0 0 1em; }
+</style></head>
+<body>${content}</body></html>`;
+  }
+
+  function _downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 15000);
+  }
+
+  async function _exportPdf(title) {
+    const { jsPDF } = window.jspdf;
+    const wa = document.getElementById('writingArea');
+    const el = document.createElement('div');
+    el.style.cssText = 'position:absolute;left:-9999px;top:0;width:750px;padding:60px 70px;background:#fff;color:#111;font-family:Georgia,serif;font-size:13pt;line-height:1.9;';
+    el.innerHTML = `<h2 style="font-family:Georgia,serif;margin:0 0 32px;font-size:18pt;">${title}</h2>` + wa.innerHTML;
+    document.body.appendChild(el);
+    const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+    document.body.removeChild(el);
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgW = pageW;
+    const imgH = (canvas.height * imgW) / canvas.width;
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    let y = 0;
+    while (y < imgH) {
+      if (y > 0) pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, -y, imgW, imgH);
+      y += pageH;
+    }
+    pdf.save(title + '.pdf');
+  }
+
+  async function _exportDocx(title) {
+    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
+    const wa = document.getElementById('writingArea');
+
+    function parseInline(el) {
+      const runs = [];
+      el.childNodes.forEach(n => {
+        if (n.nodeType === 3) {
+          if (n.textContent) runs.push(new TextRun({ text: n.textContent, font: 'Garamond', size: 24 }));
+        } else {
+          const t = n.tagName;
+          const txt = n.textContent;
+          if (t === 'STRONG' || t === 'B') runs.push(new TextRun({ text: txt, bold: true, font: 'Garamond', size: 24 }));
+          else if (t === 'EM' || t === 'I') runs.push(new TextRun({ text: txt, italics: true, font: 'Garamond', size: 24 }));
+          else if (t === 'U') runs.push(new TextRun({ text: txt, underline: {}, font: 'Garamond', size: 24 }));
+          else if (txt) runs.push(new TextRun({ text: txt, font: 'Garamond', size: 24 }));
+        }
+      });
+      return runs.length ? runs : [new TextRun({ text: '' })];
+    }
+
+    const children = [];
+    children.push(new Paragraph({ text: title, heading: HeadingLevel.TITLE, spacing: { after: 400 } }));
+    wa.childNodes.forEach(node => {
+      if (node.nodeType !== 1) return;
+      const tag = node.tagName;
+      if (tag === 'H1') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_1, spacing: { before: 320, after: 160 } }));
+      else if (tag === 'H2') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_2, spacing: { before: 240, after: 120 } }));
+      else if (tag === 'H3') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_3, spacing: { before: 200, after: 80 } }));
+      else if (tag === 'P') children.push(new Paragraph({ children: parseInline(node), spacing: { after: 120 }, indent: { firstLine: 480 } }));
+    });
+
+    const doc = new Document({
+      sections: [{ properties: { page: { margin: { top: 1440, bottom: 1440, left: 1440, right: 1440 } } }, children }]
+    });
+    const blob = await Packer.toBlob(doc);
+    _downloadBlob(blob, title + '.docx');
+  }
+
+  async function _exportEpub(title) {
+    const zip = new JSZip();
+    const content = document.getElementById('writingArea').innerHTML;
+    const uuid = 'urn:uuid:' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    const now = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+
+    zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
+    zip.folder('META-INF').file('container.xml',
+      `<?xml version="1.0" encoding="UTF-8"?><container version="1.0" xmlns="urn:oasis:schemas:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`);
+
+    const oebps = zip.folder('OEBPS');
+    oebps.file('content.opf',
+      `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title>${title}</dc:title><dc:language>sv</dc:language>
+    <dc:identifier id="uid">${uuid}</dc:identifier>
+    <meta property="dcterms:modified">${now}</meta>
+  </metadata>
+  <manifest>
+    <item id="content" href="content.xhtml" media-type="application/xhtml+xml"/>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item id="css" href="style.css" media-type="text/css"/>
+  </manifest>
+  <spine><itemref idref="content"/></spine>
+</package>`);
+
+    oebps.file('content.xhtml',
+      `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="sv">
+<head><meta charset="UTF-8"/><title>${title}</title><link rel="stylesheet" type="text/css" href="style.css"/></head>
+<body><h1>${title}</h1>${content}</body></html>`);
+
+    oebps.file('nav.xhtml',
+      `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="sv">
+<head><meta charset="UTF-8"/><title>Innehåll</title></head>
+<body><nav epub:type="toc"><ol><li><a href="content.xhtml">${title}</a></li></ol></nav></body></html>`);
+
+    oebps.file('style.css',
+      `body{font-family:Georgia,"Times New Roman",serif;font-size:1em;line-height:1.8;margin:0.5em 1.2em;}
+h1,h2,h3{font-family:Georgia,serif;margin:1.4em 0 0.5em;}
+p{margin:0 0 0.7em;text-indent:1.2em;}
+p:first-of-type{text-indent:0;}`);
+
+    const blob = await zip.generateAsync({ type: 'blob', mimeType: 'application/epub+zip' });
+    _downloadBlob(blob, title + '.epub');
+  }
+
+  function _exportMarkdown(title) {
+    const wa = document.getElementById('writingArea');
+    function inlineMd(el) {
+      let s = '';
+      el.childNodes.forEach(n => {
+        if (n.nodeType === 3) s += n.textContent;
+        else {
+          const t = n.tagName;
+          if (t === 'STRONG' || t === 'B') s += '**' + n.textContent + '**';
+          else if (t === 'EM' || t === 'I') s += '*' + n.textContent + '*';
+          else s += n.textContent;
+        }
+      });
+      return s;
+    }
+    let md = '# ' + title + '\n\n';
+    wa.childNodes.forEach(n => {
+      if (n.nodeType !== 1) return;
+      const t = n.tagName;
+      if (t === 'H1') md += '# ' + n.textContent.trim() + '\n\n';
+      else if (t === 'H2') md += '## ' + n.textContent.trim() + '\n\n';
+      else if (t === 'H3') md += '### ' + n.textContent.trim() + '\n\n';
+      else if (t === 'P') { const line = inlineMd(n).trim(); if (line) md += line + '\n\n'; }
+    });
+    _download(title + '.md', md.trim() + '\n', 'text/markdown');
+  }
+
+  async function _doExport(fmt) {
+    document.getElementById('exportModal').style.display = 'none';
+    const title = _getProjectTitle();
+    showAutosaveMsg('Exporterar…');
+    try {
+      if (fmt === 'txt')  { _download(title + '.txt',  _buildTxt(),      'text/plain');     }
+      if (fmt === 'html') { _download(title + '.html', _buildHtml(title),'text/html');       }
+      if (fmt === 'pdf')  { await _exportPdf(title);                                         }
+      if (fmt === 'docx') { await _exportDocx(title);                                        }
+      if (fmt === 'epub') { await _exportEpub(title);                                        }
+      if (fmt === 'md')   { _exportMarkdown(title);                                          }
+      showAutosaveMsg('Exporterad som .' + fmt + ' ✓');
+    } catch(e) {
+      console.error('Export misslyckades:', e);
+      showAutosaveMsg('Export misslyckades ✗');
+    }
+  }
+
+  function filSpara()    { _closeDropdowns(); document.getElementById('exportModal').style.display = 'flex'; }
+  function filSparasom() { _closeDropdowns(); document.getElementById('exportModal').style.display = 'flex'; }
+  function filExportera(){ _closeDropdowns(); document.getElementById('exportModal').style.display = 'flex'; }
+
+  function filImportera() {
+    _closeDropdowns();
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = '.html,.txt';
+    inp.onchange = async function() {
+      const file = inp.files[0];
+      if (!file) return;
+      const text = await file.text();
+      const wa = document.getElementById('writingArea');
+      if (!wa) return;
+      if (file.name.endsWith('.html') || file.name.endsWith('.doc')) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const srcWa = doc.getElementById('writingArea');
+        wa.innerHTML = srcWa ? srcWa.innerHTML : doc.body.innerHTML;
+      } else {
+        wa.innerHTML = text.split(/\n{2,}/).filter(p => p.trim())
+          .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+      }
+    };
+    inp.click();
+  }
+
+  function filSkrivUt() {
+    _closeDropdowns();
+    window.print();
+  }
+
+  // Tangentbordsgenvägar för Fil-menyn
+  document.addEventListener('keydown', function(e) {
+    const mod = e.ctrlKey || e.metaKey;
+    if (!mod) return;
+    if (e.key === 's' && !e.shiftKey) { e.preventDefault(); filSpara(); }
+    if (e.key === 's' && e.shiftKey)  { e.preventDefault(); filSparasom(); }
+    if (e.key === 'o') { e.preventDefault(); filOppna(); }
+    if (e.key === 'p') { e.preventDefault(); filSkrivUt(); }
+  });
+  // ──────────────────────────────────────────────────────────────────────────
+
 </script>
+
+<!-- EXPORT FORMAT MODAL -->
+<div id="exportModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-card);border-radius:14px;padding:28px 30px;width:500px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.22);font-family:'DM Sans',sans-serif;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <h2 style="margin:0;font-size:1.05rem;font-weight:700;">Exportera / Kompilera</h2>
+      <button onclick="document.getElementById('exportModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--text-muted);padding:2px 6px;border-radius:6px;">✕</button>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin:0 0 14px;">Välj format att exportera manuset till.</p>
+    <div class="export-fmt-grid">
+      <button class="export-fmt-btn" onclick="_doExport('pdf')">
+        <span class="export-fmt-icon">🖨</span>
+        <span class="export-fmt-label">PDF</span>
+        <span class="export-fmt-desc">Utskrift & distribution</span>
+      </button>
+      <button class="export-fmt-btn" onclick="_doExport('docx')">
+        <span class="export-fmt-icon">📝</span>
+        <span class="export-fmt-label">DOCX</span>
+        <span class="export-fmt-desc">Word & LibreOffice</span>
+      </button>
+      <button class="export-fmt-btn" onclick="_doExport('epub')">
+        <span class="export-fmt-icon">📖</span>
+        <span class="export-fmt-label">ePub</span>
+        <span class="export-fmt-desc">E-läsare, Kindle, Kobo</span>
+      </button>
+      <button class="export-fmt-btn" onclick="_doExport('txt')">
+        <span class="export-fmt-icon">📄</span>
+        <span class="export-fmt-label">TXT</span>
+        <span class="export-fmt-desc">Ren text, inga stilar</span>
+      </button>
+      <button class="export-fmt-btn" onclick="_doExport('md')">
+        <span class="export-fmt-icon">✍</span>
+        <span class="export-fmt-label">Markdown</span>
+        <span class="export-fmt-desc">Notion, Obsidian m.fl.</span>
+      </button>
+      <button class="export-fmt-btn" onclick="_doExport('html')">
+        <span class="export-fmt-icon">🌐</span>
+        <span class="export-fmt-label">HTML</span>
+        <span class="export-fmt-desc">Webb-format</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- BACKUP-DIALOG -->
+<div id="backupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-card);border-radius:14px;padding:28px 30px;width:440px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.22);font-family:'DM Sans',sans-serif;color:var(--text-primary);">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h2 style="margin:0;font-size:1.05rem;font-weight:700;font-family:'DM Sans',sans-serif;letter-spacing:0.01em;">Säkerhetskopiera</h2>
+      <button onclick="closeBackupDialog()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;line-height:1;color:var(--text-muted);padding:2px 6px;border-radius:6px;font-family:'DM Sans',sans-serif;">✕</button>
+    </div>
+
+    <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Plats för säkerhetskopior</div>
+    <div style="display:flex;gap:8px;margin-bottom:6px;">
+      <div id="backupFolderName" style="flex:1;padding:8px 12px;background:var(--bg-soft);border-radius:7px;font-size:0.83rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-secondary);font-family:'DM Sans',sans-serif;">Ingen mapp vald</div>
+      <button onclick="selectBackupFolder()" style="padding:8px 14px;background:var(--accent-n);color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:0.83rem;white-space:nowrap;font-weight:600;font-family:'DM Sans',sans-serif;">Välj mapp…</button>
+    </div>
+    <p style="font-size:0.73rem;color:var(--text-muted);margin:0 0 18px;line-height:1.5;">
+      Välj din <strong>Google Drive-</strong> eller <strong>Dropbox-mapp</strong> — kopian synkas då till molnet automatiskt. Kräver att deras skrivbordsapp är installerad.
+    </p>
+
+    <div style="display:flex;gap:16px;margin-bottom:18px;align-items:flex-start;">
+      <div style="flex:1;">
+        <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Filnamn</div>
+        <div id="backupFilenamePreview" style="padding:8px 12px;background:var(--bg-soft);border-radius:7px;font-size:0.8rem;color:var(--text-secondary);font-family:'DM Sans',sans-serif;word-break:break-all;"></div>
+      </div>
+      <div>
+        <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Antal kopior</div>
+        <input type="number" id="backupMaxCopiesInput" min="1" max="50" value="5"
+          onchange="backupSettings.maxBackups=Math.max(1,parseInt(this.value)||5);saveBackupMetaToLS();"
+          style="width:70px;padding:8px 10px;background:var(--bg-soft);border:1px solid var(--border);border-radius:7px;font-size:0.83rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);text-align:center;">
+      </div>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:10px;font-size:0.84rem;cursor:pointer;margin-bottom:24px;font-family:'DM Sans',sans-serif;">
+      <input type="checkbox" id="backupAutoCheck" onchange="backupSettings.autoBackup=this.checked;saveBackupMetaToLS();" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent-n);">
+      Säkerhetskopiera automatiskt när du stänger sidan
+    </label>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;">
+      <button onclick="closeBackupDialog()" style="padding:9px 20px;background:var(--bg-soft);border:none;border-radius:7px;cursor:pointer;font-size:0.84rem;color:var(--text-primary);font-family:'DM Sans',sans-serif;">Stäng</button>
+      <button onclick="runBackup(false)" style="padding:9px 22px;background:var(--accent-n);color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:0.84rem;font-weight:700;font-family:'DM Sans',sans-serif;">Spara kopia nu</button>
+    </div>
+
+  </div>
+</div>
+
 </body>
 </html>
