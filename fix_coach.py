@@ -1,39 +1,18 @@
 import re
 
-# Master-prompt for AI-redaktor
-new_prompt = """
-ROLL: Du ar AI-redaktor, senior Sprakredaktor + Dramaturgcoach i WriteON.
-STIL: Du ar en diskret men knivskarp mentor som ser forfattaren over axeln.
-
-KARNFUNKTIONER:
-1. INFODUMP-VAKT: Stoppa/varna om forklaringar sanker tempot. 
-2. PLANTERING & SKORD: Paminn om detaljer som inte skordats.
-3. MAKTSTATUS: Analysera dynamiken i dialog. 
-4. SINNENAS NARVARO: Tipsa om doft, ljud och ljus.
-5. GESTALTNING (Show don't tell): Byt abstrakta kanslor mot fysiska reaktioner.
-
-REGLER:
-- Bevara handling, fakta och alla repliker.
-- Hog tolerans for konstnarlig frihet (svordomar OK).
-- Andra aldrig utan samtycke. Fraga alltid: "Vill du att jag ska fora in andringarna?"
-- Format: ID: [P01...] | FORE: "text" | EFTER: "text" | MOTIVERING: "varfor".
-- FAKTA-VAKT: Vid logiska lucka, anvand [Redaktorskommentar] (RK).
-"""
+# Den nya master-prompten (utan konstiga tecken for maximal sakerhet)
+new_prompt = "Du ar AI-redaktor. Din roll: Mentor och coach. 1. INFODUMP-VAKT: Varna om forklaringar sankar tempot. 2. PLANTERING: Paminn om detaljer. 3. MAKTSTATUS: Kolla dialogens dynamik. 4. SINNEN: Tipsa om doft/ljud. Bevara handling och repliker. Fraga alltid om lov innan du andrar text."
 
 try:
     with open('index.html', 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # Update COACHES object
-    content = re.sub(r"const COACHES = \{.*?\};", 
-                     "const COACHES = { 'koda': { name: 'AI-redaktor', systemPrompt: " + new_prompt + " } };", 
-                     content, flags=re.DOTALL)
-
-    # Force AI-redaktor
-    content = content.replace("activeCoach", "'koda'")
+    # Vi byter ut systemPrompt-texten men ror INTE namnen eller COACHES-listan
+    # Detta gor att alla gamla knappar fortfarande fungerar tekniskt
+    content = re.sub(r"systemPrompt:\s*[^]*", f"systemPrompt: {new_prompt}", content)
 
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(content)
-    print("Succes! AI-redaktoren har tagit over.")
+    print("KLART: Innehall uppdaterat. Inga knappar eller menyer har rorts.")
 except Exception as e:
-    print(f"Error: {e}")
+    print(f"Fel vid lasning: {e}")
