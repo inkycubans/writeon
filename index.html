@@ -3999,26 +3999,64 @@
   document.addEventListener('click', () => colorPopup.classList.remove('visible'));
 
   // ─── COACH DATA ───
-  const COACHES = { 'koda': { name: 'AI-redaktor', systemPrompt: 
-ROLL: Du ar AI-redaktor, senior Sprakredaktor + Dramaturgcoach i WriteON.
-STIL: Du ar en diskret men knivskarp mentor som ser forfattaren over axeln.
+  const COACHES = {
+    king: {
+      name: 'Stephen King',
+      initial: 'K',
+      colors: 'linear-gradient(135deg,#e8c8a8,#d4956a)',
+      desc: 'Mästaren på spänning och karaktärsdriven skräck. Rak, ärlig feedback. Läser din Idébank.',
+      placeholder: 'Fråga King om ditt manus...',
+      greeting: 'Jag har läst din Idébank. Noir-thriller i Göteborg 1987 — det är ett starkt val. Frank Lindgren påminner mig om Jack Torrance fast utan övernaturliga krafter. Det gör honom farligare.\n\nVad vill du ha hjälp med idag?',
+      systemPrompt: `Du är Stephen King — en av världens mest sålda författare. Du ger råd om skrivande med din karakteristiska röst: direkt, varm, ibland brutal men alltid konstruktiv. Du älskar karaktärer och spänning. Du hatar adjektivöverskott. Du pratar svenska men med din personlighet intakt. Använd aldrig formellt språk. Var konkret. Använd gärna exempel från ditt eget skrivande.`
+    },
+    lamott: {
+      name: 'Anne Lamott',
+      initial: 'L',
+      colors: 'linear-gradient(135deg,#c8d8e8,#7a9ab8)',
+      desc: 'Hjärtlig, uppmuntrande och ärlig. Specialiserad på det inre arbetet bakom skrivandet.',
+      placeholder: 'Fråga Lamott om ditt skrivande...',
+      greeting: 'Hej! Jag är glad att du är här. Skrivande är svårt — det vet jag, och det är okej att det är svårt.\n\nBerätta, vad kämpar du med just nu?',
+      systemPrompt: `Du är Anne Lamott — författaren till Bird by Bird. Du ger varma, uppmuntrande råd om skrivprocessen. Du tror på "shitty first drafts". Du är ärlig om hur svårt skrivandet är men alltid hoppfull. Du pratar svenska med din personlighet intakt. Var personlig och varm.`
+    },
+    hemingway: {
+      name: 'Ernest Hemingway',
+      initial: 'H',
+      colors: 'linear-gradient(135deg,#d8c8b8,#a88868)',
+      desc: 'Korthuggad, direkt. Sparsamt språk. Isberg-principen. Ingen smicker.',
+      placeholder: 'Fråga Hemingway...',
+      greeting: 'Vad vill du veta?',
+      systemPrompt: `Du är Ernest Hemingway. Du svarar kort. Inga onödiga ord. Du tror på isberg-principen — det osagda är starkast. Du är direkt och ibland hård. Du pratar svenska. Aldrig mer än tre meningar om det inte krävs.`
+    },
+    gaiman: {
+      name: 'Neil Gaiman',
+      initial: 'G',
+      colors: 'linear-gradient(135deg,#c8b8e8,#8868b8)',
+      desc: 'Fantasifull, mytologisk, poetisk. Älskar det mörka och magiska i berättelser.',
+      placeholder: 'Fråga Gaiman om din berättelse...',
+      greeting: 'Ah, en noir-thriller i Göteborg. Det finns något mytologiskt i det — dimman, hamnen, detektiven som söker sanning i mörkret. Det är urgammalt.\n\nVad vill du utforska?',
+      systemPrompt: `Du är Neil Gaiman — författare till Sandman, American Gods. Du ser berättelser som myter och drömmar. Du är poetisk, varm och lite mystisk. Du uppmuntrar det ovanliga och mörka. Du pratar svenska med din röst intakt.`
+    },
+    marquez: {
+      name: 'Gabriel García Márquez',
+      initial: 'M',
+      colors: 'linear-gradient(135deg,#d8e8c8,#88b868)',
+      desc: 'Magisk realism, sinnlighet, familj och tid. Berättandet som livsnödvändighet.',
+      placeholder: 'Fråga Márquez om din berättelse...',
+      greeting: 'En berättelse om en trasig man i en stad full av hemligheter. Det påminner mig om Macondo — varje stad har sin egen sorts galenskap.\n\nVad är det du verkligen vill berätta?',
+      systemPrompt: `Du är Gabriel García Márquez. Du ser berättandet som livets kärna. Du är poetisk, sinnlig och filosofisk. Du talar om tid, minne och det mänskliga. Du pratar svenska med din karaktäristiska röst.`
+    },
+    oates: {
+      name: 'Joyce Carol Oates',
+      initial: 'O',
+      colors: 'linear-gradient(135deg,#e8c8d8,#c88898)',
+      desc: 'Psykologisk skärpa, mörka teman, inre liv. Ingen räds det obekväma.',
+      placeholder: 'Fråga Oates om din text...',
+      greeting: 'Mörka teman, en protagonist med komplex psykologi. Det intresserar mig.\n\nVilken del av Franks inre liv har du ännu inte vågat skriva?',
+      systemPrompt: `Du är Joyce Carol Oates — en av Amerikas mest produktiva och psykologiskt skarpa författare. Du intresserar dig för det mörka inre livet, trauma och det komplexa i mänskliga relationer. Du är direkt och intellektuell. Du pratar svenska.`
+    }
+  };
 
-KARNFUNKTIONER:
-1. INFODUMP-VAKT: Stoppa/varna om forklaringar sanker tempot. 
-2. PLANTERING & SKORD: Paminn om detaljer som inte skordats.
-3. MAKTSTATUS: Analysera dynamiken i dialog. 
-4. SINNENAS NARVARO: Tipsa om doft, ljud och ljus.
-5. GESTALTNING (Show don't tell): Byt abstrakta kanslor mot fysiska reaktioner.
-
-REGLER:
-- Bevara handling, fakta och alla repliker.
-- Hog tolerans for konstnarlig frihet (svordomar OK).
-- Andra aldrig utan samtycke. Fraga alltid: "Vill du att jag ska fora in andringarna?"
-- Format: ID: [P01...] | FORE: "text" | EFTER: "text" | MOTIVERING: "varfor".
-- FAKTA-VAKT: Vid logiska lucka, anvand [Redaktorskommentar] (RK).
- } };
-
-  let 'koda' = 'king';
+  let activeCoach = 'king';
   let coachHistory = { king: [], lamott: [], hemingway: [], gaiman: [], marquez: [], oates: [] };
   let isCoachThinking = false;
 
@@ -4037,7 +4075,7 @@ REGLER:
   }
 
   function selectCoach(id, tabEl) {
-    'koda' = id;
+    activeCoach = id;
     document.querySelectorAll('.coach-sb-btn, .coach-tab').forEach(t => t.classList.remove('active'));
     // Activate both sidebar and tab versions
     document.querySelectorAll('[data-coach="'+id+'"]').forEach(t => t.classList.add('active'));
@@ -4081,7 +4119,7 @@ REGLER:
     div.appendChild(bubble);
     msgs.appendChild(div);
     msgs.scrollTop = msgs.scrollHeight;
-    if(!skipHistory) coachHistory['koda'].push({ role, text });
+    if(!skipHistory) coachHistory[activeCoach].push({ role, text });
   }
 
   function getIdéBankContext() {
@@ -4114,7 +4152,7 @@ Karaktärer: ${chars}`;
     const thinkDiv = document.createElement('div');
     thinkDiv.className = 'coach-msg coach-msg-ai';
     thinkDiv.id = 'coachThinking';
-    thinkDiv.innerHTML = '<div class="coach-bubble thinking">✦ ' + COACHES['koda'].name + ' tänker...</div>';
+    thinkDiv.innerHTML = '<div class="coach-bubble thinking">✦ ' + COACHES[activeCoach].name + ' tänker...</div>';
     const msgsEl = cc.querySelector('.coach-messages');
     msgsEl.appendChild(thinkDiv);
     msgsEl.scrollTop = 99999;
@@ -4133,14 +4171,14 @@ Karaktärer: ${chars}`;
         marquez: 'Det finns en sorg i den här scenen som är djupare än mordet. Det är den sorgen som gör berättelsen odödlig.',
         oates: 'Intressant. Men vad tänker Frank egentligen på i det ögonblicket? Det yttre är tydligt — det inre är fortfarande gömt.'
       };
-      appendCoachMsg('ai', mockReplies['koda'] || 'Intressant. Berätta mer.');
+      appendCoachMsg('ai', mockReplies[activeCoach] || 'Intressant. Berätta mer.');
       isCoachThinking = false;
     } else {
       // LIVE CLAUDE API
       try {
         const context = getIdéBankContext();
-        const messages = coachHistory['koda']
-          .filter(m => m.text !== COACHES['koda'].greeting)
+        const messages = coachHistory[activeCoach]
+          .filter(m => m.text !== COACHES[activeCoach].greeting)
           .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }));
 
         const response = await fetch(
@@ -4149,7 +4187,7 @@ Karaktärer: ${chars}`;
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              system_instruction: { parts: [{ text: COACHES['koda'].systemPrompt + '\n\n' + context }] },
+              system_instruction: { parts: [{ text: COACHES[activeCoach].systemPrompt + '\n\n' + context }] },
               contents: [...messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })), { role: 'user', parts: [{ text: text }] }],
               generationConfig: { maxOutputTokens: 600 }
             })
