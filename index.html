@@ -411,22 +411,16 @@
     overflow-y: auto;
     background: var(--bg);
     display: flex;
-    justify-content: center;
-    padding: 48px 24px;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    min-height: 0;
     scrollbar-width: thin;
     scrollbar-color: var(--border-strong) transparent;
+    min-height: 0;
   }
 
-  .page {
-    width: 100%;
-    max-width: 680px;
-    min-height: 900px;
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-lg);
-    padding: 72px 80px;
-    position: relative;
-  }
+    /* .page replaced by .scene-page */
 
   .chapter-heading {
     font-family: 'Playfair Display', serif;
@@ -474,6 +468,141 @@
   }
 
   /* ─── RIGHT NOTES PANEL ─── */
+  /* ── INSPECTOR PANEL ── */
+  .inspector-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-sidebar);
+    flex-shrink: 0;
+  }
+  .inspector-tab {
+    flex: 1; padding: 9px 6px;
+    font-size: 0.7rem; font-weight: 600;
+    text-align: center; cursor: pointer;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    background: transparent; border-top: none; border-left: none; border-right: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .inspector-tab:hover { color: var(--text-primary); background: var(--bg-soft); }
+  .inspector-tab.active { color: var(--text-primary); border-bottom-color: var(--accent-purple); }
+
+  .inspector-body { flex: 1; overflow-y: auto; }
+  .inspector-section { padding: 16px; border-bottom: 1px solid var(--border); }
+  .inspector-section:last-child { border-bottom: none; }
+
+  .inspector-context {
+    padding: 10px 16px;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .inspector-context-label {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 2px;
+  }
+  .inspector-context-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.88rem; font-weight: 600; color: var(--text-primary);
+  }
+
+  .inspector-field-label {
+    font-size: 0.67rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 6px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .inspector-char-count {
+    font-size: 0.65rem; color: var(--text-muted); font-weight: 400;
+    text-transform: none; letter-spacing: 0;
+  }
+  .inspector-synopsis {
+    width: 100%; box-sizing: border-box;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+    font-size: 0.77rem; color: var(--text-primary);
+    line-height: 1.6; resize: none;
+    min-height: 100px;
+    max-height: 600px;
+    overflow-y: auto;
+    font-family: 'Lora', serif;
+    transition: border-color 0.15s;
+    field-sizing: content;
+  }
+  .inspector-synopsis:focus { outline: none; border-color: var(--accent-purple); }
+
+  .inspector-notes {
+    width: 100%; box-sizing: border-box;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+    font-size: 0.75rem; color: var(--text-primary);
+    line-height: 1.6; resize: none;
+    min-height: 120px;
+    max-height: 600px;
+    overflow-y: auto;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.15s;
+    field-sizing: content;
+  }
+  .inspector-notes:focus { outline: none; border-color: var(--accent-purple); }
+
+  .inspector-status-row {
+    display: flex; align-items: center; gap: 8px; margin-top: 12px;
+  }
+  .inspector-status-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    background: #b090d0;
+  }
+  .inspector-status-select {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 8px;
+    font-size: 0.72rem; color: var(--text-secondary);
+    font-family: 'DM Sans', sans-serif; cursor: pointer; flex: 1;
+  }
+  .inspector-status-select:focus { outline: none; border-color: var(--accent-purple); }
+
+  .inspector-drama-row {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px;
+  }
+  .drama-chip {
+    padding: 4px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 600;
+    border: 1.5px solid transparent; cursor: pointer; transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .drama-chip.selected { border-width: 2px; }
+  .drama-chip[data-drama="klimax"]   { background:rgba(220,70,70,0.08);   color:#dc4646; border-color:rgba(220,70,70,0.25); }
+  .drama-chip[data-drama="klimax"].selected   { background:rgba(220,70,70,0.18); border-color:#dc4646; }
+  .drama-chip[data-drama="vändpunkt"]{ background:rgba(252,177,54,0.1);   color:#c88a00; border-color:rgba(252,177,54,0.3); }
+  .drama-chip[data-drama="vändpunkt"].selected{ background:rgba(252,177,54,0.22); border-color:#fcb136; }
+  .drama-chip[data-drama="upptrappning"]{ background:rgba(176,144,208,0.1); color:#8050b0; border-color:rgba(176,144,208,0.3); }
+  .drama-chip[data-drama="upptrappning"].selected{ background:rgba(176,144,208,0.22); border-color:#b090d0; }
+  .drama-chip[data-drama="svacka"]   { background:rgba(100,149,237,0.1);  color:#4066c0; border-color:rgba(100,149,237,0.3); }
+  .drama-chip[data-drama="svacka"].selected   { background:rgba(100,149,237,0.22); border-color:#6495ed; }
+  .drama-chip[data-drama="lugn"]     { background:rgba(74,137,129,0.1);   color:#3a7068; border-color:rgba(74,137,129,0.3); }
+  .drama-chip[data-drama="lugn"].selected     { background:rgba(74,137,129,0.22); border-color:#4a8981; }
+
+  .inspector-word-count {
+    font-size: 0.7rem; color: var(--text-muted);
+    padding: 8px 16px 0;
+  }
+
+  .inspector-progress {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    margin-top: auto;
+  }
+  .inspector-progress-label {
+    display: flex; justify-content: space-between;
+    font-size: 0.68rem; color: var(--text-muted); margin-bottom: 6px;
+  }
+  .inspector-progress-bar {
+    height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+  }
+  .inspector-progress-fill {
+    height: 100%; width: 38.4%; background: var(--accent-n); border-radius: 2px;
+  }
+
   .notes-panel {
     width: var(--notes-w);
     background: var(--bg-sidebar);
@@ -898,7 +1027,7 @@
 
   /* WRITING WRAP */
   .writing-wrap { flex: 1; display: none; overflow: hidden; }
-  .writing-wrap.active { display: flex; }
+  .writing-wrap.active { display: flex; height: 100%; }
 
   /* CORKBOARD WRAP */
   .corkboard-wrap { flex: 1; display: none; flex-direction: column; overflow: hidden; }
@@ -931,9 +1060,48 @@
 
   .corkboard-canvas { flex: 1; overflow: auto; padding: 32px; background: var(--bg); }
 
-  /* CORK GRID */
-  .cork-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+  /* ── GLOBAL NOTE (top of corkboard) ── */
+  .cork-global-note {
+    background: rgba(252,177,54,0.07);
+    border: 1.5px dashed rgba(252,177,54,0.45);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .cork-global-note-label {
+    font-size: 0.67rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--accent-o); white-space: nowrap;
+    padding-top: 3px;
+  }
+  .cork-global-note-text {
+    font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5;
+    flex: 1; outline: none; min-height: 22px;
+  }
+  .cork-global-note-text:empty::before { content: 'Anteckningar som gäller hela manuset — teman, lösa trådar, påminnelser...'; color: var(--text-muted); font-style: italic; }
+
+  /* ── CHAPTER GROUP ── */
+  .cork-chapter-group { margin-bottom: 36px; }
+  .cork-chapter-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-muted);
+    padding-bottom: 10px; margin-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .cork-chapter-heading span { color: var(--text-primary); font-size: 0.82rem; }
+
+  /* ── CORK GRID ── */
+  .cork-grid { display: block; }
   .cork-grid.hidden { display: none; }
+  .cork-chapter-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
 
   .cork-card {
     background: var(--bg-card);
@@ -943,64 +1111,120 @@
     border: 1px solid var(--border);
     cursor: pointer;
     transition: all 0.2s;
-    min-height: 160px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     position: relative;
     overflow: hidden;
+    /* no fixed min-height — card grows with content */
   }
   .cork-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
   .cork-card.status-draft::before { background: var(--accent-purple); }
   .cork-card.status-second::before { background: var(--accent-o); }
   .cork-card.status-final::before { background: var(--accent-n); }
   .cork-card.status-work::before { background: #e08080; }
-  .cork-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .cork-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .cork-card.selected { border-color: var(--accent-purple); box-shadow: 0 0 0 2px rgba(176,144,208,0.3), var(--shadow-lg); }
 
   .cork-card-header { display: flex; align-items: center; justify-content: space-between; }
   .cork-card-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
-  .cork-status-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .cork-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
   .cork-card-title {
     font-family: 'Playfair Display', serif;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    line-height: 1.3;
-    outline: none;
+    font-size: 0.9rem; font-weight: 600;
+    color: var(--text-primary); line-height: 1.3; outline: none;
   }
   .cork-card-title:empty::before { content: 'Scen...'; color: var(--text-muted); font-style: italic; }
 
-  .cork-card-body { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; flex: 1; outline: none; }
+  .cork-card-body {
+    font-size: 0.75rem; color: var(--text-secondary); line-height: 1.55;
+    outline: none;
+    /* grows naturally — no flex:1 so short cards stay short */
+  }
   .cork-card-body:empty::before { content: 'Sammanfattning...'; color: var(--text-muted); font-style: italic; }
 
-  .cork-card-footer { display: flex; align-items: center; justify-content: space-between; font-size: 0.68rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 8px; }
+  .cork-card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.67rem; color: var(--text-muted);
+    border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px;
+  }
+  .cork-card-status-select {
+    background: transparent; border: none; font-size: 0.67rem; color: var(--text-muted);
+    cursor: pointer; font-family: inherit; padding: 0;
+  }
+  .cork-card-status-select:focus { outline: none; }
 
   .cork-add-card {
     border: 2px dashed rgba(176,144,208,0.35);
     background: rgba(176,144,208,0.04);
     display: flex; align-items: center; justify-content: center;
-    min-height: 160px; border-radius: var(--radius); cursor: pointer;
+    min-height: 80px; border-radius: var(--radius); cursor: pointer;
     color: var(--accent-purple); font-size: 0.82rem; font-weight: 600; gap: 6px;
     transition: all 0.15s;
   }
   .cork-add-card:hover { background: rgba(176,144,208,0.1); border-color: var(--accent-purple); }
 
-  /* TIMELINE */
-  .cork-timeline { display: none; padding: 32px; overflow: auto; flex: 1; }
-  .cork-timeline.visible { display: block; }
-  .timeline-chapters { display: flex; flex-direction: column; gap: 36px; min-width: max-content; }
-  .timeline-chapter-row { display: flex; align-items: flex-start; }
+  /* ── TIMELINE (horizontal scroll, top axis) ── */
+  .cork-timeline {
+    display: none; flex: 1; overflow: auto; padding: 0;
+    flex-direction: column;
+  }
+  .cork-timeline.visible { display: flex; }
+
+  .timeline-axis-bar {
+    background: var(--bg-sidebar);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    min-width: max-content;
+  }
+  .timeline-axis-label-prefix {
+    font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-muted); margin-right: 4px;
+    white-space: nowrap;
+  }
+  .timeline-axis-slot {
+    width: 174px; flex-shrink: 0;
+    font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);
+    text-align: center;
+  }
+
+  .timeline-global-note-bar {
+    background: rgba(252,177,54,0.06);
+    border-bottom: 1px dashed rgba(252,177,54,0.3);
+    padding: 8px 32px 8px calc(32px + 140px + 20px);
+    min-width: max-content;
+    flex-shrink: 0;
+  }
+  .timeline-global-note-input {
+    width: 100%; background: transparent; border: none; outline: none;
+    font-size: 0.75rem; color: var(--text-secondary); font-family: inherit;
+  }
+  .timeline-global-note-input::placeholder { color: var(--text-muted); font-style: italic; }
+
+  .timeline-scroll-area { flex: 1; overflow: auto; padding: 24px 32px; }
+  .timeline-chapters { display: flex; flex-direction: column; gap: 28px; min-width: max-content; }
+  .timeline-chapter-row { display: flex; align-items: flex-start; gap: 0; }
   .timeline-chapter-label {
-    width: 140px; flex-shrink: 0; padding-top: 14px;
+    width: 140px; flex-shrink: 0; padding-top: 12px;
     font-family: 'Playfair Display', serif; font-size: 0.8rem; font-weight: 600;
     color: var(--text-secondary); text-align: right; padding-right: 20px;
-    border-right: 2px solid var(--border-strong); margin-right: 20px;
+    border-right: 2px solid var(--border-strong);
   }
-  .timeline-scenes { display: flex; gap: 14px; align-items: flex-start; }
+  .timeline-chapter-note {
+    width: 140px; flex-shrink: 0; padding: 4px 16px 4px 0;
+    font-size: 0.68rem; color: var(--text-muted); font-style: italic;
+    text-align: right; outline: none; line-height: 1.4;
+  }
+  .timeline-chapter-note:empty::before { content: 'Kapitelnotat...'; }
+  .timeline-scenes { display: flex; gap: 14px; align-items: flex-start; padding-left: 20px; }
   .timeline-card {
     background: var(--bg-card); border-radius: 10px; padding: 14px;
-    width: 155px; flex-shrink: 0; box-shadow: var(--shadow);
+    width: 160px; flex-shrink: 0; box-shadow: var(--shadow);
     border: 1px solid var(--border); position: relative; overflow: hidden;
     cursor: pointer; transition: all 0.2s;
   }
@@ -1011,16 +1235,27 @@
   .timeline-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
   .timeline-card-scene { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 5px; }
   .timeline-card-title { font-family: 'Playfair Display', serif; font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 5px; line-height: 1.3; }
+  .timeline-card-synopsis { font-size: 0.72rem; color: var(--text-secondary); line-height: 1.45; margin-bottom: 6px; outline: none; }
+  .timeline-card-synopsis:empty::before { content: 'Synopsis...'; color: var(--text-muted); font-style: italic; }
   .timeline-card-words { font-size: 0.67rem; color: var(--text-muted); }
+  .timeline-add-scene {
+    width: 160px; flex-shrink: 0; border: 2px dashed rgba(176,144,208,0.3);
+    border-radius: 10px; min-height: 70px; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; color: var(--accent-purple);
+    font-size: 0.78rem; font-weight: 600; transition: all 0.15s; background: rgba(176,144,208,0.03);
+  }
+  .timeline-add-scene:hover { background: rgba(176,144,208,0.1); }
 
-  /* FREE/SCAPPLE */
+  /* ── FREE/SCAPPLE ── */
   .cork-free {
-    display: none; flex: 1; position: relative; overflow: hidden;
+    display: none; flex: 1; position: relative; overflow: auto;
     background: var(--bg);
     background-image: radial-gradient(circle, var(--border-strong) 1px, transparent 1px);
     background-size: 28px 28px;
+    min-height: 600px;
   }
   .cork-free.visible { display: block; }
+  .free-canvas { position: relative; width: 2400px; height: 1600px; }
   .free-card {
     position: absolute; background: var(--bg-card); border-radius: 10px;
     padding: 14px 16px; min-width: 150px; max-width: 220px;
@@ -1033,34 +1268,155 @@
   .free-card.status-second::before { background: var(--accent-o); }
   .free-card.status-final::before { background: var(--accent-n); }
   .free-card-chapter { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 4px; }
-  .free-card-title { font-family: 'Playfair Display', serif; font-size: 0.88rem; font-weight: 600; color: var(--text-primary); margin-bottom: 5px; }
-  .free-card-body { font-size: 0.73rem; color: var(--text-secondary); line-height: 1.45; }
+  .free-card-title { font-family: 'Playfair Display', serif; font-size: 0.88rem; font-weight: 600; color: var(--text-primary); margin-bottom: 5px; outline: none; }
+  .free-card-body { font-size: 0.73rem; color: var(--text-secondary); line-height: 1.45; outline: none; }
   .free-add-btn {
-    position: absolute; bottom: 24px; right: 24px;
+    position: fixed; bottom: 32px; right: 32px;
     width: 44px; height: 44px; border-radius: 50%;
     background: var(--accent-purple); color: white; font-size: 1.4rem;
     border: none; cursor: pointer;
     box-shadow: 0 4px 16px rgba(176,144,208,0.4);
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
+    display: none; align-items: center; justify-content: center;
+    transition: all 0.2s; z-index: 50;
   }
+  .cork-free.visible ~ .free-add-btn,
+  .free-add-btn.visible { display: flex; }
   .free-add-btn:hover { transform: scale(1.1); background: #9870c0; }
 
-  /* OUTLINE */
-  .outline-wrap { flex: 1; display: none; overflow: auto; padding: 40px; background: var(--bg); }
+  /* ── SYNOPSIS SIDE PANEL (in writing view) ── */
+  .synopsis-panel {
+    width: 0; min-width: 0; overflow: hidden;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    transition: width 0.25s ease, min-width 0.25s ease;
+    flex-shrink: 0;
+  }
+  .synopsis-panel.open {
+    width: 220px; min-width: 220px;
+  }
+  .synopsis-panel-inner { padding: 16px; display: flex; flex-direction: column; gap: 12px; width: 220px; }
+  .synopsis-panel-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.82rem; font-weight: 700; color: var(--text-primary);
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .synopsis-panel-scene {
+    font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-muted);
+  }
+  .synopsis-panel-text {
+    font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6;
+    outline: none; min-height: 80px;
+  }
+  .synopsis-panel-text:empty::before { content: 'Scensynopsis...'; color: var(--text-muted); font-style: italic; }
+  .synopsis-panel-sep { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+  .synopsis-panel-nav {
+    display: flex; gap: 6px;
+  }
+  .synopsis-nav-btn {
+    flex: 1; padding: 5px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; font-size: 0.7rem; font-weight: 600;
+    color: var(--text-muted); cursor: pointer; font-family: inherit;
+    transition: all 0.15s;
+  }
+  .synopsis-nav-btn:hover { background: var(--bg-soft); color: var(--text-primary); }
+
+  /* ══ OUTLINE ══ */
+  .outline-wrap { flex: 1; display: none; overflow: auto; padding: 32px 40px; background: var(--bg); }
   .outline-wrap.active { display: block; }
-  .outline-table { width: 100%; max-width: 900px; margin: 0 auto; border-collapse: collapse; }
-  .outline-table th { text-align: left; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); padding: 8px 16px; border-bottom: 2px solid var(--border-strong); }
-  .outline-chapter-row td { padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--bg-soft); }
-  .outline-chapter-name { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
-  .outline-scene-row td { padding: 7px 16px 7px 40px; border-bottom: 1px solid var(--border); }
+  .outline-wrap.active { display: block; }
+
+  .outline-table {
+    width: 100%; max-width: 1100px; margin: 0 auto;
+    border-collapse: collapse; font-family: 'DM Sans', sans-serif;
+    table-layout: fixed;
+  }
+  /* Header row */
+  .outline-table thead th {
+    text-align: left; font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-muted); padding: 6px 12px 10px;
+    border-bottom: 2px solid var(--border-strong);
+    white-space: nowrap;
+  }
+  /* Chapter rows */
+  .outline-chapter-row td {
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    background: var(--bg-soft);
+  }
+  .outline-chapter-name {
+    font-size: 0.85rem;
+    font-weight: 700; color: var(--text-primary);
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+  }
+  .oc-arrow { font-size: 0.6rem; transition: transform 0.18s; }
+  .oc-arrow.collapsed { transform: rotate(-90deg); }
+
+  /* Scene rows */
+  .outline-scene-row td {
+    padding: 7px 12px; border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
   .outline-scene-row:hover td { background: rgba(176,144,208,0.05); }
-  .outline-scene-name { font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; outline: none; }
-  .outline-status { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted); }
-  .outline-status-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .outline-words { font-size: 0.78rem; color: var(--text-muted); text-align: right; }
-  .outline-summary { font-size: 0.78rem; color: var(--text-secondary); max-width: 300px; outline: none; }
-  .outline-summary:empty::before { content: 'Lägg till sammanfattning...'; color: var(--text-muted); font-style: italic; }
+  .outline-scene-name {
+    font-size: 0.83rem; font-weight: 500; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 6px;
+    outline: none; cursor: text;
+  }
+  .outline-scene-name:focus { color: var(--text-primary); }
+
+  /* Cells */
+  .outline-words { font-size: 0.75rem; color: var(--text-muted); text-align: right; padding-right: 8px !important; }
+
+  /* Status select */
+  .outline-status-wrap { display: flex; align-items: center; gap: 6px; }
+  .outline-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .outline-select {
+    border: none; background: transparent; outline: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.75rem;
+    color: var(--text-secondary); padding: 2px 2px;
+    max-width: 120px;
+  }
+  .outline-select:focus { color: var(--text-primary); }
+
+  /* Avsnittstyp select */
+  .outline-avsnitt-select {
+    border: none; background: transparent; outline: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.75rem;
+    color: var(--text-secondary); padding: 2px 2px;
+    max-width: 120px;
+  }
+  .outline-avsnitt-select:focus { color: var(--text-primary); }
+
+  /* Perspektiv input */
+  .outline-pov {
+    border: none; background: transparent; outline: none;
+    font-family: 'DM Sans', sans-serif; font-size: 0.75rem;
+    color: var(--text-secondary); width: 80px;
+  }
+  .outline-pov:focus { color: var(--text-primary); border-bottom: 1px solid var(--border); }
+  .outline-pov::placeholder { color: var(--text-muted); font-style: italic; }
+
+  /* Date input */
+  .outline-date-wrap { position: relative; display: flex; align-items: center; gap: 4px; }
+  .outline-date-btn {
+    background: none; border: none; cursor: pointer; padding: 0;
+    font-size: 0.8rem; opacity: 0.5; transition: opacity 0.15s;
+  }
+  .outline-date-btn:hover { opacity: 1; }
+  .outline-date-input {
+    border: none; background: transparent; outline: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.72rem;
+    color: var(--text-muted); width: 82px;
+  }
+  .outline-date-input:focus { color: var(--text-primary); }
+  .outline-date-input::-webkit-calendar-picker-indicator {
+    opacity: 0; width: 100%; position: absolute; left: 0; cursor: pointer;
+  }
+
+  /* Changed date */
+  .outline-changed { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
 
   /* ─── ANIMATIONS ─── */
   @keyframes fadeIn {
@@ -1337,7 +1693,7 @@
   
   /* ─── CANVAS + COACH WRAPPER ─── */
   .canvas-coach-wrap {
-    flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0;
+    flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; min-height: 0;
   }
   .canvas-wrap {
     flex: 1; overflow-y: auto; transition: flex 0.3s ease;
@@ -1790,7 +2146,35 @@
   .below-manus {
     background: var(--bg); border-top: 2px solid var(--border);
     flex-shrink: 0;
+    max-height: 38vh;
+    overflow-y: auto;
+    transition: max-height 0.25s ease;
   }
+  .below-manus.collapsed {
+    max-height: 36px;
+    overflow: hidden;
+  }
+  .below-manus.collapsed .bm-collapse-handle {
+    position: relative;
+    z-index: 1;
+  }
+  .bm-collapse-handle {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 24px;
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--font-ui);
+    letter-spacing: .04em;
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  .bm-collapse-handle:hover { color: var(--text-primary); }
+  .bm-collapse-label { font-size: 10px; opacity: .7; }
   .bm-section { border-bottom: 1px solid var(--border); }
   .bm-section-hdr {
     display: flex; align-items: center; gap: 10px;
@@ -1963,7 +2347,437 @@
   .nav-dd-sc { color: var(--text-muted); font-size: 0.75rem; margin-left: 24px; }
   .nav-dd-sep { height: 1px; background: var(--border); margin: 4px 0; }
 
-  </style>
+  
+  /* ─────────────────────────────────────────
+     MINIMAL MIX: AI-redaktör (utan att sabba binder)
+     ───────────────────────────────────────── */
+  .ai-editor-dock{ border-top:1px solid var(--border); background:var(--bg-sidebar); padding:10px 10px 12px; flex-shrink:0; }
+  .ai-editor-dock-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+  .ai-editor-dock-title{ font-size:.72rem; font-weight:900; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); }
+  .ai-editor-dock-sub{ font-size:.74rem; color:var(--text-secondary); font-weight:700; margin-top:2px; }
+  .ai-editor-toggle{ width:32px;height:18px; background:rgba(74,137,129,.35); border-radius:9px; position:relative; cursor:pointer; border:1px solid rgba(74,137,129,.35); transition:background .2s; flex-shrink:0; }
+  .ai-editor-toggle.on{ background:var(--accent-n); }
+  .ai-editor-toggle::after{ content:""; position:absolute; top:2px; right:16px; width:14px; height:14px; border-radius:999px; background:#fff; transition:right .2s; box-shadow:0 1px 6px rgba(0,0,0,.10); }
+  .ai-editor-toggle.on::after{ right:2px; }
+
+  .ai-topic-list{ display:flex; flex-direction:column; gap:6px; }
+  .ai-topic-btn{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:12px; border:1px solid var(--border-strong); background:var(--bg-soft); cursor:pointer; transition:all .15s; text-align:left; font-family:"DM Sans",sans-serif; margin-bottom:4px; }
+  .ai-topic-btn:hover{ background:rgba(26,22,20,.06); }
+  .ai-topic-btn.active{ background:var(--accent-n); border-color:var(--accent-n); }
+  .ai-topic-btn.active .ai-topic-name{ color:#fff; }
+  .ai-topic-btn.active .ai-topic-meta{ color:rgba(255,255,255,.6); }
+  .ai-topic-name{ font-size:.82rem; font-weight:700; color:var(--text-primary); }
+  .ai-topic-meta{ font-size:.72rem; color:rgba(26,22,20,.25); font-weight:900; white-space:nowrap; }
+
+  .ai-api-box{ margin-top:10px; border:1px solid var(--border); border-radius:12px; background:var(--bg-card); padding:10px; }
+  .ai-api-title{ font-size:.70rem; font-weight:900; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:8px; }
+  .ai-api-row{ display:flex; flex-direction:column; gap:8px; }
+  .ai-api-input{ width:100%; border:1px solid var(--border); background:var(--bg-soft); border-radius:10px; padding:8px 10px; font-family:"DM Sans",sans-serif; font-size:.82rem; outline:none; color:var(--text-primary); }
+  .ai-api-save{ width:100%; border:none; background:var(--accent-n); color:#fff; border-radius:10px; padding:9px 10px; font-weight:900; cursor:pointer; font-size:.78rem; }
+  .ai-api-status{ font-size:.74rem; margin-top:8px; color:var(--text-muted); font-weight:700; }
+
+  .bm-ai-label{ font-size:0.70rem; font-weight:900; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-muted); margin-bottom:8px; }
+  .bm-ai-chips{ display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
+  .bm-ai-chips-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .bm-ai-chips .chip{
+    padding:7px 10px;
+    border-radius:999px;
+    border:1px solid var(--border-strong);
+    background:var(--bg-soft);
+    font-size:0.76rem;
+    font-weight:800;
+    color:var(--text-secondary);
+    cursor:pointer;
+    transition:all .15s;
+    font-family:"DM Sans",sans-serif;
+  }
+  .bm-ai-chips .chip:hover{ background:var(--text-primary); color:#fff; border-color:var(--text-primary); }
+  .bm-ai-chips .chip.active{ background:rgba(74,137,129,.12); border-color:rgba(74,137,129,.35); color:var(--text-primary); }
+
+  .bm-ai-result{
+    border:1px solid var(--border);
+    background:var(--bg-soft);
+    border-radius:12px;
+    padding:12px 14px;
+    color:var(--text-secondary);
+    font-size:0.82rem;
+    line-height:1.6;
+    height:220px;
+    overflow:auto;
+  }
+  .bm-ai-prompt-row{ display:flex; gap:10px; align-items:flex-end; margin-top:10px; }
+
+
+  /* ─── FIX: Binder ska kunna scrolla (kapitel + scener) ─── */
+  .sidebar{
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .chapter-list{
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+  }
+
+
+  /* ─── Inline rename (kapitel/scen) ─── */
+  .rename-input{
+    width: 100%;
+    max-width: 100%;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    outline: none;
+  }
+  .chapter-name, .scene-name{ cursor: text; }
+  .rename-hint{ cursor: text; }
+
+
+  /* ─── Resizers: dra vänster/höger spalt ─── */
+  .side-resizer{
+    width: 8px;
+    cursor: col-resize;
+    background: transparent;
+    flex: 0 0 auto;
+    position: relative;
+  }
+  .side-resizer::after{
+    content:"";
+    position:absolute;
+    top:0; bottom:0;
+    left:3px;
+    width:2px;
+    background: rgba(26,22,20,0.10);
+    border-radius: 2px;
+    opacity: 0.0;
+    transition: opacity .15s;
+  }
+  .side-resizer:hover::after{ opacity: 1; }
+
+
+  /* ── CORK CARD char count ── */
+  .cork-card-char-count {
+    font-size: 0.62rem; color: var(--text-muted);
+    text-align: right; margin-top: -4px;
+    transition: color 0.2s;
+  }
+  .cork-card-char-count.near-limit { color: var(--accent-o); }
+
+  /* ── DRAMA SELECTOR on cork cards ── */
+  .cork-drama-selector {
+    display: flex; align-items: center; cursor: pointer;
+  }
+  .cork-drama-dot {
+    width: 11px; height: 11px; border-radius: 50%;
+    display: inline-block; flex-shrink: 0;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    transition: transform 0.15s;
+  }
+  .cork-drama-dot:hover { transform: scale(1.3); }
+
+  /* ── DRAMA POPUP MENU ── */
+  .drama-menu {
+    position: fixed; z-index: 9999;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    padding: 8px;
+    display: flex; flex-direction: column; gap: 4px;
+    min-width: 150px;
+  }
+  .drama-menu-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; border-radius: 6px; cursor: pointer;
+    font-size: 0.75rem; font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    border: none; background: transparent; text-align: left;
+    color: var(--text-primary); transition: background 0.12s;
+  }
+  .drama-menu-item:hover { background: var(--bg-soft); }
+  .drama-menu-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── FREE AXIS BAR ── */
+  .free-axis-bar {
+    position: sticky; top: 0; left: 0; z-index: 10;
+    background: var(--bg-sidebar);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 0;
+    height: 38px; flex-shrink: 0;
+    min-width: 100%;
+  }
+  .free-axis-slot {
+    flex: 1; text-align: center;
+    font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);
+    padding: 4px 8px; outline: none;
+    border-right: 1px dashed var(--border);
+    min-width: 120px;
+  }
+  .free-axis-slot:focus { color: var(--text-primary); }
+  .free-axis-add {
+    padding: 2px 10px; border-radius: 6px;
+    border: 1px solid var(--border); background: transparent;
+    font-size: 0.8rem; color: var(--text-muted); cursor: pointer;
+    font-family: inherit; margin-left: 8px;
+  }
+  .free-axis-add:hover { background: var(--bg-soft); color: var(--text-primary); }
+
+  /* Fix free-canvas to scroll properly */
+  .cork-free {
+    display: none; flex-direction: column; overflow: auto;
+  }
+  .cork-free.visible { display: flex; }
+  .free-canvas {
+    position: relative; flex: 1;
+    width: 2400px; min-height: 1400px;
+  }
+
+  /* Fix free-card max-width — never grow wider */
+  .free-card { max-width: 200px !important; min-width: 160px; }
+  .free-card-title { white-space: normal; word-break: break-word; }
+  .free-card-body { white-space: normal; word-break: break-word; }
+  .free-card-drama {
+    margin-top: 8px; padding-top: 6px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .free-drama-dot {
+    width: 11px; height: 11px; border-radius: 50%;
+    display: inline-block; cursor: pointer;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    transition: transform 0.15s;
+  }
+  .free-drama-dot:hover { transform: scale(1.3); }
+
+  /* ── TIMELINE axis improvements ── */
+  .timeline-axis-slot[contenteditable] { outline: none; cursor: text; }
+  .timeline-axis-slot[contenteditable]:focus {
+    background: rgba(176,144,208,0.08);
+    border-radius: 4px;
+  }
+  .timeline-axis-akt {
+    font-weight: 700; color: var(--accent-o) !important;
+    border-left: 2px solid rgba(252,177,54,0.4);
+    padding-left: 10px !important;
+  }
+  .timeline-axis-add {
+    padding: 2px 10px; border-radius: 6px;
+    border: 1px solid var(--border); background: transparent;
+    font-size: 0.8rem; color: var(--text-muted); cursor: pointer;
+    font-family: inherit; margin-left: 8px; flex-shrink: 0;
+  }
+  .timeline-axis-add:hover { background: var(--bg-soft); }
+
+
+  /* ── TIMELINE AKT DIVIDER ── */
+  .timeline-akt-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 4px 0;
+    min-width: max-content;
+  }
+  .timeline-akt-label {
+    width: 140px; flex-shrink: 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--accent-o);
+    text-align: right; padding-right: 20px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    outline: none; cursor: text;
+    border-right: 2px solid var(--accent-o);
+    padding-top: 8px; padding-bottom: 8px;
+  }
+  .timeline-akt-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(252,177,54,0.5), transparent);
+    min-width: 200px;
+  }
+
+  /* ── ADD TIMELINE AKT button JS func ── */
+
+  .corkboard-subbar-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--border-strong);
+    margin: 0 6px;
+    flex-shrink: 0;
+  }
+
+  /* Outline summary row */
+  .outline-summary-row td { background: transparent; }
+  .outline-summary-text {
+    font-family: var(--font-ui);
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    outline: none;
+    min-height: 1.2em;
+    padding: 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    width: 100%;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .outline-summary-text:focus {
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    white-space: normal;
+    overflow: visible;
+  }
+  .outline-summary-text:empty::before {
+    content: 'Skriv en kort sammanfattning av scenen...';
+    color: var(--text-muted);
+    font-style: italic;
+    pointer-events: none;
+  }
+
+  /* Show date+time in smaller font */
+  .outline-date-input {
+    font-size: 0.7rem !important;
+    width: 140px !important;
+  }
+
+
+  /* Outline row clickable highlight */
+  .outline-scene-row { cursor: pointer; }
+  .outline-scene-row:hover td { background: rgba(176,144,208,0.07); }
+  .outline-scene-row.active-row td { background: rgba(176,144,208,0.13); }
+
+
+  /* Views + Inspector wrapper */
+  .views-inspector-wrap {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+
+  /* Inspektör synlig i Outline-vyn via body-klass */
+  body.outline-active .notes-panel#panel-notes {
+    display: flex !important;
+    position: fixed;
+    top: 155px; /* under header + toolbar + view-bar */
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    box-shadow: -2px 0 12px rgba(0,0,0,0.08);
+  }
+  body.outline-active .icon-bar {
+    display: flex !important;
+    position: fixed;
+    top: 155px;
+    right: var(--notes-w);
+    bottom: 0;
+    z-index: 50;
+  }
+
+
+  /* ─── Manuscript / Scrivener-model ─── */
+  #pageContainer {
+    width: 100%;
+    min-height: 100%;
+    padding: 0;
+  }
+
+  /* The chapter document — white card on beige canvas */
+  .chapter-doc {
+    width: 680px;
+    flex-shrink: 0;
+    margin: 40px auto 80px;
+    padding: 64px 72px 100px;
+    box-sizing: border-box;
+    background: var(--bg-card, #fff);
+    border-radius: 4px;
+    box-shadow: 0 2px 16px rgba(0,0,0,.09);
+    min-height: 80vh;
+  }
+
+  /* Chapter title (editable) */
+  .chapter-doc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 40px;
+    outline: none;
+    border: none;
+    background: transparent;
+    width: 100%;
+    display: block;
+  }
+  .chapter-doc-title:focus {
+    border-bottom: 2px solid var(--accent);
+  }
+
+  /* Scene block inside chapter doc */
+  .scene-block {
+    margin-bottom: 0;
+  }
+  .scene-block.active-scene {
+    background: transparent;
+  }
+
+  /* Writing area per scene */
+  .scene-writing-area {
+    font-family: 'Lora', serif;
+    font-size: 1rem;
+    line-height: 1.85;
+    color: var(--text-primary);
+    outline: none;
+    min-height: 200px;
+    width: 100%;
+    background: transparent;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    display: block;
+  }
+  .scene-writing-area:empty::before {
+    content: 'Tom scen — börja skriva här...';
+    color: var(--text-muted);
+    font-style: italic;
+    pointer-events: none;
+  }
+  .scene-writing-area p { margin: 0 0 1em; }
+
+  /* Scene divider — the *** between scenes */
+  .scene-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 48px 0;
+    color: var(--text-muted);
+    font-family: 'Lora', serif;
+    font-size: 1.1rem;
+    letter-spacing: .3em;
+    user-select: none;
+  }
+
+  /* Subtle left border on active scene */
+  .scene-block.active-scene .scene-writing-area {
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+    margin-left: -19px;
+  }
+
+
+
+</style>
 </head>
 <body>
 
@@ -2003,6 +2817,8 @@
           <div class="nav-dd-item" onclick="filExportera()">Exportera / Kompilera…</div>
           <div class="nav-dd-sep"></div>
           <div class="nav-dd-item" onclick="filSkrivUt()">Skriv ut <span class="nav-dd-sc">⌘P</span></div>
+          <div class="nav-dd-sep"></div>
+          <div class="nav-dd-item" onclick="openDropboxSettings()">☁ Dropbox-inställningar…</div>
         </div>
       </div>
       <button class="nav-item">Manus</button>
@@ -2098,8 +2914,8 @@
     <span class="vicon">⚡</span> Brainstorm
   </button>
   <div class="view-divider"></div>
-  <button class="view-btn" onclick="switchView('coach')" id="btn-coach">
-    <span class="vicon">✦</span> AI-coach
+  <button class="view-btn" onclick="toggleAiEditor()" id="btn-coach">
+    <span class="vicon">✦</span> AI-redaktör
   </button>
   <button class="view-btn" onclick="switchView('idebank')" id="btn-idebank">
     <span class="vicon">💡</span> Idébanken
@@ -2115,6 +2931,9 @@
     <button class="pomo-btn" onclick="togglePomo()" id="pomoBtn">🍅</button>
     <span class="pomo-time" id="pomoTime" style="display:none;">25:00</span>
   </div>
+  <button class="view-btn" onclick="toggleSynopsisPanel()" id="btn-synopsis" title="Visa scensynopsis bredvid manuset" style="font-size:0.7rem;">
+    <span class="vicon">📋</span> Synopsis
+  </button>
 </div>
 
 <!-- WRITING VIEW -->
@@ -2124,95 +2943,46 @@
   <div class="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-title">
-        Kapitel 54
+        Projekt
         <button class="sidebar-search">🔍</button>
       </div>
       <div class="sidebar-actions">
-        <button class="btn-add">+ Lägg till</button>
-        <button class="btn-import">↓ Importera</button>
+        <button class="btn-add" onclick="addChapterToProject()">+ Lägg till</button>
+        <button class="btn-import" onclick="alert('Importera — kommer snart')">↓ Importera</button>
       </div>
     </div>
 
     <div class="chapter-list" id="chapterList">
+    </div>
 
-      <!-- Kapitel 1 — stängt -->
-      <div class="chapter-group">
-        <div class="chapter-row" onclick="toggleChapter(this)">
-          <span class="ch-arrow">▶</span>
-          <span class="chapter-icon">📄</span>
-          <span class="chapter-name">Kapitel 1 — Mörkret</span>
-          <span class="chapter-words">680</span>
+    <!-- AI-REDAKTÖR (dockad i bindern) -->
+    <div class="ai-editor-dock" id="aiEditorDock">
+      <div class="ai-editor-dock-top">
+        <div>
+          <div class="ai-editor-dock-title">AI-redaktör</div>
+          <div class="ai-editor-dock-sub">Dockad · grön toggle</div>
         </div>
-        <div class="scene-list">
-          <div class="scene-item" onclick="selectScene(this)">
-            <span class="scene-dot" style="background:#b090d0;" title="Första utkast"></span>
-            <span class="scene-name">Scen 1</span>
-            <span class="scene-words">320 ord</span>
-          </div>
-          <div class="scene-item" onclick="selectScene(this)">
-            <span class="scene-dot" style="background:#b090d0;" title="Första utkast"></span>
-            <span class="scene-name">Scen 2</span>
-            <span class="scene-words">360 ord</span>
-          </div>
-        </div>
+        <button class="ai-editor-toggle on" id="aiEditorToggle" aria-pressed="true" title="Dock: PÅ"></button>
       </div>
 
-      <!-- Kapitel 2 — stängt -->
-      <div class="chapter-group">
-        <div class="chapter-row" onclick="toggleChapter(this)">
-          <span class="ch-arrow">▶</span>
-          <span class="chapter-icon">📄</span>
-          <span class="chapter-name">Kapitel 2 — Frank</span>
-          <span class="chapter-words">920</span>
-        </div>
-        <div class="scene-list">
-          <div class="scene-item" onclick="selectScene(this)">
-            <span class="scene-dot" style="background:#fcb136;" title="Andra utkast"></span>
-            <span class="scene-name">Scen 1</span>
-            <span class="scene-words">480 ord</span>
-          </div>
-          <div class="scene-item" onclick="selectScene(this)">
-            <span class="scene-dot" style="background:#4a8981;" title="Final"></span>
-            <span class="scene-name">Scen 2</span>
-            <span class="scene-words">440 ord</span>
-          </div>
-        </div>
-      </div>
+      <div class="ai-topic-list" id="aiTopicList"></div>
 
-      <!-- Kapitel 54 — öppet och aktivt -->
-      <div class="chapter-group open">
-        <div class="chapter-row active" onclick="toggleChapter(this)">
-          <span class="ch-arrow">▼</span>
-          <span class="chapter-icon">📄</span>
-          <span class="chapter-name">Kapitel 54 — Aktuellt</span>
-          <span class="chapter-words">312</span>
+      <div class="ai-api-box">
+        <div class="ai-api-title">API-nyckel</div>
+        <div class="ai-api-row">
+          <input class="ai-api-input" id="aiApiKeyInput" placeholder="Klistra in nyckel…" />
+          <button class="ai-api-save" id="aiApiSaveBtn">Spara</button>
         </div>
-        <div class="scene-list" style="display:flex;">
-          <div class="scene-item active" onclick="selectScene(this)">
-            <span class="scene-dot" style="background:#b090d0;" title="Första utkast"></span>
-            <span class="scene-name">Scen 1</span>
-            <span class="scene-words">180 ord</span>
-          </div>
-          <div class="scene-item" onclick="selectScene(this)">
-            <span class="scene-dot" style="background:#b090d0;" title="Första utkast"></span>
-            <span class="scene-name">Scen 2</span>
-            <span class="scene-words">132 ord</span>
-          </div>
-          <div class="scene-item add-scene" onclick="addScene(this)">
-            <span class="scene-dot" style="background:var(--border-strong);"></span>
-            <span class="scene-name" style="color:var(--text-muted);">+ Ny scen</span>
-          </div>
-        </div>
+        <div class="ai-api-status" id="aiApiStatus">Mock-läge (ingen nyckel sparad)</div>
       </div>
-
     </div>
 
     <!-- BOTTOM TOOLBAR -->
     <div class="sidebar-bottom">
-      <button class="sb-bottom-btn" onclick="addChapter()" title="Nytt kapitel">
+      <button class="sb-bottom-btn" onclick="addChapterToProject()" title="Nytt kapitel">
         <span>📄</span> Nytt kapitel
       </button>
-      <button class="sb-bottom-btn" onclick="addChapter()" title="Ny scen">
+      <button class="sb-bottom-btn" onclick="addSceneToActiveChapter()" title="Ny scen">
         <span>＋</span> Ny scen
       </button>
       <button class="sb-trash-btn" title="Sopkorg" id="trashBtn">
@@ -2225,132 +2995,190 @@
   <div class="canvas-coach-wrap" id="canvasCoachWrap">
 
     <div class="canvas-wrap" id="canvasWrap">
-      <div class="page">
-        <div class="chapter-heading" contenteditable="true">Kapitel 54 — Aktuellt</div>
-        <div class="writing-area" contenteditable="true" id="writingArea"><p>Frank stod vid kajen och såg ut över vattnet. Det var något med dimman den morgonen — den lade sig som en hand över hamnen och kvävde ljuset innan det ens hunnit vakna.</p><p>Han tände en cigarett och blåste röken mot skyn. Någonstans bakom honom hördes steg på kullerstenen. Tunga, jämna steg. Steg som inte ville höras men ändå hördes.</p><p>Han vände sig inte om.</p></div>
+      <div id="pageContainer">
+        <!-- Pages rendered by loadManuscript() / selectChapterById() -->
       </div>
     </div>
 
     <!-- IDÉBANK + KARAKTÄRER UNDER MANUS -->
     <div class="below-manus" id="belowManus">
 
-      <!-- Idébanken collapsible -->
-      <div class="bm-section">
-        <div class="bm-section-hdr" onclick="toggleBmSection('bm-idebank')">
-          <span class="bm-arrow" id="bmarr-bm-idebank">▶</span>
-          <span class="bm-section-icon">💡</span>
-          <span class="bm-section-title">Idébanken</span>
-          <span class="bm-section-sub">Genre · Synopsis · Din röst</span>
+      <!-- Collapse handle -->
+      <div class="bm-collapse-handle" id="bmCollapseHandle" onclick="toggleBelowManus()" title="Visa/dölj verktyg">
+        <span id="bmCollapseIcon">▼</span>
+        <span class="bm-collapse-label">AI-redaktör · Idébanken · Karaktärer</span>
+      </div>
+
+      <div id="bmSectionsWrap">
+
+      <!-- AI-redaktör collapsible (UNDER MANUS) -->
+      <div class="bm-section" id="bm-ai-editor-section">
+        <div class="bm-section-hdr" onclick="toggleBmSection('bm-ai-editor')">
+          <span class="bm-arrow" id="bmarr-bm-ai-editor">▶</span>
+          <span class="bm-section-icon">✦</span>
+          <span class="bm-section-title">AI-redaktör</span>
+          <span class="bm-section-sub" id="bmAiSubline">Bygg · Synopsis</span>
         </div>
-        <div class="bm-section-body collapsed" id="bm-idebank">
-          <div class="bm-two-col">
-            <div class="bm-field">
-              <label>Genre & ton</label>
-              <input class="ib-input" value="Noir-thriller · Mörk, atmosfärisk">
-            </div>
-            <div class="bm-field">
-              <label>Din röst</label>
-              <input class="ib-input" value="Korta meningar, sparsam dialog">
-            </div>
+
+        <div class="bm-section-body collapsed" id="bm-ai-editor">
+          <div class="bm-ai-label">Underämnen</div>
+          <div class="bm-ai-chips" id="bmAiChips"></div>
+
+          <div class="bm-ai-result" id="bmAiResult">
+            Resultat hamnar här. (Den här rutan scrollar.)
           </div>
-          <div class="bm-field" style="margin-top:8px;">
-            <label>Synopsis</label>
-            <textarea class="ib-textarea" style="min-height:72px;">En ung kvinna hittas mördad i Göteborgs hamn. Detektiven Frank Lindgren tar fallet motvilligt — och inser snart att svaret leder rakt tillbaka till hans eget förflutna.</textarea>
+
+          <div class="bm-ai-prompt-row">
+            <textarea class="coach-input" id="bmAiPrompt" placeholder="Instruktion (valfri)…" rows="1"
+              oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+            <button class="coach-send-btn" id="bmAiRunBtn">↑</button>
           </div>
         </div>
       </div>
 
-      <!-- Karaktärer collapsible -->
-      <div class="bm-section">
+      <!-- IDÉBANKEN UNDER MANUS -->
+      <div class="bm-section" id="bm-idebank-section">
+        <div class="bm-section-hdr" onclick="toggleBmSection('bm-idebank')">
+          <span class="bm-arrow" id="bmarr-bm-idebank">▶</span>
+          <span class="bm-section-icon">💡</span>
+          <span class="bm-section-title">Idébanken</span>
+          <span class="bm-section-sub">Kort, listor, idéfragment</span>
+        </div>
+        <div class="bm-section-body collapsed" id="bm-idebank">
+
+          <!-- Idéhög -->
+          <div class="ib-section" id="ibs-idehogg2">
+            <div class="ib-section-hdr" onclick="toggleIbSection('idehogg2')">
+              <span class="ib-section-icon">🧠</span>
+              <span class="ib-section-title">Idéhög</span>
+              <span class="ib-section-arrow" id="ibsa-idehogg2">▼</span>
+            </div>
+            <div class="ib-section-body" id="ibsb-idehogg2">
+              <textarea class="ib-textarea" placeholder="Skriv allt du vet om boken — karaktärer, stämning, teman, vad som helst. Ingen struktur krävs.">Frank är en trasig detektiv i 1987 Göteborg. Hamnen. Dimma. Mord som ingen vill lösa. Han dricker för mycket och vet för lite om sig själv.</textarea>
+              <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Generera synopsis</button>
+            </div>
+          </div>
+
+          <!-- Genre & ton -->
+          <div class="ib-section" id="ibs-genre2">
+            <div class="ib-section-hdr" onclick="toggleIbSection('genre2')">
+              <span class="ib-section-icon">🎭</span>
+              <span class="ib-section-title">Genre &amp; ton</span>
+              <span class="ib-section-arrow" id="ibsa-genre2">▼</span>
+            </div>
+            <div class="ib-section-body" id="ibsb-genre2">
+              <input class="ib-input" type="text" value="Noir-thriller" placeholder="T.ex. Noir-thriller, Historisk roman...">
+              <input class="ib-input" type="text" value="Mörk, atmosfärisk, poetisk" placeholder="Ton och stämning...">
+            </div>
+          </div>
+
+          <!-- Din röst -->
+          <div class="ib-section" id="ibs-rost2">
+            <div class="ib-section-hdr" onclick="toggleIbSection('rost2')">
+              <span class="ib-section-icon">✍️</span>
+              <span class="ib-section-title">Din röst</span>
+              <span class="ib-section-arrow" id="ibsa-rost2">▼</span>
+            </div>
+            <div class="ib-section-body" id="ibsb-rost2">
+              <textarea class="ib-textarea" placeholder="Beskriv din skrivstil. Korta meningar eller långa? Mycket dialog? Inre monolog?">Korta, rytmiska meningar. Sparsam dialog. Mycket introspektion. Hämtar från Sjöwall-Wahlöö men mörkare.</textarea>
+              <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Analysera min stil</button>
+            </div>
+          </div>
+
+          <!-- Synopsis -->
+          <div class="ib-section" id="ibs-synopsis2">
+            <div class="ib-section-hdr" onclick="toggleIbSection('synopsis2')">
+              <span class="ib-section-icon">📖</span>
+              <span class="ib-section-title">Synopsis</span>
+              <span class="ib-section-arrow" id="ibsa-synopsis2">▼</span>
+            </div>
+            <div class="ib-section-body" id="ibsb-synopsis2">
+              <textarea class="ib-textarea" style="min-height:100px;" placeholder="Sammanfatta din berättelse i ett stycke.">En ung kvinna hittas mördad i Göteborgs hamn. Detektiven Frank Lindgren tar fallet motvilligt — och inser snart att svaret leder rakt tillbaka till hans eget förflutna.</textarea>
+              <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Skriv om</button>
+            </div>
+          </div>
+
+          <!-- Världen -->
+          <div class="ib-section" id="ibs-varld2">
+            <div class="ib-section-hdr" onclick="toggleIbSection('varld2')">
+              <span class="ib-section-icon">🌍</span>
+              <span class="ib-section-title">Världen</span>
+              <span class="ib-section-arrow" id="ibsa-varld2">▼</span>
+            </div>
+            <div class="ib-section-body" id="ibsb-varld2">
+              <div class="world-card">
+                <div class="world-card-name">📍 Göteborgs hamn, 1987</div>
+                <textarea class="ib-textarea-sm" placeholder="Beskriv platsen...">Industrihamn i nedgång. Kranarna rostar. Luktar diesel och salt. Dimman lägger sig tidigt.</textarea>
+              </div>
+              <div class="world-card">
+                <div class="world-card-name">📍 Franks kontor</div>
+                <textarea class="ib-textarea-sm" placeholder="Beskriv platsen...">Tredje våningen, Haga. Soljas ut. En skrivmaskin och för många tomflaskor.</textarea>
+              </div>
+              <button class="ib-add-btn" onclick="addWorldCard()">+ Ny plats</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- KARAKTÄRER UNDER MANUS -->
+      <div class="bm-section" id="bm-chars-section">
         <div class="bm-section-hdr" onclick="toggleBmSection('bm-chars')">
           <span class="bm-arrow" id="bmarr-bm-chars">▶</span>
           <span class="bm-section-icon">🎭</span>
           <span class="bm-section-title">Karaktärer</span>
-          <span class="bm-section-sub">Frank Lindgren · Juan Morales</span>
+          <span class="bm-section-sub">Kort, relationer, röst</span>
           <button class="bm-add-btn" onclick="event.stopPropagation();addBmChar()">+ Ny</button>
         </div>
         <div class="bm-section-body collapsed" id="bm-chars">
+          <div id="bmCharList">
 
-          <!-- Frank -->
-          <div class="bm-char-card" id="bmchar-frank">
-            <div class="bm-char-hdr" onclick="toggleBmChar(this)">
-              <span class="bm-char-arrow">▶</span>
-              <div class="bm-char-avatar" style="background:linear-gradient(135deg,#c8b8e8,#b090d0);">F</div>
-              <div class="bm-char-name-wrap">
-                <input class="bm-char-name-input" value="Frank Lindgren" onclick="event.stopPropagation()">
-                <select class="bm-char-type" onclick="event.stopPropagation()">
-                  <option selected>Protagonist</option>
-                  <option>Antagonist</option>
-                  <option>Biroll</option>
-                  <option>Mindre roll</option>
-                  <option>Förhållande</option>
-                  <option>Egen...</option>
-                </select>
+            <!-- Frank -->
+            <div class="char-card">
+              <div class="char-card-hdr" onclick="toggleCharCard(this)">
+                <div class="char-avatar" style="background:linear-gradient(135deg,#c8b8e8,#b090d0);">F</div>
+                <div class="char-info">
+                  <div class="char-name">Frank Lindgren</div>
+                  <div class="char-role">Protagonist · Detektiv</div>
+                </div>
+                <span class="char-arrow">▼</span>
               </div>
-              <div class="bm-char-icons" onclick="event.stopPropagation()">
-                <button class="bm-char-icon-btn" title="Visa/dölj i AI-kontext" onclick="toggleCharContext(this)">👁</button>
-                <button class="bm-char-icon-btn" title="Historik" onclick="showCharHistory(this)">🕐</button>
-                <button class="bm-char-icon-btn" title="Kopiera karaktär" onclick="copyBmCharCard(this)">⧉</button>
-                <button class="bm-char-icon-btn bm-char-del-btn" title="Radera" onclick="this.closest('.bm-char-card').remove()">🗑</button>
+              <div class="char-card-body">
+                <div class="char-field"><label>Ålder</label><input class="ib-input-sm" value="48"></div>
+                <div class="char-field"><label>Fysik</label><input class="ib-input-sm" value="Lång, gråsprängd, bär alltid samma jacka"></div>
+                <div class="char-field"><label>Drivkraft</label><input class="ib-input-sm" value="Hitta sanningen, undvika sig själv"></div>
+                <div class="char-field"><label>Dialogstil</label><input class="ib-input-sm" value="Lakonisk, torr humor, undviker känslor"></div>
+                <div class="char-field"><label>Arc</label><input class="ib-input-sm" value="Slutar med att acceptera sin skuld"></div>
+                <button class="ib-ai-btn ib-ai-disabled char-talk-btn" title="Kräver API-koppling">💬 Prata med Frank</button>
               </div>
             </div>
-            <div class="bm-char-body" style="display:none;">
-              <div class="bm-char-meta-row">
-                <div class="bm-meta-field"><label>Pronomen</label><input class="ib-input-sm" value="han/honom"></div>
-                <div class="bm-meta-field"><label>Grupper</label><input class="ib-input-sm" placeholder="T.ex. polisen..."></div>
-                <div class="bm-meta-field"><label>Andra namn</label><input class="ib-input-sm" placeholder="Smeknamn..."></div>
+
+            <!-- Juan -->
+            <div class="char-card">
+              <div class="char-card-hdr" onclick="toggleCharCard(this)">
+                <div class="char-avatar" style="background:linear-gradient(135deg,#b8e8d8,#4a8981);">J</div>
+                <div class="char-info">
+                  <div class="char-name">Juan Morales</div>
+                  <div class="char-role">Bikaraktär · Informatör</div>
+                </div>
+                <span class="char-arrow">▶</span>
               </div>
-              <div class="bm-trait-field"><label>Fysisk beskrivning</label><textarea class="ib-textarea" style="min-height:60px;">Lång, gråsprängd, bär alltid samma jacka. Trötta ögon som sett för mycket.</textarea></div>
-              <div class="bm-trait-field"><label>Personlighet</label><textarea class="ib-textarea" style="min-height:60px;">Introvert, cynisk, komplex. Söker sanningen men undviker sig själv. Torr humor som sällan märks.</textarea></div>
-              <div class="bm-trait-field"><label>Bakgrund</label><textarea class="ib-textarea" style="min-height:60px;">Arbetarklass, Göteborg. 20 år på polisen. Skilde sig för tre år sedan. Dricker för mycket.</textarea></div>
-              <div class="bm-trait-field"><label>Dialogstil</label><textarea class="ib-textarea" style="min-height:60px;">Korthuggad. Undviker känslor i tal. Säger aldrig mer än nödvändigt.</textarea></div>
-              <div class="bm-extra-traits" id="bmextra-frank"></div>
-              <button class="bm-add-trait-btn" onclick="addBmTrait(this)">+ Lägg till egenskap</button>
+              <div class="char-card-body" style="display:none;">
+                <div class="char-field"><label>Ålder</label><input class="ib-input-sm" value="35"></div>
+                <div class="char-field"><label>Fysik</label><input class="ib-input-sm" value="Liten, nervös, rör händerna när han pratar"></div>
+                <div class="char-field"><label>Drivkraft</label><input class="ib-input-sm" value="Överleva, skydda sin familj"></div>
+                <div class="char-field"><label>Dialogstil</label><input class="ib-input-sm" value="Snabb, hoppar i ämne, ljuger ofta"></div>
+                <div class="char-field"><label>Arc</label><input class="ib-input-sm" value="Tvingas välja sida"></div>
+                <button class="ib-ai-btn ib-ai-disabled char-talk-btn" title="Kräver API-koppling">💬 Prata med Juan</button>
+              </div>
             </div>
+
           </div>
+          <button class="ib-add-btn" style="margin:8px 14px;" onclick="addCharCard()">+ Ny karaktär</button>
+        </div>
+      </div>
 
-          <!-- Juan -->
-          <div class="bm-char-card" id="bmchar-juan">
-            <div class="bm-char-hdr" onclick="toggleBmChar(this)">
-              <span class="bm-char-arrow">▶</span>
-              <div class="bm-char-avatar" style="background:linear-gradient(135deg,#b8e8d8,#4a8981);">J</div>
-              <div class="bm-char-name-wrap">
-                <input class="bm-char-name-input" value="Juan Morales" onclick="event.stopPropagation()">
-                <select class="bm-char-type" onclick="event.stopPropagation()">
-                  <option>Protagonist</option>
-                  <option>Antagonist</option>
-                  <option selected>Biroll</option>
-                  <option>Mindre roll</option>
-                  <option>Förhållande</option>
-                  <option>Egen...</option>
-                </select>
-              </div>
-              <div class="bm-char-icons" onclick="event.stopPropagation()">
-                <button class="bm-char-icon-btn" title="Visa/dölj i AI-kontext" onclick="toggleCharContext(this)">👁</button>
-                <button class="bm-char-icon-btn" title="Historik" onclick="showCharHistory(this)">🕐</button>
-                <button class="bm-char-icon-btn" title="Kopiera karaktär" onclick="copyBmCharCard(this)">⧉</button>
-                <button class="bm-char-icon-btn bm-char-del-btn" title="Radera" onclick="this.closest('.bm-char-card').remove()">🗑</button>
-              </div>
-            </div>
-            <div class="bm-char-body" style="display:none;">
-              <div class="bm-char-meta-row">
-                <div class="bm-meta-field"><label>Pronomen</label><input class="ib-input-sm" value="han/honom"></div>
-                <div class="bm-meta-field"><label>Grupper</label><input class="ib-input-sm" placeholder="T.ex. hamngänget..."></div>
-                <div class="bm-meta-field"><label>Andra namn</label><input class="ib-input-sm" placeholder="Smeknamn..."></div>
-              </div>
-              <div class="bm-trait-field"><label>Fysisk beskrivning</label><textarea class="ib-textarea" style="min-height:60px;">Liten, nervös, rör händerna när han pratar. Alltid för stora kläder.</textarea></div>
-              <div class="bm-trait-field"><label>Personlighet</label><textarea class="ib-textarea" style="min-height:60px;">Nervös, lojal, impulsiv. Vill överleva och skydda sin familj.</textarea></div>
-              <div class="bm-trait-field"><label>Bakgrund</label><textarea class="ib-textarea" style="min-height:60px;">Kom till Sverige 1979. Arbetar i hamnen. Vet för mycket om för många.</textarea></div>
-              <div class="bm-trait-field"><label>Dialogstil</label><textarea class="ib-textarea" style="min-height:60px;">Snabb, hoppar i ämne, blandar svenska och spanska när han är stressad.</textarea></div>
-              <div class="bm-extra-traits" id="bmextra-juan"></div>
-              <button class="bm-add-trait-btn" onclick="addBmTrait(this)">+ Lägg till egenskap</button>
-            </div>
-          </div>
-
-        </div><!-- end bm-chars body -->
-      </div><!-- end karaktärer section -->
-
-    </div><!-- end below-manus -->
+</div><!-- end below-manus -->
 
     <!-- COACH PANEL — glider upp underifrån -->
     <div class="coach-panel" id="coachPanel">
@@ -2429,31 +3257,101 @@
 
     </div><!-- end coach-panel -->
 
-  </div><!-- end canvas-coach-wrap -->
+  
+      </div><!-- /bmSectionsWrap -->
+    </div><!-- end canvas-coach-wrap -->
 
-  <!-- RIGHT PANEL — KAPITELNOTER -->
-  <div class="notes-panel" id="panel-notes">
-    <div class="notes-header">
-      <div>
-        <div class="notes-title">Kapitelnoter</div>
-        <div class="notes-count">1 not</div>
-      </div>
+
+  <div class="side-resizer" id="rightResizer" title="Dra för att ändra bredd"></div>
+
+  <!-- RIGHT PANEL — INSPEKTÖREN -->
+  <div class="notes-panel" id="panel-notes" style="display:flex;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;">
+      <span style="font-size:0.75rem;font-weight:700;color:var(--text-primary);letter-spacing:0.02em;">Inspektör</span>
       <button class="notes-close" onclick="closePanel()">✕</button>
     </div>
-    <div class="notes-chapter-title">
-      <div class="notes-chapter-name">Kapitel 54</div>
-      <div class="status-select"><div class="status-dot"></div>Välj status</div>
+
+    <!-- Kontext: aktuell scen -->
+    <div class="inspector-context" id="inspector-context">
+      <div class="inspector-context-label" id="inspector-context-label">—</div>
+      <div class="inspector-context-name" id="inspector-context-name">—</div>
     </div>
-    <div class="notes-section">
-      <div class="notes-section-title">Beskrivning<span class="notes-section-menu">⋯</span></div>
-      <div class="note-card" contenteditable="true">Mitt aktuella kapitel</div>
+
+    <!-- Scrollable body — all sections visible at once -->
+    <div class="inspector-body" id="insp-body">
+
+      <!-- STATUS + DRAMA inline -->
+      <div class="inspector-section" style="padding-bottom:12px;">
+        <div class="inspector-status-row" style="margin-bottom:10px;">
+          <div class="inspector-status-dot" id="insp-status-dot"></div>
+          <select class="inspector-status-select" id="insp-status-select" onchange="updateInspectorStatus(this);saveFromInspector()">
+            <option value="draft" selected>Första utkast</option>
+            <option value="second">Andra utkast</option>
+            <option value="revised">Reviderat utkast</option>
+            <option value="edit1">Redigering 1</option>
+            <option value="edit2">Redigering 2</option>
+            <option value="edit3">Redigering 3</option>
+            <option value="done">Klart</option>
+          </select>
+        </div>
+        <div class="inspector-status-row" style="margin-bottom:10px;">
+          <div class="inspector-status-dot" id="insp-drama-dot" style="background:var(--border-strong);"></div>
+          <select class="inspector-status-select" id="insp-drama-select" onchange="updateInspectorDrama(this);saveFromInspector()">
+            <option value="ingen">— Ingen</option>
+            <option value="klimax">Klimax</option>
+            <option value="vändpunkt">Vändpunkt</option>
+            <option value="upptrappning">Upptrappning</option>
+            <option value="svacka">Svacka</option>
+            <option value="lugn">Lugn</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SYNOPSIS -->
+      <div class="inspector-section">
+        <div class="inspector-field-label">Synopsis</div>
+        <textarea class="inspector-synopsis" id="insp-synopsis"
+          placeholder="Beskriv vad som händer i scenen — kort och kärnfullt."
+          oninput="autoGrow(this);saveFromInspector()"
+          ></textarea>
+      </div>
+
+      <!-- NOTERING -->
+      <div class="inspector-section">
+        <div class="inspector-field-label">Notering</div>
+        <textarea class="inspector-notes" id="insp-notes"
+          placeholder="Fria anteckningar — research, idéer, saker att ändra, frågor till dig själv..."
+          oninput="autoGrow(this);saveFromInspector()"></textarea>
+      </div>
+
+      <!-- ETIKETT -->
+      <div class="inspector-section">
+        <div class="inspector-field-label">Etikett</div>
+        <input type="text" id="insp-label"
+          class="inspector-synopsis"
+          style="min-height:auto;height:36px;font-family:'DM Sans',sans-serif;resize:none;font-size:0.75rem;"
+          placeholder="T.ex. POV: Frank · Plats: Kajen"
+          oninput="saveInspectorData()">
+      </div>
+
+      <div class="inspector-word-count" id="insp-word-count" style="padding:8px 16px 16px;">
+        180 ord i scenen
+      </div>
+
+    </div><!-- end inspector-body -->
+
+    <!-- Progress footer -->
+    <div class="inspector-progress">
+      <div class="inspector-progress-label">
+        <span>38 400 ord</span><span>Mål: 100 000 ord</span>
+      </div>
+      <div class="inspector-progress-bar">
+        <div class="inspector-progress-fill"></div>
+      </div>
     </div>
-    <button class="btn-add-note">+ Lägg till not</button>
-    <div style="flex:1;"></div>
-    <div class="notes-progress">
-      <div class="notes-progress-label"><span>38 400 ord</span><span>100 000 mål</span></div>
-      <div class="notes-progress-bar"><div class="notes-progress-fill"></div></div>
-    </div>
+
   </div>
 
   <!-- RIGHT PANEL — IDÉBANKEN -->
@@ -2806,6 +3704,7 @@
     <button class="icon-bar-btn" data-tip="Versioner">⎘</button>
   </div>
 
+
 </div><!-- end writing-wrap -->
 
 <!-- CORKBOARD VIEW -->
@@ -2813,215 +3712,83 @@
   <div class="corkboard-subbar">
     <button class="cb-sub-btn active" onclick="setCorkMode('grid', this)">⊞ Rutnät</button>
     <button class="cb-sub-btn" onclick="setCorkMode('timeline', this)">⏱ Tidslinje</button>
-    <button class="cb-sub-btn" onclick="setCorkMode('free', this)">✦ Friläge</button>
+    <div class="corkboard-subbar-divider" id="akt-divider" style="display:none;"></div>
+    <button class="cb-sub-btn" onclick="addTimelineAkt()" id="btn-add-akt"
+      style="display:none; border-color:rgba(252,177,54,0.45); color:var(--accent-o);">+ Akt</button>
+    <button class="cb-sub-btn" onclick="addTimelineChapter()" id="btn-add-chapter"
+      style="display:none; border-color:rgba(74,137,129,0.45); color:var(--accent-t);">+ Kapitel</button>
+    <div style="flex:1;"></div>
   </div>
 
   <div class="corkboard-canvas" id="corkboard-canvas">
-    <!-- GRID MODE -->
+
+    <!-- ══ GRID MODE ══ -->
     <div class="cork-grid" id="cork-grid">
-      <div class="cork-card status-draft">
-        <div class="cork-card-header">
-          <span class="cork-card-label">Kap 1 · Scen 1</span>
-          <span class="cork-status-dot" style="background:#b090d0;"></span>
-        </div>
-        <div class="cork-card-title" contenteditable="true">Mörkret faller</div>
-        <div class="cork-card-body" contenteditable="true">Frank hittar spåren vid hamnen. Regnet öser ner.</div>
-        <div class="cork-card-footer"><span>320 ord</span><span>Första utkast</span></div>
-      </div>
-      <div class="cork-card status-final">
-        <div class="cork-card-header">
-          <span class="cork-card-label">Kap 1 · Scen 2</span>
-          <span class="cork-status-dot" style="background:#4a8981;"></span>
-        </div>
-        <div class="cork-card-title" contenteditable="true">Mötet vid bron</div>
-        <div class="cork-card-body" contenteditable="true">Juan dyker upp oväntat. Spänningen stiger.</div>
-        <div class="cork-card-footer"><span>360 ord</span><span>Final</span></div>
-      </div>
-      <div class="cork-card status-second">
-        <div class="cork-card-header">
-          <span class="cork-card-label">Kap 2 · Scen 1</span>
-          <span class="cork-status-dot" style="background:#fcb136;"></span>
-        </div>
-        <div class="cork-card-title" contenteditable="true">Frank ensam</div>
-        <div class="cork-card-body" contenteditable="true">Minnen från det förflutna tränger sig på.</div>
-        <div class="cork-card-footer"><span>480 ord</span><span>Andra utkast</span></div>
-      </div>
-      <div class="cork-card status-draft">
-        <div class="cork-card-header">
-          <span class="cork-card-label">Kap 2 · Scen 2</span>
-          <span class="cork-status-dot" style="background:#b090d0;"></span>
-        </div>
-        <div class="cork-card-title" contenteditable="true">Det oväntade samtalet</div>
-        <div class="cork-card-body" contenteditable="true">Telefonen ringer. Det är en röst från det förflutna.</div>
-        <div class="cork-card-footer"><span>440 ord</span><span>Första utkast</span></div>
-      </div>
-      <div class="cork-card status-draft">
-        <div class="cork-card-header">
-          <span class="cork-card-label">Kap 54 · Scen 1</span>
-          <span class="cork-status-dot" style="background:#b090d0;"></span>
-        </div>
-        <div class="cork-card-title" contenteditable="true">Konfrontationen</div>
-        <div class="cork-card-body" contenteditable="true">Allt kommer till sin spets. Frank och Juan möts.</div>
-        <div class="cork-card-footer"><span>180 ord</span><span>Första utkast</span></div>
-      </div>
-      <div class="cork-card status-draft">
-        <div class="cork-card-header">
-          <span class="cork-card-label">Kap 54 · Scen 2</span>
-          <span class="cork-status-dot" style="background:#b090d0;"></span>
-        </div>
-        <div class="cork-card-title" contenteditable="true">Efterdyningarna</div>
-        <div class="cork-card-body" contenteditable="true">Tystnaden efter. Vad hände egentligen?</div>
-        <div class="cork-card-footer"><span>132 ord</span><span>Första utkast</span></div>
-      </div>
-      <div class="cork-add-card" onclick="addCorkCard()">+ Ny scen</div>
-    </div>
 
-    <!-- TIMELINE MODE -->
+      <!-- Global note -->
+      <div class="cork-global-note">
+        <span class="cork-global-note-label">📌 Notat</span>
+        <div class="cork-global-note-text" contenteditable="true"></div>
+      </div>
+      <!-- Rendered by renderCorkGrid() -->
+      <div id="cork-chapters"></div>
+
+          </div><!-- end cork-grid -->
+
+    <!-- ══ TIMELINE MODE ══ -->
     <div class="cork-timeline" id="cork-timeline">
-      <div class="timeline-chapters">
-        <div class="timeline-chapter-row">
-          <div class="timeline-chapter-label">Kapitel 1<br>Mörkret</div>
-          <div class="timeline-scenes">
-            <div class="timeline-card status-draft">
-              <div class="timeline-card-scene">Scen 1</div>
-              <div class="timeline-card-title">Mörkret faller</div>
-              <div class="timeline-card-words">320 ord</div>
-            </div>
-            <div class="timeline-card status-final">
-              <div class="timeline-card-scene">Scen 2</div>
-              <div class="timeline-card-title">Mötet vid bron</div>
-              <div class="timeline-card-words">360 ord</div>
-            </div>
-          </div>
-        </div>
-        <div class="timeline-chapter-row">
-          <div class="timeline-chapter-label">Kapitel 2<br>Frank</div>
-          <div class="timeline-scenes">
-            <div class="timeline-card status-second">
-              <div class="timeline-card-scene">Scen 1</div>
-              <div class="timeline-card-title">Frank ensam</div>
-              <div class="timeline-card-words">480 ord</div>
-            </div>
-            <div class="timeline-card status-draft">
-              <div class="timeline-card-scene">Scen 2</div>
-              <div class="timeline-card-title">Det oväntade samtalet</div>
-              <div class="timeline-card-words">440 ord</div>
-            </div>
-          </div>
-        </div>
-        <div class="timeline-chapter-row">
-          <div class="timeline-chapter-label">Kapitel 54<br>Aktuellt</div>
-          <div class="timeline-scenes">
-            <div class="timeline-card status-draft">
-              <div class="timeline-card-scene">Scen 1</div>
-              <div class="timeline-card-title">Konfrontationen</div>
-              <div class="timeline-card-words">180 ord</div>
-            </div>
-            <div class="timeline-card status-draft">
-              <div class="timeline-card-scene">Scen 2</div>
-              <div class="timeline-card-title">Efterdyningarna</div>
-              <div class="timeline-card-words">132 ord</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- FREE/SCAPPLE MODE -->
-    <div class="cork-free" id="cork-free">
-      <div class="free-card status-draft" style="left:80px; top:60px;">
-        <div class="free-card-chapter">Kap 1 · Scen 1</div>
-        <div class="free-card-title">Mörkret faller</div>
-        <div class="free-card-body">Frank hittar spåren vid hamnen.</div>
+      <!-- Top axis bar — editable slots, supports Akt labels -->
+      <!-- Global note for timeline -->
+      <div class="timeline-global-note-bar">
+        <input class="timeline-global-note-input" type="text" placeholder="Gemensam anteckning för hela tidslinjen — teman, vändpunkter, frågor...">
       </div>
-      <div class="free-card status-final" style="left:320px; top:40px;">
-        <div class="free-card-chapter">Kap 1 · Scen 2</div>
-        <div class="free-card-title">Mötet vid bron</div>
-        <div class="free-card-body">Juan dyker upp oväntat.</div>
+
+      <!-- Scrollable rows -->
+      <div class="timeline-scroll-area">
+        <div class="timeline-chapters" id="timeline-chapters">
+          <!-- Rendered by renderTimeline() -->
+        </div>
       </div>
-      <div class="free-card status-second" style="left:180px; top:220px;">
-        <div class="free-card-chapter">Kap 2 · Scen 1</div>
-        <div class="free-card-title">Frank ensam</div>
-        <div class="free-card-body">Minnen från det förflutna.</div>
-      </div>
-      <div class="free-card status-draft" style="left:500px; top:180px;">
-        <div class="free-card-chapter">Kap 54 · Scen 1</div>
-        <div class="free-card-title">Konfrontationen</div>
-        <div class="free-card-body">Allt kommer till sin spets.</div>
-      </div>
-      <div class="free-card status-draft" style="left:680px; top:80px;">
-        <div class="free-card-chapter">Kap 54 · Scen 2</div>
-        <div class="free-card-title">Efterdyningarna</div>
-        <div class="free-card-body">Tystnaden efter.</div>
-      </div>
-      <button class="free-add-btn" onclick="addFreeCard()">+</button>
-    </div>
-  </div>
+    </div><!-- end cork-timeline -->
+
+
+  </div><!-- end corkboard-canvas -->
+
+
 </div><!-- end corkboard-wrap -->
 
 <!-- OUTLINE VIEW -->
 <div class="outline-wrap" id="view-outline">
-  <table class="outline-table">
+  <table class="outline-table" style="table-layout:fixed;">
+    <colgroup>
+      <col style="width:28%;">
+      <col style="width:13%;">
+      <col style="width:13%;">
+      <col style="width:9%;">
+      <col style="width:12%;">
+      <col style="width:6%;">
+      <col style="width:10%;">
+    </colgroup>
     <thead>
       <tr>
-        <th style="width:35%;">Titel</th>
-        <th style="width:20%;">Status</th>
-        <th style="width:25%;">Sammanfattning</th>
-        <th style="width:10%; text-align:right;">Ord</th>
+        <th>Titel</th>
+        <th>Status</th>
+        <th>Stämning</th>
+        <th>Perspektiv</th>
+        <th>Datum</th>
+        <th style="text-align:right;">Ord</th>
+        <th>Ändrat</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- Kapitel 1 -->
-      <tr class="outline-chapter-row">
-        <td colspan="4"><div class="outline-chapter-name"><span class="oc-arrow">▼</span> Kapitel 1 — Mörkret</div></td>
-      </tr>
-      <tr class="outline-scene-row">
-        <td><div class="outline-scene-name"><span style="color:var(--accent-purple);">·</span> Scen 1 — Mörkret faller</div></td>
-        <td><div class="outline-status"><span class="outline-status-dot" style="background:#b090d0;"></span>Första utkast</div></td>
-        <td><div class="outline-summary" contenteditable="true">Frank hittar spåren vid hamnen.</div></td>
-        <td><div class="outline-words">320</div></td>
-      </tr>
-      <tr class="outline-scene-row">
-        <td><div class="outline-scene-name"><span style="color:var(--accent-n);">·</span> Scen 2 — Mötet vid bron</div></td>
-        <td><div class="outline-status"><span class="outline-status-dot" style="background:#4a8981;"></span>Final</div></td>
-        <td><div class="outline-summary" contenteditable="true">Juan dyker upp oväntat.</div></td>
-        <td><div class="outline-words">360</div></td>
-      </tr>
-      <!-- Kapitel 2 -->
-      <tr class="outline-chapter-row">
-        <td colspan="4"><div class="outline-chapter-name"><span class="oc-arrow">▼</span> Kapitel 2 — Frank</div></td>
-      </tr>
-      <tr class="outline-scene-row">
-        <td><div class="outline-scene-name"><span style="color:var(--accent-o);">·</span> Scen 1 — Frank ensam</div></td>
-        <td><div class="outline-status"><span class="outline-status-dot" style="background:#fcb136;"></span>Andra utkast</div></td>
-        <td><div class="outline-summary" contenteditable="true">Minnen från det förflutna tränger sig på.</div></td>
-        <td><div class="outline-words">480</div></td>
-      </tr>
-      <tr class="outline-scene-row">
-        <td><div class="outline-scene-name"><span style="color:var(--accent-purple);">·</span> Scen 2 — Det oväntade samtalet</div></td>
-        <td><div class="outline-status"><span class="outline-status-dot" style="background:#b090d0;"></span>Första utkast</div></td>
-        <td><div class="outline-summary" contenteditable="true">Telefonen ringer. En röst från det förflutna.</div></td>
-        <td><div class="outline-words">440</div></td>
-      </tr>
-      <!-- Kapitel 54 -->
-      <tr class="outline-chapter-row">
-        <td colspan="4"><div class="outline-chapter-name"><span class="oc-arrow">▼</span> Kapitel 54 — Aktuellt</div></td>
-      </tr>
-      <tr class="outline-scene-row">
-        <td><div class="outline-scene-name"><span style="color:var(--accent-purple);">·</span> Scen 1 — Konfrontationen</div></td>
-        <td><div class="outline-status"><span class="outline-status-dot" style="background:#b090d0;"></span>Första utkast</div></td>
-        <td><div class="outline-summary" contenteditable="true">Allt kommer till sin spets.</div></td>
-        <td><div class="outline-words">180</div></td>
-      </tr>
-      <tr class="outline-scene-row">
-        <td><div class="outline-scene-name"><span style="color:var(--accent-purple);">·</span> Scen 2 — Efterdyningarna</div></td>
-        <td><div class="outline-status"><span class="outline-status-dot" style="background:#b090d0;"></span>Första utkast</div></td>
-        <td><div class="outline-summary" contenteditable="true">Tystnaden efter konfrontationen.</div></td>
-        <td><div class="outline-words">132</div></td>
-      </tr>
+    <tbody id="outline-tbody">
+      <!-- Rendered by renderOutline() -->
     </tbody>
   </table>
 </div><!-- end outline-wrap -->
+
+
+
 
 <!-- COACH VIEW -->
 <div class="coach-view-wrap" id="view-coach">
@@ -3084,7 +3851,7 @@
 
     <!-- API key -->
     <div class="coach-api-box">
-      <div class="coach-context-label">API-nyckel</div>
+      <div class="coach-context-label">API-nyckel (Gemini)</div>
       <div style="display:flex;gap:6px;margin-top:4px;">
         <input type="text" id="apiKeyInput" placeholder="AIzaSy..." 
           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
@@ -3098,6 +3865,8 @@
       </div>
       <div class="coach-api-status" id="coachApiStatus">⚡ Mock-läge</div>
     </div>
+
+
   </div>
 
   <!-- Main chat area -->
@@ -3444,12 +4213,147 @@
 
 
 <script>
+
+  // ╔══════════════════════════════════════════════════════════╗
+  // ║  projectData — SINGLE SOURCE OF TRUTH för WriteON       ║
+  // ║  Alla vyer läser härifrån. Inspektören skriver hit.     ║
+  // ╚══════════════════════════════════════════════════════════╝
+  const projectData = {
+    title: 'Fallet',
+    wordGoal: 100000,
+    chapters: [
+      {
+        id: 'chap-1',
+        title: 'Kapitel 1',
+        scenes: [
+          {
+            id: 'chap-1-scene-1',
+            title: 'Scen 1',
+            status: 'draft', drama: 'klimax', pov: 'Frank',
+            synopsis: 'Frank hittar spåren vid hamnen. Regnet öser ner och dimman lägger sig tät.',
+            notes: '', 
+            text: '<p>Frank stod vid kajen och såg ut över vattnet. Det var något med dimman den morgonen — den lade sig som en hand över hamnen och kvävde ljuset innan det ens hunnit vakna.</p><p>Han tände en cigarett och blåste röken mot skyn. Någonstans bakom honom hördes steg på kullerstenen. Tunga, jämna steg. Steg som inte ville höras men ändå hördes.</p><p>Han vände sig inte om.</p>',
+            words: 65,
+            dateCreated: '2026-03-08T08:00', dateChanged: '2026-03-08T08:00',
+          },
+        ]
+      },
+      {
+        id: 'chap-2',
+        title: 'Kapitel 2',
+        scenes: [
+          {
+            id: 'chap-2-scene-1',
+            title: 'Scen 1',
+            status: 'draft', drama: 'ingen', pov: '',
+            synopsis: '', notes: '', text: '',
+            words: 0,
+            dateCreated: '2026-03-08T08:00', dateChanged: '2026-03-08T08:00',
+          },
+          {
+            id: 'chap-2-scene-2',
+            title: 'Scen 2',
+            status: 'draft', drama: 'ingen', pov: '',
+            synopsis: '', notes: '', text: '',
+            words: 0,
+            dateCreated: '2026-03-08T08:00', dateChanged: '2026-03-08T08:00',
+          },
+        ]
+      },
+      {
+        id: 'chap-3',
+        title: 'Kapitel 3',
+        scenes: [
+          {
+            id: 'chap-3-scene-1',
+            title: 'Scen 1',
+            status: 'draft', drama: 'ingen', pov: '',
+            synopsis: '', notes: '', text: '',
+            words: 0,
+            dateCreated: '2026-03-08T08:00', dateChanged: '2026-03-08T08:00',
+          },
+        ]
+      },
+    ]
+  };
+
+  // Aktiv scen — pekar på scene-objektet i projectData
+  let activeScene = projectData.chapters[0].scenes[0];
+
+  // Status-färger — en enda definition som alla vyer använder
+  const STATUS_COLORS = {
+    draft:   { color: '#b090d0', label: 'Första utkast' },
+    second:  { color: '#fcb136', label: 'Andra utkast' },
+    revised: { color: '#f0a060', label: 'Reviderat utkast' },
+    edit1:   { color: '#6495ed', label: 'Redigering 1' },
+    edit2:   { color: '#5585dd', label: 'Redigering 2' },
+    edit3:   { color: '#4575cd', label: 'Redigering 3' },
+    done:    { color: '#4a8981', label: 'Klart' },
+  };
+
+  const DRAMA_COLORS = {
+    ingen:        { color: 'var(--border-strong)', label: '— Ingen' },
+    klimax:       { color: '#dc4646', label: '🔴 Klimax' },
+    vändpunkt:    { color: '#fcb136', label: '🟡 Vändpunkt' },
+    upptrappning: { color: '#b090d0', label: '🟣 Upptrappning' },
+    svacka:       { color: '#6495ed', label: '🔵 Svacka' },
+    lugn:         { color: '#4a8981', label: '🟢 Lugn' },
+  };
+
+  // Hjälp: hämta alla scener platt
+  function allScenes() {
+    return projectData.chapters.flatMap(ch => ch.scenes);
+  }
+
+  // Get the currently active writing area element
+  function getWritingArea() {
+    if (!activeScene) return null;
+    return document.getElementById('writingArea-' + activeScene.id);
+  }
+
+  // Hjälp: hitta kapitel för en scen
+  function chapterForScene(sceneId) {
+    return projectData.chapters.find(ch => ch.scenes.some(s => s.id === sceneId));
+  }
+
+  // Uppdatera dateChanged på aktiv scen
+  function touchScene(scene) {
+    const now = new Date();
+    const p = n => String(n).padStart(2,'0');
+    scene.dateChanged = now.getFullYear()+'-'+p(now.getMonth()+1)+'-'+p(now.getDate())
+      +'T'+p(now.getHours())+':'+p(now.getMinutes());
+    scheduleDropboxSync();
+  }
   // ─── VIEW SWITCHING ───
   function switchView(view) {
     ['writing','corkboard','outline','brainstorm','coach','idebank','character','research'].forEach(v => {
-      document.getElementById('view-' + v).classList.toggle('active', v === view);
-      document.getElementById('btn-' + v).classList.toggle('active', v === view);
+      const viewEl = document.getElementById('view-' + v);
+      const btnEl  = document.getElementById('btn-' + v);
+      if(viewEl) viewEl.classList.toggle('active', v === view);
+      if(btnEl)  btnEl.classList.toggle('active', v === view);
     });
+    // AI-redaktör-knappen ska inte få active-klass via switchView
+    const coachBtn = document.getElementById('btn-coach');
+    if(coachBtn) coachBtn.classList.remove('active');
+
+    // Sidebar: dölj i Outline-vyn för full bredd
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) sidebar.style.display = view === 'outline' ? 'none' : '';
+    // Inspektör i Outline: visa via body-klass (fixed position)
+    document.body.classList.toggle('outline-active', view === 'outline');
+
+    // Show/hide main canvas (writing view)
+    const canvasWrap = document.getElementById('canvasCoachWrap');
+    if (canvasWrap) canvasWrap.style.display = (view === 'writing') ? '' : 'none';
+
+    // Sync views when switching to them
+    if (view === 'outline')   { setTimeout(function(){ renderOutline(); }, 50); }
+    if (view === 'corkboard') {
+      setTimeout(function() {
+        renderCorkGrid();
+        renderTimeline();
+      }, 50);
+    }
   }
 
   // ─── PANEL SWITCHING ───
@@ -3465,6 +4369,18 @@
     const btnMap = {'panel-notes':'ibtn-notes','panel-idebank':'ibtn-idebank','panel-charchat':'ibtn-charchat','panel-charchat-active':'ibtn-charchat'};
     if(btnMap[id]) document.getElementById(btnMap[id]).classList.add('active');
   }
+  // ─── KARAKTÄRER: öppna i högerspalten (ikonpanelen) ───
+  function openCharactersInRightPanel(){
+    // stanna i manus-vyn
+    switchView('writing');
+    // öppna karaktärpanel i högerspalten om den finns
+    if(typeof showPanel === 'function'){
+      if(document.getElementById('panel-charchat')) showPanel('panel-charchat');
+      else if(document.getElementById('panel-charchat-active')) showPanel('panel-charchat-active');
+    }
+  }
+
+
 
   function closePanel() {
     ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active'].forEach(p => {
@@ -3497,7 +4413,7 @@
   }
 
   function addCharCard() {
-    const list = document.getElementById('ibsb-karak');
+    const list = document.getElementById('bmCharList') || document.getElementById('ibsb-karak');
     const addBtn = list.querySelector('.ib-add-btn');
     const names = ['Anna Svensson','Björn Ek','Maria Lindqvist','Erik Holt'];
     const roles = ['Bikaraktär','Antagonist','Vittne','Bikaraktär'];
@@ -3804,34 +4720,125 @@
   function setCorkMode(mode, btn) {
     document.querySelectorAll('.cb-sub-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('cork-grid').classList.toggle('hidden', mode !== 'grid');
+    const grid = document.getElementById('cork-grid');
     const tl = document.getElementById('cork-timeline');
-    const fr = document.getElementById('cork-free');
-    tl.classList.toggle('visible', mode === 'timeline');
-    fr.classList.toggle('visible', mode === 'free');
-    // Show/hide canvas scroll vs free absolute
     const canvas = document.getElementById('corkboard-canvas');
-    canvas.style.padding = mode === 'free' ? '0' : '32px';
-    canvas.style.overflow = mode === 'free' ? 'hidden' : 'auto';
-    canvas.style.position = mode === 'free' ? 'relative' : '';
+    grid.classList.toggle('hidden', mode !== 'grid');
+    tl.classList.toggle('visible', mode === 'timeline');
+    canvas.style.padding = '32px';
+    const isTimeline = mode === 'timeline';
+    const aktBtn   = document.getElementById('btn-add-akt');
+    const chapBtn  = document.getElementById('btn-add-chapter');
+    const aktDiv   = document.getElementById('akt-divider');
+    if (aktBtn)  aktBtn.style.display  = isTimeline ? '' : 'none';
+    if (chapBtn) chapBtn.style.display = isTimeline ? '' : 'none';
+    if (aktDiv)  aktDiv.style.display  = isTimeline ? '' : 'none';
   }
 
-  // ─── ADD CORK CARD ───
-  function addCorkCard() {
-    const grid = document.getElementById('cork-grid');
-    const addBtn = grid.querySelector('.cork-add-card');
+  // ─── SELECT CORK CARD ───
+  function selectCorkCard(card) {
+    document.querySelectorAll('.cork-card.selected').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    // Load card's drama into inspector
+    const dot = card.querySelector('.cork-drama-selector .cork-drama-dot');
+    const currentDrama = dot ? dot.title.toLowerCase() : '';
+    // Map title back to key
+    const keyMap = { 'klimax':'klimax','vändpunkt':'vändpunkt','upptrappning':'upptrappning','svacka':'svacka','lugn':'lugn' };
+    const dramaKey = keyMap[currentDrama] || '';
+    document.querySelectorAll('#insp-drama-row .drama-chip').forEach(c => {
+      c.classList.toggle('selected', c.getAttribute('data-drama') === dramaKey);
+    });
+    // Load title into inspector context
+    const title = card.querySelector('.cork-card-title')?.innerText || '';
+    const label = card.querySelector('.cork-card-label')?.textContent || '';
+    const chapHeading = card.closest('.cork-chapter-group')?.querySelector('.cork-chapter-heading span')?.innerText || '';
+    const ctxLabel = document.getElementById('inspector-context-label');
+    const ctxName  = document.getElementById('inspector-context-name');
+    if (ctxLabel) ctxLabel.textContent = 'Kapitel — ' + chapHeading + ' · ' + label;
+    if (ctxName)  ctxName.textContent  = title;
+  }
+
+  // ─── SET CARD STATUS FROM SELECT ───
+  function setCorkCardStatus(sel, sceneId) {
+    // Delegate to projectData version if sceneId provided
+    if (sceneId) {
+      const scene = allScenes().find(s => s.id === sceneId);
+      if (scene) { scene.status = sel.value; touchScene(scene); syncViewsForScene(scene); }
+      return;
+    }
+    // Fallback for legacy calls
+    const card = sel.closest('.cork-card');
+    if (!card) return;
+    const sid = card.dataset.sceneId;
+    if (sid) {
+      const scene = allScenes().find(s => s.id === sid);
+      if (scene) { scene.status = sel.value; touchScene(scene); syncViewsForScene(scene); }
+    }
+  }
+
+  // ─── ADD CORK CARD (per chapter) ───
+  function addCorkCard(addBtn) {
+    const group = addBtn.closest('.cork-chapter-group');
+    const cards = group.querySelector('.cork-chapter-cards');
     const card = document.createElement('div');
     card.className = 'cork-card status-draft';
+    card.onclick = function(){ selectCorkCard(this); };
+    const scenNum = cards.querySelectorAll('.cork-card').length + 1;
     card.innerHTML = `
       <div class="cork-card-header">
-        <span class="cork-card-label">Ny scen</span>
+        <span class="cork-card-label">Scen ${scenNum}</span>
         <span class="cork-status-dot" style="background:#b090d0;"></span>
       </div>
       <div class="cork-card-title" contenteditable="true">Ny scen</div>
-      <div class="cork-card-body" contenteditable="true"></div>
-      <div class="cork-card-footer"><span>0 ord</span><span>Första utkast</span></div>`;
-    grid.insertBefore(card, addBtn);
+      <div class="cork-card-body" contenteditable="true" oninput="updateCardCharCount(this)"></div>
+      <div class="cork-card-char-count">0 / 200</div>
+      <div class="cork-card-footer">
+        <select class="cork-card-status-select" onchange="setCorkCardStatus(this)">
+          <option value="draft" selected>Första utkast</option>
+          <option value="second">Andra utkast</option>
+          <option value="final">Final</option>
+          <option value="work">Bearbetas</option>
+        </select>
+        <div class="cork-drama-selector" onclick="openDramaMenu(event,this)">
+          <span class="cork-drama-dot" style="background:var(--border-strong);" title="Välj stämning"></span>
+        </div>
+      </div>`;
+    cards.insertBefore(card, addBtn);
     card.querySelector('.cork-card-title').focus();
+  }
+
+  // ─── ADD CHAPTER GROUP ───
+  let chapterCount = projectData.chapters.length;
+  function addCorkChapter() {
+    const grid = document.getElementById('cork-grid');
+    const group = document.createElement('div');
+    group.className = 'cork-chapter-group';
+    group.setAttribute('data-chapter', chapterCount);
+    group.innerHTML = `
+      <div class="cork-chapter-heading">
+        Kapitel ${chapterCount} — <span contenteditable="true">Nytt kapitel</span>
+      </div>
+      <div class="cork-chapter-cards">
+        <div class="cork-add-card" onclick="addCorkCard(this)">+ Ny scen</div>
+      </div>`;
+    grid.appendChild(group);
+    chapterCount++;
+    group.querySelector('span[contenteditable]').focus();
+  }
+
+  // ─── ADD TIMELINE CARD ───
+  function addTimelineCard(addBtn) {
+    const scenes = addBtn.parentElement;
+    const card = document.createElement('div');
+    card.className = 'timeline-card status-draft';
+    const n = scenes.querySelectorAll('.timeline-card').length + 1;
+    card.innerHTML = `
+      <div class="timeline-card-scene">Scen ${n}</div>
+      <div class="timeline-card-title" contenteditable="true">Ny scen</div>
+      <div class="timeline-card-synopsis" contenteditable="true" oninput="updateTimelineWordCount(this)"></div>
+      <div class="timeline-card-words">0 ord</div>`;
+    scenes.insertBefore(card, addBtn);
+    card.querySelector('.timeline-card-title').focus();
   }
 
   // ─── FREE/SCAPPLE DRAG ───
@@ -3860,29 +4867,48 @@
   let freeCardCount = 0;
   function addFreeCard() {
     freeCardCount++;
-    const fc = document.getElementById('cork-free');
+    const fc = document.getElementById('free-canvas');
     const card = document.createElement('div');
     card.className = 'free-card status-draft';
-    card.style.left = (100 + freeCardCount * 30) + 'px';
-    card.style.top = (100 + freeCardCount * 30) + 'px';
+    card.style.left = (100 + freeCardCount * 40) + 'px';
+    card.style.top = (100 + freeCardCount * 40) + 'px';
     card.innerHTML = `
       <div class="free-card-chapter">Ny scen</div>
       <div class="free-card-title" contenteditable="true">Titel</div>
       <div class="free-card-body" contenteditable="true">Anteckningar...</div>`;
-    fc.insertBefore(card, fc.querySelector('.free-add-btn'));
+    fc.appendChild(card);
     makeDraggable(card);
     card.querySelector('.free-card-title').focus();
   }
 
+  // ─── SYNOPSIS PANEL ───
+  function toggleSynopsisPanel() {
+    const panel = document.getElementById('synopsis-panel');
+    const btn = document.getElementById('btn-synopsis');
+    const isOpen = panel.classList.toggle('open');
+    if (btn) btn.classList.toggle('active', isOpen);
+  }
 
-  const writingArea = document.getElementById('writingArea');
-  const wordCountToolbar = document.getElementById('wordCountToolbar');
+  function synopsisNav(dir) {
+    const label = document.getElementById('synopsis-panel-scene-label');
+    if (!label) return;
+    const current = label.textContent;
+    const match = current.match(/Scen (\d+)/);
+    if (match) {
+      const n = Math.max(1, parseInt(match[1]) + dir);
+      label.textContent = current.replace(/Scen \d+/, 'Scen ' + n);
+    }
+  }
 
-  writingArea.addEventListener('input', () => {
-    const text = writingArea.innerText.trim();
+
+  // Word count toolbar — uses event delegation on document
+  // (writing areas are created dynamically so we can't bind directly at parse time)
+  document.addEventListener('input', (e) => {
+    if (!e.target.classList.contains('scene-writing-area')) return;
+    const wordCountToolbar = document.getElementById('wordCountToolbar');
+    const text = e.target.innerText.trim();
     const words = text ? text.split(/\s+/).length : 0;
-    wordCountToolbar.textContent = words + ' ord';
-    scheduleAutoSave();
+    if (wordCountToolbar) wordCountToolbar.textContent = words + ' ord';
   });
 
   // Font size
@@ -3898,7 +4924,7 @@
   // Dark mode
   const toggle = document.getElementById('themeToggle');
   let dark = false;
-  toggle.addEventListener('click', () => {
+  if (toggle) toggle.addEventListener('click', () => {
     dark = !dark;
     toggle.classList.toggle('dark', dark);
     document.body.classList.toggle('dark', dark);
@@ -3914,47 +4940,550 @@
   });
 
   // Chapter expand/collapse
-  function toggleChapter(row) {
-    const group = row.closest('.chapter-group');
-    const sceneList = group.querySelector('.scene-list');
-    const arrow = row.querySelector('.ch-arrow');
-    const isOpen = group.classList.contains('open');
+  // ══════════════════════════════════════════════════════
+  // CORE: Binder · selectScene · Inspector · Sync · Outline
+  // ══════════════════════════════════════════════════════
 
-    group.classList.toggle('open', !isOpen);
-    arrow.textContent = isOpen ? '▶' : '▼';
-    sceneList.style.display = isOpen ? 'none' : 'flex';
-
-    // Mark chapter active
-    document.querySelectorAll('.chapter-row').forEach(r => r.classList.remove('active'));
-    row.classList.add('active');
-  }
-
-  // Scene select
-  function selectScene(item) {
-    document.querySelectorAll('.scene-item').forEach(s => s.classList.remove('active'));
-    if (!item.classList.contains('add-scene')) item.classList.add('active');
-  }
-
-  // Add chapter
-  function addChapter() {
+  // ── Render Binder from projectData ──
+  function renderBinder() {
     const list = document.getElementById('chapterList');
-    const group = document.createElement('div');
-    group.className = 'chapter-group open';
-    group.innerHTML = `
-      <div class="chapter-row active" onclick="toggleChapter(this)">
-        <span class="ch-arrow">▼</span>
-        <span class="chapter-icon">📄</span>
-        <span class="chapter-name" contenteditable="true">Nytt kapitel</span>
-        <span class="chapter-words">0</span>
-      </div>
-      <div class="scene-list" style="display:flex;">
-        <div class="scene-item add-scene" onclick="addScene(this)">
-          <span class="scene-dot" style="background:var(--border-strong);"></span>
-          <span class="scene-name" style="color:var(--text-muted);">+ Ny scen</span>
-        </div>
-      </div>`;
-    list.insertBefore(group, list.lastElementChild);
-    group.querySelector('.chapter-name').focus();
+    if (!list) return;
+    list.innerHTML = '';
+
+    projectData.chapters.forEach(chap => {
+      const chapWords = chap.scenes.reduce((s, sc) => s + (sc.words || 0), 0);
+      const isActiveChap = chap.scenes.some(sc => sc.id === activeScene?.id);
+
+      const group = document.createElement('div');
+      group.className = 'chapter-group' + (isActiveChap ? ' open' : '');
+      group.dataset.chapId = chap.id;
+
+      // ── Chapter row ──
+      const row = document.createElement('div');
+      row.className = 'chapter-row' + (isActiveChap ? ' active' : '');
+
+      const arrow = document.createElement('span');
+      arrow.className = 'ch-arrow';
+      arrow.textContent = isActiveChap ? '▼' : '▶';
+
+      const icon = document.createElement('span');
+      icon.className = 'chapter-icon';
+      icon.textContent = '📄';
+
+      // Editable chapter name
+      const nameEl = document.createElement('span');
+      nameEl.className = 'chapter-name';
+      nameEl.contentEditable = 'true';
+      nameEl.spellcheck = false;
+      nameEl.textContent = chap.title;
+
+      nameEl.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); nameEl.blur(); }
+      });
+      nameEl.addEventListener('blur', () => {
+        const t = nameEl.textContent.trim();
+        if (!t) { nameEl.textContent = chap.title; return; }
+        chap.title = t;
+        // Sync manus heading if this chapter is active
+        if (chap.scenes.some(sc => sc.id === activeScene?.id)) {
+          document.querySelectorAll('.scene-chapter-heading[data-chap-id="' + chap.id + '"]')
+            .forEach(el => { el.textContent = t; });
+          // Sync inspector context label
+          const ctx = document.getElementById('inspector-context-label');
+          if (ctx) ctx.textContent = t.toUpperCase() + ' · SCEN ' + (chap.scenes.indexOf(activeScene) + 1);
+        }
+        // Sync all outline chapter headings
+        document.querySelectorAll(`.outline-chapter-name[data-chap-id="${chap.id}"]`).forEach(el => {
+          el.textContent = t;
+        });
+      });
+
+      const words = document.createElement('span');
+      words.className = 'chapter-words';
+      words.textContent = chapWords;
+
+      // Scene list
+      const sceneList = document.createElement('div');
+      sceneList.className = 'scene-list';
+      sceneList.style.display = isActiveChap ? 'flex' : 'none';
+
+      // Arrow = toggle open/closed (no scene load)
+      arrow.addEventListener('click', e => {
+        e.stopPropagation();
+        const isOpen = group.classList.contains('open');
+        group.classList.toggle('open', !isOpen);
+        arrow.textContent = !isOpen ? '▼' : '▶';
+        sceneList.style.display = !isOpen ? 'flex' : 'none';
+      });
+      // Chapter row click = expand + show all scenes concatenated (Scrivener-style)
+      row.addEventListener('click', e => {
+        if (e.target === nameEl || e.target === arrow) return;
+        group.classList.add('open');
+        arrow.textContent = '▼';
+        sceneList.style.display = 'flex';
+        selectChapterById(chap.id);
+      });
+
+      row.appendChild(arrow);
+      row.appendChild(icon);
+      row.appendChild(nameEl);
+      row.appendChild(words);
+
+      // ── Scene items ──
+      chap.scenes.forEach(scene => {
+        const sc = document.createElement('div');
+        sc.className = 'scene-item' + (scene.id === activeScene?.id ? ' active' : '');
+        sc.dataset.sceneId = scene.id;
+
+        const dot = document.createElement('span');
+        dot.className = 'scene-dot';
+        dot.style.background = STATUS_COLORS[scene.status]?.color || '#b090d0';
+
+        const sName = document.createElement('span');
+        sName.className = 'scene-name';
+        sName.contentEditable = 'true';
+        sName.spellcheck = false;
+        sName.textContent = scene.title;
+
+        sName.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); sName.blur(); }
+        });
+        sName.addEventListener('blur', () => {
+          const t = sName.textContent.trim();
+          if (!t) { sName.textContent = scene.title; return; }
+          scene.title = t;
+          touchScene(scene);
+          // Sync inspector if this is active scene
+          if (activeScene?.id === scene.id) {
+            const cn = document.getElementById('inspector-context-name');
+            if (cn) cn.textContent = t;
+          }
+          // Sync outline title
+          const outlineTitle = document.querySelector(`tr[data-scene-id="${scene.id}"] .outline-scene-title`);
+          if (outlineTitle) outlineTitle.textContent = t;
+        });
+
+        const sw = document.createElement('span');
+        sw.className = 'scene-words';
+        sw.textContent = (scene.words || 0) + ' ord';
+
+        sc.appendChild(dot);
+        sc.appendChild(sName);
+        sc.appendChild(sw);
+
+        // Click on row (not on name) = select scene
+        sc.addEventListener('click', e => {
+          if (e.target === sName) return;
+          selectSceneById(scene.id);
+        });
+
+        sceneList.appendChild(sc);
+      });
+
+      // + Ny scen knapp
+      const addBtn = document.createElement('div');
+      addBtn.className = 'scene-item add-scene';
+      addBtn.innerHTML = '<span class="scene-dot" style="background:var(--border-strong);opacity:0.4"></span><span class="scene-name" style="color:var(--text-muted);">+ Ny scen</span>';
+      addBtn.addEventListener('click', () => addSceneToChapter(chap.id));
+      sceneList.appendChild(addBtn);
+
+      group.appendChild(row);
+      group.appendChild(sceneList);
+      list.appendChild(group);
+    });
+  }
+
+  // ── Select chapter: show all scenes concatenated (Scrivener-style) ──
+  function selectChapterById(chapId) {
+    const chap = projectData.chapters.find(c => c.id === chapId);
+    if (!chap || chap.scenes.length === 0) return;
+
+    activeScene = chap.scenes[0];
+
+    document.querySelectorAll('.scene-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.chapter-row').forEach(el => el.classList.remove('active'));
+    const chapGroup = document.querySelector('.chapter-group[data-chap-id="' + chapId + '"]');
+    if (chapGroup) chapGroup.querySelector('.chapter-row')?.classList.add('active');
+
+    loadChapter(chap);
+    loadInspector(chap.scenes[0]);
+    switchView('writing');
+  }
+
+  // ── Select a scene: save current → switch → load ──
+  function selectSceneById(sceneId) {
+    const scene = allScenes().find(s => s.id === sceneId);
+    if (!scene) return;
+
+    const chap = chapterForScene(sceneId);
+    if (!chap) return;
+
+    // If different chapter — load it
+    const currentChap = chapterForScene(activeScene?.id);
+    if (!currentChap || currentChap.id !== chap.id) {
+      loadChapter(chap);
+    }
+
+    activeScene = scene;
+
+    // Update binder highlights
+    document.querySelectorAll('.scene-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.chapter-row').forEach(el => el.classList.remove('active'));
+    const sceneEl = document.querySelector('.scene-item[data-scene-id="' + sceneId + '"]');
+    if (sceneEl) sceneEl.classList.add('active');
+
+    loadInspector(scene);
+    syncViewsForScene(scene);
+    switchView('writing');
+    requestAnimationFrame(() => scrollToScene(sceneId));
+  }
+
+  // ── Load chapter heading + scene text into manus ──
+  function buildChapterDoc(chap) {
+    const doc = document.createElement('div');
+    doc.className = 'chapter-doc';
+    doc.dataset.chapId = chap.id;
+
+    // Chapter title
+    const titleEl = document.createElement('div');
+    titleEl.className = 'chapter-doc-title';
+    titleEl.contentEditable = 'true';
+    titleEl.spellcheck = false;
+    titleEl.textContent = chap.title;
+    titleEl.onblur = function() {
+      const t = titleEl.textContent.trim();
+      if (t) {
+        chap.title = t;
+        renderBinder(); renderOutline(); renderCorkGrid();
+        document.querySelectorAll('.chapter-doc[data-chap-id="' + chap.id + '"] .chapter-doc-title')
+          .forEach(el => { if (el !== titleEl) el.textContent = t; });
+        document.querySelectorAll('.chapter-name[data-chap-id="' + chap.id + '"]')
+          .forEach(el => el.textContent = t);
+      }
+    };
+    doc.appendChild(titleEl);
+
+    // Scene blocks
+    chap.scenes.forEach((scene, i) => {
+      // Divider between scenes
+      if (i > 0) {
+        const div = document.createElement('div');
+        div.className = 'scene-divider';
+        div.textContent = '* * *';
+        doc.appendChild(div);
+      }
+
+      // Scene block
+      const block = document.createElement('div');
+      block.className = 'scene-block';
+      block.dataset.sceneId = scene.id;
+
+      // Writing area
+      const area = document.createElement('div');
+      area.className = 'scene-writing-area';
+      area.contentEditable = 'true';
+      area.id = 'writingArea-' + scene.id;
+      area.spellcheck = true;
+      if (scene.text) area.innerHTML = scene.text;
+
+      area.addEventListener('focus', function() {
+        // Mark this scene as active
+        document.querySelectorAll('.scene-block').forEach(b => b.classList.remove('active-scene'));
+        block.classList.add('active-scene');
+        if (activeScene?.id !== scene.id) {
+          activeScene = scene;
+          loadInspector(scene);
+          syncViewsForScene(scene);
+        }
+      });
+
+      area.addEventListener('input', function() {
+        scene.text = area.innerHTML;
+        const words = area.innerText.trim() ? area.innerText.trim().split(/\s+/).filter(Boolean).length : 0;
+        scene.words = words;
+        touchScene(scene);
+        const sceneEl = document.querySelector('.scene-item[data-scene-id="' + scene.id + '"] .scene-words');
+        if (sceneEl) sceneEl.textContent = words + ' ord';
+        const chapObj = chapterForScene(scene.id);
+        if (chapObj) {
+          const chapWords = chapObj.scenes.reduce((s, sc) => s + (sc.words || 0), 0);
+          const chapEl = document.querySelector('.chapter-group[data-chap-id="' + chapObj.id + '"] .chapter-words');
+          if (chapEl) chapEl.textContent = chapWords;
+        }
+      });
+
+      block.appendChild(area);
+      doc.appendChild(block);
+    });
+
+    return doc;
+  }
+
+  function loadChapter(chap) {
+    const container = document.getElementById('pageContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    const doc = buildChapterDoc(chap);
+    container.appendChild(doc);
+    const scrollEl = document.getElementById('canvasWrap');
+    if (scrollEl) scrollEl.scrollTop = 0;
+  }
+
+  function scrollToScene(sceneId) {
+    const block = document.querySelector('.scene-block[data-scene-id="' + sceneId + '"]');
+    if (!block) return;
+    // Mark active
+    document.querySelectorAll('.scene-block').forEach(b => b.classList.remove('active-scene'));
+    block.classList.add('active-scene');
+    // Scroll
+    block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // LEGACY — kept for compatibility but redirects to new model
+  function buildScenePage(scene, pageNum, chap, isFirst) {
+    // This is now handled by buildChapterDoc
+    const block = document.createElement('div');
+    block.className = 'scene-block';
+    block.dataset.sceneId = scene.id;
+    return block;
+  }
+
+  function loadManuscript(scene) {
+    const chap = chapterForScene(scene.id);
+    if (!chap) return;
+    loadChapter(chap);
+    // Scroll to the specific scene after a tick
+    requestAnimationFrame(() => scrollToScene(scene.id));
+  }
+
+  // ── Load scene metadata into Inspector ──
+  function loadInspector(scene) {
+    const chap = chapterForScene(scene.id);
+    const chapTitle = chap ? chap.title.toUpperCase() : '';
+    const sceneIdx  = chap ? chap.scenes.indexOf(scene) + 1 : 1;
+
+    const ctxLabel = document.getElementById('inspector-context-label');
+    const ctxName  = document.getElementById('inspector-context-name');
+    if (ctxLabel) ctxLabel.textContent = chapTitle + ' · SCEN ' + sceneIdx;
+    if (ctxName)  ctxName.textContent  = scene.title;
+
+    const statusSel = document.getElementById('insp-status-select');
+    if (statusSel) { statusSel.value = scene.status || 'draft'; updateInspectorStatus(statusSel); }
+
+    const dramaSel = document.getElementById('insp-drama-select');
+    if (dramaSel) { dramaSel.value = scene.drama || 'ingen'; updateInspectorDrama(dramaSel); }
+
+    const synEl = document.getElementById('insp-synopsis');
+    if (synEl) synEl.value = scene.synopsis || '';
+
+    const notesEl = document.getElementById('insp-notes');
+    if (notesEl) notesEl.value = scene.notes || '';
+  }
+
+  // ── Sync binder dot + outline row after any change to scene ──
+  function syncViewsForScene(scene) {
+    // Binder dot
+    const binderItem = document.querySelector(`.scene-item[data-scene-id="${scene.id}"]`);
+    if (binderItem) {
+      const dot = binderItem.querySelector('.scene-dot');
+      if (dot) dot.style.background = STATUS_COLORS[scene.status]?.color || '#b090d0';
+    }
+
+    // Outline row
+    const outlineRow = document.querySelector(`tr[data-scene-id="${scene.id}"]`);
+    if (outlineRow) {
+      const dot = outlineRow.querySelector('.outline-status-dot');
+      const statusSel = outlineRow.querySelector('.outline-select');
+      const avsnittSel = outlineRow.querySelector('.outline-avsnitt-select');
+      if (dot) dot.style.background = STATUS_COLORS[scene.status]?.color || '#b090d0';
+      if (statusSel) statusSel.value = scene.status || 'draft';
+      if (avsnittSel) avsnittSel.value = scene.drama || 'ingen';
+      // Synopsis row (uses data-for attribute)
+      const summaryRow = document.querySelector('.outline-summary-row[data-for="' + scene.id + '"]');
+      if (summaryRow) {
+        const txt = summaryRow.querySelector('.outline-summary-text');
+        if (txt) txt.textContent = scene.synopsis || '';
+      }
+    }
+
+    // Scenkort
+    const corkCard = document.querySelector(`.cork-card[data-scene-id="${scene.id}"]`);
+    if (corkCard) {
+      const synEl   = corkCard.querySelector('.cork-card-body');
+      const dotEl   = corkCard.querySelector('.cork-drama-dot');
+      const titleEl = corkCard.querySelector('.cork-card-title');
+      if (synEl)   synEl.innerText   = scene.synopsis || '';
+      if (titleEl) titleEl.innerText = scene.title;
+      if (dotEl && DRAMA_COLORS[scene.drama]) dotEl.style.background = DRAMA_COLORS[scene.drama].color;
+    }
+  }
+
+
+
+  // ── Add new scene to chapter ──
+  function addSceneToActiveChapter() {
+    const chap = chapterForScene(activeScene?.id);
+    if (chap) addSceneToChapter(chap.id);
+    else if (projectData.chapters.length > 0) addSceneToChapter(projectData.chapters[projectData.chapters.length - 1].id);
+  }
+
+    function addSceneToChapter(chapId) {
+    const chap = projectData.chapters.find(c => c.id === chapId);
+    if (!chap) return;
+    const n = chap.scenes.length + 1;
+    const now = new Date();
+    const p = x => String(x).padStart(2,'0');
+    const dt = now.getFullYear()+'-'+p(now.getMonth()+1)+'-'+p(now.getDate())+'T'+p(now.getHours())+':'+p(now.getMinutes());
+    const newScene = {
+      id: chapId + '-scene-' + n,
+      title: 'Ny scen ' + n,
+      status: 'draft', drama: 'ingen', pov: '', synopsis: '', notes: '',
+      words: 0, dateCreated: dt, dateChanged: dt,
+    };
+    chap.scenes.push(newScene);
+    activeScene = newScene;
+    renderBinder();
+    loadChapter(chap);
+    loadInspector(newScene);
+    renderOutline();
+    renderCorkGrid();
+    renderTimeline();
+  }
+
+  // ── Add new chapter ──
+  function addChapterToProject() {
+    const n = projectData.chapters.length + 1;
+    const now = new Date();
+    const p = x => String(x).padStart(2,'0');
+    const dt = now.getFullYear()+'-'+p(now.getMonth()+1)+'-'+p(now.getDate())+'T'+p(now.getHours())+':'+p(now.getMinutes());
+    const newChap = {
+      id: 'chap-new-' + n,
+      title: 'Kapitel ' + n,
+      scenes: [{
+        id: 'chap-new-' + n + '-scene-1',
+        title: 'Ny scen 1',
+        status: 'draft', drama: 'ingen', pov: '', synopsis: '', notes: '',
+        words: 0, dateCreated: dt, dateChanged: dt,
+      }]
+    };
+    projectData.chapters.push(newChap);
+    activeScene = newChap.scenes[0];
+    renderBinder();
+    loadChapter(newChap);
+    loadInspector(activeScene);
+    renderOutline();
+    renderCorkGrid();
+    renderTimeline();
+  }
+
+  function updateWordCount() {
+    const total = allScenes().reduce((s, sc) => s + (sc.words || 0), 0);
+    const el = document.getElementById('word-count-total');
+    if (el) el.textContent = total.toLocaleString('sv-SE') + ' ord';
+  }
+
+
+  // Legacy sceneData kept for compat
+  const sceneData = {};
+
+  function sceneKey(chapEl, sceneEl) {
+    const chapGroup = sceneEl.closest('.cork-chapter-group');
+    if (chapGroup) {
+      const chap = chapGroup.getAttribute('data-chapter') || '?';
+      const cards = chapGroup.querySelectorAll('.cork-card');
+      const idx = Array.from(cards).indexOf(sceneEl) + 1;
+      return 'chap-' + chap + '_scene-' + idx;
+    }
+    // fallback: use binder selection
+    const active = document.querySelector('.scene-item.active');
+    if (active) {
+      const chapName = active.closest('.chapter-group')?.querySelector('.chapter-name')?.textContent || '?';
+      const idx = Array.from(active.parentElement.querySelectorAll('.scene-item:not(.add-scene)')).indexOf(active) + 1;
+      return 'binder_' + chapName + '_scene-' + idx;
+    }
+    return 'unknown';
+  }
+
+  function getSceneData(key) {
+    if (!sceneData[key]) sceneData[key] = { synopsis: '', drama: '', notes: '' };
+    return sceneData[key];
+  }
+
+  // ─── INSPECTOR FUNCTIONS ───
+  function updateInspector(chapterName, sceneLabel, sceneName) {
+    // Legacy — now handled by loadInspector(activeScene)
+    if (activeScene) loadInspector(activeScene);
+  }
+
+  function switchInspectorTab(tab, btn) {
+    ['synopsis','notes','meta'].forEach(t => {
+      const el = document.getElementById('insp-tab-' + t);
+      if (el) el.style.display = t === tab ? 'flex' : 'none';
+      if (el && t === tab) el.style.flexDirection = 'column';
+    });
+    document.querySelectorAll('.inspector-tab').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+
+  function updateInspectorSynopsisCount(ta) {
+    const count = document.getElementById('insp-synopsis-count');
+    if (!count) return;
+    const len = ta.value.length;
+    count.textContent = len + ' / 200';
+    ta.classList.toggle('near-limit', len > 180);
+    count.style.color = len > 180 ? 'var(--accent-o)' : '';
+  }
+
+  function selectDrama(chip) {
+    // Works for both inspector and any drama-row
+    const row = chip.closest('.inspector-drama-row, #insp-drama-row');
+    if (row) row.querySelectorAll('.drama-chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    const key = chip.getAttribute('data-drama');
+    // Sync back to active cork card dot
+    const activeCard = document.querySelector('.cork-card.selected');
+    if (activeCard) {
+      const dot = activeCard.querySelector('.cork-drama-selector .cork-drama-dot');
+      if (dot && dramaColors[key]) {
+        dot.style.background = dramaColors[key].color;
+        dot.title = key === 'ingen' ? 'Välj stämning' : key.charAt(0).toUpperCase() + key.slice(1);
+      }
+    }
+    saveInspectorData();
+  }
+
+
+  function updateInspectorDrama(sel) {
+    const dot = document.getElementById('insp-drama-dot');
+    if (!dot) return;
+    const colors = {
+      ingen: 'var(--border-strong)',
+      klimax: '#dc4646',
+      vändpunkt: '#fcb136',
+      upptrappning: '#b090d0',
+      svacka: '#6495ed',
+      lugn: '#4a8981',
+    };
+    dot.style.background = colors[sel.value] || 'var(--border-strong)';
+  }
+
+  function updateInspectorStatus(sel) {
+    const dot = document.getElementById('insp-status-dot');
+    if (!dot) return;
+    dot.style.background = STATUS_COLORS[sel.value]?.color || '#b090d0';
+  }
+
+  // Init synopsis count
+  (function() {
+    const syn = document.getElementById('insp-synopsis');
+    if (syn) updateInspectorSynopsisCount(syn);
+    const statusSel = document.getElementById('insp-status-select');
+    if (statusSel) updateInspectorStatus(statusSel);
+  })();
+
+  // Add chapter — uses projectData
+  function addChapter() {
+    addChapterToProject();
   }
 
   // Add scene
@@ -4763,7 +6292,7 @@ VIKTIGT:
         const asked = await saveFolderHandle.requestPermission({ mode: 'readwrite' });
         if (asked !== 'granted') return;
       }
-      const content = document.getElementById('writingArea').innerHTML;
+      const content = getWritingArea().innerHTML;
       const name = getProjectName();
       const fh = await saveFolderHandle.getFileHandle(name + '.html', { create: true });
       const writable = await fh.createWritable();
@@ -4834,6 +6363,8 @@ VIKTIGT:
     }
   })();
 
+
+
   // ─── UNDER MANUS ───
   function toggleBmSection(id) {
     const body = document.getElementById(id);
@@ -4862,7 +6393,7 @@ VIKTIGT:
   }
 
   function addBmChar() {
-    const container = document.getElementById('bm-chars');
+    const container = document.getElementById('bmCharList') || document.getElementById('bm-chars');
     const colors = [
       'linear-gradient(135deg,#e8c8a8,#d4956a)',
       'linear-gradient(135deg,#c8d8e8,#7a9ab8)',
@@ -5068,7 +6599,7 @@ VIKTIGT:
         const asked = await backupSettings.folderHandle.requestPermission({ mode: 'readwrite' });
         if (asked !== 'granted') return false;
       }
-      const content = document.getElementById('writingArea').innerHTML;
+      const content = getWritingArea().innerHTML;
       const name = getProjectName();
       const filename = getBackupFilename();
       const fh = await backupSettings.folderHandle.getFileHandle(filename, { create: true });
@@ -5128,7 +6659,7 @@ VIKTIGT:
   function filNyttProjekt() {
     _closeDropdowns();
     if (!confirm('Skapa nytt projekt? Osparade ändringar försvinner.')) return;
-    const wa = document.getElementById('writingArea');
+    const wa = getWritingArea();
     if (wa) wa.innerHTML = '<p></p>';
     const heading = document.querySelector('.chapter-heading');
     if (heading) heading.textContent = 'Nytt kapitel';
@@ -5143,12 +6674,12 @@ VIKTIGT:
       const file = inp.files[0];
       if (!file) return;
       const text = await file.text();
-      const wa = document.getElementById('writingArea');
+      const wa = getWritingArea();
       if (!wa) return;
       if (file.name.endsWith('.html')) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
-        const srcWa = doc.getElementById('writingArea');
+        const srcWa = doc.getElementById('writingArea') || doc.querySelector('.scene-writing-area');
         wa.innerHTML = srcWa ? srcWa.innerHTML : doc.body.innerHTML;
       } else {
         wa.innerHTML = text.split(/\n{2,}/).filter(p => p.trim())
@@ -5168,35 +6699,25 @@ VIKTIGT:
   }
 
   function _buildTxt() {
-    const wa = document.getElementById('writingArea');
+    const wa = getWritingArea();
     return wa ? (wa.innerText || wa.textContent) : '';
   }
 
   function _buildDoc(title) {
-    const content = document.getElementById('writingArea')?.innerHTML || '';
+    const content = getWritingArea()?.innerHTML || '';
     return `<html xmlns:o='urn:schemas-microsoft-com:office:office'
       xmlns:w='urn:schemas-microsoft-com:office:word'
       xmlns='http://www.w3.org/TR/REC-html40'>
 <head><meta charset="UTF-8"><title>${title}</title>
-<style>
-  body { font-family: "Times New Roman", serif; font-size: 12pt; line-height: 1.8; margin: 2.5cm; color: #111; }
-  p { margin: 0 0 8pt; }
-  h1 { font-size: 18pt; margin: 24pt 0 8pt; }
-  h2 { font-size: 14pt; margin: 18pt 0 6pt; }
-  b, strong { font-weight: bold; }
-  i, em { font-style: italic; }
-</style></head>
+</head>
 <body>${content}</body></html>`;
   }
 
   function _buildHtml(title) {
-    const content = document.getElementById('writingArea')?.innerHTML || '';
+    const content = getWritingArea()?.innerHTML || '';
     return `<!DOCTYPE html><html lang="sv"><head><meta charset="UTF-8">
 <title>${title}</title>
-<style>
-  body { font-family: Georgia, serif; font-size: 1rem; line-height: 1.8; max-width: 700px; margin: 40px auto; color: #222; }
-  p { margin: 0 0 1em; }
-</style></head>
+</head>
 <body>${content}</body></html>`;
   }
 
@@ -5209,7 +6730,7 @@ VIKTIGT:
 
   async function _exportPdf(title) {
     const { jsPDF } = window.jspdf;
-    const wa = document.getElementById('writingArea');
+    const wa = getWritingArea();
     const el = document.createElement('div');
     el.style.cssText = 'position:absolute;left:-9999px;top:0;width:750px;padding:60px 70px;background:#fff;color:#111;font-family:Georgia,serif;font-size:13pt;line-height:1.9;';
     el.innerHTML = `<h2 style="font-family:Georgia,serif;margin:0 0 32px;font-size:18pt;">${title}</h2>` + wa.innerHTML;
@@ -5233,7 +6754,7 @@ VIKTIGT:
 
   async function _exportDocx(title) {
     const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
-    const wa = document.getElementById('writingArea');
+    const wa = getWritingArea();
 
     function parseInline(el) {
       const runs = [];
@@ -5272,7 +6793,7 @@ VIKTIGT:
 
   async function _exportEpub(title) {
     const zip = new JSZip();
-    const content = document.getElementById('writingArea').innerHTML;
+    const content = getWritingArea().innerHTML;
     const uuid = 'urn:uuid:' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
       const r = Math.random() * 16 | 0;
       return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
@@ -5323,7 +6844,7 @@ p:first-of-type{text-indent:0;}`);
   }
 
   function _exportMarkdown(title) {
-    const wa = document.getElementById('writingArea');
+    const wa = getWritingArea();
     function inlineMd(el) {
       let s = '';
       el.childNodes.forEach(n => {
@@ -5380,12 +6901,12 @@ p:first-of-type{text-indent:0;}`);
       const file = inp.files[0];
       if (!file) return;
       const text = await file.text();
-      const wa = document.getElementById('writingArea');
+      const wa = getWritingArea();
       if (!wa) return;
       if (file.name.endsWith('.html') || file.name.endsWith('.doc')) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(text, 'text/html');
-        const srcWa = doc.getElementById('writingArea');
+        const srcWa = doc.getElementById('writingArea') || doc.querySelector('.scene-writing-area');
         wa.innerHTML = srcWa ? srcWa.innerHTML : doc.body.innerHTML;
       } else {
         wa.innerHTML = text.split(/\n{2,}/).filter(p => p.trim())
@@ -5410,6 +6931,617 @@ p:first-of-type{text-indent:0;}`);
     if (e.key === 'p') { e.preventDefault(); filSkrivUt(); }
   });
   // ──────────────────────────────────────────────────────────────────────────
+
+
+  // ═══ DRAMA MENU — complete rewrite ═══
+  const dramaColors = {
+    'ingen':        { color: 'var(--border-strong)', label: '— Ingen' },
+    'klimax':       { color: '#dc4646',  label: '🔴 Klimax' },
+    'vändpunkt':    { color: '#fcb136',  label: '🟡 Vändpunkt' },
+    'upptrappning': { color: '#b090d0',  label: '🟣 Upptrappning' },
+    'svacka':       { color: '#6495ed',  label: '🔵 Svacka' },
+    'lugn':         { color: '#4a8981',  label: '🟢 Lugn' },
+  };
+
+  function openDramaMenu(event, triggerEl) {
+    event.stopPropagation();
+    // Remove any existing menu
+    const existing = document.getElementById('drama-popup');
+    if (existing) existing.remove();
+
+    const dotEl = triggerEl.querySelector('.cork-drama-dot') || triggerEl;
+
+    const menu = document.createElement('div');
+    menu.id = 'drama-popup';
+    menu.className = 'drama-menu';
+
+    Object.entries(dramaColors).forEach(([key, val]) => {
+      const btn = document.createElement('button');
+      btn.className = 'drama-menu-item';
+      btn.innerHTML = '<span class="drama-menu-dot" style="background:' + val.color + ';"></span>' + val.label;
+      btn.onclick = function(e) {
+        e.stopPropagation();
+        applyDrama(dotEl, key);
+        document.getElementById('drama-popup')?.remove();
+      };
+      menu.appendChild(btn);
+    });
+
+    document.body.appendChild(menu);
+
+    const rect = triggerEl.getBoundingClientRect();
+    let top  = rect.bottom + 6;
+    let left = rect.left - 50;
+    if (left < 4) left = 4;
+    if (left + 165 > window.innerWidth) left = window.innerWidth - 170;
+    if (top + 230 > window.innerHeight) top = rect.top - 235;
+    menu.style.top  = top  + 'px';
+    menu.style.left = left + 'px';
+  }
+
+  function applyDrama(dotEl, key) {
+    const col = dramaColors[key];
+    if (!col) return;
+    dotEl.style.background = col.color;
+    dotEl.title = key === 'ingen' ? 'Välj stämning' : col.label.replace(/^.. /, '');
+
+    // Select the card this dot belongs to
+    const card = dotEl.closest('.cork-card');
+    if (card) selectCorkCard(card);
+
+    // Sync inspector drama chips
+    document.querySelectorAll('#insp-drama-row .drama-chip').forEach(c => {
+      c.classList.toggle('selected', c.getAttribute('data-drama') === key);
+    });
+  }
+
+  // Close drama popup on outside click
+  document.addEventListener('click', function() {
+    document.getElementById('drama-popup')?.remove();
+  });
+
+  // ─── CARD CHAR COUNT ───
+  function updateCardCharCount(bodyEl) {
+    const countEl = bodyEl.nextElementSibling;
+    if (!countEl || !countEl.classList.contains('cork-card-char-count')) return;
+    const len = bodyEl.innerText.length;
+    countEl.textContent = len + ' / 200';
+    countEl.classList.toggle('near-limit', len > 180);
+  }
+
+  // ─── SCENE DATA STORE ───
+  const sceneStore = {};
+  function saveInspectorData() { saveFromInspector(); }
+  function saveFromInspector() {
+    if (!activeScene) return;
+    activeScene.synopsis = document.getElementById('insp-synopsis')?.value || '';
+    activeScene.notes    = document.getElementById('insp-notes')?.value    || '';
+    activeScene.status   = document.getElementById('insp-status-select')?.value || 'draft';
+    activeScene.drama    = document.getElementById('insp-drama-select')?.value  || 'ingen';
+    touchScene(activeScene);
+    syncViewsForScene(activeScene);
+  }
+
+  // ─── ADD TIMELINE AKT DIVIDER ───
+  let timelineChapCount = 55; // starts after existing demo chapters
+
+  function addTimelineAkt() {
+    const chapters = document.getElementById('timeline-chapters');
+    if (!chapters) return;
+    const n = chapters.querySelectorAll('.timeline-akt-divider').length + 2;
+
+    // ── Akt divider row ──
+    const divider = document.createElement('div');
+    divider.className = 'timeline-akt-divider';
+    divider.innerHTML = '<div class="timeline-akt-label" contenteditable="true" spellcheck="false">Akt ' + n + '</div>';
+    chapters.appendChild(divider);
+
+    // ── Empty chapter row directly below ──
+    addTimelineChapter(chapters);
+
+    divider.querySelector('.timeline-akt-label').focus();
+  }
+
+  function addTimelineChapter(chaptersEl) {
+    const container = chaptersEl || document.getElementById('timeline-chapters');
+    if (!container) return;
+    timelineChapCount++;
+    const row = document.createElement('div');
+    row.className = 'timeline-chapter-row';
+    row.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:flex-end;width:140px;flex-shrink:0;border-right:2px solid var(--border-strong);padding-right:20px;">
+        <div class="timeline-chapter-label" style="border:none;padding:0;width:auto;text-align:right;outline:none;"
+             contenteditable="true" spellcheck="false">Kapitel ${timelineChapCount}</div>
+        <div class="timeline-chapter-note" contenteditable="true"></div>
+      </div>
+      <div class="timeline-scenes">
+        <div class="timeline-add-scene" onclick="addTimelineCard(this)">+ scen</div>
+      </div>`;
+    container.appendChild(row);
+    // Focus the chapter name
+    row.querySelector('[contenteditable]').focus();
+    return row;
+  }
+
+
+  // ─── AUTO-GROW TEXTAREAS ───
+  function autoGrow(el) {
+    // field-sizing:content handles modern browsers
+    // Fallback for others: reset height then set to scrollHeight
+    if (!CSS.supports('field-sizing', 'content')) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 600) + 'px';
+    }
+  }
+
+  // Init auto-grow on existing inspector textareas
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.inspector-synopsis, .inspector-notes').forEach(el => {
+      autoGrow(el);
+    });
+  });
+
+
+  // ─── TIMELINE WORD COUNT ───
+  function updateTimelineWordCount(synopsisEl) {
+    const wordsEl = synopsisEl.nextElementSibling;
+    if (!wordsEl || !wordsEl.classList.contains('timeline-card-words')) return;
+    const text = synopsisEl.innerText.trim();
+    const count = text ? text.split(/\s+/).length : 0;
+    wordsEl.textContent = count + ' ord';
+  }
+
+  // Init word counts on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.timeline-card-synopsis').forEach(el => {
+      updateTimelineWordCount(el);
+    });
+  });
+
+  // ═══ OUTLINE FUNCTIONS ═══
+  const statusColors = {
+    draft:   '#b090d0', second:  '#fcb136', revised: '#f0a060',
+    edit1:   '#6495ed', edit2:   '#5585dd', edit3:   '#4575cd', done: '#4a8981',
+  };
+
+  // outlineStatusChange — replaced by projectData version below
+
+  function toggleOutlineChapter(nameEl) {
+    const arrow = nameEl.querySelector('.oc-arrow');
+    const row = nameEl.closest('tr');
+    let next = row.nextElementSibling;
+    const collapsed = arrow.classList.toggle('collapsed');
+    while (next && (next.classList.contains('outline-scene-row') || next.classList.contains('outline-summary-row'))) {
+      next.style.display = collapsed ? 'none' : '';
+      next = next.nextElementSibling;
+    }
+  }
+
+  function outlineMarkChanged(el) {
+    let row = el.closest('tr');
+    if (row && row.classList.contains('outline-summary-row')) row = row.previousElementSibling;
+    const changedEl = row ? row.querySelector('.outline-changed') : null;
+    if (changedEl) {
+      const now = new Date();
+      const p = n => String(n).padStart(2,'0');
+      changedEl.textContent = now.getFullYear()+'-'+p(now.getMonth()+1)+'-'+p(now.getDate())+' '+p(now.getHours())+':'+p(now.getMinutes());
+    }
+  }
+
+  // Init outline on load
+  
+  function toggleBelowManus() {
+    const bm = document.getElementById('belowManus');
+    const icon = document.getElementById('bmCollapseIcon');
+    if (!bm) return;
+    const isCollapsed = bm.classList.toggle('collapsed');
+    if (icon) icon.textContent = isCollapsed ? '▲' : '▼';
+  }
+
+window.addEventListener('load', function() {
+    document.querySelectorAll('.outline-scene-row [contenteditable]').forEach(el => {
+      el.addEventListener('input', () => outlineMarkChanged(el));
+    });
+    const now = new Date();
+    const p = n => String(n).padStart(2,'0');
+    const dtVal = now.getFullYear()+'-'+p(now.getMonth()+1)+'-'+p(now.getDate())+'T08:00';
+    document.querySelectorAll('.outline-date-input').forEach(inp => { if (!inp.value) inp.value = dtVal; });
+  });
+
+
+  // ── Sync Outline from projectData ──
+  function renderOutline() {
+    const tbody = document.getElementById('outline-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    projectData.chapters.forEach(chap => {
+      // ── Chapter row ──
+      const chapRow = document.createElement('tr');
+      chapRow.className = 'outline-chapter-row';
+      const chapTd = document.createElement('td');
+      chapTd.colSpan = 7;
+      chapTd.style.padding = '0';
+      const chapDiv = document.createElement('div');
+      chapDiv.style.cssText = 'display:flex;align-items:center;padding:10px 16px;cursor:pointer;';
+      const arrow = document.createElement('span');
+      arrow.className = 'oc-arrow';
+      arrow.style.cssText = 'margin-right:8px;font-size:12px;';
+      arrow.textContent = '▼';
+      const chapName = document.createElement('span');
+      chapName.className = 'outline-chapter-name';
+      chapName.dataset.chapId = chap.id;
+      chapName.style.fontWeight = '700';
+      chapName.textContent = chap.title;
+      chapDiv.onclick = function() { toggleOutlineChapter(chapDiv); };
+      chapDiv.appendChild(arrow);
+      chapDiv.appendChild(chapName);
+      chapTd.appendChild(chapDiv);
+      chapRow.appendChild(chapTd);
+      tbody.appendChild(chapRow);
+
+      // ── Scene rows ──
+      chap.scenes.forEach((scene, idx) => {
+        const sColor = STATUS_COLORS[scene.status]?.color || '#b090d0';
+
+        const row = document.createElement('tr');
+        row.className = 'outline-scene-row';
+        row.dataset.sceneId = scene.id;
+        row.style.cursor = 'pointer';
+        row.onclick = function(e) {
+          // Don't navigate if clicking on an interactive element
+          if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT' ||
+              e.target.isContentEditable) return;
+          // Activate scene in inspector without switching view
+          activeScene = scene;
+          loadInspector(scene);
+          document.querySelectorAll('.outline-scene-row').forEach(r => r.classList.remove('active-row'));
+          row.classList.add('active-row');
+          document.querySelectorAll('.scene-item').forEach(el => el.classList.remove('active'));
+          const binderEl = document.querySelector('.scene-item[data-scene-id="' + scene.id + '"]');
+          if (binderEl) binderEl.classList.add('active');
+        };
+        row.ondblclick = function() { selectSceneById(scene.id); };
+
+        // Title cell
+        const tdTitle = document.createElement('td');
+        tdTitle.style.paddingLeft = '36px';
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'outline-scene-title';
+        titleSpan.style.fontWeight = '600';
+        titleSpan.style.fontSize = '0.85rem';
+        titleSpan.textContent = scene.title;
+        const numSpan = document.createElement('span');
+        numSpan.style.cssText = 'color:var(--text-muted);font-size:11px;margin-left:6px;';
+        numSpan.textContent = 'Scen ' + (idx + 1);
+        tdTitle.appendChild(titleSpan);
+        tdTitle.appendChild(numSpan);
+        row.appendChild(tdTitle);
+
+        // Status cell
+        const tdStatus = document.createElement('td');
+        const dot = document.createElement('span');
+        dot.className = 'outline-status-dot';
+        dot.style.cssText = 'display:inline-block;width:10px;height:10px;border-radius:50%;background:' + sColor + ';margin-right:6px;vertical-align:middle;';
+        const statusSel = document.createElement('select');
+        statusSel.className = 'outline-select';
+        statusSel.onclick = function(e) { e.stopPropagation(); };
+        Object.entries(STATUS_COLORS).forEach(([k, v]) => {
+          const opt = document.createElement('option');
+          opt.value = k; opt.textContent = v.label;
+          if (scene.status === k) opt.selected = true;
+          statusSel.appendChild(opt);
+        });
+        statusSel.onchange = function() { outlineStatusChange(statusSel, scene.id); };
+        tdStatus.appendChild(dot);
+        tdStatus.appendChild(statusSel);
+        row.appendChild(tdStatus);
+
+        // Drama cell
+        const tdDrama = document.createElement('td');
+        const dramaSel = document.createElement('select');
+        dramaSel.className = 'outline-avsnitt-select';
+        dramaSel.onclick = function(e) { e.stopPropagation(); };
+        Object.entries(DRAMA_COLORS).forEach(([k, v]) => {
+          const opt = document.createElement('option');
+          opt.value = k; opt.textContent = v.label;
+          if (scene.drama === k) opt.selected = true;
+          dramaSel.appendChild(opt);
+        });
+        dramaSel.onchange = function() { outlineAvsnittChange(dramaSel, scene.id); };
+        tdDrama.appendChild(dramaSel);
+        row.appendChild(tdDrama);
+
+        // POV cell
+        const tdPov = document.createElement('td');
+        tdPov.style.color = 'var(--text-muted)';
+        tdPov.textContent = scene.pov || '—';
+        row.appendChild(tdPov);
+
+        // Date cell
+        const tdDate = document.createElement('td');
+        tdDate.style.cssText = 'font-size:0.75rem;color:var(--text-muted);';
+        const created = (scene.dateCreated || '').replace('T', ' ').slice(0, 10) || '—';
+        tdDate.textContent = created;
+        row.appendChild(tdDate);
+
+        // Words cell
+        const tdWords = document.createElement('td');
+        tdWords.className = 'outline-words';
+        tdWords.textContent = scene.words || 0;
+        row.appendChild(tdWords);
+
+        // Changed cell
+        const tdChanged = document.createElement('td');
+        tdChanged.className = 'outline-changed';
+        tdChanged.textContent = (scene.dateChanged || '').replace('T', ' ').slice(0, 16) || '—';
+        row.appendChild(tdChanged);
+
+        tbody.appendChild(row);
+
+        // Synopsis row
+        const synRow = document.createElement('tr');
+        synRow.className = 'outline-summary-row';
+        synRow.dataset.for = scene.id;
+        // colSpan=1: only TITEL column — prevents overflow across other columns
+        const synTd = document.createElement('td');
+        synTd.colSpan = 1;
+        synTd.style.cssText = 'padding:2px 0 10px 52px;border-bottom:1px solid var(--border);';
+        const synDiv = document.createElement('div');
+        synDiv.className = 'outline-summary-text';
+        synDiv.contentEditable = 'true';
+        synDiv.spellcheck = false;
+        synDiv.style.cssText = 'color:var(--text-muted);font-size:13px;min-height:18px;outline:none;padding:2px 0;display:block;width:100%;box-sizing:border-box;word-wrap:break-word;white-space:normal;overflow-wrap:break-word;';
+        synDiv.textContent = scene.synopsis || '';
+        synDiv.onfocus = function() {
+          // Activate this scene in inspector when editing synopsis
+          activeScene = scene;
+          loadInspector(scene);
+          document.querySelectorAll('.outline-scene-row').forEach(r => r.classList.remove('active-row'));
+          row.classList.add('active-row');
+        };
+        synDiv.oninput = function() {
+          // Live sync to inspector
+          scene.synopsis = synDiv.textContent.trim();
+          const synEl = document.getElementById('insp-synopsis');
+          if (synEl) synEl.value = scene.synopsis;
+        };
+        synDiv.onblur = function() {
+          scene.synopsis = synDiv.textContent.trim();
+          touchScene(scene);
+          const card = document.querySelector('.cork-card[data-scene-id="' + scene.id + '"] .cork-card-body');
+          if (card) card.innerText = scene.synopsis;
+          const synEl = document.getElementById('insp-synopsis');
+          if (synEl) synEl.value = scene.synopsis;
+        };
+        synTd.appendChild(synDiv);
+        synRow.appendChild(synTd);
+        // Empty cells for remaining 6 columns — required for table structure with colSpan=1
+        for (let i = 0; i < 6; i++) {
+          const emptyTd = document.createElement('td');
+          emptyTd.style.cssText = 'border-bottom:1px solid var(--border);padding:0;';
+          synRow.appendChild(emptyTd);
+        }
+        tbody.appendChild(synRow);
+      });
+    });
+  }
+
+  function saveOutlineSynopsis(el, sceneId) {
+    const scene = allScenes().find(s => s.id === sceneId);
+    if (!scene) return;
+    scene.synopsis = el.innerText.trim();
+    touchScene(scene);
+    if (activeScene?.id === sceneId) {
+      const syn = document.getElementById('insp-synopsis');
+      if (syn) syn.value = scene.synopsis;
+    }
+  }
+
+  // ── Sync Cork cards from projectData ──
+  function renderTimeline() {
+    const container = document.getElementById('timeline-chapters');
+    if (!container) return;
+
+    let html = '';
+    projectData.chapters.forEach((chap, chapIdx) => {
+      // Add akt divider before first chapter
+      if (chapIdx === 0) {
+        html += '<div class="timeline-akt-divider">'
+              + '<div class="timeline-akt-label" contenteditable="true" spellcheck="false">Akt 1</div>'
+              + '</div>';
+      }
+
+      html += '<div class="timeline-chapter-row">'
+            + '<div style="display:flex;flex-direction:column;align-items:flex-end;width:140px;'
+            + 'flex-shrink:0;border-right:2px solid var(--border-strong);padding-right:20px;">'
+            + '<div class="timeline-chapter-label" style="border:none;padding:0;width:auto;text-align:right;">'
+            + chap.title + '</div>'
+            + '<div class="timeline-chapter-note" contenteditable="true"></div>'
+            + '</div>'
+            + '<div class="timeline-scenes">';
+
+      chap.scenes.forEach((scene, idx) => {
+        const statusClass = scene.status === 'done' ? 'status-final'
+                          : scene.status === 'second' ? 'status-second'
+                          : 'status-draft';
+        const statusColor = STATUS_COLORS[scene.status]?.color || '#b090d0';
+        const statusLabel = STATUS_COLORS[scene.status]?.label || 'Första utkast';
+        const dramaColor  = DRAMA_COLORS[scene.drama]?.color  || 'var(--border-strong)';
+        const dramaLabel  = (DRAMA_COLORS[scene.drama]?.label || '— Ingen').replace(/^.. /, '');
+        html += '<div class="timeline-card ' + statusClass + '" data-scene-id="' + scene.id + '"'
+              + ' onclick="selectSceneById(\'' + scene.id + '\')" style="cursor:pointer;">'
+              + '<div class="timeline-card-scene">Scen ' + (idx + 1) + '</div>'
+              + '<div class="timeline-card-title">' + scene.title + '</div>'
+              + '<div class="timeline-card-synopsis" contenteditable="true" spellcheck="false"'
+              + ' onclick="event.stopPropagation()"'
+              + ' onblur="saveTimelineSynopsis(this,\'' + scene.id + '\')">'
+              + (scene.synopsis || '') + '</div>'
+              + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:5px 0 3px;">'
+              + '<span style="display:inline-flex;align-items:center;gap:3px;">'
+              + '<span style="width:7px;height:7px;border-radius:50%;background:' + statusColor + ';flex-shrink:0;"></span>'
+              + '<span style="font-size:0.62rem;color:var(--text-muted);">' + statusLabel + '</span>'
+              + '</span>'
+              + '<span style="display:inline-flex;align-items:center;gap:3px;">'
+              + '<span style="width:7px;height:7px;border-radius:50%;background:' + dramaColor + ';flex-shrink:0;"></span>'
+              + '<span style="font-size:0.62rem;color:var(--text-muted);">' + dramaLabel + '</span>'
+              + '</span>'
+              + '</div>'
+              + '<div class="timeline-card-words">' + (scene.words || 0) + ' ord</div>'
+              + '</div>';
+      });
+
+      html += '<div class="timeline-add-scene" onclick="addSceneToChapter(\'' + chap.id + '\')">+ scen</div>'
+            + '</div></div>';
+    });
+
+    container.innerHTML = html;
+  }
+
+  function saveTimelineSynopsis(el, sceneId) {
+    const scene = allScenes().find(s => s.id === sceneId);
+    if (!scene) return;
+    scene.synopsis = el.innerText.trim();
+    touchScene(scene);
+    // Sync inspector and cork card
+    if (activeScene && activeScene.id === sceneId) {
+      const synEl = document.getElementById('insp-synopsis');
+      if (synEl) synEl.value = scene.synopsis;
+    }
+    const card = document.querySelector('.cork-card[data-scene-id="' + sceneId + '"] .cork-card-body');
+    if (card) card.innerText = scene.synopsis;
+  }
+
+  function renderCorkGrid() {
+    const container = document.getElementById('cork-chapters');
+    if (!container) return;
+
+    let html = '';
+    projectData.chapters.forEach(chap => {
+      html += '<div class="cork-chapter-group" data-chap-id="' + chap.id + '">'
+            + '<div class="cork-chapter-heading">'
+            + '<span class="cork-chap-name" contenteditable="true" spellcheck="false"'
+            + ' onblur="renameCorkChap(this,\'' + chap.id + '\')">' + chap.title + '</span>'
+            + '</div>'
+            + '<div class="cork-chapter-cards">';
+
+      chap.scenes.forEach((scene, idx) => {
+        const statusColor = STATUS_COLORS[scene.status]?.color || '#b090d0';
+        const dramaColor  = DRAMA_COLORS[scene.drama]?.color  || 'var(--border-strong)';
+        const dramaLabel  = (DRAMA_COLORS[scene.drama]?.label || 'Ingen').replace(/^.. /, '');
+        const statusClass = scene.status === 'done'    ? 'status-final'
+                          : scene.status === 'second'  ? 'status-second'
+                          : scene.status === 'revised' ? 'status-revised'
+                          : 'status-draft';
+
+        const statusOpts = Object.entries(STATUS_COLORS).map(([k,v]) =>
+          '<option value="' + k + '"' + (scene.status === k ? ' selected' : '') + '>' + v.label + '</option>'
+        ).join('');
+
+        html += '<div class="cork-card ' + statusClass + '" data-scene-id="' + scene.id + '"'
+              + ' onclick="selectSceneById(\'' + scene.id + '\')" style="--card-status-color:' + statusColor + ';">'
+              + '<div class="cork-card-header">'
+              + '<span class="cork-card-label">Scen ' + (idx + 1) + '</span>'
+              + '<span class="cork-status-dot" style="background:' + statusColor + ';"></span>'
+              + '</div>'
+              + '<div class="cork-card-title" contenteditable="true" spellcheck="false"'
+              + ' onclick="event.stopPropagation()"'
+              + ' onblur="renameCorkScene(this,\'' + scene.id + '\')">' + scene.title + '</div>'
+              + '<div class="cork-card-body" contenteditable="true" spellcheck="false"'
+              + ' onclick="event.stopPropagation()"'
+              + ' onblur="saveCorkSynopsis(this,\'' + scene.id + '\')">' + (scene.synopsis || '') + '</div>'
+              + '<div class="cork-card-footer">'
+              + '<select class="cork-card-status-select" onclick="event.stopPropagation()"'
+              + ' onchange="setCorkCardStatus(this,\'' + scene.id + '\')">' + statusOpts + '</select>'
+              + '<span class="cork-drama-dot" style="background:' + dramaColor + ';" title="' + dramaLabel + '"></span>'
+              + '</div></div>';
+      });
+
+      html += '<div class="cork-add-card" onclick="addSceneToChapter(\'' + chap.id + '\')">+ Ny scen</div>'
+            + '</div></div>';
+    });
+
+    container.innerHTML = html;
+  }
+
+  function renameCorkChap(el, chapId) {
+    const chap = projectData.chapters.find(c => c.id === chapId);
+    if (!chap) return;
+    const t = el.textContent.trim();
+    if (!t) { el.textContent = chap.title; return; }
+    chap.title = t;
+    // Sync binder and outline
+    document.querySelectorAll('.chapter-name[data-chap-id="' + chapId + '"],' +
+      '.outline-chapter-name[data-chap-id="' + chapId + '"]').forEach(e => e.textContent = t);
+    if (activeScene && chapterForScene(activeScene.id)?.id === chapId) {
+      const h = document.getElementById('chapterHeading');
+      if (h) h.textContent = t;
+    }
+  }
+
+  function renameCorkScene(el, sceneId) {
+    const scene = allScenes().find(s => s.id === sceneId);
+    if (!scene) return;
+    const t = el.textContent.trim();
+    if (!t) { el.textContent = scene.title; return; }
+    scene.title = t;
+    touchScene(scene);
+    // Sync binder scene name
+    const binderName = document.querySelector('.scene-item[data-scene-id="' + sceneId + '"] .scene-name');
+    if (binderName) binderName.textContent = t;
+    // Sync outline title
+    const outlineTitle = document.querySelector('tr[data-scene-id="' + sceneId + '"] .outline-scene-title');
+    if (outlineTitle) outlineTitle.textContent = t;
+    // Sync inspector if active
+    if (activeScene?.id === sceneId) {
+      const cn = document.getElementById('inspector-context-name');
+      if (cn) cn.textContent = t;
+    }
+  }
+
+  function saveCorkSynopsis(el, sceneId) {
+    const scene = allScenes().find(s => s.id === sceneId);
+    if (!scene) return;
+    scene.synopsis = el.innerText.trim();
+    touchScene(scene);
+    if (activeScene?.id === sceneId) {
+      const syn = document.getElementById('insp-synopsis');
+      if (syn) syn.value = scene.synopsis;
+    }
+    // Sync outline summary
+    const outlineSyn = document.querySelector('.outline-summary-row[data-for="' + sceneId + '"] .outline-summary-text');
+    if (outlineSyn) outlineSyn.innerText = scene.synopsis;
+  }
+
+  
+
+  // ── Bootstrap: render everything on load ──
+  window.addEventListener('load', function() {
+      renderBinder();
+      loadInspector(activeScene);
+      // Load the chapter containing the active scene
+      const initChap = chapterForScene(activeScene.id);
+      if (initChap) loadChapter(initChap);
+      renderOutline();
+      renderCorkGrid();
+      renderTimeline();
+      // Highlight first scene in binder
+      const firstSceneEl = document.querySelector('.scene-item[data-scene-id="' + activeScene.id + '"]');
+      if (firstSceneEl) firstSceneEl.classList.add('active');
+      // Scroll to active scene
+      requestAnimationFrame(() => scrollToScene(activeScene.id));
+      // Ensure writing view is visible
+      const canvasEl = document.getElementById('canvasCoachWrap');
+      if (canvasEl) canvasEl.style.display = '';
+  });
+
+
+  // ── Auto-save writing area → activeScene.text ──
+  function setupWritingAreaSync() {
+    // Each scene-page has its own input listener via buildScenePage()
+    // This function kept as a no-op for compatibility
+  }
+
 
 </script>
 
@@ -5497,6 +7629,578 @@ p:first-of-type{text-indent:0;}`);
       <button onclick="runBackup(false)" style="padding:9px 22px;background:var(--accent-n);color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:0.84rem;font-weight:700;font-family:'DM Sans',sans-serif;">Spara kopia nu</button>
     </div>
 
+  </div>
+</div>
+
+
+<script>
+(function(){
+  document.addEventListener('DOMContentLoaded', function() {
+  try{
+
+  // ─── NY AI-REDAKTÖR: TRE FASER ───
+  // Bygg · Skriv · Putsa
+
+  const FASER = {
+    "bygg": {
+      label: "Bygg",
+      icon: "🏗",
+      beskrivning: "Struktur och grund — innan du skriver",
+      verktyg: [
+        { id: "synopsis",    namn: "Synopsis",            tips: "Sammanfatta berättelsen i ett stycke. Vad handlar det egentligen om?" },
+        { id: "bage",        namn: "Dramaturgisk båge",   tips: "Setup → stegring → vändpunkter → klimax → upplösning. Håller din berättelse?" },
+        { id: "karaktarskurva", namn: "Karaktärskurva",  tips: "Mål → hinder → val → konsekvens → förändring. Vart är din karaktär på väg?" },
+        { id: "scenlista",   namn: "Scenlista",           tips: "Vad händer scen för scen? Är varje scen nödvändig?" },
+      ]
+    },
+    "skriv": {
+      label: "Skriv",
+      icon: "✍️",
+      beskrivning: "Medan du skriver — förstärk och fördjupa",
+      verktyg: [
+        { id: "las",         namn: "Läs & reagera",       tips: "Markera ett stycke. AI:n läser och säger vad den reagerar på — utan agenda." },
+        { id: "gestaltning", namn: "Gestaltning",         tips: "Visa istället för att berätta. Sinnen, kropp, detaljer — inte förklaringar." },
+        { id: "dialog",      namn: "Dialog",              tips: "Låter det äkta? Subtext? Vem leder samtalet? Säger de för mycket rakt ut?" },
+        { id: "tempo",       namn: "Tempo & spänning",    tips: "Var drar det? Var rusar det? Scenkrok i öppningen, slagslut i slutet." },
+      ]
+    },
+    "putsa": {
+      label: "Putsa",
+      icon: "✦",
+      beskrivning: "När utkastet är klart — kontrollera och städa",
+      verktyg: [
+        { id: "fullputs",    namn: "Full genomläsning",   tips: "AI:n läser hela texten och kommenterar det som sticker ut — stort och smått." },
+        { id: "sprak",       namn: "Språk & rytm",        tips: "Grammatik, tempus, meningslängd, variationer. Flödar det?" },
+        { id: "konsistens",  namn: "Konsekvenskoll",      tips: "Namn, tider, platser — stämmer trådarna genom hela manuset?" },
+        { id: "logik",       namn: "Logik & luckor",      tips: "Varför gör de det de gör? Hängande trådar, planterade saker som aldrig skördas." },
+      ]
+    }
+  };
+
+  let aktivFas = "bygg";
+  let aktivVerktyg = FASER["bygg"].verktyg[0];
+
+  const dockToggle  = document.getElementById("aiEditorToggle");
+  const topicList   = document.getElementById("aiTopicList");
+  const aiBody      = document.getElementById("bm-ai-editor");
+  const aiSection   = document.getElementById("bm-ai-editor-section");
+  const subline     = document.getElementById("bmAiSubline");
+  const chips       = document.getElementById("bmAiChips");
+  const result      = document.getElementById("bmAiResult");
+  const prompt      = document.getElementById("bmAiPrompt");
+  const runBtn      = document.getElementById("bmAiRunBtn");
+  const apiInput    = document.getElementById("aiApiKeyInput");
+  const apiSave     = document.getElementById("aiApiSaveBtn");
+  const apiStatus   = document.getElementById("aiApiStatus");
+  const LS_KEY      = "writeon_ai_key";
+
+  // ─── API-nyckel ───
+  function setApiStatus(){
+    const key = localStorage.getItem(LS_KEY);
+    if(key && key.trim().length > 10){
+      apiStatus.textContent = "Nyckel sparad ✓ (Gemini kopplat)";
+      apiStatus.style.color = "var(--accent-n)";
+    } else {
+      apiStatus.textContent = "Mock-läge (ingen nyckel sparad)";
+      apiStatus.style.color = "var(--text-muted)";
+    }
+  }
+  apiSave.addEventListener("click", ()=>{
+    const v = (apiInput.value || "").trim();
+    if(!v) localStorage.removeItem(LS_KEY);
+    else localStorage.setItem(LS_KEY, v);
+    setApiStatus();
+  });
+  const savedKey = localStorage.getItem(LS_KEY);
+  if(savedKey) apiInput.value = savedKey.slice(0,6) + "…";
+  setApiStatus();
+
+  // ─── Render vänsterlistan (fas-knappar) ───
+  function renderFasLista(){
+    topicList.innerHTML = "";
+    Object.entries(FASER).forEach(([fasId, fas]) => {
+      const btn = document.createElement("button");
+      btn.className = "ai-topic-btn" + (fasId === aktivFas ? " active" : "");
+      btn.innerHTML = `<span class="ai-topic-name">${fas.icon} ${fas.label}</span><span class="ai-topic-meta">›</span>`;
+      btn.onclick = () => {
+        aktivFas = fasId;
+        aktivVerktyg = fas.verktyg[0];
+        renderAll();
+      };
+      topicList.appendChild(btn);
+    });
+  }
+
+  // ─── Render verktygs-chips ───
+  function renderChips(){
+    chips.innerHTML = "";
+    // Fas-titel som liten rubrik
+    const fas = FASER[aktivFas];
+    const rubrik = document.createElement("div");
+    rubrik.style.cssText = "font-size:0.67rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:6px;padding:0 2px;";
+    rubrik.textContent = fas.beskrivning;
+    chips.appendChild(rubrik);
+
+    // Verktygs-knappar
+    const row = document.createElement("div");
+    row.className = "bm-ai-chips-row";
+    fas.verktyg.forEach(v => {
+      const c = document.createElement("button");
+      c.className = "chip" + (v.id === aktivVerktyg.id ? " active" : "");
+      c.textContent = v.namn;
+      c.onclick = () => { aktivVerktyg = v; renderChips(); renderResultPlaceholder(); };
+      row.appendChild(c);
+    });
+    chips.appendChild(row);
+  }
+
+  // ─── Placeholder i resultatrutan ───
+  function renderResultPlaceholder(){
+    subline.textContent = `${FASER[aktivFas].label} · ${aktivVerktyg.namn}`;
+    result.innerHTML = `<div style="color:var(--text-muted);font-style:italic;font-size:0.82rem;line-height:1.6;">${aktivVerktyg.tips}</div>`;
+  }
+
+  // ─── Kör AI ───
+  async function runAi(){
+    const key = localStorage.getItem(LS_KEY);
+    const text = getWritingArea() ? getWritingArea().innerText.trim() : "";
+    const extraPrompt = (prompt.value || "").trim();
+
+    if(!text && aktivVerktyg.id !== "synopsis" && aktivVerktyg.id !== "bage" && aktivVerktyg.id !== "karaktarskurva"){
+      result.innerHTML = `<span style="color:var(--text-muted);">Skriv något i manuset först, sedan kör du verktyget.</span>`;
+      return;
+    }
+
+    // Bygg system-prompt per verktyg
+    const systemPrompts = {
+      synopsis:       "Du är en professionell svensk redaktör. Sammanfatta berättelsen i en kort, kärnfull synopsis på svenska. Max 3 meningar. Var konkret.",
+      bage:           "Du är en dramaturg. Analysera den dramaturgiska bågen i texten: setup, stegring, vändpunkter, klimax, upplösning. Vad fungerar? Vad saknas? Svara på svenska.",
+      karaktarskurva: "Du är en karaktärsexpert. Beskriv karaktärens kurva: mål, hinder, val, konsekvens, förändring. Vad saknas? Svara på svenska, kortfattat.",
+      scenlista:      "Du är en redaktör. Lista scenerna och vad som händer i var och en. Markera om någon scen verkar onödig eller saknas. Svara på svenska.",
+      las:            "Du är en känslig läsare. Läs texten och reagera ärligt — vad fastnar du på, vad fungerar, vad stör dig? Inga kategorier, bara ärlig reaktion. Svenska.",
+      gestaltning:    "Du är en redaktör med fokus på gestaltning. Hitta ställen där texten berättar istället för att visa. Ge konkreta förslag på hur man kan visa istället. Svenska.",
+      dialog:         "Du är en dialogexpert. Analysera dialogen: låter den äkta? Finns subtext? Säger karaktärerna för mycket rakt ut? Ge konkreta förbättringsförslag. Svenska.",
+      tempo:          "Du är en dramaturg. Analysera tempot: var drar det, var rusar det? Är scenkroken stark? Slutar scenen med ny friktion? Konkreta förslag. Svenska.",
+      fullputs:       "Du är en noggrann redaktör. Gör en full genomläsning och kommentera: vad fungerar bra, vad behöver arbetas om, vad sticker ut negativt. Var ärlig. Svenska.",
+      sprak:          "Du är en språkredaktör. Kontrollera: grammatik, stavning, tempus (hoppar det?), meningslängd och rytm. Lista konkreta fel och förslag. Svenska.",
+      konsistens:     "Du är en kontinuitetskontrollant. Kontrollera: stämmer namn, tider, platser och detaljer genom texten? Lista eventuella inkonsekvenser. Svenska.",
+      logik:          "Du är en dramaturgiexpert. Kontrollera logiken: varför gör karaktärerna det de gör? Finns hängande trådar eller saker som planterats men aldrig skördats? Svenska.",
+    };
+
+    const sys = systemPrompts[aktivVerktyg.id] || "Du är en professionell svensk redaktör. Analysera texten och ge konstruktiv feedback på svenska.";
+    const userMsg = `${extraPrompt ? extraPrompt + "\n\n" : ""}Text att analysera:\n\n${text.slice(0, 4000)}`;
+
+    result.innerHTML = `<span style="color:var(--text-muted);font-style:italic;">Analyserar…</span>`;
+    runBtn.disabled = true;
+
+    if(!key){
+      // Mock-läge
+      await new Promise(r => setTimeout(r, 900));
+      result.innerHTML = `<div style="font-size:0.82rem;line-height:1.7;color:var(--text-primary);">
+        <strong style="color:var(--accent-n);">Mock-svar · ${FASER[aktivFas].label} → ${aktivVerktyg.namn}</strong><br><br>
+        Det här är ett exempelsvar. Koppla din Gemini API-nyckel i sidopanelen för att få riktiga analyser.<br><br>
+        <em style="color:var(--text-muted);">${aktivVerktyg.tips}</em>
+      </div>`;
+      runBtn.disabled = false;
+      return;
+    }
+
+    try {
+      const resp = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: sys }] },
+            contents: [{ parts: [{ text: userMsg }] }]
+          })
+        }
+      );
+      const data = await resp.json();
+      if(data.error){ throw new Error(data.error.message); }
+      const text_out = data.candidates?.[0]?.content?.parts?.[0]?.text || "Inget svar från Gemini.";
+      // Rendera med radbrytningar
+      result.innerHTML = `<div style="font-size:0.82rem;line-height:1.75;color:var(--text-primary);white-space:pre-wrap;">${text_out}</div>`;
+    } catch(e){
+      result.innerHTML = `<span style="color:#c84040;">Fel: ${e.message}</span>`;
+    }
+    runBtn.disabled = false;
+    prompt.value = ""; prompt.style.height = "auto";
+  }
+
+  runBtn.addEventListener("click", runAi);
+  if(prompt){
+    prompt.addEventListener("keydown", e => {
+      if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); runAi(); }
+    });
+  }
+
+  // ─── Menyknappen AI-redaktör — öppnar/stänger panelen under manus ───
+  window.toggleAiEditor = function(){
+    try{ switchView('writing'); }catch(e){}
+    const isHidden = !aiSection || aiSection.style.display === "none";
+    if(aiSection) aiSection.style.display = isHidden ? "block" : "none";
+    const btn = document.getElementById("btn-coach");
+    if(btn) btn.classList.toggle("active", isHidden);
+    if(isHidden){
+      if(aiBody && aiBody.classList.contains("collapsed")) window.toggleBmSection("bm-ai-editor");
+      setTimeout(() => { if(aiSection) aiSection.scrollIntoView({behavior:"smooth", block:"nearest"}); }, 50);
+    }
+  };
+
+  // ─── Toggle-knapp i sidopanelen ───
+  // Togglen döljer/visar AI-redaktör-blocket i bindern (så kapitellistan syns)
+  let dockOn = true;
+  const dockEl = document.getElementById("aiEditorDock");
+
+  function setDock(on){
+    dockOn = on;
+    if(!dockToggle) return;
+    dockToggle.classList.toggle("on", dockOn);
+    dockToggle.setAttribute("aria-pressed", dockOn ? "true" : "false");
+    dockToggle.title = dockOn ? "Dölj AI-redaktör i bindern" : "Visa AI-redaktör i bindern";
+    // Visa/dölj hela AI-redaktör-docken i bindern
+    if(dockEl) dockEl.style.display = dockOn ? "" : "none";
+  }
+  if(dockToggle){
+    dockToggle.addEventListener("click", () => setDock(!dockOn));
+  }
+
+  function renderAll(){
+    setDock(dockOn);
+    renderFasLista();
+    renderChips();
+    renderResultPlaceholder();
+  }
+  renderAll();
+
+  } catch(e){ console.warn("AI-redaktör v2 error:", e); }
+  }); // end DOMContentLoaded
+})();
+</script>
+
+
+<script>
+(function(){
+  function makeInput(value){
+    const inp = document.createElement("input");
+    inp.type = "text";
+    inp.className = "rename-input";
+    inp.value = value || "";
+    return inp;
+  }
+
+  function startRename(span){
+    if(!span || span.dataset.renaming === "1") return;
+    // don't rename "+ Ny scen"
+    if(span.textContent.trim().startsWith("+")) return;
+
+    span.dataset.renaming = "1";
+    const old = span.textContent;
+    const inp = makeInput(old);
+    // Keep layout: replace span with input
+    span.replaceWith(inp);
+    inp.focus();
+    inp.select();
+
+    const finish = (commit) => {
+      const newSpan = document.createElement("span");
+      newSpan.className = span.className;
+      newSpan.textContent = commit ? (inp.value.trim() || old) : old;
+      // carry dataset flags
+      for(const [k,v] of Object.entries(span.dataset || {})){
+        if(k !== "renaming") newSpan.dataset[k]=v;
+      }
+      inp.replaceWith(newSpan);
+      // reattach handlers for the new node
+      attachOne(newSpan);
+    };
+
+    inp.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){ e.preventDefault(); finish(true); }
+      if(e.key === "Escape"){ e.preventDefault(); finish(false); }
+    });
+    inp.addEventListener("blur", ()=> finish(true), { once:true });
+  }
+
+  function attachOne(el){
+    if(!el) return;
+    el.addEventListener("dblclick", (e)=>{
+      e.stopPropagation();
+      e.preventDefault();
+      startRename(el);
+    });
+    // prevent row click when clicking text to place cursor feel
+    el.addEventListener("click", (e)=>{ e.stopPropagation(); }, true);
+  }
+
+  function attachRenameHandlers(root=document){
+    root.querySelectorAll(".chapter-name, .scene-name").forEach(attachOne);
+  }
+
+  // Attach now
+  attachRenameHandlers();
+
+  // Re-attach after new chapters/scenes are added (wrap existing funcs)
+  const oldAddChapter = window.addChapter;
+  if(typeof oldAddChapter === "function"){
+    window.addChapter = function(){
+      const r = oldAddChapter.apply(this, arguments);
+      setTimeout(()=>attachRenameHandlers(), 0);
+      return r;
+    };
+  }
+  const oldAddScene = window.addScene;
+  if(typeof oldAddScene === "function"){
+    window.addScene = function(){
+      const r = oldAddScene.apply(this, arguments);
+      setTimeout(()=>attachRenameHandlers(), 0);
+      return r;
+    };
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  // ─── drag-resize sidebars (vänster/höger) ───
+  const left = document.querySelector('.sidebar');
+  const right = document.getElementById('panel-notes') || document.querySelector('.notes-panel');
+  const leftRes = document.getElementById('leftResizer');
+  const rightRes = document.getElementById('rightResizer');
+
+  function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+  function drag(startX, startW, side){
+    function onMove(e){
+      const dx = e.clientX - startX;
+      if(side === 'left' && left){
+        const w = clamp(startW + dx, 220, 420);
+        left.style.width = w + 'px';
+        left.style.flex = '0 0 ' + w + 'px';
+      }
+      if(side === 'right' && right){
+        const w = clamp(startW - dx, 260, 520);
+        right.style.width = w + 'px';
+        right.style.flex = '0 0 ' + w + 'px';
+      }
+    }
+    function onUp(){
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      document.body.style.userSelect = '';
+    }
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    document.body.style.userSelect = 'none';
+  }
+
+  if(leftRes){
+    leftRes.addEventListener('mousedown', (e)=>{
+      if(!left) return;
+      drag(e.clientX, left.getBoundingClientRect().width, 'left');
+    });
+  }
+  if(rightRes){
+    rightRes.addEventListener('mousedown', (e)=>{
+      if(!right) return;
+      drag(e.clientX, right.getBoundingClientRect().width, 'right');
+    });
+  }
+})();
+
+  // ── Outline selects write back to projectData ──
+  function outlineStatusChange(sel, sceneId) {
+    const scene = allScenes().find(s => s.id === sceneId);
+    if (!scene) return;
+    scene.status = sel.value;
+    touchScene(scene);
+    // Update dot in outline row
+    const dot = sel.closest('tr')?.querySelector('.outline-status-dot');
+    const col = STATUS_COLORS[sel.value]?.color || '#b090d0';
+    if (dot) dot.style.background = col;
+    // Mark this scene active and sync everything
+    activeScene = scene;
+    loadInspector(scene);
+    syncViewsForScene(scene);
+  }
+
+  function outlineAvsnittChange(sel, sceneId) {
+    const scene = allScenes().find(s => s.id === sceneId);
+    if (!scene) return;
+    scene.drama = sel.value;
+    touchScene(scene);
+    document.querySelectorAll('.outline-scene-row').forEach(r =>
+      r.classList.toggle('active-row', r.getAttribute('data-scene-id') === sceneId)
+    );
+    activeScene = scene;
+    // Sync inspector drama dropdown directly
+    const dramaSel = document.getElementById('insp-drama-select');
+    if (dramaSel) { dramaSel.value = sel.value; updateInspectorDrama(dramaSel); }
+    syncViewsForScene(scene);
+  }
+
+
+  // ─── DROPBOX SYNC ───
+  function openDropboxSettings() {
+    _closeDropdowns();
+    document.getElementById('dropboxModal').style.display = 'flex';
+    // Show saved folder path if any
+    const savedFolder = localStorage.getItem('writeon_dropbox_folder') || '';
+    const savedFolderName = localStorage.getItem('writeon_dropbox_folder_name') || '';
+    const pathEl = document.getElementById('dropboxChosenPath');
+    if (savedFolder && pathEl) {
+      pathEl.textContent = savedFolderName || savedFolder;
+      pathEl.style.color = 'var(--text-primary)';
+    }
+    // Check connection
+    const savedKey = localStorage.getItem('writeon_dropbox_key');
+    if (savedKey) testDropboxConnection(savedKey);
+  }
+
+  function openDropboxChooser() {
+    if (typeof Dropbox === 'undefined') {
+      document.getElementById('dropboxStatus').innerHTML = '<span style="color:#c84040;">⚠ Dropbox SDK laddas inte — fungerar bara på Railway, inte lokalt</span>';
+      return;
+    }
+    Dropbox.choose({
+      success: function(files) {
+        // files[0].link is a shared link — we extract the folder path
+        const file = files[0];
+        // Store the folder path (parent of chosen file/folder)
+        const fullPath = file.id || '';
+        const name = file.name || '';
+        localStorage.setItem('writeon_dropbox_folder_name', name);
+        document.getElementById('dropboxChosenPath').textContent = name;
+        document.getElementById('dropboxChosenPath').style.color = 'var(--text-primary)';
+        document.getElementById('dropboxStatus').innerHTML = '<span style="color:#0061fe;">✓ Mapp vald: ' + name + '</span>';
+      },
+      cancel: function() {},
+      linkType: 'preview',
+      multiselect: false,
+      folderselect: true,
+    });
+  }
+
+  function saveDropboxKey() {
+    const key = document.getElementById('dropboxKeyInput')?.value.trim();
+    if (!key) return;
+    localStorage.setItem('writeon_dropbox_key', key);
+    testDropboxConnection(key);
+  }
+
+  async function testDropboxConnection(key) {
+    const statusEl = document.getElementById('dropboxStatus');
+    if (!statusEl) return;
+    statusEl.innerHTML = '<span style="color:var(--text-muted);">Ansluter...</span>';
+    try {
+      const res = await fetch('https://api.dropboxapi.com/2/users/get_current_account', {
+        method: 'POST', headers: { 'Authorization': 'Bearer ' + key }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        statusEl.innerHTML = '<span style="color:#0061fe;">✓ Ansluten som ' + data.name.display_name + '</span>';
+      } else {
+        statusEl.innerHTML = '<span style="color:#c84040;">⚠ Fel nyckel</span>';
+      }
+    } catch(e) {
+      statusEl.innerHTML = '<span style="color:#c84040;">⚠ Kunde inte ansluta</span>';
+    }
+  }
+
+  let dropboxSyncTimer = null;
+  function scheduleDropboxSync() {
+    const key = localStorage.getItem('writeon_dropbox_key');
+    if (!key) return;
+    clearTimeout(dropboxSyncTimer);
+    dropboxSyncTimer = setTimeout(() => syncToDropbox(key), 3000);
+  }
+
+  function syncToDropboxNow() {
+    const key = localStorage.getItem('writeon_dropbox_key');
+    if (!key) {
+      document.getElementById('dropboxStatus').innerHTML = '<span style="color:#c84040;">⚠ Ingen nyckel — kontakta supporten</span>';
+      return;
+    }
+    syncToDropbox(key);
+  }
+
+  async function syncToDropbox(key) {
+    const data = JSON.stringify(projectData, null, 2);
+    const folder = localStorage.getItem('writeon_dropbox_folder') || '';
+    const filename = (folder ? folder : '') + '/' + (projectData.title || 'Projekt') + '.json';
+    const statusEl = document.getElementById('dropboxStatus');
+    try {
+      const res = await fetch('https://content.dropboxapi.com/2/files/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + key,
+          'Dropbox-API-Arg': JSON.stringify({ path: filename, mode: 'overwrite', autorename: false }),
+          'Content-Type': 'application/octet-stream'
+        },
+        body: data
+      });
+      if (res.ok) {
+        const now = new Date();
+        const t = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+        if (statusEl) statusEl.innerHTML = '<span style="color:#0061fe;">✓ Synkad ' + t + '</span>';
+        // Update header sync badge
+        const badge = document.querySelector('.sync-badge');
+        if (badge) badge.textContent = 'Synkad ' + t;
+      }
+    } catch(e) {
+      console.warn('Dropbox sync failed:', e);
+    }
+  }
+
+</script>
+
+
+<!-- Dropbox Chooser SDK -->
+<script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="eflbkkx6hhk190b"></script>
+
+<!-- DROPBOX SETTINGS MODAL -->
+<div id="dropboxModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg);border-radius:14px;padding:28px 32px;width:440px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,0.18);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <span style="font-size:1rem;font-weight:700;color:var(--text-primary);">☁ Dropbox-inställningar</span>
+      <button onclick="document.getElementById('dropboxModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--text-muted);">✕</button>
+    </div>
+
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">
+      Välj var i din Dropbox projektet ska sparas. Klicka <strong>Välj mapp i Dropbox</strong> så öppnas Dropbox där du navigerar och väljer.
+    </p>
+
+    <!-- Chosen folder display -->
+    <div style="font-size:0.72rem;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Vald mapp</div>
+    <div id="dropboxChosenPath" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.8rem;color:var(--text-muted);margin-bottom:14px;font-family:'DM Sans',sans-serif;">
+      Ingen mapp vald än
+    </div>
+
+    <!-- Dropbox Saver button -->
+    <button onclick="openDropboxChooser()" style="width:100%;padding:10px 16px;border-radius:8px;background:#0061fe;color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <svg width="16" height="16" viewBox="0 0 40 40" fill="white"><path d="M20 8.5L10 15l10 6.5 10-6.5zm-10 13L10 28l10 6.5 10-6.5-10-6.5z"/></svg>
+      Välj mapp i Dropbox
+    </button>
+
+    <div id="dropboxStatus" style="font-size:0.72rem;color:var(--text-muted);min-height:18px;margin-bottom:16px;">⚪ Ej ansluten</div>
+
+    <!-- Token (collapsed by default) -->
+    <details style="margin-bottom:14px;">
+      <summary style="font-size:0.72rem;color:var(--text-muted);cursor:pointer;">🔑 Access Token (avancerat)</summary>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <input type="password" id="dropboxKeyInput" placeholder="sl.u...." autocomplete="off"
+          style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.78rem;color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;">
+        <button onclick="saveDropboxKey()" style="padding:8px 12px;border-radius:8px;background:#0061fe;color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:700;">Spara</button>
+      </div>
+    </details>
+
+    <div style="padding-top:16px;border-top:1px solid var(--border);display:flex;gap:10px;">
+      <button onclick="syncToDropboxNow()" style="padding:7px 14px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border-strong);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-primary);">Synka nu</button>
+      <button onclick="document.getElementById('dropboxModal').style.display='none'" style="padding:7px 14px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border-strong);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-primary);">Stäng</button>
+    </div>
   </div>
 </div>
 
