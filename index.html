@@ -8067,15 +8067,21 @@ window.addEventListener('load', function() {
     }
     Dropbox.choose({
       success: function(files) {
-        // files[0].link is a shared link — we extract the folder path
         const file = files[0];
-        // Store the folder path (parent of chosen file/folder)
-        const fullPath = file.id || '';
         const name = file.name || '';
+        // Bygg sökväg från link: https://www.dropbox.com/home/WriteON -> /WriteON
+        // eller använd name direkt som /name
+        let path = '/' + name;
+        // Om link innehåller /home/ kan vi extrahera därifrån
+        if (file.link && file.link.indexOf('/home/') !== -1) {
+          const parts = file.link.split('/home/');
+          if (parts[1]) path = '/' + decodeURIComponent(parts[1].split('?')[0]);
+        }
+        localStorage.setItem('writeon_dropbox_folder', path);
         localStorage.setItem('writeon_dropbox_folder_name', name);
-        document.getElementById('dropboxChosenPath').textContent = name;
+        document.getElementById('dropboxChosenPath').textContent = path;
         document.getElementById('dropboxChosenPath').style.color = 'var(--text-primary)';
-        document.getElementById('dropboxStatus').innerHTML = '<span style="color:#0061fe;">✓ Mapp vald: ' + name + '</span>';
+        document.getElementById('dropboxStatus').innerHTML = '<span style="color:#0061fe;">✓ Mapp vald: ' + path + '</span>';
       },
       cancel: function() {},
       linkType: 'preview',
