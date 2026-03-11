@@ -8044,35 +8044,154 @@ window.addEventListener('load', function() {
 
 
   // ─── DROPBOX SYNC ───
+  // ─── DROPBOX OAUTH ───
+  const DROPBOX_APP_KEY = 'eflbkkx6hhk190b';
+
   function openDropboxSettings() {
     _closeDropdowns();
     document.getElementById('dropboxModal').style.display = 'flex';
-    // Show saved folder path if any
-    const savedFolder = localStorage.getItem('writeon_dropbox_folder') || '';
-    const savedFolderName = localStorage.getItem('writeon_dropbox_folder_name') || '';
+    updateDropboxUI();
+  }
+
+  function updateDropboxUI() {
+    const token = localStorage.getItem('writeon_dropbox_key');
+    const folder = localStorage.getItem('writeon_dropbox_folder') || '';
+    const folderName = localStorage.getItem('writeon_dropbox_folder_name') || folder;
     const pathEl = document.getElementById('dropboxChosenPath');
-    if (savedFolder && pathEl) {
-      pathEl.textContent = savedFolderName || savedFolder;
-      pathEl.style.color = 'var(--text-primary)';
+    const connectBtn = document.getElementById('dropboxConnectBtn');
+    const disconnectBtn = document.getElementById('dropboxDisconnectBtn');
+    const statusEl = document.getElementById('dropboxStatus');
+
+    const notConn = document.getElementById('dropboxNotConnected');
+    const conn = document.getElementById('dropboxConnected');
+    if (token) {
+      if (notConn) notConn.style.display = 'none';
+      if (conn) conn.style.display = 'block';
+      if (pathEl) { pathEl.textContent = folderName || '/WriteON'; pathEl.style.color = 'var(--text-primary)'; }
+      if (disconnectBtn) disconnectBtn.style.display = 'inline-block';
+      testDropboxConnection(token);
+    } else {
+      if (notConn) notConn.style.display = 'block';
+      if (conn) conn.style.display = 'none';
+      if (statusEl) statusEl.innerHTML = '⚪ Ej ansluten';
     }
-    // Check connection
-    const savedKey = localStorage.getItem('writeon_dropbox_key');
-    if (savedKey) testDropboxConnection(savedKey);
+  }
+
+  function connectDropbox() {
+    // PKCE OAuth flow — öppnar Dropbox inloggning i popup
+    const verifier = generateCodeVerifier();
+    sessionStorage.setItem('dropbox_verifier', verifier);
+    generateCodeChallenge(verifier).then(challenge => {
+      const redirectUri = window.location.origin + window.location.pathname;
+      const params = new URLSearchParams({
+        client_id: DROPBOX_APP_KEY,
+        response_type: 'code',
+        code_challenge: challenge,
+        code_challenge_method: 'S256',
+        redirect_uri: redirectUri,
+        token_access_type: 'offline',
+      });
+      const authUrl = 'https://www.dropbox.com/oauth2/authorize?' + params.toString();
+      // Öppna i popup
+      const popup = window.open(authUrl, 'dropbox_auth', 'width=600,height=700,scrollbars=yes');
+      // Lyssna på att popup stängs / skickar tillbaka kod
+      const interval = setInterval(() => {
+        try {
+          if (popup.closed) { clearInterval(interval); return; }
+          const url = popup.location.href;
+          if (url && url.includes('code=')) {
+            clearInterval(interval);
+            popup.close();
+            const code = new URL(url).searchParams.get('code');
+            exchangeDropboxCode(code, redirectUri);
+          }
+        } catch(e) { /* cross-origin, ignorera */ }
+      }, 500);
+    });
+  }
+
+  function generateCodeVerifier() {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return btoa(String.fromCharCode(...array)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  }
+
+  async function generateCodeChallenge(verifier) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return btoa(String.fromCharCode(...new Uint8Array(digest))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  }
+
+  async function exchangeDropboxCode(code, redirectUri) {
+    const verifier = sessionStorage.getItem('dropbox_verifier');
+    const statusEl = document.getElementById('dropboxStatus');
+    if (statusEl) statusEl.innerHTML = '<span style="color:var(--text-muted);">Ansluter...</span>';
+    try {
+      const res = await fetch('https://api.dropboxapi.com/oauth2/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          code,
+          grant_type: 'authorization_code',
+          client_id: DROPBOX_APP_KEY,
+          code_verifier: verifier,
+          redirect_uri: redirectUri,
+        })
+      });
+      const data = await res.json();
+      if (data.access_token) {
+        localStorage.setItem('writeon_dropbox_key', data.access_token);
+        if (data.refresh_token) localStorage.setItem('writeon_dropbox_refresh', data.refresh_token);
+        updateDropboxUI();
+      } else {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#c84040;">⚠ Kunde inte ansluta: ' + (data.error_description || data.error) + '</span>';
+      }
+    } catch(e) {
+      if (statusEl) statusEl.innerHTML = '<span style="color:#c84040;">⚠ Anslutningsfel</span>';
+    }
+  }
+
+  async function refreshDropboxToken() {
+    const refreshToken = localStorage.getItem('writeon_dropbox_refresh');
+    if (!refreshToken) return null;
+    try {
+      const res = await fetch('https://api.dropboxapi.com/oauth2/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          grant_type: 'refresh_token',
+          refresh_token: refreshToken,
+          client_id: DROPBOX_APP_KEY,
+        })
+      });
+      const data = await res.json();
+      if (data.access_token) {
+        localStorage.setItem('writeon_dropbox_key', data.access_token);
+        return data.access_token;
+      }
+    } catch(e) {}
+    return null;
+  }
+
+  function disconnectDropbox() {
+    localStorage.removeItem('writeon_dropbox_key');
+    localStorage.removeItem('writeon_dropbox_refresh');
+    localStorage.removeItem('writeon_dropbox_folder');
+    localStorage.removeItem('writeon_dropbox_folder_name');
+    updateDropboxUI();
   }
 
   function openDropboxChooser() {
     if (typeof Dropbox === 'undefined') {
-      document.getElementById('dropboxStatus').innerHTML = '<span style="color:#c84040;">⚠ Dropbox SDK laddas inte — fungerar bara på Railway, inte lokalt</span>';
+      document.getElementById('dropboxStatus').innerHTML = '<span style="color:#c84040;">⚠ Fungerar bara på Railway</span>';
       return;
     }
     Dropbox.choose({
       success: function(files) {
         const file = files[0];
         const name = file.name || '';
-        // Bygg sökväg från link: https://www.dropbox.com/home/WriteON -> /WriteON
-        // eller använd name direkt som /name
         let path = '/' + name;
-        // Om link innehåller /home/ kan vi extrahera därifrån
         if (file.link && file.link.indexOf('/home/') !== -1) {
           const parts = file.link.split('/home/');
           if (parts[1]) path = '/' + decodeURIComponent(parts[1].split('?')[0]);
@@ -8090,17 +8209,9 @@ window.addEventListener('load', function() {
     });
   }
 
-  function saveDropboxKey() {
-    const key = document.getElementById('dropboxKeyInput')?.value.trim();
-    if (!key) return;
-    localStorage.setItem('writeon_dropbox_key', key);
-    testDropboxConnection(key);
-  }
-
   async function testDropboxConnection(key) {
     const statusEl = document.getElementById('dropboxStatus');
     if (!statusEl) return;
-    statusEl.innerHTML = '<span style="color:var(--text-muted);">Ansluter...</span>';
     try {
       const res = await fetch('https://api.dropboxapi.com/2/users/get_current_account', {
         method: 'POST', headers: { 'Authorization': 'Bearer ' + key }
@@ -8108,12 +8219,18 @@ window.addEventListener('load', function() {
       if (res.ok) {
         const data = await res.json();
         statusEl.innerHTML = '<span style="color:#0061fe;">✓ Ansluten som ' + data.name.display_name + '</span>';
-      } else {
-        statusEl.innerHTML = '<span style="color:#c84040;">⚠ Fel nyckel</span>';
+      } else if (res.status === 401) {
+        // Token utgången — försök förnya
+        const newKey = await refreshDropboxToken();
+        if (newKey) {
+          testDropboxConnection(newKey);
+        } else {
+          statusEl.innerHTML = '<span style="color:#c84040;">⚠ Session utgången — anslut igen</span>';
+          localStorage.removeItem('writeon_dropbox_key');
+          updateDropboxUI();
+        }
       }
-    } catch(e) {
-      statusEl.innerHTML = '<span style="color:#c84040;">⚠ Kunde inte ansluta</span>';
-    }
+    } catch(e) {}
   }
 
   let dropboxSyncTimer = null;
@@ -8127,7 +8244,7 @@ window.addEventListener('load', function() {
   function syncToDropboxNow() {
     const key = localStorage.getItem('writeon_dropbox_key');
     if (!key) {
-      document.getElementById('dropboxStatus').innerHTML = '<span style="color:#c84040;">⚠ Ingen nyckel — kontakta supporten</span>';
+      document.getElementById('dropboxModal').style.display = 'flex';
       return;
     }
     syncToDropbox(key);
@@ -8135,8 +8252,8 @@ window.addEventListener('load', function() {
 
   async function syncToDropbox(key) {
     const data = JSON.stringify(projectData, null, 2);
-    const folder = localStorage.getItem('writeon_dropbox_folder') || '';
-    const filename = (folder ? folder : '') + '/' + (projectData.title || 'Projekt') + '.json';
+    const folder = localStorage.getItem('writeon_dropbox_folder') || '/WriteON';
+    const filename = folder + '/' + (projectData.title || 'Projekt') + '.json';
     const statusEl = document.getElementById('dropboxStatus');
     try {
       const res = await fetch('https://content.dropboxapi.com/2/files/upload', {
@@ -8175,33 +8292,32 @@ window.addEventListener('load', function() {
       <button onclick="document.getElementById('dropboxModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--text-muted);">✕</button>
     </div>
 
-    <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">
-      Välj var i din Dropbox projektet ska sparas. Klicka <strong>Välj mapp i Dropbox</strong> så öppnas Dropbox där du navigerar och väljer.
-    </p>
-
-    <!-- Chosen folder display -->
-    <div style="font-size:0.72rem;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Vald mapp</div>
-    <div id="dropboxChosenPath" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.8rem;color:var(--text-muted);margin-bottom:14px;font-family:'DM Sans',sans-serif;">
-      Ingen mapp vald än
+    <!-- Ej ansluten -->
+    <div id="dropboxNotConnected">
+      <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">
+        Anslut ditt Dropbox-konto så sparas projektet automatiskt. Du behöver aldrig logga in igen.
+      </p>
+      <button id="dropboxConnectBtn" onclick="connectDropbox()" style="width:100%;padding:12px 16px;border-radius:8px;background:#0061fe;color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;">
+        <svg width="18" height="18" viewBox="0 0 40 40" fill="white"><path d="M20 4L10 11l10 7 10-7zm-10 14L10 25l10 7 10-7-10-7zm10 8l-10 7 10 7 10-7z"/></svg>
+        Anslut Dropbox
+      </button>
     </div>
 
-    <!-- Dropbox Saver button -->
-    <button onclick="openDropboxChooser()" style="width:100%;padding:10px 16px;border-radius:8px;background:#0061fe;color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;">
-      <svg width="16" height="16" viewBox="0 0 40 40" fill="white"><path d="M20 8.5L10 15l10 6.5 10-6.5zm-10 13L10 28l10 6.5 10-6.5-10-6.5z"/></svg>
-      Välj mapp i Dropbox
-    </button>
-
-    <div id="dropboxStatus" style="font-size:0.72rem;color:var(--text-muted);min-height:18px;margin-bottom:16px;">⚪ Ej ansluten</div>
-
-    <!-- Token (collapsed by default) -->
-    <details style="margin-bottom:14px;">
-      <summary style="font-size:0.72rem;color:var(--text-muted);cursor:pointer;">🔑 Access Token (avancerat)</summary>
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <input type="password" id="dropboxKeyInput" placeholder="sl.u...." autocomplete="off"
-          style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.78rem;color:var(--text-primary);font-family:'DM Sans',sans-serif;outline:none;">
-        <button onclick="saveDropboxKey()" style="padding:8px 12px;border-radius:8px;background:#0061fe;color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:700;">Spara</button>
+    <!-- Ansluten -->
+    <div id="dropboxConnected" style="display:none;">
+      <div style="font-size:0.72rem;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Sparas i</div>
+      <div id="dropboxChosenPath" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;font-family:'DM Sans',sans-serif;">
+        /WriteON
       </div>
-    </details>
+      <button onclick="openDropboxChooser()" style="width:100%;padding:9px 16px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border-strong);color:var(--text-primary);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;margin-bottom:14px;">
+        Byt mapp…
+      </button>
+      <button id="dropboxDisconnectBtn" onclick="disconnectDropbox()" style="display:none;font-size:0.72rem;color:var(--text-muted);background:none;border:none;cursor:pointer;text-decoration:underline;margin-bottom:12px;">
+        Koppla från Dropbox
+      </button>
+    </div>
+
+    <div id="dropboxStatus" style="font-size:0.72rem;color:var(--text-muted);min-height:18px;margin-bottom:14px;">⚪ Ej ansluten</div>
 
     <div style="padding-top:16px;border-top:1px solid var(--border);display:flex;gap:10px;">
       <button onclick="syncToDropboxNow()" style="padding:7px 14px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border-strong);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-primary);">Synka nu</button>
