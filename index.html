@@ -8180,7 +8180,18 @@ window.addEventListener('load', function() {
     localStorage.removeItem('writeon_dropbox_refresh');
     localStorage.removeItem('writeon_dropbox_folder');
     localStorage.removeItem('writeon_dropbox_folder_name');
+    sessionStorage.removeItem('dropbox_verifier');
+    sessionStorage.removeItem('dropbox_redirect_uri');
     updateDropboxUI();
+  }
+
+  function reconnectDropbox() {
+    // Rensa allt och starta ny OAuth
+    localStorage.removeItem('writeon_dropbox_key');
+    localStorage.removeItem('writeon_dropbox_refresh');
+    sessionStorage.removeItem('dropbox_verifier');
+    sessionStorage.removeItem('dropbox_redirect_uri');
+    connectDropbox();
   }
 
   function openDropboxChooser() {
@@ -8316,8 +8327,11 @@ window.addEventListener('load', function() {
       <button onclick="openDropboxChooser()" style="width:100%;padding:9px 16px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border-strong);color:var(--text-primary);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;margin-bottom:14px;">
         Byt mapp…
       </button>
-      <button id="dropboxDisconnectBtn" onclick="disconnectDropbox()" style="display:none;font-size:0.72rem;color:var(--text-muted);background:none;border:none;cursor:pointer;text-decoration:underline;margin-bottom:12px;">
+      <button id="dropboxDisconnectBtn" onclick="disconnectDropbox()" style="display:none;font-size:0.72rem;color:var(--text-muted);background:none;border:none;cursor:pointer;text-decoration:underline;margin-bottom:4px;">
         Koppla från Dropbox
+      </button>
+      <button onclick="reconnectDropbox()" style="font-size:0.72rem;color:#0061fe;background:none;border:none;cursor:pointer;text-decoration:underline;margin-bottom:12px;display:block;">
+        🔄 Återanslut (ny token)
       </button>
     </div>
 
