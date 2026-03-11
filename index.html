@@ -8082,7 +8082,7 @@ window.addEventListener('load', function() {
     const verifier = generateCodeVerifier();
     sessionStorage.setItem('dropbox_verifier', verifier);
     generateCodeChallenge(verifier).then(challenge => {
-      const redirectUri = window.location.origin + window.location.pathname;
+      const redirectUri = 'https://writeon-production-d435.up.railway.app/index.html';
       const params = new URLSearchParams({
         client_id: DROPBOX_APP_KEY,
         response_type: 'code',
