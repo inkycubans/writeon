@@ -8262,34 +8262,79 @@ window.addEventListener('load', function() {
     syncToDropbox(key);
   }
 
+  async function uploadToDropbox(key, path, body, contentType) {
+    const res = await fetch('https://content.dropboxapi.com/2/files/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + key,
+        'Dropbox-API-Arg': JSON.stringify({ path, mode: 'overwrite', autorename: false }),
+        'Content-Type': contentType || 'application/octet-stream'
+      },
+      body
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      console.warn('Dropbox upload failed:', path, err);
+    }
+    return res.ok;
+  }
+
   async function syncToDropbox(key) {
-    const data = JSON.stringify(projectData, null, 2);
-    // App folder-läge: sökvägen är relativ till appens mapp i Dropbox
-    // Full access-läge: använd vald mapp
-    const folder = localStorage.getItem('writeon_dropbox_folder') || '';
-    const title = (projectData.title || 'Projekt').replace(/[/\\:*?"<>|]/g, '_');
-    const filename = (folder ? folder + '/' + title : '/' + title) + '.json';
+    const folder = localStorage.getItem('writeon_dropbox_folder') || '/WriteON';
+    const title = (projectData.title || 'Projekt').replace(/[\/\\:*?"<>|]/g, '_');
     const statusEl = document.getElementById('dropboxStatus');
+    const badge = document.querySelector('.sync-badge');
+
     try {
-      const res = await fetch('https://content.dropboxapi.com/2/files/upload', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + key,
-          'Dropbox-API-Arg': JSON.stringify({ path: filename, mode: 'overwrite', autorename: false }),
-          'Content-Type': 'application/octet-stream'
-        },
-        body: data
-      });
-      if (res.ok) {
-        const now = new Date();
-        const t = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
-        if (statusEl) statusEl.innerHTML = '<span style="color:#0061fe;">✓ Synkad ' + t + '</span>';
-        // Update header sync badge
-        const badge = document.querySelector('.sync-badge');
-        if (badge) badge.textContent = 'Synkad ' + t;
+      // 1. Spara JSON (WriteON-format)
+      const jsonData = JSON.stringify(projectData, null, 2);
+      const jsonPath = folder + '/' + title + '.json';
+      await uploadToDropbox(key, jsonPath, jsonData, 'application/octet-stream');
+
+      // 2. Spara DOCX (läsbar i Word)
+      if (window.docx) {
+        const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
+        const wa = getWritingArea();
+        function parseInline(el) {
+          const runs = [];
+          el.childNodes.forEach(n => {
+            if (n.nodeType === 3) {
+              if (n.textContent) runs.push(new TextRun({ text: n.textContent, font: 'Garamond', size: 24 }));
+            } else {
+              const t = n.tagName; const txt = n.textContent;
+              if (t === 'STRONG' || t === 'B') runs.push(new TextRun({ text: txt, bold: true, font: 'Garamond', size: 24 }));
+              else if (t === 'EM' || t === 'I') runs.push(new TextRun({ text: txt, italics: true, font: 'Garamond', size: 24 }));
+              else if (t === 'U') runs.push(new TextRun({ text: txt, underline: {}, font: 'Garamond', size: 24 }));
+              else if (txt) runs.push(new TextRun({ text: txt, font: 'Garamond', size: 24 }));
+            }
+          });
+          return runs.length ? runs : [new TextRun({ text: '' })];
+        }
+        const children = [];
+        children.push(new Paragraph({ text: title, heading: HeadingLevel.TITLE, spacing: { after: 400 } }));
+        wa.childNodes.forEach(node => {
+          if (node.nodeType !== 1) return;
+          const tag = node.tagName;
+          if (tag === 'H1') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_1, spacing: { before: 320, after: 160 } }));
+          else if (tag === 'H2') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_2, spacing: { before: 240, after: 120 } }));
+          else if (tag === 'P') children.push(new Paragraph({ children: parseInline(node), spacing: { after: 120 }, indent: { firstLine: 480 } }));
+        });
+        const doc = new Document({ sections: [{ properties: { page: { margin: { top: 1440, bottom: 1440, left: 1440, right: 1440 } } }, children }] });
+        const blob = await Packer.toBlob(doc);
+        const arrayBuffer = await blob.arrayBuffer();
+        const docxPath = folder + '/' + title + '.docx';
+        await uploadToDropbox(key, docxPath, arrayBuffer, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
       }
+
+      // 3. Uppdatera status
+      const now = new Date();
+      const t = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+      if (statusEl) statusEl.innerHTML = '<span style="color:#0061fe;">✓ Synkad ' + t + ' (.json + .docx)</span>';
+      if (badge) badge.textContent = 'Synkad ' + t;
+
     } catch(e) {
       console.warn('Dropbox sync failed:', e);
+      if (statusEl) statusEl.innerHTML = '<span style="color:#c84040;">⚠ Synk misslyckades</span>';
     }
   }
 
