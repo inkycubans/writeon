@@ -6888,7 +6888,7 @@ p:first-of-type{text-indent:0;}`);
     }
   }
 
-  function filSpara()    { _closeDropdowns(); saveProject(); showAutosaveMsg('Sparat ✓'); }
+  function filSpara()    { _closeDropdowns(); doAutoSave(); showAutosaveMsg('Sparat ✓'); }
   function filSparasom() { _closeDropdowns(); document.getElementById('exportModal').style.display = 'flex'; }
   function filExportera(){ _closeDropdowns(); document.getElementById('exportModal').style.display = 'flex'; }
 
@@ -8253,8 +8253,11 @@ window.addEventListener('load', function() {
 
   async function syncToDropbox(key) {
     const data = JSON.stringify(projectData, null, 2);
-    const folder = localStorage.getItem('writeon_dropbox_folder') || '/WriteON';
-    const filename = folder + '/' + (projectData.title || 'Projekt') + '.json';
+    // App folder-läge: sökvägen är relativ till appens mapp i Dropbox
+    // Full access-läge: använd vald mapp
+    const folder = localStorage.getItem('writeon_dropbox_folder') || '';
+    const title = (projectData.title || 'Projekt').replace(/[/\\:*?"<>|]/g, '_');
+    const filename = (folder ? folder + '/' + title : '/' + title) + '.json';
     const statusEl = document.getElementById('dropboxStatus');
     try {
       const res = await fetch('https://content.dropboxapi.com/2/files/upload', {
