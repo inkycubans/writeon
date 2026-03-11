@@ -8047,6 +8047,15 @@ window.addEventListener('load', function() {
   // ─── DROPBOX OAUTH ───
   const DROPBOX_APP_KEY = 'eflbkkx6hhk190b';
 
+  // Kolla om vi kom tillbaka från Dropbox OAuth
+  (function checkDropboxCallback() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      exchangeDropboxCode(code, 'https://writeon-production-d435.up.railway.app');
+    }
+  })();
+
   function openDropboxSettings() {
     _closeDropdowns();
     document.getElementById('dropboxModal').style.display = 'flex';
@@ -8082,7 +8091,7 @@ window.addEventListener('load', function() {
     const verifier = generateCodeVerifier();
     sessionStorage.setItem('dropbox_verifier', verifier);
     generateCodeChallenge(verifier).then(challenge => {
-      const redirectUri = 'https://writeon-production-d435.up.railway.app/index.html';
+      const redirectUri = 'https://writeon-production-d435.up.railway.app';
       const params = new URLSearchParams({
         client_id: DROPBOX_APP_KEY,
         response_type: 'code',
@@ -8092,21 +8101,10 @@ window.addEventListener('load', function() {
         token_access_type: 'offline',
       });
       const authUrl = 'https://www.dropbox.com/oauth2/authorize?' + params.toString();
-      // Öppna i popup
-      const popup = window.open(authUrl, 'dropbox_auth', 'width=600,height=700,scrollbars=yes');
-      // Lyssna på att popup stängs / skickar tillbaka kod
-      const interval = setInterval(() => {
-        try {
-          if (popup.closed) { clearInterval(interval); return; }
-          const url = popup.location.href;
-          if (url && url.includes('code=')) {
-            clearInterval(interval);
-            popup.close();
-            const code = new URL(url).searchParams.get('code');
-            exchangeDropboxCode(code, redirectUri);
-          }
-        } catch(e) { /* cross-origin, ignorera */ }
-      }, 500);
+      // Spara redirectUri i sessionStorage för att användas efter redirect
+      sessionStorage.setItem('dropbox_redirect_uri', redirectUri);
+      // Navigera till Dropbox inloggning (samma fönster)
+      window.location.href = authUrl;
     });
   }
 
@@ -8125,8 +8123,7 @@ window.addEventListener('load', function() {
 
   async function exchangeDropboxCode(code, redirectUri) {
     const verifier = sessionStorage.getItem('dropbox_verifier');
-    const statusEl = document.getElementById('dropboxStatus');
-    if (statusEl) statusEl.innerHTML = '<span style="color:var(--text-muted);">Ansluter...</span>';
+    const storedRedirectUri = sessionStorage.getItem('dropbox_redirect_uri') || redirectUri;
     try {
       const res = await fetch('https://api.dropboxapi.com/oauth2/token', {
         method: 'POST',
@@ -8136,19 +8133,23 @@ window.addEventListener('load', function() {
           grant_type: 'authorization_code',
           client_id: DROPBOX_APP_KEY,
           code_verifier: verifier,
-          redirect_uri: redirectUri,
+          redirect_uri: storedRedirectUri,
         })
       });
       const data = await res.json();
       if (data.access_token) {
         localStorage.setItem('writeon_dropbox_key', data.access_token);
         if (data.refresh_token) localStorage.setItem('writeon_dropbox_refresh', data.refresh_token);
+        // Rensa URL-parametrar utan att ladda om sidan
+        window.history.replaceState({}, document.title, window.location.pathname);
         updateDropboxUI();
+        // Öppna inställningar för att visa bekräftelse
+        setTimeout(() => openDropboxSettings(), 300);
       } else {
-        if (statusEl) statusEl.innerHTML = '<span style="color:#c84040;">⚠ Kunde inte ansluta: ' + (data.error_description || data.error) + '</span>';
+        console.error('Dropbox token error:', data);
       }
     } catch(e) {
-      if (statusEl) statusEl.innerHTML = '<span style="color:#c84040;">⚠ Anslutningsfel</span>';
+      console.error('Dropbox exchange error:', e);
     }
   }
 
