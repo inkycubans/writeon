@@ -8293,7 +8293,9 @@ window.addEventListener('load', function() {
         const blob = await Packer.toBlob(doc);
         const ab = await blob.arrayBuffer();
         const uint8 = new Uint8Array(ab);
-        await uploadToDropbox(key, folder + '/' + title + '.docx', uint8, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        console.log('DOCX storlek:', uint8.length, 'bytes, sektioner:', children.length);
+        const docxOk = await uploadToDropbox(key, folder + '/' + title + '.docx', uint8, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        console.log('DOCX upload result:', docxOk);
       }
 
       const now = new Date();
