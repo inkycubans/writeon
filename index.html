@@ -6888,7 +6888,7 @@ p:first-of-type{text-indent:0;}`);
     }
   }
 
-  function filSpara()    { _closeDropdowns(); doAutoSave(); showAutosaveMsg('Sparat ✓'); }
+  function filSpara()    { _closeDropdowns(); saveProject(); showAutosaveMsg('Sparat ✓'); }
   function filSparasom() { _closeDropdowns(); document.getElementById('exportModal').style.display = 'flex'; }
   function filExportera(){ _closeDropdowns(); document.getElementById('exportModal').style.display = 'flex'; }
 
@@ -8047,15 +8047,6 @@ window.addEventListener('load', function() {
   // ─── DROPBOX OAUTH ───
   const DROPBOX_APP_KEY = 'eflbkkx6hhk190b';
 
-  // Kolla om vi kom tillbaka från Dropbox OAuth
-  (function checkDropboxCallback() {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    if (code) {
-      exchangeDropboxCode(code, 'https://writeon-production-d435.up.railway.app');
-    }
-  })();
-
   function openDropboxSettings() {
     _closeDropdowns();
     document.getElementById('dropboxModal').style.display = 'flex';
@@ -8091,7 +8082,7 @@ window.addEventListener('load', function() {
     const verifier = generateCodeVerifier();
     sessionStorage.setItem('dropbox_verifier', verifier);
     generateCodeChallenge(verifier).then(challenge => {
-      const redirectUri = 'https://writeon-production-d435.up.railway.app';
+      const redirectUri = 'https://writeon-production-d435.up.railway.app/index.html';
       const params = new URLSearchParams({
         client_id: DROPBOX_APP_KEY,
         response_type: 'code',
@@ -8101,10 +8092,21 @@ window.addEventListener('load', function() {
         token_access_type: 'offline',
       });
       const authUrl = 'https://www.dropbox.com/oauth2/authorize?' + params.toString();
-      // Spara redirectUri i sessionStorage för att användas efter redirect
-      sessionStorage.setItem('dropbox_redirect_uri', redirectUri);
-      // Navigera till Dropbox inloggning (samma fönster)
-      window.location.href = authUrl;
+      // Öppna i popup
+      const popup = window.open(authUrl, 'dropbox_auth', 'width=600,height=700,scrollbars=yes');
+      // Lyssna på att popup stängs / skickar tillbaka kod
+      const interval = setInterval(() => {
+        try {
+          if (popup.closed) { clearInterval(interval); return; }
+          const url = popup.location.href;
+          if (url && url.includes('code=')) {
+            clearInterval(interval);
+            popup.close();
+            const code = new URL(url).searchParams.get('code');
+            exchangeDropboxCode(code, redirectUri);
+          }
+        } catch(e) { /* cross-origin, ignorera */ }
+      }, 500);
     });
   }
 
@@ -8123,7 +8125,8 @@ window.addEventListener('load', function() {
 
   async function exchangeDropboxCode(code, redirectUri) {
     const verifier = sessionStorage.getItem('dropbox_verifier');
-    const storedRedirectUri = sessionStorage.getItem('dropbox_redirect_uri') || redirectUri;
+    const statusEl = document.getElementById('dropboxStatus');
+    if (statusEl) statusEl.innerHTML = '<span style="color:var(--text-muted);">Ansluter...</span>';
     try {
       const res = await fetch('https://api.dropboxapi.com/oauth2/token', {
         method: 'POST',
@@ -8133,23 +8136,19 @@ window.addEventListener('load', function() {
           grant_type: 'authorization_code',
           client_id: DROPBOX_APP_KEY,
           code_verifier: verifier,
-          redirect_uri: storedRedirectUri,
+          redirect_uri: redirectUri,
         })
       });
       const data = await res.json();
       if (data.access_token) {
         localStorage.setItem('writeon_dropbox_key', data.access_token);
         if (data.refresh_token) localStorage.setItem('writeon_dropbox_refresh', data.refresh_token);
-        // Rensa URL-parametrar utan att ladda om sidan
-        window.history.replaceState({}, document.title, window.location.pathname);
         updateDropboxUI();
-        // Öppna inställningar för att visa bekräftelse
-        setTimeout(() => openDropboxSettings(), 300);
       } else {
-        console.error('Dropbox token error:', data);
+        if (statusEl) statusEl.innerHTML = '<span style="color:#c84040;">⚠ Kunde inte ansluta: ' + (data.error_description || data.error) + '</span>';
       }
     } catch(e) {
-      console.error('Dropbox exchange error:', e);
+      if (statusEl) statusEl.innerHTML = '<span style="color:#c84040;">⚠ Anslutningsfel</span>';
     }
   }
 
@@ -8180,18 +8179,7 @@ window.addEventListener('load', function() {
     localStorage.removeItem('writeon_dropbox_refresh');
     localStorage.removeItem('writeon_dropbox_folder');
     localStorage.removeItem('writeon_dropbox_folder_name');
-    sessionStorage.removeItem('dropbox_verifier');
-    sessionStorage.removeItem('dropbox_redirect_uri');
     updateDropboxUI();
-  }
-
-  function reconnectDropbox() {
-    // Rensa allt och starta ny OAuth
-    localStorage.removeItem('writeon_dropbox_key');
-    localStorage.removeItem('writeon_dropbox_refresh');
-    sessionStorage.removeItem('dropbox_verifier');
-    sessionStorage.removeItem('dropbox_redirect_uri');
-    connectDropbox();
   }
 
   function openDropboxChooser() {
@@ -8272,10 +8260,7 @@ window.addEventListener('load', function() {
       },
       body
     });
-    if (!res.ok) {
-      const err = await res.text();
-      console.warn('Dropbox upload failed:', path, err);
-    }
+    if (!res.ok) console.warn('Dropbox upload failed:', path, await res.text());
     return res.ok;
   }
 
@@ -8286,47 +8271,42 @@ window.addEventListener('load', function() {
     const badge = document.querySelector('.sync-badge');
 
     try {
-      // 1. Spara JSON (WriteON-format)
+      // 1. Spara JSON
       const jsonData = JSON.stringify(projectData, null, 2);
-      const jsonPath = folder + '/' + title + '.json';
-      await uploadToDropbox(key, jsonPath, jsonData, 'application/octet-stream');
+      await uploadToDropbox(key, folder + '/' + title + '.json', jsonData, 'application/octet-stream');
 
-      // 2. Spara DOCX (läsbar i Word)
+      // 2. Spara DOCX
       if (window.docx) {
         const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
         const wa = getWritingArea();
         function parseInline(el) {
           const runs = [];
           el.childNodes.forEach(n => {
-            if (n.nodeType === 3) {
-              if (n.textContent) runs.push(new TextRun({ text: n.textContent, font: 'Garamond', size: 24 }));
-            } else {
+            if (n.nodeType === 3) { if (n.textContent) runs.push(new TextRun({ text: n.textContent, font: 'Garamond', size: 24 })); }
+            else {
               const t = n.tagName; const txt = n.textContent;
-              if (t === 'STRONG' || t === 'B') runs.push(new TextRun({ text: txt, bold: true, font: 'Garamond', size: 24 }));
-              else if (t === 'EM' || t === 'I') runs.push(new TextRun({ text: txt, italics: true, font: 'Garamond', size: 24 }));
-              else if (t === 'U') runs.push(new TextRun({ text: txt, underline: {}, font: 'Garamond', size: 24 }));
+              if (t==='STRONG'||t==='B') runs.push(new TextRun({ text: txt, bold: true, font: 'Garamond', size: 24 }));
+              else if (t==='EM'||t==='I') runs.push(new TextRun({ text: txt, italics: true, font: 'Garamond', size: 24 }));
+              else if (t==='U') runs.push(new TextRun({ text: txt, underline: {}, font: 'Garamond', size: 24 }));
               else if (txt) runs.push(new TextRun({ text: txt, font: 'Garamond', size: 24 }));
             }
           });
           return runs.length ? runs : [new TextRun({ text: '' })];
         }
-        const children = [];
-        children.push(new Paragraph({ text: title, heading: HeadingLevel.TITLE, spacing: { after: 400 } }));
+        const children = [new Paragraph({ text: title, heading: HeadingLevel.TITLE, spacing: { after: 400 } })];
         wa.childNodes.forEach(node => {
           if (node.nodeType !== 1) return;
           const tag = node.tagName;
-          if (tag === 'H1') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_1, spacing: { before: 320, after: 160 } }));
-          else if (tag === 'H2') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_2, spacing: { before: 240, after: 120 } }));
-          else if (tag === 'P') children.push(new Paragraph({ children: parseInline(node), spacing: { after: 120 }, indent: { firstLine: 480 } }));
+          if (tag==='H1') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_1, spacing: { before: 320, after: 160 } }));
+          else if (tag==='H2') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_2, spacing: { before: 240, after: 120 } }));
+          else if (tag==='P') children.push(new Paragraph({ children: parseInline(node), spacing: { after: 120 }, indent: { firstLine: 480 } }));
         });
         const doc = new Document({ sections: [{ properties: { page: { margin: { top: 1440, bottom: 1440, left: 1440, right: 1440 } } }, children }] });
         const blob = await Packer.toBlob(doc);
-        const arrayBuffer = await blob.arrayBuffer();
-        const docxPath = folder + '/' + title + '.docx';
-        await uploadToDropbox(key, docxPath, arrayBuffer, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        const ab = await blob.arrayBuffer();
+        await uploadToDropbox(key, folder + '/' + title + '.docx', ab, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
       }
 
-      // 3. Uppdatera status
       const now = new Date();
       const t = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
       if (statusEl) statusEl.innerHTML = '<span style="color:#0061fe;">✓ Synkad ' + t + ' (.json + .docx)</span>';
@@ -8372,11 +8352,8 @@ window.addEventListener('load', function() {
       <button onclick="openDropboxChooser()" style="width:100%;padding:9px 16px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border-strong);color:var(--text-primary);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;margin-bottom:14px;">
         Byt mapp…
       </button>
-      <button id="dropboxDisconnectBtn" onclick="disconnectDropbox()" style="display:none;font-size:0.72rem;color:var(--text-muted);background:none;border:none;cursor:pointer;text-decoration:underline;margin-bottom:4px;">
+      <button id="dropboxDisconnectBtn" onclick="disconnectDropbox()" style="display:none;font-size:0.72rem;color:var(--text-muted);background:none;border:none;cursor:pointer;text-decoration:underline;margin-bottom:12px;">
         Koppla från Dropbox
-      </button>
-      <button onclick="reconnectDropbox()" style="font-size:0.72rem;color:#0061fe;background:none;border:none;cursor:pointer;text-decoration:underline;margin-bottom:12px;display:block;">
-        🔄 Återanslut (ny token)
       </button>
     </div>
 
