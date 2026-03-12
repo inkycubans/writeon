@@ -8078,36 +8078,15 @@ window.addEventListener('load', function() {
   }
 
   function connectDropbox() {
-    // PKCE OAuth flow — öppnar Dropbox inloggning i popup
-    const verifier = generateCodeVerifier();
-    sessionStorage.setItem('dropbox_verifier', verifier);
-    generateCodeChallenge(verifier).then(challenge => {
-      const redirectUri = 'https://writeon-production-d435.up.railway.app/index.html';
-      const params = new URLSearchParams({
-        client_id: DROPBOX_APP_KEY,
-        response_type: 'code',
-        code_challenge: challenge,
-        code_challenge_method: 'S256',
-        redirect_uri: redirectUri,
-        token_access_type: 'offline',
-      });
-      const authUrl = 'https://www.dropbox.com/oauth2/authorize?' + params.toString();
-      // Öppna i popup
-      const popup = window.open(authUrl, 'dropbox_auth', 'width=600,height=700,scrollbars=yes');
-      // Lyssna på att popup stängs / skickar tillbaka kod
-      const interval = setInterval(() => {
-        try {
-          if (popup.closed) { clearInterval(interval); return; }
-          const url = popup.location.href;
-          if (url && url.includes('code=')) {
-            clearInterval(interval);
-            popup.close();
-            const code = new URL(url).searchParams.get('code');
-            exchangeDropboxCode(code, redirectUri);
-          }
-        } catch(e) { /* cross-origin, ignorera */ }
-      }, 500);
+    // Server-side OAuth — Railway hanterar token-bytet säkert
+    const redirectUri = 'https://writeon-production-d435.up.railway.app/dropbox-callback';
+    const params = new URLSearchParams({
+      client_id: DROPBOX_APP_KEY,
+      response_type: 'code',
+      redirect_uri: redirectUri,
+      token_access_type: 'offline',
     });
+    window.location.href = 'https://www.dropbox.com/oauth2/authorize?' + params.toString();
   }
 
   function generateCodeVerifier() {
