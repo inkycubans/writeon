@@ -8702,9 +8702,18 @@ window.addEventListener('load', function() {
 
       // Placera popup ovanför markeringen
       const rect = sel.getRangeAt(0).getBoundingClientRect();
-      popup.style.top  = (rect.top + window.scrollY - popup.offsetHeight - 10) + 'px';
-      popup.style.left = Math.max(8, rect.left + window.scrollX + (rect.width/2) - 120) + 'px';
+      // Visa tillfälligt för att mäta höjd
+      popup.style.visibility = 'hidden';
       popup.classList.add('visible');
+      const popH = popup.offsetHeight || 42;
+      const popW = popup.offsetWidth  || 280;
+      let top  = rect.top + window.scrollY - popH - 10;
+      let left = rect.left + window.scrollX + (rect.width / 2) - (popW / 2);
+      if(top < window.scrollY + 4) top = rect.bottom + window.scrollY + 8;
+      left = Math.max(8, Math.min(left, window.innerWidth - popW - 8));
+      popup.style.top  = top + 'px';
+      popup.style.left = left + 'px';
+      popup.style.visibility = '';
     }, 10);
   });
 
@@ -8751,7 +8760,10 @@ window.addEventListener('load', function() {
     resultEl.textContent = '⏳ Analyserar...';
 
     // Scrolla inspektören ner till AI-sektionen
-    section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Scrolla inspektör-panelen (inte hela sidan)
+    const inspBody = document.getElementById('insp-body');
+    if(inspBody) inspBody.scrollTop = inspBody.scrollHeight;
+    else section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     try {
       const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`, {
