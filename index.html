@@ -546,6 +546,66 @@
   }
   .inspector-notes:focus { outline: none; border-color: var(--accent-purple); }
 
+  /* ── AI-markerings-popup ── */
+  #aiSelectionPopup {
+    position: fixed;
+    z-index: 9000;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    display: none;
+    align-items: center;
+    gap: 2px;
+    padding: 5px 6px;
+  }
+  #aiSelectionPopup.visible { display: flex; }
+  .ai-popup-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    transition: background 0.12s;
+  }
+  .ai-popup-btn:hover { background: var(--bg-soft); }
+  .ai-popup-btn.primary { background: var(--accent); color: white; }
+  .ai-popup-btn.primary:hover { background: var(--accent-n); }
+  .ai-popup-divider { width: 1px; height: 20px; background: var(--border); margin: 0 2px; }
+
+  /* ── AI-resultat i inspektören ── */
+  .insp-ai-result {
+    background: var(--bg-soft);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    margin-bottom: 10px;
+    min-height: 60px;
+  }
+  .insp-ai-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .insp-ai-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-soft);
+    font-size: 0.78rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text-primary);
+  }
+  .insp-ai-btn.replace { background: var(--accent); color: white; border-color: var(--accent); }
+
   .inspector-status-row {
     display: flex; align-items: center; gap: 8px; margin-top: 12px;
   }
@@ -3003,38 +3063,12 @@
     <!-- IDÉBANK + KARAKTÄRER UNDER MANUS -->
     <div class="below-manus" id="belowManus">
 
-      <!-- Collapse handle -->
       <div class="bm-collapse-handle" id="bmCollapseHandle" onclick="toggleBelowManus()" title="Visa/dölj verktyg">
         <span id="bmCollapseIcon">▼</span>
-        <span class="bm-collapse-label">AI-redaktör · Idébanken · Karaktärer</span>
+        <span class="bm-collapse-label">Idébanken · Karaktärer</span>
       </div>
 
       <div id="bmSectionsWrap">
-
-      <!-- AI-redaktör collapsible (UNDER MANUS) -->
-      <div class="bm-section" id="bm-ai-editor-section">
-        <div class="bm-section-hdr" onclick="toggleBmSection('bm-ai-editor')">
-          <span class="bm-arrow" id="bmarr-bm-ai-editor">▶</span>
-          <span class="bm-section-icon">✦</span>
-          <span class="bm-section-title">AI-redaktör</span>
-          <span class="bm-section-sub" id="bmAiSubline">Bygg · Synopsis</span>
-        </div>
-
-        <div class="bm-section-body collapsed" id="bm-ai-editor">
-          <div class="bm-ai-label">Underämnen</div>
-          <div class="bm-ai-chips" id="bmAiChips"></div>
-
-          <div class="bm-ai-result" id="bmAiResult">
-            Resultat hamnar här. (Den här rutan scrollar.)
-          </div>
-
-          <div class="bm-ai-prompt-row">
-            <textarea class="coach-input" id="bmAiPrompt" placeholder="Instruktion (valfri)…" rows="1"
-              oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
-            <button class="coach-send-btn" id="bmAiRunBtn">↑</button>
-          </div>
-        </div>
-      </div>
 
       <!-- IDÉBANKEN UNDER MANUS -->
       <div class="bm-section" id="bm-idebank-section">
@@ -3338,6 +3372,20 @@
 
       <div class="inspector-word-count" id="insp-word-count" style="padding:8px 16px 16px;">
         180 ord i scenen
+      </div>
+
+      <!-- AI-REDAKTÖR RESULTAT (visas när man använt popup) -->
+      <div class="inspector-section" id="insp-ai-section" style="display:none;">
+        <div class="inspector-field-label" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>✦ AI-redaktör</span>
+          <button onclick="closeInspAi()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text-muted);">×</button>
+        </div>
+        <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:8px;" id="insp-ai-tool-label">Skriv om</div>
+        <div class="insp-ai-result" id="insp-ai-result">...</div>
+        <div class="insp-ai-actions">
+          <button class="insp-ai-btn replace" onclick="aiReplaceText()">↩ Ersätt i texten</button>
+          <button class="insp-ai-btn" onclick="closeInspAi()">Behåll original</button>
+        </div>
       </div>
 
     </div><!-- end inspector-body -->
@@ -7940,10 +7988,11 @@ window.addEventListener('load', function() {
   const apiInput    = document.getElementById("aiApiKeyInput");
   const apiSave     = document.getElementById("aiApiSaveBtn");
   const apiStatus   = document.getElementById("aiApiStatus");
-  const LS_KEY      = "writeon_ai_key";
+  const LS_KEY      = "writeon_gemini_key";
 
   // ─── API-nyckel ───
   function setApiStatus(){
+    if(!apiStatus) return;
     const key = localStorage.getItem(LS_KEY);
     if(key && key.trim().length > 10){
       apiStatus.textContent = "Nyckel sparad ✓ (Gemini kopplat)";
@@ -7953,27 +8002,41 @@ window.addEventListener('load', function() {
       apiStatus.style.color = "var(--text-muted)";
     }
   }
-  apiSave.addEventListener("click", ()=>{
-    const v = (apiInput.value || "").trim();
+  if(apiSave) apiSave.addEventListener("click", ()=>{
+    const v = (apiInput ? apiInput.value : "").trim();
     if(!v) localStorage.removeItem(LS_KEY);
     else localStorage.setItem(LS_KEY, v);
     setApiStatus();
   });
   const savedKey = localStorage.getItem(LS_KEY);
-  if(savedKey) apiInput.value = savedKey.slice(0,6) + "…";
+  if(savedKey && apiInput) apiInput.value = savedKey.slice(0,6) + "…";
   setApiStatus();
+
+  // ─── Render vänsterlistan (fas-knappar) ───
+  function renderFasLista(){
+    topicList.innerHTML = "";
+    Object.entries(FASER).forEach(([fasId, fas]) => {
+      const btn = document.createElement("button");
+      btn.className = "ai-topic-btn" + (fasId === aktivFas ? " active" : "");
+      btn.innerHTML = `<span class="ai-topic-name">${fas.icon} ${fas.label}</span><span class="ai-topic-meta">›</span>`;
+      btn.onclick = () => {
+        aktivFas = fasId;
+        aktivVerktyg = fas.verktyg[0];
+        renderAll();
+      };
+      topicList.appendChild(btn);
+    });
+  }
 
   // ─── Render verktygs-chips ───
   function renderChips(){
+    if(!chips) return;
     chips.innerHTML = "";
-    // Fas-titel som liten rubrik
     const fas = FASER[aktivFas];
     const rubrik = document.createElement("div");
     rubrik.style.cssText = "font-size:0.67rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:6px;padding:0 2px;";
     rubrik.textContent = fas.beskrivning;
     chips.appendChild(rubrik);
-
-    // Verktygs-knappar
     const row = document.createElement("div");
     row.className = "bm-ai-chips-row";
     fas.verktyg.forEach(v => {
@@ -7988,22 +8051,22 @@ window.addEventListener('load', function() {
 
   // ─── Placeholder i resultatrutan ───
   function renderResultPlaceholder(){
-    subline.textContent = `${FASER[aktivFas].label} · ${aktivVerktyg.namn}`;
-    result.innerHTML = `<div style="color:var(--text-muted);font-style:italic;font-size:0.82rem;line-height:1.6;">${aktivVerktyg.tips}</div>`;
+    if(subline) subline.textContent = `${FASER[aktivFas].label} · ${aktivVerktyg.namn}`;
+    if(result) result.innerHTML = `<div style="color:var(--text-muted);font-style:italic;font-size:0.82rem;line-height:1.6;">${aktivVerktyg.tips}</div>`;
   }
 
   // ─── Kör AI ───
   async function runAi(){
+    if(!result || !runBtn) return;
     const key = localStorage.getItem(LS_KEY);
     const text = getWritingArea() ? getWritingArea().innerText.trim() : "";
-    const extraPrompt = (prompt.value || "").trim();
+    const extraPrompt = (prompt ? prompt.value : "").trim();
 
     if(!text && aktivVerktyg.id !== "synopsis" && aktivVerktyg.id !== "bage" && aktivVerktyg.id !== "karaktarskurva"){
       result.innerHTML = `<span style="color:var(--text-muted);">Skriv något i manuset först, sedan kör du verktyget.</span>`;
       return;
     }
 
-    // Bygg system-prompt per verktyg
     const systemPrompts = {
       synopsis:       "Du är en professionell svensk redaktör. Sammanfatta berättelsen i en kort, kärnfull synopsis på svenska. Max 3 meningar. Var konkret.",
       bage:           "Du är en dramaturg. Analysera den dramaturgiska bågen i texten: setup, stegring, vändpunkter, klimax, upplösning. Vad fungerar? Vad saknas? Svara på svenska.",
@@ -8026,11 +8089,10 @@ window.addEventListener('load', function() {
     runBtn.disabled = true;
 
     if(!key){
-      // Mock-läge
       await new Promise(r => setTimeout(r, 900));
       result.innerHTML = `<div style="font-size:0.82rem;line-height:1.7;color:var(--text-primary);">
         <strong style="color:var(--accent-n);">Mock-svar · ${FASER[aktivFas].label} → ${aktivVerktyg.namn}</strong><br><br>
-        Det här är ett exempelsvar. Koppla din Gemini API-nyckel i sidopanelen för att få riktiga analyser.<br><br>
+        Det här är ett exempelsvar. Koppla din Gemini API-nyckel under Molnet-ikonen för att få riktiga analyser.<br><br>
         <em style="color:var(--text-muted);">${aktivVerktyg.tips}</em>
       </div>`;
       runBtn.disabled = false;
@@ -8052,16 +8114,15 @@ window.addEventListener('load', function() {
       const data = await resp.json();
       if(data.error){ throw new Error(data.error.message); }
       const text_out = data.candidates?.[0]?.content?.parts?.[0]?.text || "Inget svar från Gemini.";
-      // Rendera med radbrytningar
       result.innerHTML = `<div style="font-size:0.82rem;line-height:1.75;color:var(--text-primary);white-space:pre-wrap;">${text_out}</div>`;
     } catch(e){
       result.innerHTML = `<span style="color:#c84040;">Fel: ${e.message}</span>`;
     }
     runBtn.disabled = false;
-    prompt.value = ""; prompt.style.height = "auto";
+    if(prompt){ prompt.value = ""; prompt.style.height = "auto"; }
   }
 
-  runBtn.addEventListener("click", runAi);
+  if(runBtn) runBtn.addEventListener("click", runAi);
   if(prompt){
     prompt.addEventListener("keydown", e => {
       if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); runAi(); }
@@ -8082,8 +8143,8 @@ window.addEventListener('load', function() {
   };
 
   // ─── Toggle-knapp i sidopanelen ───
-  // Togglen döljer/visar BARA verktygslistorna — inte hela docken
-  let dockOn = true;
+  // Togglen döljer/visar AI-redaktör-blocket i bindern (så kapitellistan syns)
+  let dockOn = false;
   const dockEl = document.getElementById("aiEditorDock");
 
   function setDock(on){
@@ -8091,59 +8152,12 @@ window.addEventListener('load', function() {
     if(!dockToggle) return;
     dockToggle.classList.toggle("on", dockOn);
     dockToggle.setAttribute("aria-pressed", dockOn ? "true" : "false");
-    dockToggle.title = dockOn ? "Dölj AI-redaktör" : "Visa AI-redaktör";
-    if(topicList) topicList.style.display = dockOn ? "" : "none";
+    dockToggle.title = dockOn ? "Dölj AI-redaktör i bindern" : "Visa AI-redaktör i bindern";
+    // Visa/dölj hela AI-redaktör-docken i bindern
+    if(dockEl) dockEl.style.display = dockOn ? "" : "none";
   }
   if(dockToggle){
     dockToggle.addEventListener("click", () => setDock(!dockOn));
-  }
-
-  // ─── Accordion: Bygg/Skriv/Putsa fälls ut/in individuellt ───
-  let openFas = "bygg"; // vilken fas är öppen
-
-  function renderFasLista(){
-    topicList.innerHTML = "";
-    Object.entries(FASER).forEach(([fasId, fas]) => {
-      const wrap = document.createElement("div");
-      wrap.style.cssText = "margin-bottom:2px;";
-
-      // Fas-knapp (rubrik)
-      const btn = document.createElement("button");
-      const isOpen = fasId === openFas;
-      const isActive = fasId === aktivFas;
-      btn.className = "ai-topic-btn" + (isActive ? " active" : "");
-      btn.style.cssText = "width:100%;display:flex;align-items:center;justify-content:space-between;";
-      btn.innerHTML = `<span class="ai-topic-name">${fas.icon} ${fas.label}</span><span style="font-size:0.7rem;color:var(--text-muted);transition:transform 0.2s;transform:rotate(${isOpen?'90deg':'0deg'})"›</span>`;
-      btn.onclick = () => {
-        openFas = (openFas === fasId) ? null : fasId;
-        aktivFas = fasId;
-        aktivVerktyg = fas.verktyg[0];
-        renderAll();
-      };
-      wrap.appendChild(btn);
-
-      // Underkategori-lista (collapsible)
-      if(isOpen){
-        const subList = document.createElement("div");
-        subList.style.cssText = "padding:2px 0 4px 12px;";
-        fas.verktyg.forEach(v => {
-          const sub = document.createElement("button");
-          const isActiveSub = aktivVerktyg && aktivVerktyg.id === v.id;
-          sub.style.cssText = `width:100%;text-align:left;padding:5px 10px;border-radius:6px;border:none;cursor:pointer;font-size:0.78rem;font-family:'DM Sans',sans-serif;background:${isActiveSub?'var(--accent)':'transparent'};color:${isActiveSub?'white':'var(--text-primary)'};margin-bottom:1px;`;
-          sub.textContent = v.namn;
-          sub.title = v.tips;
-          sub.onclick = (e) => {
-            e.stopPropagation();
-            aktivVerktyg = v;
-            renderAll();
-          };
-          subList.appendChild(sub);
-        });
-        wrap.appendChild(subList);
-      }
-
-      topicList.appendChild(wrap);
-    });
   }
 
   function renderAll(){
@@ -8640,6 +8654,156 @@ window.addEventListener('load', function() {
     </div>
   </div>
 </div>
+
+<!-- AI MARKERINGS-POPUP -->
+<div id="aiSelectionPopup">
+  <button class="ai-popup-btn primary" onclick="runAiOnSelection('skriv-om')">✦ Skriv om</button>
+  <div class="ai-popup-divider"></div>
+  <button class="ai-popup-btn" onclick="runAiOnSelection('ifraga')">🔍 Ifrågasätt</button>
+  <div class="ai-popup-divider"></div>
+  <button class="ai-popup-btn" onclick="runAiOnSelection('putsa')">✂️ Putsa</button>
+  <div class="ai-popup-divider"></div>
+  <button class="ai-popup-btn" id="aiPopupDialogBtn" onclick="runAiOnSelection('dialog')">💬 Dialog</button>
+</div>
+
+<script>
+(function(){
+  const popup = document.getElementById('aiSelectionPopup');
+  let lastSelectedText = '';
+  let lastRange = null;
+
+  // Visa popup vid textmarkering i manuset
+  document.addEventListener('mouseup', function(e){
+    // Vänta lite så markeringen hinner sättas
+    setTimeout(() => {
+      const sel = window.getSelection();
+      const text = sel ? sel.toString().trim() : '';
+
+      // Kräv minst 15 tecken och att markeringen är i manuset
+      if(text.length < 15){
+        hidePopup();
+        return;
+      }
+
+      // Kontrollera att markeringen är i canvas/manus-området
+      const anchorNode = sel.anchorNode;
+      const canvas = document.getElementById('canvasWrap');
+      if(!canvas || !canvas.contains(anchorNode)){
+        hidePopup();
+        return;
+      }
+
+      lastSelectedText = text;
+      lastRange = sel.getRangeAt(0).cloneRange();
+
+      // Visa/dölj dialog-knapp beroende på om det finns dialog i texten
+      const dialogBtn = document.getElementById('aiPopupDialogBtn');
+      if(dialogBtn) dialogBtn.style.display = (text.includes('—') || text.includes('"') || text.includes('»')) ? '' : 'none';
+
+      // Placera popup ovanför markeringen
+      const rect = sel.getRangeAt(0).getBoundingClientRect();
+      popup.style.top  = (rect.top + window.scrollY - popup.offsetHeight - 10) + 'px';
+      popup.style.left = Math.max(8, rect.left + window.scrollX + (rect.width/2) - 120) + 'px';
+      popup.classList.add('visible');
+    }, 10);
+  });
+
+  // Dölj popup vid klick utanför
+  document.addEventListener('mousedown', function(e){
+    if(!popup.contains(e.target)) hidePopup();
+  });
+
+  function hidePopup(){
+    popup.classList.remove('visible');
+  }
+
+  // Kör AI på markerad text
+  window.runAiOnSelection = async function(typ){
+    hidePopup();
+    const text = lastSelectedText;
+    if(!text) return;
+
+    const key = localStorage.getItem('writeon_gemini_key') || localStorage.getItem('writeon_ai_key');
+    if(!key){ alert('Lägg till Gemini API-nyckel under Molnet-ikonen.'); return; }
+
+    const prompts = {
+      'skriv-om': `Du är en erfaren svensk romanredaktör. Skriv om följande textstycke. Behåll meningen och tonen men förbättra språket. Inga adjektiv-överskott. Starka verb. Inga förklaringar — bara det omskrivna stycket.\n\n${text}`,
+      'ifraga':   `Du är en erfaren svensk romanredaktör. Läs följande stycke och beskriv kort vad som är svagt, otydligt eller kan förbättras. Var direkt och konkret. Max 5 punkter.\n\n${text}`,
+      'putsa':    `Du är en erfaren svensk språkredaktör. Putsa följande stycke: rätta grammatik, tempus, meningslängd och rytm. Inga förklaringar — bara det putsade stycket.\n\n${text}`,
+      'dialog':   `Du är en erfaren svensk romanredaktör specialiserad på dialog. Analysera följande dialog: låter det äkta? Finns subtext? Säger karaktärerna för mycket rakt ut? Max 4 punkter, sedan ett omskrivet förslag.\n\n${text}`
+    };
+
+    const labels = {
+      'skriv-om': 'Skriv om',
+      'ifraga':   'Ifrågasätt',
+      'putsa':    'Putsa',
+      'dialog':   'Dialog'
+    };
+
+    // Visa AI-sektionen i inspektören
+    const section = document.getElementById('insp-ai-section');
+    const resultEl = document.getElementById('insp-ai-result');
+    const toolLabel = document.getElementById('insp-ai-tool-label');
+    if(!section || !resultEl) return;
+
+    section.style.display = '';
+    toolLabel.textContent = labels[typ];
+    resultEl.textContent = '⏳ Analyserar...';
+
+    // Scrolla inspektören ner till AI-sektionen
+    section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    try {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents:[{ parts:[{ text: prompts[typ] }] }] })
+      });
+      const data = await resp.json();
+      const result = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if(result){
+        // Strippa markdown
+        const clean = result
+          .replace(/\*\*(.+?)\*\*/g, '$1')
+          .replace(/\*(.+?)\*/g, '$1')
+          .replace(/^#+\s+/gm, '')
+          .trim();
+        resultEl.textContent = clean;
+        // Spara för Ersätt-funktionen
+        window._aiLastResult = clean;
+        window._aiLastRange = lastRange;
+      } else {
+        resultEl.textContent = 'Inget svar. Kontrollera din API-nyckel.';
+      }
+    } catch(e){
+      resultEl.textContent = 'Något gick fel. Försök igen.';
+    }
+  };
+
+  // Ersätt markerad text med AI-resultat
+  window.aiReplaceText = function(){
+    const result = window._aiLastResult;
+    const range  = window._aiLastRange;
+    if(!result || !range) return;
+    try {
+      range.deleteContents();
+      range.insertNode(document.createTextNode(result));
+      window.getSelection().removeAllRanges();
+      // Trigga autosave
+      if(typeof touchScene === 'function') touchScene();
+    } catch(e){ console.warn('Ersätt misslyckades', e); }
+    closeInspAi();
+  };
+
+  window.closeInspAi = function(){
+    const section = document.getElementById('insp-ai-section');
+    if(section) section.style.display = 'none';
+    window._aiLastResult = null;
+    window._aiLastRange  = null;
+  };
+
+})();
+</script>
 
 </body>
 </html>
