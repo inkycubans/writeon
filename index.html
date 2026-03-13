@@ -7769,10 +7769,19 @@ window.addEventListener('load', function() {
     const char = (projectData.characters||[]).find(c => c.id === id);
     const key = localStorage.getItem('writeon_gemini_key');
     if (!key) { alert('Lägg till Gemini API-nyckel under Molnet-ikonen först!'); return; }
-    const labels = {utseende:'utseende',personlighet:'personlighet och karaktärsdrag',bakgrund:'bakgrundshistoria',mal:'mål och drivkraft',hemlighet:'hemlighet eller sårbarhet',rost:'röst, sätt att prata och språktics', relation:'relationer till andra karaktärer'};
+    const labels = {
+      utseende:     { beskrivning: 'utseende', instruktion: 'Skriv som korta anteckningar. Ålder, kroppsbyggnad, hår, kläder, särdrag. Max 3 rader. Inga fullständiga meningar. Ingen berättarröst.' },
+      personlighet: { beskrivning: 'personlighet', instruktion: 'Skriv som korta stickord och fraser. Karaktärsdrag, beteenden, styrkor, svagheter. Max 3 rader. Ingen berättarröst.' },
+      bakgrund:     { beskrivning: 'bakgrundshistoria', instruktion: 'Skriv som korta faktameningar. Vad har hänt, inte hur det kändes. Max 2-3 meningar. Ingen berättarröst.' },
+      mal:          { beskrivning: 'mål och drivkraft', instruktion: 'Skriv som en kort lista eller 1-2 meningar. Vad vill karaktären? Vad driver hen? Ingen berättarröst.' },
+      hemlighet:    { beskrivning: 'hemlighet eller sårbarhet', instruktion: 'En mening, max två. Konkret och specifikt. Ingen berättarröst.' },
+      rost:         { beskrivning: 'röst och språktics', instruktion: 'Stickord och exempel. Hur låter karaktären? Typiska fraser eller mönster. Max 3 rader.' },
+      relation:     { beskrivning: 'relationer till andra karaktärer', instruktion: 'Skriv som korta faktameningar. Vem är vem för karaktären? Max 3 rader. Ingen berättarröst.' }
+    };
     const genre = projectData.genre || 'thriller';
     const synopsis = projectData.synopsis || '';
-    const prompt = `Du är en erfaren svensk romanförfattare. Skriv ${labels[field]} för karaktären ${char.name||'karaktären'} (${char.roll||'bikaraktär'}, pronomen: ${char.pronomen||'okänt'}) i en ${genre}${synopsis ? '. Berättelsens synopsis: ' + synopsis.substring(0,200) : ''}. Svara på svenska med 2-4 meningar, ingen inledning.`;
+    const { beskrivning, instruktion } = labels[field];
+    const prompt = `Du är en erfaren svensk romanförfattare som fyller i ett karaktärsblad. Skriv ${beskrivning} för karaktären ${char.name||'karaktären'} (${char.roll||'bikaraktär'}, pronomen: ${char.pronomen||'okänt'}) i en ${genre}${synopsis ? '. Berättelsens synopsis: ' + synopsis.substring(0,200) : ''}. ${instruktion} Svara på svenska.`;
     const btn = btnEl || (event && event.target);
     const origText = btn ? btn.textContent : '';
     if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
