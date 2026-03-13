@@ -4003,20 +4003,14 @@
 </div>
 
 <!-- Karaktärshistorik-modal -->
-<div id="char-history-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:var(--bg-primary);border-radius:14px;width:min(800px,95vw);height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">
-    <!-- Header med stängknapp -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;">
-      <div style="font-weight:700;font-size:0.9rem;display:flex;align-items:center;gap:8px;">🕐 Versionshistorik</div>
-      <button onclick="document.getElementById('char-history-modal').style.display='none'" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-muted);line-height:1;padding:0 4px;" title="Stäng">×</button>
+<div id="char-history-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-primary);border-radius:14px;width:min(800px,95vw);height:80vh;display:flex;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="width:220px;border-right:1px solid var(--border);padding:16px;overflow-y:auto;background:var(--bg-soft);">
+      <div style="font-weight:700;font-size:0.82rem;margin-bottom:12px;display:flex;align-items:center;gap:6px;">🕐 Versionshistorik</div>
+      <div id="char-history-list"></div>
     </div>
-    <!-- Body med sidopanel + innehåll -->
-    <div style="flex:1;display:flex;overflow:hidden;">
-      <div style="width:220px;border-right:1px solid var(--border);padding:16px;overflow-y:auto;background:var(--bg-soft);">
-        <div id="char-history-list"></div>
-      </div>
-      <div style="flex:1;padding:24px;overflow-y:auto;" id="char-history-detail"></div>
-    </div>
+    <div style="flex:1;padding:24px;overflow-y:auto;" id="char-history-detail"></div>
+    <button onclick="document.getElementById('char-history-modal').style.display='none'" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-muted);">×</button>
   </div>
 </div>
 
@@ -6903,10 +6897,6 @@ p:first-of-type{text-indent:0;}`);
 
   // Tangentbordsgenvägar för Fil-menyn
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      const hm = document.getElementById('char-history-modal');
-      if (hm && hm.style.display !== 'none') { hm.style.display = 'none'; return; }
-    }
     const mod = e.ctrlKey || e.metaKey;
     if (!mod) return;
     if (e.key === 's' && !e.shiftKey) { e.preventDefault(); filSpara(); }
@@ -7617,11 +7607,18 @@ window.addEventListener('load', function() {
             return `<div style="margin-bottom:12px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <label style="font-size:0.7rem;color:var(--text-muted);">${labels[f]}</label>
-                <button onclick="aiGenerateCharField('${char.id}','${f}')" style="font-size:0.68rem;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">✦ Generera</button>
+                <button onclick="aiGenerateCharField('${char.id}','${f}',this)" style="font-size:0.68rem;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">✦ Generera</button>
               </div>
               <textarea oninput="updateChar('${char.id}','${f}',this.value)" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);resize:vertical;min-height:70px;box-sizing:border-box;line-height:1.5;">${char[f]||''}</textarea>
             </div>`;
           }).join('')}
+          <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <label style="font-size:0.7rem;color:var(--text-muted);">RELATIONER</label>
+              <span style="font-size:0.68rem;color:var(--text-muted);">Vem är vem för den här karaktären?</span>
+            </div>
+            <textarea oninput="updateChar('${char.id}','relation',this.value)" placeholder="t.ex. Gift med Maria Ek. Informatör för Juan Morales — litar inte helt på honom. Gammal rival till kommissarie Berg." style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);resize:vertical;min-height:80px;box-sizing:border-box;line-height:1.5;">${char.relation||''}</textarea>
+          </div>
         </div>
       `;
       list.appendChild(card);
@@ -7659,7 +7656,7 @@ window.addEventListener('load', function() {
   function addNewCharacter() {
     const id = 'c' + Date.now();
     const colorIdx = (projectData.characters||[]).length % CHAR_COLORS.length;
-    const newChar = { id, name:'Ny karaktär', roll:'Bikaraktär', pronomen:'', grupper:'', andra_namn:'', utseende:'', personlighet:'', bakgrund:'', mal:'', hemlighet:'', rost:'', synlig:true, color:colorIdx, history:[] };
+    const newChar = { id, name:'Ny karaktär', roll:'Bikaraktär', pronomen:'', grupper:'', andra_namn:'', utseende:'', personlighet:'', bakgrund:'', mal:'', hemlighet:'', rost:'', relation:'', synlig:true, color:colorIdx, history:[] };
     if (!projectData.characters) projectData.characters = [];
     projectData.characters.push(newChar);
     renderCharacters();
@@ -7754,7 +7751,7 @@ window.addEventListener('load', function() {
     try {
       const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`, {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ contents:[{ parts:[{ text:`Ge mig ett passande svenskt namn för en ${char?.roll||'karaktär'} i en ${genre}. Svara BARA med namnet, inget annat.` }] }] })
+        body: JSON.stringify({ contents:[{ parts:[{ text:`Ge mig ett passande svenskt namn för en ${char?.roll||'karaktär'} i en ${genre}. Pronomen: ${char?.pronomen||'okänt'}. Om pronomen är han/honom ge ett manligt namn. Om hon/henne ge ett kvinnligt namn. Om de/dem eller annat ge ett könsneutralt namn. Svara BARA med för- och efternamn, inget annat.` }] }] })
       });
       const data = await resp.json();
       const name = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
@@ -7768,18 +7765,17 @@ window.addEventListener('load', function() {
     } catch(e) { console.warn('Namngenerering misslyckades', e); }
   }
 
-  async function aiGenerateCharField(id, field) {
+  async function aiGenerateCharField(id, field, btnEl) {
     const char = (projectData.characters||[]).find(c => c.id === id);
     const key = localStorage.getItem('writeon_gemini_key');
-    if (!key) { alert('Lägg till Gemini API-nyckel först!'); return; }
-    const labels = {utseende:'utseende',personlighet:'personlighet och karaktärsdrag',bakgrund:'bakgrundshistoria',mal:'mål och drivkraft',hemlighet:'hemlighet eller sårbarhet',rost:'röst, sätt att prata och språktics'};
+    if (!key) { alert('Lägg till Gemini API-nyckel under Molnet-ikonen först!'); return; }
+    const labels = {utseende:'utseende',personlighet:'personlighet och karaktärsdrag',bakgrund:'bakgrundshistoria',mal:'mål och drivkraft',hemlighet:'hemlighet eller sårbarhet',rost:'röst, sätt att prata och språktics', relation:'relationer till andra karaktärer'};
     const genre = projectData.genre || 'thriller';
     const synopsis = projectData.synopsis || '';
-    const prompt = `Du är en erfaren svensk romanförfattare. Skriv ${labels[field]} för karaktären ${char.name||'karaktären'} (${char.roll||'bikaraktär'}) i en ${genre}${synopsis ? '. Berättelsens synopsis: ' + synopsis.substring(0,200) : ''}. Svara på svenska med 2-4 meningar, ingen inledning.`;
-    const btn = event.target;
-    const origText = btn.textContent;
-    btn.textContent = '...';
-    btn.disabled = true;
+    const prompt = `Du är en erfaren svensk romanförfattare. Skriv ${labels[field]} för karaktären ${char.name||'karaktären'} (${char.roll||'bikaraktär'}, pronomen: ${char.pronomen||'okänt'}) i en ${genre}${synopsis ? '. Berättelsens synopsis: ' + synopsis.substring(0,200) : ''}. Svara på svenska med 2-4 meningar, ingen inledning.`;
+    const btn = btnEl || (event && event.target);
+    const origText = btn ? btn.textContent : '';
+    if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
     try {
       const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`, {
         method:'POST', headers:{'Content-Type':'application/json'},
@@ -7790,12 +7786,13 @@ window.addEventListener('load', function() {
       if (text) {
         saveCharSnapshot(char);
         updateChar(id, field, text);
-        const textarea = document.querySelector(`#charbody-${id} textarea[oninput*="${field}"]`);
+        const textarea = document.querySelector(`#charbody-${id} textarea[oninput*="'${field}'"]`);
         if (textarea) textarea.value = text;
+      } else {
+        alert('Inget svar från AI. Kontrollera din API-nyckel.');
       }
-    } catch(e) { console.warn('AI-generering misslyckades', e); }
-    btn.textContent = origText;
-    btn.disabled = false;
+    } catch(e) { console.warn('AI-generering misslyckades', e); alert('Något gick fel. Försök igen.'); }
+    if (btn) { btn.textContent = origText; btn.disabled = false; }
   }
 
   // Rendera karaktärer när vyn öppnas
