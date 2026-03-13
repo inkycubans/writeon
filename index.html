@@ -3980,64 +3980,37 @@
 
 <!-- KARAKTÄR VIEW -->
 <div class="idebank-view-wrap" id="view-character">
-  <div class="idebank-view-inner" style="max-width:900px;">
+  <div class="idebank-view-inner" style="max-width:760px;">
 
-    <div class="idebank-view-hdr">
-      <span style="font-size:1.4rem;">🎭</span>
-      <div>
-        <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;">Karaktärer</div>
-        <div style="font-size:0.75rem;color:var(--text-muted);">Bygg och prata med dina karaktärer</div>
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.3rem;">🎭</span>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;">Karaktärer</div>
+          <div style="font-size:0.73rem;color:var(--text-muted);">Bygg och dokumentera dina karaktärer</div>
+        </div>
       </div>
-      <button class="ib-add-btn" style="margin-left:auto;" onclick="showPanel('panel-charchat');showPanel=showPanel;">+ Ny karaktär</button>
+      <button onclick="addNewCharacter()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;">
+        + Lägg till karaktär
+      </button>
     </div>
 
-    <div class="char-view-grid">
+    <!-- Karaktärslista -->
+    <div id="character-list"></div>
 
-      <!-- Frank-kort -->
-      <div class="char-view-card">
-        <div class="char-view-card-top" style="background:linear-gradient(135deg,#c8b8e8,#b090d0);">
-          <div class="char-view-initial">F</div>
-        </div>
-        <div class="char-view-card-body">
-          <div class="char-view-name">Frank Lindgren</div>
-          <div class="char-view-role">Protagonist · Detektiv · 48 år</div>
-          <div class="char-view-traits">
-            <span class="char-trait">Cynisk</span>
-            <span class="char-trait">Introvert</span>
-            <span class="char-trait">Komplex</span>
-          </div>
-          <div class="char-view-field"><b>Drivkraft:</b> Hitta sanningen, undvika sig själv</div>
-          <div class="char-view-field"><b>Hemlighet:</b> Skuld</div>
-          <button class="cb-start-btn" style="margin-top:10px;font-size:0.78rem;padding:7px;" onclick="showPanel('panel-charchat')">💬 Prata med Frank</button>
-        </div>
-      </div>
+  </div>
+</div>
 
-      <!-- Juan-kort -->
-      <div class="char-view-card">
-        <div class="char-view-card-top" style="background:linear-gradient(135deg,#b8e8d8,#4a8981);">
-          <div class="char-view-initial">J</div>
-        </div>
-        <div class="char-view-card-body">
-          <div class="char-view-name">Juan Morales</div>
-          <div class="char-view-role">Bikaraktär · Informatör · 35 år</div>
-          <div class="char-view-traits">
-            <span class="char-trait">Nervös</span>
-            <span class="char-trait">Lojal</span>
-          </div>
-          <div class="char-view-field"><b>Drivkraft:</b> Överleva, skydda sin familj</div>
-          <div class="char-view-field"><b>Hemlighet:</b> Förlust</div>
-          <button class="cb-start-btn" style="margin-top:10px;font-size:0.78rem;padding:7px;background:linear-gradient(135deg,#4a8981,#3a7068);" onclick="showPanel('panel-charchat')">💬 Prata med Juan</button>
-        </div>
-      </div>
-
-      <!-- Ny karaktär -->
-      <div class="char-view-card char-view-add" onclick="showPanel('panel-charchat')">
-        <div style="font-size:2rem;margin-bottom:8px;">+</div>
-        <div style="font-size:0.82rem;font-weight:700;color:var(--text-muted);">Ny karaktär</div>
-        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px;">Bygg med traits</div>
-      </div>
-
+<!-- Karaktärshistorik-modal -->
+<div id="char-history-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-primary);border-radius:14px;width:min(800px,95vw);height:80vh;display:flex;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="width:220px;border-right:1px solid var(--border);padding:16px;overflow-y:auto;background:var(--bg-soft);">
+      <div style="font-weight:700;font-size:0.82rem;margin-bottom:12px;display:flex;align-items:center;gap:6px;">🕐 Versionshistorik</div>
+      <div id="char-history-list"></div>
     </div>
+    <div style="flex:1;padding:24px;overflow-y:auto;" id="char-history-detail"></div>
+    <button onclick="document.getElementById('char-history-modal').style.display='none'" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-muted);">×</button>
   </div>
 </div>
 
@@ -4326,6 +4299,7 @@
   }
   // ─── VIEW SWITCHING ───
   function switchView(view) {
+    if (view === 'character') setTimeout(renderCharacters, 50);
     ['writing','corkboard','outline','brainstorm','coach','idebank','character','research'].forEach(v => {
       const viewEl = document.getElementById('view-' + v);
       const btnEl  = document.getElementById('btn-' + v);
@@ -8313,7 +8287,281 @@ window.addEventListener('load', function() {
 
 
 <!-- Dropbox Chooser SDK -->
-<script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="eflbkkx6hhk190b"></script>
+<script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="eflbkkx6hhk190b">
+  // ============================================================
+  // KARAKTÄRER
+  // ============================================================
+
+  const CHAR_ROLLER = ['Protagonist','Antagonist','Bikaraktär','Kärleksintresse','Sidokaraktär','Anpassad...'];
+  const CHAR_COLORS = [
+    'linear-gradient(135deg,#c8b8e8,#b090d0)',
+    'linear-gradient(135deg,#f8c8b8,#e0906a)',
+    'linear-gradient(135deg,#b8e8d8,#4a8981)',
+    'linear-gradient(135deg,#f8e8b8,#d4a840)',
+    'linear-gradient(135deg,#b8d8f8,#4a7098)',
+    'linear-gradient(135deg,#f8b8d8,#c0508a)',
+  ];
+
+  if (!projectData.characters) projectData.characters = [
+    { id:'c1', name:'Frank Lindgren', roll:'Protagonist', pronomen:'han/honom', grupper:'', andra_namn:'', utseende:'Lång, gråsprängd, bär alltid samma jacka', personlighet:'Cynisk, introvert, skarp iakttagare', bakgrund:'Tidigare kriminaldetektiv, lämnade polisen efter ett misslyckande', mal:'Hitta sanningen, undvika sig själv', hemlighet:'Skuld för en olöst utredning', rost:'Lakonisk, torr humor, undviker känslor', synlig:true, color:0, history:[] },
+    { id:'c2', name:'Juan Morales', roll:'Bikaraktär', pronomen:'han/honom', grupper:'', andra_namn:'', utseende:'Liten, nervös, rör händerna när han pratar', personlighet:'Rastlös, lojal, rädd', bakgrund:'Informatör med kontakter i undre världen', mal:'Överleva, skydda sin familj', hemlighet:'Vet mer än han berättar', rost:'Snabb, hoppar i ämne, ljuger ofta', synlig:true, color:2, history:[] },
+  ];
+
+  function saveCharSnapshot(char) {
+    if (!char.history) char.history = [];
+    char.history.unshift({ ts: Date.now(), data: JSON.parse(JSON.stringify(char)) });
+    if (char.history.length > 20) char.history.pop();
+  }
+
+  function renderCharacters() {
+    const list = document.getElementById('character-list');
+    if (!list) return;
+    list.innerHTML = '';
+    (projectData.characters || []).forEach((char, idx) => {
+      const card = document.createElement('div');
+      card.style.cssText = 'background:var(--bg-primary);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;';
+      card.id = 'charcard-' + char.id;
+
+      const initial = (char.name||'?')[0].toUpperCase();
+      const color = CHAR_COLORS[char.color % CHAR_COLORS.length];
+      const rollOptions = CHAR_ROLLER.map(r => `<option value="${r}" ${char.roll===r?'selected':''}>${r}</option>`).join('');
+      const dimmed = char.synlig === false ? 'opacity:0.5;' : '';
+
+      card.innerHTML = `
+        <div style="display:flex;align-items:center;padding:12px 16px;gap:12px;cursor:pointer;${dimmed}" onclick="toggleCharExpand('${char.id}')">
+          <div style="width:38px;height:38px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:1rem;flex-shrink:0;">${initial}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:0.92rem;">${char.name||'Namnlös'}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">${char.roll||'Ingen roll'}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;" onclick="event.stopPropagation()">
+            <button title="${char.synlig===false?'Dold för AI':'Synlig för AI'}" onclick="toggleCharVisible('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:${char.synlig===false?'0.35':'1'};">👁</button>
+            <button title="Versionshistorik" onclick="openCharHistory('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;">🕐</button>
+            <button title="Duplicera karaktär" onclick="duplicateChar('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;">📋</button>
+            <button title="Ta bort karaktär" onclick="deleteChar('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;">🗑</button>
+            <span id="charexpand-${char.id}" style="color:var(--text-muted);font-size:0.8rem;">▼</span>
+          </div>
+        </div>
+        <div id="charbody-${char.id}" style="display:none;border-top:1px solid var(--border);padding:16px 20px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+            <div>
+              <label style="font-size:0.7rem;color:var(--text-muted);display:block;margin-bottom:4px;">NAMN</label>
+              <div style="display:flex;gap:6px;">
+                <input value="${char.name||''}" oninput="updateChar('${char.id}','name',this.value)" style="flex:1;padding:7px 10px;border-radius:7px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);">
+                <button onclick="randomCharName('${char.id}')" title="Slumpa namn" style="padding:7px 9px;border-radius:7px;border:1px solid var(--border-strong);background:var(--bg-soft);cursor:pointer;font-size:0.85rem;">🎲</button>
+              </div>
+            </div>
+            <div>
+              <label style="font-size:0.7rem;color:var(--text-muted);display:block;margin-bottom:4px;">ROLL</label>
+              <select onchange="updateChar('${char.id}','roll',this.value)" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);">
+                ${rollOptions}
+              </select>
+            </div>
+            <div>
+              <label style="font-size:0.7rem;color:var(--text-muted);display:block;margin-bottom:4px;">PRONOMEN</label>
+              <input value="${char.pronomen||''}" oninput="updateChar('${char.id}','pronomen',this.value)" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);box-sizing:border-box;">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+            <div>
+              <label style="font-size:0.7rem;color:var(--text-muted);display:block;margin-bottom:4px;">GRUPPER</label>
+              <input value="${char.grupper||''}" placeholder="t.ex. Polisen, Familj..." oninput="updateChar('${char.id}','grupper',this.value)" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-size:0.7rem;color:var(--text-muted);display:block;margin-bottom:4px;">ANDRA NAMN / SMEKNAMN</label>
+              <input value="${char.andra_namn||''}" placeholder="Alias, smeknamn..." oninput="updateChar('${char.id}','andra_namn',this.value)" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);box-sizing:border-box;">
+            </div>
+          </div>
+          ${['utseende','personlighet','bakgrund','mal','hemlighet','rost'].map(f => {
+            const labels = {utseende:'UTSEENDE',personlighet:'PERSONLIGHET',bakgrund:'BAKGRUND',mal:'MÅL & DRIVKRAFT',hemlighet:'HEMLIGHET',rost:'RÖST & SPRÅKTICS'};
+            return `<div style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <label style="font-size:0.7rem;color:var(--text-muted);">${labels[f]}</label>
+                <button onclick="aiGenerateCharField('${char.id}','${f}')" style="font-size:0.68rem;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">✦ Generera</button>
+              </div>
+              <textarea oninput="updateChar('${char.id}','${f}',this.value)" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);resize:vertical;min-height:70px;box-sizing:border-box;line-height:1.5;">${char[f]||''}</textarea>
+            </div>`;
+          }).join('')}
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  function toggleCharExpand(id) {
+    const body = document.getElementById('charbody-' + id);
+    const arrow = document.getElementById('charexpand-' + id);
+    if (!body) return;
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'block';
+    if (arrow) arrow.textContent = open ? '▼' : '▲';
+  }
+
+  function updateChar(id, field, value) {
+    const char = (projectData.characters||[]).find(c => c.id === id);
+    if (!char) return;
+    char[field] = value;
+    // Update header name/roll live
+    const card = document.getElementById('charcard-' + id);
+    if (card && field === 'name') {
+      const nameEl = card.querySelector('[style*="font-weight:700;font-size:0.92rem"]');
+      if (nameEl) nameEl.textContent = value || 'Namnlös';
+      const initEl = card.querySelector('[style*="border-radius:50%"]');
+      if (initEl) initEl.textContent = (value||'?')[0].toUpperCase();
+    }
+    if (card && field === 'roll') {
+      const roleEl = card.querySelector('[style*="font-size:0.72rem;color:var(--text-muted)"]');
+      if (roleEl) roleEl.textContent = value;
+    }
+    doAutoSave();
+  }
+
+  function addNewCharacter() {
+    const id = 'c' + Date.now();
+    const colorIdx = (projectData.characters||[]).length % CHAR_COLORS.length;
+    const newChar = { id, name:'Ny karaktär', roll:'Bikaraktär', pronomen:'', grupper:'', andra_namn:'', utseende:'', personlighet:'', bakgrund:'', mal:'', hemlighet:'', rost:'', synlig:true, color:colorIdx, history:[] };
+    if (!projectData.characters) projectData.characters = [];
+    projectData.characters.push(newChar);
+    renderCharacters();
+    setTimeout(() => toggleCharExpand(id), 50);
+    doAutoSave();
+  }
+
+  function deleteChar(id) {
+    if (!confirm('Ta bort karaktären?')) return;
+    projectData.characters = (projectData.characters||[]).filter(c => c.id !== id);
+    renderCharacters();
+    doAutoSave();
+  }
+
+  function duplicateChar(id) {
+    const char = (projectData.characters||[]).find(c => c.id === id);
+    if (!char) return;
+    const copy = JSON.parse(JSON.stringify(char));
+    copy.id = 'c' + Date.now();
+    copy.name = char.name + ' (kopia)';
+    copy.history = [];
+    projectData.characters.push(copy);
+    renderCharacters();
+    doAutoSave();
+  }
+
+  function toggleCharVisible(id) {
+    const char = (projectData.characters||[]).find(c => c.id === id);
+    if (!char) return;
+    char.synlig = char.synlig === false ? true : false;
+    renderCharacters();
+    doAutoSave();
+  }
+
+  function openCharHistory(id) {
+    const char = (projectData.characters||[]).find(c => c.id === id);
+    if (!char) return;
+    const modal = document.getElementById('char-history-modal');
+    const listEl = document.getElementById('char-history-list');
+    const detail = document.getElementById('char-history-detail');
+    modal.style.display = 'flex';
+
+    if (!char.history || char.history.length === 0) {
+      listEl.innerHTML = '<div style="font-size:0.75rem;color:var(--text-muted);">Ingen historik ännu.</div>';
+      detail.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;margin-top:40px;text-align:center;">Versioner sparas automatiskt när du redigerar.</div>';
+      return;
+    }
+
+    listEl.innerHTML = char.history.map((h, i) => {
+      const d = new Date(h.ts);
+      const dateStr = d.toLocaleDateString('sv-SE') + ' ' + d.toLocaleTimeString('sv-SE', {hour:'2-digit',minute:'2-digit'});
+      return `<div onclick="showCharHistoryDetail('${id}',${i})" style="padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:6px;background:${i===0?'var(--accent)':'var(--bg-soft)'};color:${i===0?'white':'var(--text-primary)'};">
+        <div style="font-size:0.78rem;font-weight:700;">${dateStr}</div>
+        <div style="font-size:0.7rem;opacity:0.8;">${h.data.name||'Namnlös'}</div>
+      </div>`;
+    }).join('');
+
+    showCharHistoryDetail(id, 0);
+  }
+
+  function showCharHistoryDetail(charId, histIdx) {
+    const char = (projectData.characters||[]).find(c => c.id === charId);
+    if (!char || !char.history[histIdx]) return;
+    const h = char.history[histIdx].data;
+    const detail = document.getElementById('char-history-detail');
+    const fields = {utseende:'Utseende',personlighet:'Personlighet',bakgrund:'Bakgrund',mal:'Mål & drivkraft',hemlighet:'Hemlighet',rost:'Röst & språktics'};
+    detail.innerHTML = `
+      <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;">${h.name||'Namnlös'}</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:16px;">${h.roll||''} ${h.pronomen?'· '+h.pronomen:''}</div>
+      ${Object.entries(fields).map(([k,v]) => h[k] ? `<div style="margin-bottom:14px;"><div style="font-size:0.7rem;color:var(--text-muted);font-weight:700;margin-bottom:4px;">${v.toUpperCase()}</div><div style="font-size:0.83rem;line-height:1.6;background:var(--bg-soft);padding:10px 12px;border-radius:8px;">${h[k]}</div></div>` : '').join('')}
+      <button onclick="restoreCharHistory('${charId}',${histIdx})" style="margin-top:8px;padding:9px 20px;border-radius:8px;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;">Återställ denna version</button>
+    `;
+  }
+
+  function restoreCharHistory(charId, histIdx) {
+    const char = (projectData.characters||[]).find(c => c.id === charId);
+    if (!char || !char.history[histIdx]) return;
+    saveCharSnapshot(char);
+    const restored = char.history[histIdx].data;
+    Object.assign(char, restored);
+    char.id = charId;
+    document.getElementById('char-history-modal').style.display = 'none';
+    renderCharacters();
+    doAutoSave();
+  }
+
+  async function randomCharName(id) {
+    const char = (projectData.characters||[]).find(c => c.id === id);
+    const key = localStorage.getItem('writeon_gemini_key');
+    if (!key) { alert('Lägg till Gemini API-nyckel först!'); return; }
+    const genre = projectData.genre || 'thriller';
+    try {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ contents:[{ parts:[{ text:`Ge mig ett passande svenskt namn för en ${char?.roll||'karaktär'} i en ${genre}. Svara BARA med namnet, inget annat.` }] }] })
+      });
+      const data = await resp.json();
+      const name = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (name) {
+        updateChar(id, 'name', name);
+        const input = document.querySelector(`#charcard-${id} input`);
+        if (input) input.value = name;
+        renderCharacters();
+        setTimeout(() => { const body = document.getElementById('charbody-' + id); if (body) body.style.display = 'block'; }, 50);
+      }
+    } catch(e) { console.warn('Namngenerering misslyckades', e); }
+  }
+
+  async function aiGenerateCharField(id, field) {
+    const char = (projectData.characters||[]).find(c => c.id === id);
+    const key = localStorage.getItem('writeon_gemini_key');
+    if (!key) { alert('Lägg till Gemini API-nyckel först!'); return; }
+    const labels = {utseende:'utseende',personlighet:'personlighet och karaktärsdrag',bakgrund:'bakgrundshistoria',mal:'mål och drivkraft',hemlighet:'hemlighet eller sårbarhet',rost:'röst, sätt att prata och språktics'};
+    const genre = projectData.genre || 'thriller';
+    const synopsis = projectData.synopsis || '';
+    const prompt = `Du är en erfaren svensk romanförfattare. Skriv ${labels[field]} för karaktären ${char.name||'karaktären'} (${char.roll||'bikaraktär'}) i en ${genre}${synopsis ? '. Berättelsens synopsis: ' + synopsis.substring(0,200) : ''}. Svara på svenska med 2-4 meningar, ingen inledning.`;
+    const btn = event.target;
+    const origText = btn.textContent;
+    btn.textContent = '...';
+    btn.disabled = true;
+    try {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
+      });
+      const data = await resp.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (text) {
+        saveCharSnapshot(char);
+        updateChar(id, field, text);
+        const textarea = document.querySelector(`#charbody-${id} textarea[oninput*="${field}"]`);
+        if (textarea) textarea.value = text;
+      }
+    } catch(e) { console.warn('AI-generering misslyckades', e); }
+    btn.textContent = origText;
+    btn.disabled = false;
+  }
+
+  // Rendera karaktärer när vyn öppnas
+  const _origSwitchView = typeof switchView === 'function' ? switchView : null;
+
+</script>
 
 <!-- DROPBOX SETTINGS MODAL -->
 <div id="dropboxModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
