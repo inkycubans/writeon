@@ -7770,13 +7770,13 @@ window.addEventListener('load', function() {
     const key = localStorage.getItem('writeon_gemini_key');
     if (!key) { alert('Lägg till Gemini API-nyckel under Molnet-ikonen först!'); return; }
     const labels = {
-      utseende:     { beskrivning: 'utseende', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Ålder, kroppsbyggnad, hår, kläder, särdrag. Max 4 punkter. Inga asterisker, inga rubriker, ingen berättarröst.' },
-      personlighet: { beskrivning: 'personlighet', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Karaktärsdrag, beteenden, styrkor, svagheter. Max 4 punkter. Inga asterisker, inga rubriker, ingen berättarröst.' },
-      bakgrund:     { beskrivning: 'bakgrundshistoria', instruktion: 'Skriv 2-3 korta faktameningar. Vad har hänt, inte hur det kändes. Inga asterisker, inga rubriker, ingen berättarröst.' },
-      mal:          { beskrivning: 'mål och drivkraft', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Vad vill karaktären? Vad driver hen? Max 3 punkter. Inga asterisker, inga rubriker.' },
-      hemlighet:    { beskrivning: 'hemlighet eller sårbarhet', instruktion: 'En till två korta meningar. Konkret och specifikt. Inga asterisker, ingen berättarröst.' },
-      rost:         { beskrivning: 'röst och språktics', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Hur låter karaktären? Typiska fraser eller mönster. Max 4 punkter. Inga asterisker, inga rubriker.' },
-      relation:     { beskrivning: 'relationer till andra karaktärer i berättelsen', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. En punkt per relation. Max 5 punkter. Inga asterisker, inga rubriker, ingen berättarröst.' }
+      utseende:     { beskrivning: 'utseende', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Ålder, kroppsbyggnad, hår, kläder, särdrag. Max 4 punkter. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, inga rubriker, ingen berättarröst.' },
+      personlighet: { beskrivning: 'personlighet', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Karaktärsdrag, beteenden, styrkor, svagheter. Max 4 punkter. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, inga rubriker, ingen berättarröst.' },
+      bakgrund:     { beskrivning: 'bakgrundshistoria', instruktion: 'Skriv 2-3 korta faktameningar. Vad har hänt, inte hur det kändes. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, inga rubriker, ingen berättarröst.' },
+      mal:          { beskrivning: 'mål och drivkraft', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Vad vill karaktären? Vad driver hen? Max 3 punkter. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, inga rubriker.' },
+      hemlighet:    { beskrivning: 'hemlighet eller sårbarhet', instruktion: 'En till två korta meningar. Konkret och specifikt. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, ingen berättarröst.' },
+      rost:         { beskrivning: 'röst och språktics', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Hur låter karaktären? Typiska fraser eller mönster. Max 4 punkter. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, inga rubriker.' },
+      relation:     { beskrivning: 'relationer till andra karaktärer i berättelsen', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. En punkt per relation. Max 5 punkter. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, inga rubriker, ingen berättarröst.' }
     };
     const genre = projectData.genre || 'thriller';
     const synopsis = projectData.synopsis || '';
