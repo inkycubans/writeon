@@ -550,10 +550,10 @@
   #aiSelectionPopup {
     position: fixed;
     z-index: 9000;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-strong);
+    background: #2d4a47;
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 10px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    box-shadow: 0 6px 28px rgba(0,0,0,0.28);
     display: none;
     align-items: center;
     gap: 2px;
@@ -570,14 +570,14 @@
     font-size: 0.78rem;
     font-family: 'DM Sans', sans-serif;
     font-weight: 600;
-    color: var(--text-primary);
+    color: rgba(255,255,255,0.92);
     white-space: nowrap;
     transition: background 0.12s;
   }
-  .ai-popup-btn:hover { background: var(--bg-soft); }
-  .ai-popup-btn.primary { background: var(--accent); color: white; }
-  .ai-popup-btn.primary:hover { background: var(--accent-n); }
-  .ai-popup-divider { width: 1px; height: 20px; background: var(--border); margin: 0 2px; }
+  .ai-popup-btn:hover { background: rgba(255,255,255,0.1); }
+  .ai-popup-btn.primary { background: rgba(255,255,255,0.15); color: white; }
+  .ai-popup-btn.primary:hover { background: rgba(255,255,255,0.22); }
+  .ai-popup-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.15); margin: 0 2px; }
 
   /* ── AI-resultat i inspektören ── */
   .insp-ai-result {
@@ -8659,7 +8659,7 @@ window.addEventListener('load', function() {
 <div id="aiSelectionPopup">
   <button class="ai-popup-btn primary" onclick="runAiOnSelection('skriv-om')">✦ Skriv om</button>
   <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" onclick="runAiOnSelection('ifraga')">🔍 Ifrågasätt</button>
+  <button class="ai-popup-btn" onclick="runAiOnSelection('ifraga')">🔍 Granska</button>
   <div class="ai-popup-divider"></div>
   <button class="ai-popup-btn" onclick="runAiOnSelection('putsa')">✂️ Putsa</button>
   <div class="ai-popup-divider"></div>
@@ -8717,9 +8717,10 @@ window.addEventListener('load', function() {
     }, 10);
   });
 
-  // Dölj popup vid klick utanför
+  // Dölj popup vid klick utanför — men INTE om man klickar på popup-knapp
   document.addEventListener('mousedown', function(e){
-    if(!popup.contains(e.target)) hidePopup();
+    if(popup.contains(e.target)) return; // klick på popupen själv — ignorera
+    hidePopup();
   });
 
   function hidePopup(){
