@@ -7607,18 +7607,11 @@ window.addEventListener('load', function() {
             return `<div style="margin-bottom:12px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <label style="font-size:0.7rem;color:var(--text-muted);">${labels[f]}</label>
-                <button onclick="aiGenerateCharField('${char.id}','${f}',this)" style="font-size:0.68rem;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">✦ Generera</button>
+                <button onclick="aiGenerateCharField('${char.id}','${f}')" style="font-size:0.68rem;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">✦ Generera</button>
               </div>
-              <textarea oninput="updateChar('${char.id}','${f}',this.value)" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);resize:vertical;min-height:90px;box-sizing:border-box;line-height:1.7;">${char[f]||''}</textarea>
+              <textarea oninput="updateChar('${char.id}','${f}',this.value)" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);resize:vertical;min-height:70px;box-sizing:border-box;line-height:1.5;">${char[f]||''}</textarea>
             </div>`;
           }).join('')}
-          <div style="margin-bottom:12px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-              <label style="font-size:0.7rem;color:var(--text-muted);">RELATIONER</label>
-              <button onclick="aiGenerateCharField('${char.id}','relation',this)" style="font-size:0.68rem;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">✦ Generera</button>
-            </div>
-            <textarea oninput="updateChar('${char.id}','relation',this.value)" placeholder="t.ex.&#10;• Gift med Maria Ek&#10;• Gammal rival till kommissarie Berg&#10;• Litar inte helt på Juan Morales" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);resize:vertical;min-height:90px;box-sizing:border-box;line-height:1.7;">${char.relation||''}</textarea>
-          </div>
         </div>
       `;
       list.appendChild(card);
@@ -7656,7 +7649,7 @@ window.addEventListener('load', function() {
   function addNewCharacter() {
     const id = 'c' + Date.now();
     const colorIdx = (projectData.characters||[]).length % CHAR_COLORS.length;
-    const newChar = { id, name:'Ny karaktär', roll:'Bikaraktär', pronomen:'', grupper:'', andra_namn:'', utseende:'', personlighet:'', bakgrund:'', mal:'', hemlighet:'', rost:'', relation:'', synlig:true, color:colorIdx, history:[] };
+    const newChar = { id, name:'Ny karaktär', roll:'Bikaraktär', pronomen:'', grupper:'', andra_namn:'', utseende:'', personlighet:'', bakgrund:'', mal:'', hemlighet:'', rost:'', synlig:true, color:colorIdx, history:[] };
     if (!projectData.characters) projectData.characters = [];
     projectData.characters.push(newChar);
     renderCharacters();
@@ -7749,9 +7742,9 @@ window.addEventListener('load', function() {
     if (!key) { alert('Lägg till Gemini API-nyckel först!'); return; }
     const genre = projectData.genre || 'thriller';
     try {
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`, {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`, {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ contents:[{ parts:[{ text:`Ge mig ett passande svenskt namn för en ${char?.roll||'karaktär'} i en ${genre}. Pronomen: ${char?.pronomen||'okänt'}. Om pronomen är han/honom ge ett manligt namn. Om hon/henne ge ett kvinnligt namn. Om de/dem eller annat ge ett könsneutralt namn. Svara BARA med för- och efternamn, inget annat.` }] }] })
+        body: JSON.stringify({ contents:[{ parts:[{ text:`Ge mig ett passande svenskt namn för en ${char?.roll||'karaktär'} i en ${genre}. Svara BARA med namnet, inget annat.` }] }] })
       });
       const data = await resp.json();
       const name = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
@@ -7765,54 +7758,34 @@ window.addEventListener('load', function() {
     } catch(e) { console.warn('Namngenerering misslyckades', e); }
   }
 
-  async function aiGenerateCharField(id, field, btnEl) {
+  async function aiGenerateCharField(id, field) {
     const char = (projectData.characters||[]).find(c => c.id === id);
     const key = localStorage.getItem('writeon_gemini_key');
-    if (!key) { alert('Lägg till Gemini API-nyckel under Molnet-ikonen först!'); return; }
-    const labels = {
-      utseende:     { beskrivning: 'utseende', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Ålder, kroppsbyggnad, hår, kläder, särdrag. Max 4 punkter. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, inga rubriker, ingen berättarröst.' },
-      personlighet: { beskrivning: 'personlighet', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Karaktärsdrag, beteenden, styrkor, svagheter. Max 4 punkter. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, inga rubriker, ingen berättarröst.' },
-      bakgrund:     { beskrivning: 'bakgrundshistoria', instruktion: 'Skriv 2-3 korta faktameningar. Vad har hänt, inte hur det kändes. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, inga rubriker, ingen berättarröst.' },
-      mal:          { beskrivning: 'mål och drivkraft', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Vad vill karaktären? Vad driver hen? Max 3 punkter. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, inga rubriker.' },
-      hemlighet:    { beskrivning: 'hemlighet eller sårbarhet', instruktion: 'En till två korta meningar. Konkret och specifikt. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, ingen berättarröst.' },
-      rost:         { beskrivning: 'röst och språktics', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Hur låter karaktären? Typiska fraser eller mönster. Max 4 punkter. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, inga rubriker.' },
-      relation:     { beskrivning: 'relationer till andra karaktärer i berättelsen', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. En punkt per relation. Max 5 punkter. Inga adjektiv eller adverb. Starka konkreta substantiv och verb. Inga asterisker, inga rubriker, ingen berättarröst.' }
-    };
+    if (!key) { alert('Lägg till Gemini API-nyckel först!'); return; }
+    const labels = {utseende:'utseende',personlighet:'personlighet och karaktärsdrag',bakgrund:'bakgrundshistoria',mal:'mål och drivkraft',hemlighet:'hemlighet eller sårbarhet',rost:'röst, sätt att prata och språktics'};
     const genre = projectData.genre || 'thriller';
     const synopsis = projectData.synopsis || '';
-    const andraKaraktarer = (projectData.characters || [])
-      .filter(c => c.id !== id && c.name)
-      .map(c => `${c.name} (${c.roll||'karaktär'})`)
-      .join(', ');
-    const { beskrivning, instruktion } = labels[field];
-    const prompt = `Du är en erfaren svensk romanförfattare som fyller i ett karaktärsblad. Skriv ${beskrivning} för karaktären ${char.name||'karaktären'} (${char.roll||'bikaraktär'}, pronomen: ${char.pronomen||'okänt'}) i en ${genre}${synopsis ? '. Berättelsens synopsis: ' + synopsis.substring(0,200) : ''}${andraKaraktarer && field === 'relation' ? '. Andra karaktärer i berättelsen: ' + andraKaraktarer : ''}. ${instruktion} Svara på svenska.`;
-    const btn = btnEl || (event && event.target);
-    const origText = btn ? btn.textContent : '';
-    if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+    const prompt = `Du är en erfaren svensk romanförfattare. Skriv ${labels[field]} för karaktären ${char.name||'karaktären'} (${char.roll||'bikaraktär'}) i en ${genre}${synopsis ? '. Berättelsens synopsis: ' + synopsis.substring(0,200) : ''}. Svara på svenska med 2-4 meningar, ingen inledning.`;
+    const btn = event.target;
+    const origText = btn.textContent;
+    btn.textContent = '...';
+    btn.disabled = true;
     try {
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`, {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`, {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
       });
       const data = await resp.json();
-      const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-      if (raw) {
-        // Strippa markdown: ta bort **text**, *text*, rubriker, byt ut - och * bullets mot •
-        const text = raw
-          .replace(/\*\*(.+?)\*\*/g, '$1')
-          .replace(/\*(.+?)\*/g, '$1')
-          .replace(/^#+\s+/gm, '')
-          .replace(/^[\*\-]\s+/gm, '• ')
-          .trim();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (text) {
         saveCharSnapshot(char);
         updateChar(id, field, text);
-        const textarea = document.querySelector(`#charbody-${id} textarea[oninput*="'${field}'"]`);
+        const textarea = document.querySelector(`#charbody-${id} textarea[oninput*="${field}"]`);
         if (textarea) textarea.value = text;
-      } else {
-        alert('Inget svar från AI. Kontrollera din API-nyckel.');
       }
-    } catch(e) { console.warn('AI-generering misslyckades', e); alert('Något gick fel. Försök igen.'); }
-    if (btn) { btn.textContent = origText; btn.disabled = false; }
+    } catch(e) { console.warn('AI-generering misslyckades', e); }
+    btn.textContent = origText;
+    btn.disabled = false;
   }
 
   // Rendera karaktärer när vyn öppnas
@@ -7990,22 +7963,6 @@ window.addEventListener('load', function() {
   if(savedKey) apiInput.value = savedKey.slice(0,6) + "…";
   setApiStatus();
 
-  // ─── Render vänsterlistan (fas-knappar) ───
-  function renderFasLista(){
-    topicList.innerHTML = "";
-    Object.entries(FASER).forEach(([fasId, fas]) => {
-      const btn = document.createElement("button");
-      btn.className = "ai-topic-btn" + (fasId === aktivFas ? " active" : "");
-      btn.innerHTML = `<span class="ai-topic-name">${fas.icon} ${fas.label}</span><span class="ai-topic-meta">›</span>`;
-      btn.onclick = () => {
-        aktivFas = fasId;
-        aktivVerktyg = fas.verktyg[0];
-        renderAll();
-      };
-      topicList.appendChild(btn);
-    });
-  }
-
   // ─── Render verktygs-chips ───
   function renderChips(){
     chips.innerHTML = "";
@@ -8125,7 +8082,7 @@ window.addEventListener('load', function() {
   };
 
   // ─── Toggle-knapp i sidopanelen ───
-  // Togglen döljer/visar AI-redaktör-blocket i bindern (så kapitellistan syns)
+  // Togglen döljer/visar BARA verktygslistorna — inte hela docken
   let dockOn = true;
   const dockEl = document.getElementById("aiEditorDock");
 
@@ -8134,12 +8091,59 @@ window.addEventListener('load', function() {
     if(!dockToggle) return;
     dockToggle.classList.toggle("on", dockOn);
     dockToggle.setAttribute("aria-pressed", dockOn ? "true" : "false");
-    dockToggle.title = dockOn ? "Dölj AI-redaktör i bindern" : "Visa AI-redaktör i bindern";
-    // Visa/dölj hela AI-redaktör-docken i bindern
-    if(dockEl) dockEl.style.display = dockOn ? "" : "none";
+    dockToggle.title = dockOn ? "Dölj AI-redaktör" : "Visa AI-redaktör";
+    if(topicList) topicList.style.display = dockOn ? "" : "none";
   }
   if(dockToggle){
     dockToggle.addEventListener("click", () => setDock(!dockOn));
+  }
+
+  // ─── Accordion: Bygg/Skriv/Putsa fälls ut/in individuellt ───
+  let openFas = "bygg"; // vilken fas är öppen
+
+  function renderFasLista(){
+    topicList.innerHTML = "";
+    Object.entries(FASER).forEach(([fasId, fas]) => {
+      const wrap = document.createElement("div");
+      wrap.style.cssText = "margin-bottom:2px;";
+
+      // Fas-knapp (rubrik)
+      const btn = document.createElement("button");
+      const isOpen = fasId === openFas;
+      const isActive = fasId === aktivFas;
+      btn.className = "ai-topic-btn" + (isActive ? " active" : "");
+      btn.style.cssText = "width:100%;display:flex;align-items:center;justify-content:space-between;";
+      btn.innerHTML = `<span class="ai-topic-name">${fas.icon} ${fas.label}</span><span style="font-size:0.7rem;color:var(--text-muted);transition:transform 0.2s;transform:rotate(${isOpen?'90deg':'0deg'})"›</span>`;
+      btn.onclick = () => {
+        openFas = (openFas === fasId) ? null : fasId;
+        aktivFas = fasId;
+        aktivVerktyg = fas.verktyg[0];
+        renderAll();
+      };
+      wrap.appendChild(btn);
+
+      // Underkategori-lista (collapsible)
+      if(isOpen){
+        const subList = document.createElement("div");
+        subList.style.cssText = "padding:2px 0 4px 12px;";
+        fas.verktyg.forEach(v => {
+          const sub = document.createElement("button");
+          const isActiveSub = aktivVerktyg && aktivVerktyg.id === v.id;
+          sub.style.cssText = `width:100%;text-align:left;padding:5px 10px;border-radius:6px;border:none;cursor:pointer;font-size:0.78rem;font-family:'DM Sans',sans-serif;background:${isActiveSub?'var(--accent)':'transparent'};color:${isActiveSub?'white':'var(--text-primary)'};margin-bottom:1px;`;
+          sub.textContent = v.namn;
+          sub.title = v.tips;
+          sub.onclick = (e) => {
+            e.stopPropagation();
+            aktivVerktyg = v;
+            renderAll();
+          };
+          subList.appendChild(sub);
+        });
+        wrap.appendChild(subList);
+      }
+
+      topicList.appendChild(wrap);
+    });
   }
 
   function renderAll(){
