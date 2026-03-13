@@ -7609,15 +7609,15 @@ window.addEventListener('load', function() {
                 <label style="font-size:0.7rem;color:var(--text-muted);">${labels[f]}</label>
                 <button onclick="aiGenerateCharField('${char.id}','${f}',this)" style="font-size:0.68rem;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">✦ Generera</button>
               </div>
-              <textarea oninput="updateChar('${char.id}','${f}',this.value)" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);resize:vertical;min-height:70px;box-sizing:border-box;line-height:1.5;">${char[f]||''}</textarea>
+              <textarea oninput="updateChar('${char.id}','${f}',this.value)" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);resize:vertical;min-height:90px;box-sizing:border-box;line-height:1.7;">${char[f]||''}</textarea>
             </div>`;
           }).join('')}
           <div style="margin-bottom:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
               <label style="font-size:0.7rem;color:var(--text-muted);">RELATIONER</label>
-              <span style="font-size:0.68rem;color:var(--text-muted);">Vem är vem för den här karaktären?</span>
+              <button onclick="aiGenerateCharField('${char.id}','relation',this)" style="font-size:0.68rem;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">✦ Generera</button>
             </div>
-            <textarea oninput="updateChar('${char.id}','relation',this.value)" placeholder="t.ex. Gift med Maria Ek. Informatör för Juan Morales — litar inte helt på honom. Gammal rival till kommissarie Berg." style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);resize:vertical;min-height:80px;box-sizing:border-box;line-height:1.5;">${char.relation||''}</textarea>
+            <textarea oninput="updateChar('${char.id}','relation',this.value)" placeholder="t.ex.&#10;• Gift med Maria Ek&#10;• Gammal rival till kommissarie Berg&#10;• Litar inte helt på Juan Morales" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);resize:vertical;min-height:90px;box-sizing:border-box;line-height:1.7;">${char.relation||''}</textarea>
           </div>
         </div>
       `;
@@ -7770,18 +7770,22 @@ window.addEventListener('load', function() {
     const key = localStorage.getItem('writeon_gemini_key');
     if (!key) { alert('Lägg till Gemini API-nyckel under Molnet-ikonen först!'); return; }
     const labels = {
-      utseende:     { beskrivning: 'utseende', instruktion: 'Skriv som korta anteckningar. Ålder, kroppsbyggnad, hår, kläder, särdrag. Max 3 rader. Inga fullständiga meningar. Ingen berättarröst.' },
-      personlighet: { beskrivning: 'personlighet', instruktion: 'Skriv som korta stickord och fraser. Karaktärsdrag, beteenden, styrkor, svagheter. Max 3 rader. Ingen berättarröst.' },
-      bakgrund:     { beskrivning: 'bakgrundshistoria', instruktion: 'Skriv som korta faktameningar. Vad har hänt, inte hur det kändes. Max 2-3 meningar. Ingen berättarröst.' },
-      mal:          { beskrivning: 'mål och drivkraft', instruktion: 'Skriv som en kort lista eller 1-2 meningar. Vad vill karaktären? Vad driver hen? Ingen berättarröst.' },
-      hemlighet:    { beskrivning: 'hemlighet eller sårbarhet', instruktion: 'En mening, max två. Konkret och specifikt. Ingen berättarröst.' },
-      rost:         { beskrivning: 'röst och språktics', instruktion: 'Stickord och exempel. Hur låter karaktären? Typiska fraser eller mönster. Max 3 rader.' },
-      relation:     { beskrivning: 'relationer till andra karaktärer', instruktion: 'Skriv som korta faktameningar. Vem är vem för karaktären? Max 3 rader. Ingen berättarröst.' }
+      utseende:     { beskrivning: 'utseende', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Ålder, kroppsbyggnad, hår, kläder, särdrag. Max 4 punkter. Inga asterisker, inga rubriker, ingen berättarröst.' },
+      personlighet: { beskrivning: 'personlighet', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Karaktärsdrag, beteenden, styrkor, svagheter. Max 4 punkter. Inga asterisker, inga rubriker, ingen berättarröst.' },
+      bakgrund:     { beskrivning: 'bakgrundshistoria', instruktion: 'Skriv 2-3 korta faktameningar. Vad har hänt, inte hur det kändes. Inga asterisker, inga rubriker, ingen berättarröst.' },
+      mal:          { beskrivning: 'mål och drivkraft', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Vad vill karaktären? Vad driver hen? Max 3 punkter. Inga asterisker, inga rubriker.' },
+      hemlighet:    { beskrivning: 'hemlighet eller sårbarhet', instruktion: 'En till två korta meningar. Konkret och specifikt. Inga asterisker, ingen berättarröst.' },
+      rost:         { beskrivning: 'röst och språktics', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. Hur låter karaktären? Typiska fraser eller mönster. Max 4 punkter. Inga asterisker, inga rubriker.' },
+      relation:     { beskrivning: 'relationer till andra karaktärer i berättelsen', instruktion: 'Skriv som korta bullet-punkter med • framför varje rad. En punkt per relation. Max 5 punkter. Inga asterisker, inga rubriker, ingen berättarröst.' }
     };
     const genre = projectData.genre || 'thriller';
     const synopsis = projectData.synopsis || '';
+    const andraKaraktarer = (projectData.characters || [])
+      .filter(c => c.id !== id && c.name)
+      .map(c => `${c.name} (${c.roll||'karaktär'})`)
+      .join(', ');
     const { beskrivning, instruktion } = labels[field];
-    const prompt = `Du är en erfaren svensk romanförfattare som fyller i ett karaktärsblad. Skriv ${beskrivning} för karaktären ${char.name||'karaktären'} (${char.roll||'bikaraktär'}, pronomen: ${char.pronomen||'okänt'}) i en ${genre}${synopsis ? '. Berättelsens synopsis: ' + synopsis.substring(0,200) : ''}. ${instruktion} Svara på svenska.`;
+    const prompt = `Du är en erfaren svensk romanförfattare som fyller i ett karaktärsblad. Skriv ${beskrivning} för karaktären ${char.name||'karaktären'} (${char.roll||'bikaraktär'}, pronomen: ${char.pronomen||'okänt'}) i en ${genre}${synopsis ? '. Berättelsens synopsis: ' + synopsis.substring(0,200) : ''}${andraKaraktarer && field === 'relation' ? '. Andra karaktärer i berättelsen: ' + andraKaraktarer : ''}. ${instruktion} Svara på svenska.`;
     const btn = btnEl || (event && event.target);
     const origText = btn ? btn.textContent : '';
     if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
@@ -7791,8 +7795,15 @@ window.addEventListener('load', function() {
         body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
       });
       const data = await resp.json();
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-      if (text) {
+      const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (raw) {
+        // Strippa markdown: ta bort **text**, *text*, rubriker, byt ut - och * bullets mot •
+        const text = raw
+          .replace(/\*\*(.+?)\*\*/g, '$1')
+          .replace(/\*(.+?)\*/g, '$1')
+          .replace(/^#+\s+/gm, '')
+          .replace(/^[\*\-]\s+/gm, '• ')
+          .trim();
         saveCharSnapshot(char);
         updateChar(id, field, text);
         const textarea = document.querySelector(`#charbody-${id} textarea[oninput*="'${field}'"]`);
