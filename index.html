@@ -2805,6 +2805,8 @@
     overflow-wrap: break-word;
     display: block;
   }
+  .scene-writing-area::-webkit-spelling-error { text-decoration: underline wavy red; }
+  .scene-writing-area::-moz-spelling-error { text-decoration: underline wavy red; }
   .scene-writing-area:empty::before {
     content: 'Tom scen — börja skriva här...';
     color: var(--text-muted);
@@ -2931,8 +2933,6 @@
   <button class="tb-btn" style="font-style:italic;" title="Kursiv">I</button>
   <button class="tb-btn" style="text-decoration:underline;" title="Understruken">U</button>
   <button class="tb-btn" title="Färg">A</button>
-  <button class="tb-btn" title="Markera">✎</button>
-  <button class="tb-btn" title="Rensa format">✕</button>
 
   <div class="toolbar-divider"></div>
 
@@ -3380,9 +3380,9 @@
         </div>
         <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:8px;" id="insp-ai-tool-label">Skriv om</div>
         <div class="insp-ai-result" id="insp-ai-result">...</div>
-        <div class="insp-ai-actions">
-          <button class="insp-ai-btn replace" onclick="aiReplaceText()">↩ Ersätt i texten</button>
-          <button class="insp-ai-btn" onclick="closeInspAi()">Behåll original</button>
+        <div class="insp-ai-actions" id="insp-ai-actions">
+          <button class="insp-ai-btn replace" id="insp-ai-replace-btn" onclick="aiReplaceText()">↩ Ersätt i texten</button>
+          <button class="insp-ai-btn" onclick="closeInspAi()">Stäng</button>
         </div>
       </div>
 
@@ -8763,6 +8763,10 @@ window.addEventListener('load', function() {
     if(!section || !resultEl) return;
 
     section.style.display = '';
+    // Visa Ersätt-knappen bara för verktyg som returnerar ersättbar text
+    const noReplace = ['rattstavning', 'analys', 'synonym'];
+    const replaceBtn = document.getElementById('insp-ai-replace-btn');
+    if(replaceBtn) replaceBtn.style.display = noReplace.includes(typ) ? 'none' : '';
     toolLabel.textContent = labels[typ];
     resultEl.textContent = '⏳ Analyserar...';
 
