@@ -8681,8 +8681,8 @@ window.addEventListener('load', function() {
       const sel = window.getSelection();
       const text = sel ? sel.toString().trim() : '';
 
-      // Kräv minst 15 tecken och att markeringen är i manuset
-      if(text.length < 15){
+      // Kräv minst 2 tecken (ett ord räcker för Synonym)
+      if(text.length < 2){
         hidePopup();
         return;
       }
@@ -8742,8 +8742,8 @@ window.addEventListener('load', function() {
       'skriv-om':     `Du är en erfaren svensk romanredaktör. Skriv om följande textstycke. Behåll meningen och tonen men förbättra språket. Inga adjektiv-överskott. Starka verb. Inga förklaringar — bara det omskrivna stycket.\n\n${text}`,
       'analys':       `Du är en erfaren svensk romanredaktör. Läs följande stycke och beskriv kort vad som är svagt, otydligt eller kan förbättras. Var direkt och konkret. Max 5 punkter.\n\n${text}`,
       'putsa':        `Du är en erfaren svensk språkredaktör. Putsa följande stycke: rätta grammatik, tempus, meningslängd och rytm. Inga förklaringar — bara det putsade stycket.\n\n${text}`,
-      'synonym':      `Du är en svensk språkexpert. Lista synonymer och alternativa ord/fraser för de viktigaste orden i följande text. Ge 3–5 alternativ per nyckelord. Formatera tydligt: Ord → synonym1, synonym2, synonym3.\n\n${text}`,
-      'rattstavning': `Du är en svensk korrekturläsare. Kontrollera stavning och grammatik i följande text. Lista varje fel på en ny rad: FEL → RÄTT. Om texten är felfri, skriv "Inga fel hittades."\n\n${text}`,
+      'synonym':      `Du är en svensk språkexpert. Ge synonymer för följande ord eller text. Om det är ett enstaka ord: lista 5–8 synonymer, separerade med komma. Om det är en fras eller mening: lista synonymer för de viktigaste orden, formaterat som: ord → syn1, syn2, syn3. Bara synonymer, inga förklaringar.\n\n${text}`,
+      'rattstavning': `Du är en noggrann svensk korrekturläsare. Din enda uppgift är att hitta stavfel och grammatikfel i texten nedan. Var mycket strikt — leta efter felstavade ord, dubbla bokstäver som inte ska vara där, saknade bokstäver, och felaktig böjning. Lista VARJE fel på en egen rad i formatet: felstavat → rätt. Hitta ALLA fel, även uppenbara. Om texten verkligen är felfri, skriv "Inga fel hittades." Ge INGA andra kommentarer.\n\nText att korrekturläsa:\n${text}`,
       'dialog':       `Du är en erfaren svensk romanredaktör specialiserad på dialog. Analysera följande dialog: låter det äkta? Finns subtext? Säger karaktärerna för mycket rakt ut? Max 4 punkter, sedan ett omskrivet förslag.\n\n${text}`
     };
 
