@@ -561,18 +561,16 @@
   }
   #aiSelectionPopup.visible { display: flex; }
   .ai-popup-btn {
-    display: flex; align-items: center; gap: 5px;
-    padding: 6px 10px;
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px;
     border: none;
     border-radius: 7px;
     background: transparent;
     cursor: pointer;
-    font-size: 0.78rem;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600;
+    font-size: 1rem;
     color: rgba(255,255,255,0.92);
-    white-space: nowrap;
     transition: background 0.12s;
+    position: relative;
   }
   .ai-popup-btn:hover { background: rgba(255,255,255,0.1); }
   .ai-popup-btn.primary { background: rgba(255,255,255,0.15); color: white; }
@@ -8657,13 +8655,17 @@ window.addEventListener('load', function() {
 
 <!-- AI MARKERINGS-POPUP -->
 <div id="aiSelectionPopup">
-  <button class="ai-popup-btn primary" onclick="runAiOnSelection('skriv-om')">✦ Skriv om</button>
+  <button class="ai-popup-btn primary" onclick="runAiOnSelection('skriv-om')" title="Skriv om">✦</button>
   <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" onclick="runAiOnSelection('ifraga')">🔍 Granska</button>
+  <button class="ai-popup-btn" onclick="runAiOnSelection('analys')" title="Analys">◎</button>
   <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" onclick="runAiOnSelection('putsa')">✂️ Putsa</button>
+  <button class="ai-popup-btn" onclick="runAiOnSelection('putsa')" title="Putsa">✂</button>
   <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" id="aiPopupDialogBtn" onclick="runAiOnSelection('dialog')">💬 Dialog</button>
+  <button class="ai-popup-btn" onclick="runAiOnSelection('synonym')" title="Synonym">≈</button>
+  <div class="ai-popup-divider"></div>
+  <button class="ai-popup-btn" onclick="runAiOnSelection('rattstavning')" title="Rättstavning">✓</button>
+  <div class="ai-popup-divider"></div>
+  <button class="ai-popup-btn" id="aiPopupDialogBtn" onclick="runAiOnSelection('dialog')" title="Dialog">💬</button>
 </div>
 
 <script>
@@ -8737,17 +8739,21 @@ window.addEventListener('load', function() {
     if(!key){ alert('Lägg till Gemini API-nyckel under Molnet-ikonen.'); return; }
 
     const prompts = {
-      'skriv-om': `Du är en erfaren svensk romanredaktör. Skriv om följande textstycke. Behåll meningen och tonen men förbättra språket. Inga adjektiv-överskott. Starka verb. Inga förklaringar — bara det omskrivna stycket.\n\n${text}`,
-      'ifraga':   `Du är en erfaren svensk romanredaktör. Läs följande stycke och beskriv kort vad som är svagt, otydligt eller kan förbättras. Var direkt och konkret. Max 5 punkter.\n\n${text}`,
-      'putsa':    `Du är en erfaren svensk språkredaktör. Putsa följande stycke: rätta grammatik, tempus, meningslängd och rytm. Inga förklaringar — bara det putsade stycket.\n\n${text}`,
-      'dialog':   `Du är en erfaren svensk romanredaktör specialiserad på dialog. Analysera följande dialog: låter det äkta? Finns subtext? Säger karaktärerna för mycket rakt ut? Max 4 punkter, sedan ett omskrivet förslag.\n\n${text}`
+      'skriv-om':     `Du är en erfaren svensk romanredaktör. Skriv om följande textstycke. Behåll meningen och tonen men förbättra språket. Inga adjektiv-överskott. Starka verb. Inga förklaringar — bara det omskrivna stycket.\n\n${text}`,
+      'analys':       `Du är en erfaren svensk romanredaktör. Läs följande stycke och beskriv kort vad som är svagt, otydligt eller kan förbättras. Var direkt och konkret. Max 5 punkter.\n\n${text}`,
+      'putsa':        `Du är en erfaren svensk språkredaktör. Putsa följande stycke: rätta grammatik, tempus, meningslängd och rytm. Inga förklaringar — bara det putsade stycket.\n\n${text}`,
+      'synonym':      `Du är en svensk språkexpert. Lista synonymer och alternativa ord/fraser för de viktigaste orden i följande text. Ge 3–5 alternativ per nyckelord. Formatera tydligt: Ord → synonym1, synonym2, synonym3.\n\n${text}`,
+      'rattstavning': `Du är en svensk korrekturläsare. Kontrollera stavning och grammatik i följande text. Lista varje fel på en ny rad: FEL → RÄTT. Om texten är felfri, skriv "Inga fel hittades."\n\n${text}`,
+      'dialog':       `Du är en erfaren svensk romanredaktör specialiserad på dialog. Analysera följande dialog: låter det äkta? Finns subtext? Säger karaktärerna för mycket rakt ut? Max 4 punkter, sedan ett omskrivet förslag.\n\n${text}`
     };
 
     const labels = {
-      'skriv-om': 'Skriv om',
-      'ifraga':   'Ifrågasätt',
-      'putsa':    'Putsa',
-      'dialog':   'Dialog'
+      'skriv-om':     'Skriv om',
+      'analys':       'Analys',
+      'putsa':        'Putsa',
+      'synonym':      'Synonym',
+      'rattstavning': 'Rättstavning',
+      'dialog':       'Dialog'
     };
 
     // Visa AI-sektionen i inspektören
