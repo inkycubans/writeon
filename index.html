@@ -8764,9 +8764,20 @@ window.addEventListener('load', function() {
 
     section.style.display = '';
     // Visa Ersätt-knappen bara för verktyg som returnerar ersättbar text
-    const noReplace = ['rattstavning', 'analys', 'synonym'];
+    const noReplace = ['analys', 'synonym'];
     const replaceBtn = document.getElementById('insp-ai-replace-btn');
-    if(replaceBtn) replaceBtn.style.display = noReplace.includes(typ) ? 'none' : '';
+    if(replaceBtn){
+      if(noReplace.includes(typ)){
+        replaceBtn.style.display = 'none';
+      } else if(typ === 'rattstavning'){
+        // Visa Ersätt bara om svaret är ett enda fel (ett ord markerat)
+        // Kollar efter efter AI-svar på formatet "fel → rätt" (exakt en rad)
+        replaceBtn.style.display = 'none'; // döljs initialt, visas av rattstavning-logik nedan
+        replaceBtn.dataset.waitRattstavning = '1';
+      } else {
+        replaceBtn.style.display = '';
+      }
+    }
     toolLabel.textContent = labels[typ];
     resultEl.textContent = '⏳ Analyserar...';
 
@@ -8795,6 +8806,24 @@ window.addEventListener('load', function() {
         // Spara för Ersätt-funktionen
         window._aiLastResult = clean;
         window._aiLastRange = lastRange;
+
+        // Rättstavning: visa Ersätt-knapp om svaret är ett enstaka "fel → rätt"
+        const replBtn = document.getElementById('insp-ai-replace-btn');
+        if(replBtn && replBtn.dataset.waitRattstavning === '1'){
+          delete replBtn.dataset.waitRattstavning;
+          // Matcha exakt en rad: "felstavat → rätt"
+          const lines = clean.split('\n').map(l => l.trim()).filter(Boolean);
+          const arrowLine = lines.length === 1 && /→/.test(lines[0]);
+          if(arrowLine && clean !== 'Inga fel hittades.'){
+            // Extrahera det rätta ordet (efter →)
+            const rattOrd = lines[0].split('→')[1]?.trim();
+            if(rattOrd){
+              window._aiLastResult = rattOrd;
+              replBtn.textContent = '↩ Ersätt med: ' + rattOrd;
+              replBtn.style.display = '';
+            }
+          }
+        }
       } else {
         resultEl.textContent = 'Inget svar. Kontrollera din API-nyckel.';
       }
