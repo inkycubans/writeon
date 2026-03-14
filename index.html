@@ -2932,7 +2932,7 @@
   <button class="tb-btn" style="font-weight:700;" title="Fet">B</button>
   <button class="tb-btn" style="font-style:italic;" title="Kursiv">I</button>
   <button class="tb-btn" style="text-decoration:underline;" title="Understruken">U</button>
-  <button class="tb-btn" title="Färg">A</button>
+
 
   <div class="toolbar-divider"></div>
 
@@ -4937,8 +4937,38 @@
     btn.addEventListener('click', () => {
       fontSize = i === 0 ? Math.max(8, fontSize - 1) : Math.min(24, fontSize + 1);
       document.getElementById('fontSize').textContent = fontSize;
-      writingArea.style.fontSize = fontSize + 'pt';
+      // Applicera på alla scene-writing-areas
+      document.querySelectorAll('.scene-writing-area').forEach(a => a.style.fontSize = fontSize + 'pt');
     });
+  });
+  // Siffra-input direkt i fontSize-span
+  const fontSizeSpan = document.getElementById('fontSize');
+  if(fontSizeSpan){
+    fontSizeSpan.contentEditable = 'true';
+    fontSizeSpan.style.cursor = 'text';
+    fontSizeSpan.style.minWidth = '20px';
+    fontSizeSpan.style.textAlign = 'center';
+    fontSizeSpan.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){ e.preventDefault(); fontSizeSpan.blur(); }
+    });
+    fontSizeSpan.addEventListener('blur', () => {
+      const val = parseInt(fontSizeSpan.textContent);
+      if(!isNaN(val) && val >= 8 && val <= 72){
+        fontSize = val;
+        document.querySelectorAll('.scene-writing-area').forEach(a => a.style.fontSize = fontSize + 'pt');
+      } else {
+        fontSizeSpan.textContent = fontSize;
+      }
+    });
+  }
+
+  // B / I / U formatering
+  document.querySelectorAll('.tb-btn').forEach(btn => {
+    const title = btn.getAttribute('title');
+    if(!title) return;
+    if(title === 'Fet')        btn.addEventListener('mousedown', e => { e.preventDefault(); document.execCommand('bold'); });
+    if(title === 'Kursiv')     btn.addEventListener('mousedown', e => { e.preventDefault(); document.execCommand('italic'); });
+    if(title === 'Understruken') btn.addEventListener('mousedown', e => { e.preventDefault(); document.execCommand('underline'); });
   });
 
   // Dark mode
