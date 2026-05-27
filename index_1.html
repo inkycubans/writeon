@@ -6538,17 +6538,20 @@ VIKTIGT:
     if (typeof renderCharacters === 'function') renderCharacters();
     updateProjectTitle();
 
-    // Steg 2: välj Dropbox-mapp
+    // Steg 2: välj Dropbox-mapp och skapa undermapp med projektnamnet
     setTimeout(async () => {
       if (!('showDirectoryPicker' in window)) {
         showAutosaveMsg('⚠ Använd Chrome eller Edge för autospar');
         return;
       }
       try {
-        alert(`Välj en mapp i Dropbox för projektet "${namn}".\n\nTips: Skapa en ny undermapp med projektets namn direkt i filväljaren.\n\nExempel: Dropbox → Skrivprojekt → ${namn}`);
-        saveFolderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        alert(`Välj var i Dropbox projektet ska ligga.\n\nWriteON skapar automatiskt en mapp som heter "${namn}" på det ställe du väljer.\n\nExempel: välj Dropbox → Skrivprojekt, så skapas mappen Dropbox/Skrivprojekt/${namn}/`);
+        const parentHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        // Skapa undermapp med projektnamnet
+        const projektMapp = await parentHandle.getDirectoryHandle(namn, { create: true });
+        saveFolderHandle = projektMapp;
         saveFileHandle   = null;
-        await idbPut('folderHandle', saveFolderHandle);
+        await idbPut('folderHandle', projektMapp);
         localStorage.setItem('writeon_folder_chosen_before', '1');
         updateFolderBtn(true);
         showAutosaveMsg('↑ Skapar ' + namn + '…');
@@ -6566,13 +6569,16 @@ VIKTIGT:
       return;
     }
     try {
+      const namn = getProjectName();
       const isFirst = !localStorage.getItem('writeon_folder_chosen_before');
       if (isFirst) {
-        alert('Välj en mapp i din Dropbox där projektet ska sparas.\n\nTips: Skapa en ny mapp med projektets namn direkt i filväljaren.\n\nExempel: Dropbox → Skrivprojekt → Fallet');
+        alert(`Välj var i Dropbox projektet "${namn}" ska ligga.\n\nWriteON skapar automatiskt en mapp som heter "${namn}" på det ställe du väljer.\n\nExempel: välj Dropbox → Skrivprojekt`);
       }
-      saveFolderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-      saveFileHandle   = null; // skapas vid första sparningen
-      await idbPut('folderHandle', saveFolderHandle);
+      const parentHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      const projektMapp  = await parentHandle.getDirectoryHandle(namn, { create: true });
+      saveFolderHandle = projektMapp;
+      saveFileHandle   = null;
+      await idbPut('folderHandle', projektMapp);
       localStorage.setItem('writeon_folder_chosen_before', '1');
       updateFolderBtn(true);
       showAutosaveMsg('Mapp kopplad — sparar nu…');
@@ -6635,6 +6641,25 @@ VIKTIGT:
   // ── Init vid sidladdning ───────────────────────────────────────────────────
   (async function initAutoSave() {
     renderRecentProjects();
+
+    // Migrera gammalt IndexedDB-handtag (writeon_sync → writeon_handles)
+    try {
+      const oldDb = await new Promise((res, rej) => {
+        const r = indexedDB.open('writeon_sync', 1);
+        r.onsuccess = e => res(e.target.result);
+        r.onerror = () => res(null);
+      });
+      if (oldDb) {
+        const tx = oldDb.transaction('handles', 'readonly');
+        const req = tx.objectStore('handles').get('saveFolder');
+        const oldHandle = await new Promise(res => { req.onsuccess = () => res(req.result); req.onerror = () => res(null); });
+        if (oldHandle) {
+          await idbPut('folderHandle', oldHandle);
+          indexedDB.deleteDatabase('writeon_sync');
+        }
+      }
+    } catch(e) {}
+
     const folderHandle = await idbGet('folderHandle');
     if (folderHandle) {
       try {
@@ -6646,9 +6671,13 @@ VIKTIGT:
           const fname = getProjectName() + '.writeon';
           try {
             saveFileHandle = await folderHandle.getFileHandle(fname);
-          } catch(e) {}
+          } catch(e) {
+            // Filen finns inte i mappen — skapas vid nästa sparning
+            saveFileHandle = null;
+          }
         } else {
           updateFolderBtn(false);
+          showAutosaveMsg('Klicka ☁ Molnet för att återkoppla autospar');
         }
       } catch(e) { updateFolderBtn(false); }
     } else {
