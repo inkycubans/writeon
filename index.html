@@ -4339,6 +4339,7 @@
     scene.dateChanged = now.getFullYear()+'-'+p(now.getMonth()+1)+'-'+p(now.getDate())
       +'T'+p(now.getHours())+':'+p(now.getMinutes());
     scheduleDropboxSync();
+    scheduleAutoSave();
   }
   // ─── VIEW SWITCHING ───
   function switchView(view) {
@@ -6333,14 +6334,22 @@ VIKTIGT:
 
   async function selectSaveFolder() {
     if (!('showDirectoryPicker' in window)) {
-      alert('Din webbläsare stöder inte mappval. Använd Chrome eller Edge.');
+      alert('Din webbläsare stöder inte mappval.\n\nAnvänd Chrome eller Edge för autospar-funktionen.');
       return;
     }
     try {
+      // Visa guide-alert första gången
+      const isFirst = !localStorage.getItem('writeon_folder_chosen_before');
+      if (isFirst) {
+        alert('Välj en mapp där WriteON ska spara ditt projekt automatiskt.\n\nTips: Välj en mapp i din Dropbox-mapp — då synkas projektet till molnet automatiskt, precis som Scrivener gör.\n\nExempel: Dropbox → Skrivprojekt → MittManus');
+      }
       saveFolderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
       await persistFolderHandle(saveFolderHandle);
+      localStorage.setItem('writeon_folder_chosen_before', '1');
       updateFolderBtn(true);
       showAutosaveMsg('Mapp kopplad — autospar aktivt ✓');
+      // Spara direkt så användaren ser att det fungerar
+      doAutoSave();
     } catch(e) {
       if (e.name !== 'AbortError') showAutosaveMsg('Fel vid mappval');
     }
@@ -6405,7 +6414,26 @@ VIKTIGT:
     const handle = await loadFolderHandle();
     if (handle) {
       saveFolderHandle = handle;
-      updateFolderBtn(true);
+      try {
+        const perm = await handle.queryPermission({ mode: 'readwrite' });
+        if (perm === 'granted') {
+          updateFolderBtn(true);
+        } else {
+          saveFolderHandle = null;
+          updateFolderBtn(false);
+        }
+      } catch(e) {
+        saveFolderHandle = null;
+        updateFolderBtn(false);
+      }
+    } else {
+      const hasSeenGuide = localStorage.getItem('writeon_autosave_guide_shown');
+      if (!hasSeenGuide && 'showDirectoryPicker' in window) {
+        setTimeout(() => {
+          showAutosaveMsg('Tips: Klicka ☁ Molnet för att aktivera autospar till Dropbox');
+          localStorage.setItem('writeon_autosave_guide_shown', '1');
+        }, 2000);
+      }
     }
   })();
   // ──────────────────────────────────────────────────────────────────────────
