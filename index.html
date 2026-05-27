@@ -2405,6 +2405,14 @@
   .nav-dd-sc { color: var(--text-muted); font-size: 0.75rem; margin-left: 24px; }
   .nav-dd-sep { height: 1px; background: var(--border); margin: 4px 0; }
 
+  /* Undermeny för Öppna senaste */
+  .nav-dd-submenu { position: relative; }
+  .nav-dd-submenu .nav-dropdown-menu {
+    top: 0; left: 100%; margin-left: 4px;
+  }
+  .nav-dd-has-sub::after { content: '▸'; margin-left: 8px; font-size: 0.7rem; opacity: 0.6; }
+  .nav-dd-sub-menu { min-width: 240px; max-height: 320px; overflow-y: auto; }
+
   
   /* ─────────────────────────────────────────
      MINIMAL MIX: AI-redaktör (utan att sabba binder)
@@ -2866,12 +2874,17 @@
       <div class="nav-dropdown" id="filMenu">
         <button class="nav-item nav-item-arrow" onclick="toggleNavDropdown('filMenu')">Fil <span style="font-size:0.65rem;opacity:0.7;">▾</span></button>
         <div class="nav-dropdown-menu">
-          <div class="nav-dd-item" onclick="filNyttProjekt()">Nytt projekt <span class="nav-dd-sc">⌘N</span></div>
-          <div class="nav-dd-item" onclick="filOppna()">Öppna… <span class="nav-dd-sc">⌘O</span></div>
-          <div class="nav-dd-item nav-dd-disabled">Öppna senaste ▸</div>
+          <div class="nav-dd-item" onclick="nyttProjekt()">Nytt projekt <span class="nav-dd-sc">⌘N</span></div>
+          <div class="nav-dd-item" onclick="openProjectFile()">Öppna… <span class="nav-dd-sc">⌘O</span></div>
+          <div class="nav-dropdown nav-dd-submenu" id="recentMenu">
+            <div class="nav-dd-item nav-dd-has-sub" onclick="toggleNavDropdown('recentMenu')">Öppna senaste ▸</div>
+            <div class="nav-dropdown-menu nav-dd-sub-menu" id="recentProjectsMenu">
+              <div class="nav-dd-item" style="color:var(--text-muted);font-style:italic;pointer-events:none;">Inga senaste projekt</div>
+            </div>
+          </div>
           <div class="nav-dd-sep"></div>
-          <div class="nav-dd-item" onclick="filSpara()">Spara <span class="nav-dd-sc">⌘S</span></div>
-          <div class="nav-dd-item" onclick="filSparasom()">Spara som…</div>
+          <div class="nav-dd-item" onclick="doAutoSave()">Spara <span class="nav-dd-sc">⌘S</span></div>
+          <div class="nav-dd-item" onclick="selectSaveFolder()">Spara i annan mapp…</div>
           <div class="nav-dd-sep"></div>
           <div class="nav-dd-item" onclick="filImportera()">Importera</div>
           <div class="nav-dd-item" onclick="filExportera()">Exportera / Kompilera…</div>
@@ -6299,108 +6312,188 @@ VIKTIGT:
 
 
 
-  // ─── AUTOSPAR TILL MAPP (t.ex. Dropbox) ───────────────────────────────────
-  let saveFolderHandle = null;
-  let autoSaveTimer = null;
-  const AUTOSAVE_DELAY = 2000; // 2 sekunder efter sista tangenttryckning
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PROJEKTHANTERING — spara/ladda .writeon-filer, flera projekt, senaste
+  // ═══════════════════════════════════════════════════════════════════════════
 
-  // Spara mapphandtag i IndexedDB så det överlever sidladdning
+  let saveFolderHandle = null;   // FileSystemDirectoryHandle för aktivt projekt
+  let saveFileHandle  = null;    // FileSystemFileHandle för .writeon-filen
+  let autoSaveTimer   = null;
+  const AUTOSAVE_DELAY = 2000;
+
+  // ── IndexedDB: spara/ladda fil- och mapphandtag över sidladdningar ──────────
   function openHandleStore() {
     return new Promise((resolve, reject) => {
-      const req = indexedDB.open('writeon_sync', 1);
-      req.onupgradeneeded = e => e.target.result.createObjectStore('handles');
+      const req = indexedDB.open('writeon_handles', 2);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('handles')) db.createObjectStore('handles');
+      };
       req.onsuccess = e => resolve(e.target.result);
-      req.onerror = () => reject(req.error);
+      req.onerror  = () => reject(req.error);
     });
   }
 
-  async function persistFolderHandle(handle) {
+  async function idbPut(key, value) {
     try {
       const db = await openHandleStore();
       const tx = db.transaction('handles', 'readwrite');
-      tx.objectStore('handles').put(handle, 'saveFolder');
+      tx.objectStore('handles').put(value, key);
       await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
-    } catch(e) { console.warn('Kunde inte spara mapphandtag:', e); }
+    } catch(e) { console.warn('idbPut fel:', e); }
   }
 
-  async function loadFolderHandle() {
+  async function idbGet(key) {
     try {
       const db = await openHandleStore();
       const tx = db.transaction('handles', 'readonly');
-      const req = tx.objectStore('handles').get('saveFolder');
+      const req = tx.objectStore('handles').get(key);
       return await new Promise((res, rej) => { req.onsuccess = () => res(req.result); req.onerror = rej; });
     } catch(e) { return null; }
   }
 
-  async function selectSaveFolder() {
-    if (!('showDirectoryPicker' in window)) {
-      alert('Din webbläsare stöder inte mappval.\n\nAnvänd Chrome eller Edge för autospar-funktionen.');
+  // ── Senaste projekt (sparas i localStorage som lista med namn + sökväg) ────
+  function getRecentProjects() {
+    try { return JSON.parse(localStorage.getItem('writeon_recent') || '[]'); }
+    catch(e) { return []; }
+  }
+
+  function addRecentProject(name) {
+    let list = getRecentProjects().filter(p => p.name !== name);
+    list.unshift({ name, savedAt: new Date().toISOString() });
+    if (list.length > 10) list = list.slice(0, 10);
+    localStorage.setItem('writeon_recent', JSON.stringify(list));
+    renderRecentProjects();
+  }
+
+  function renderRecentProjects() {
+    const menu = document.getElementById('recentProjectsMenu');
+    if (!menu) return;
+    const list = getRecentProjects();
+    if (!list.length) {
+      menu.innerHTML = '<div class="nav-dd-item" style="color:var(--text-muted);font-style:italic;pointer-events:none;">Inga senaste projekt</div>';
       return;
     }
-    try {
-      // Visa guide-alert första gången
-      const isFirst = !localStorage.getItem('writeon_folder_chosen_before');
-      if (isFirst) {
-        alert('Välj en mapp där WriteON ska spara ditt projekt automatiskt.\n\nTips: Välj en mapp i din Dropbox-mapp — då synkas projektet till molnet automatiskt, precis som Scrivener gör.\n\nExempel: Dropbox → Skrivprojekt → MittManus');
-      }
-      saveFolderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-      await persistFolderHandle(saveFolderHandle);
-      localStorage.setItem('writeon_folder_chosen_before', '1');
-      updateFolderBtn(true);
-      showAutosaveMsg('Mapp kopplad — autospar aktivt ✓');
-      // Spara direkt så användaren ser att det fungerar
-      doAutoSave();
-    } catch(e) {
-      if (e.name !== 'AbortError') showAutosaveMsg('Fel vid mappval');
+    menu.innerHTML = list.map(p =>
+      `<div class="nav-dd-item" onclick="openRecentProject('${p.name.replace(/'/g,"\\'")}')">
+        ${p.name}
+        <span style="font-size:0.7rem;color:var(--text-muted);margin-left:6px;">${new Date(p.savedAt).toLocaleDateString('sv-SE')}</span>
+      </div>`
+    ).join('') + '<div class="nav-dd-sep"></div><div class="nav-dd-item" onclick="clearRecentProjects()">Rensa lista</div>';
+  }
+
+  function clearRecentProjects() {
+    localStorage.removeItem('writeon_recent');
+    renderRecentProjects();
+  }
+
+  async function openRecentProject(name) {
+    // Försök öppna via sparat handtag
+    const handle = await idbGet('fileHandle_' + name);
+    if (handle) {
+      try {
+        const perm = await handle.requestPermission({ mode: 'readwrite' });
+        if (perm === 'granted') {
+          await loadFromFileHandle(handle);
+          return;
+        }
+      } catch(e) {}
     }
+    // Handtag saknas — be användaren peka ut filen
+    alert(`Kunde inte öppna "${name}" automatiskt.\n\nKlicka OK och välj filen ${name}.writeon i din Dropbox-mapp.`);
+    await openProjectFile();
   }
 
+  // ── Projektnamn från projectData ───────────────────────────────────────────
   function getProjectName() {
-    const el = document.querySelector('.project-item.active .proj-name, .proj-name');
-    const raw = el ? el.textContent.trim() : 'Manus';
-    return raw.replace(/[^\wåäöÅÄÖ\s\-]/g, '').trim() || 'Manus';
+    return (projectData.title || 'Manus').replace(/[^\wåäöÅÄÖ\s\-]/g, '').trim() || 'Manus';
   }
 
+  // ── Serialisera hela projektet till JSON ───────────────────────────────────
+  function serializeProject() {
+    return JSON.stringify({
+      _format:    'writeon-1',
+      _savedAt:   new Date().toISOString(),
+      title:      projectData.title,
+      wordGoal:   projectData.wordGoal,
+      chapters:   projectData.chapters,
+      characters: projectData.characters || [],
+      idebank:    collectIdebankData(),
+    }, null, 2);
+  }
+
+  function collectIdebankData() {
+    // Samla idébank-fält från DOM
+    const fields = ['ib-genre','ib-ton','ib-rost','ib-synopsis','ib-varld'];
+    const data = {};
+    fields.forEach(id => {
+      const el = document.getElementById(id) || document.querySelector('[data-ib="'+id+'"]');
+      if (el) data[id] = el.value || el.innerText || '';
+    });
+    return data;
+  }
+
+  // ── Ladda projekt från JSON ────────────────────────────────────────────────
+  function deserializeProject(json) {
+    const data = JSON.parse(json);
+    if (!data._format || !data.chapters) throw new Error('Ogiltig projektfil');
+    projectData.title    = data.title    || 'Utan titel';
+    projectData.wordGoal = data.wordGoal || 100000;
+    projectData.chapters = data.chapters;
+    if (data.characters) projectData.characters = data.characters;
+    // Återställ idébank
+    if (data.idebank) {
+      Object.entries(data.idebank).forEach(([id, val]) => {
+        const el = document.getElementById(id) || document.querySelector('[data-ib="'+id+'"]');
+        if (el) { if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') el.value = val; else el.innerText = val; }
+      });
+    }
+    // Uppdatera UI
+    activeScene = projectData.chapters[0]?.scenes[0] || null;
+    if (typeof loadManuscript === 'function') loadManuscript();
+    if (typeof renderCharacters === 'function') renderCharacters();
+    updateProjectTitle();
+    addRecentProject(projectData.title);
+    showAutosaveMsg('✓ Projekt laddat: ' + projectData.title);
+  }
+
+  function updateProjectTitle() {
+    // Uppdatera projektnamnet i headern
+    const el = document.querySelector('.project-name, #projectTitle, .proj-title');
+    if (el) el.textContent = projectData.title;
+  }
+
+  // ── Spara till fil ─────────────────────────────────────────────────────────
   async function doAutoSave() {
-    if (!saveFolderHandle) return;
+    if (!saveFileHandle && !saveFolderHandle) return;
     try {
-      const perm = await saveFolderHandle.queryPermission({ mode: 'readwrite' });
-      if (perm !== 'granted') {
-        // Kan inte begära tillstånd utan användargest — visa diskret uppmaning
-        updateFolderBtn(false);
-        saveFolderHandle = null;
-        showAutosaveMsg('⚠ Klicka ☁ Molnet för att återkoppla autospar');
-        return;
+      // Skapa filhandtag om det saknas
+      if (!saveFileHandle && saveFolderHandle) {
+        const perm = await saveFolderHandle.queryPermission({ mode: 'readwrite' });
+        if (perm !== 'granted') {
+          updateFolderBtn(false);
+          saveFolderHandle = null;
+          showAutosaveMsg('⚠ Klicka ☁ Molnet för att återkoppla');
+          return;
+        }
+        const fname = getProjectName() + '.writeon';
+        saveFileHandle = await saveFolderHandle.getFileHandle(fname, { create: true });
+        await idbPut('fileHandle_' + getProjectName(), saveFileHandle);
       }
+      if (!saveFileHandle) return;
       showAutosaveMsg('↑ Sparar…');
-      // Samla ihop ALL text från alla scener (hela projektet)
-      const name = getProjectName();
-      let allContent = '';
-      if (typeof projectData !== 'undefined') {
-        projectData.chapters.forEach(ch => {
-          allContent += `<h1>${ch.title || 'Kapitel'}</h1>`;
-          ch.scenes.forEach(sc => {
-            allContent += sc.text || '';
-          });
-        });
-      } else {
-        const wa = getWritingArea();
-        allContent = wa ? wa.innerHTML : '';
-      }
-      const fh = await saveFolderHandle.getFileHandle(name + '.html', { create: true });
-      const writable = await fh.createWritable();
-      await writable.write(
-        `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name}</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;line-height:1.8;padding:20px}h1{font-size:1.4rem;margin-top:2em}</style></head><body>${allContent}</body></html>`
-      );
+      const writable = await saveFileHandle.createWritable();
+      await writable.write(serializeProject());
       await writable.close();
       const tid = new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
       showAutosaveMsg('☁ Sparat ' + tid);
-      // Uppdatera "Synkad"-texten i headern
-      const syncEl = document.querySelector('.project-sync-time, [class*="sync"]');
+      addRecentProject(getProjectName());
+      // Uppdatera synk-texten i headern
+      const syncEl = document.querySelector('.sync-label');
       if (syncEl) syncEl.textContent = 'Synkad ' + tid;
     } catch(e) {
       console.warn('Autospar misslyckades:', e);
-      showAutosaveMsg('⚠ Sparfel — försöker igen');
+      showAutosaveMsg('⚠ Sparfel');
     }
   }
 
@@ -6409,65 +6502,134 @@ VIKTIGT:
     autoSaveTimer = setTimeout(doAutoSave, AUTOSAVE_DELAY);
   }
 
+  // ── Nytt projekt ───────────────────────────────────────────────────────────
+  async function nyttProjekt() {
+    if (!confirm('Starta ett nytt projekt? Osparade ändringar försvinner.')) return;
+    const namn = prompt('Projektets namn (t.ex. "Min roman"):');
+    if (!namn || !namn.trim()) return;
+    // Återställ projectData
+    projectData.title    = namn.trim();
+    projectData.wordGoal = 100000;
+    projectData.chapters = [{ id: 'chap-1', title: 'Kapitel 1', scenes: [{
+      id: 'chap-1-scene-1', title: 'Scen 1', status: 'draft', drama: 'ingen',
+      synopsis: '', notes: '', text: '', words: 0,
+      dateCreated: new Date().toISOString(), dateChanged: new Date().toISOString()
+    }]}];
+    projectData.characters = [];
+    saveFileHandle  = null;
+    saveFolderHandle = null;
+    updateFolderBtn(false);
+    activeScene = projectData.chapters[0].scenes[0];
+    if (typeof loadManuscript === 'function') loadManuscript();
+    if (typeof renderCharacters === 'function') renderCharacters();
+    updateProjectTitle();
+    // Be användaren välja mapp för det nya projektet
+    setTimeout(() => selectSaveFolder(), 300);
+  }
+
+  // ── Välj mapp för aktivt projekt ───────────────────────────────────────────
+  async function selectSaveFolder() {
+    if (!('showDirectoryPicker' in window)) {
+      alert('Din webbläsare stöder inte mappval.\n\nAnvänd Chrome eller Edge.');
+      return;
+    }
+    try {
+      const isFirst = !localStorage.getItem('writeon_folder_chosen_before');
+      if (isFirst) {
+        alert('Välj en mapp i din Dropbox där projektet ska sparas.\n\nTips: Skapa en ny mapp med projektets namn direkt i filväljaren.\n\nExempel: Dropbox → Skrivprojekt → Fallet');
+      }
+      saveFolderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      saveFileHandle   = null; // skapas vid första sparningen
+      await idbPut('folderHandle', saveFolderHandle);
+      localStorage.setItem('writeon_folder_chosen_before', '1');
+      updateFolderBtn(true);
+      showAutosaveMsg('Mapp kopplad — sparar nu…');
+      doAutoSave();
+    } catch(e) {
+      if (e.name !== 'AbortError') showAutosaveMsg('Fel vid mappval');
+    }
+  }
+
+  // ── Öppna befintlig .writeon-fil ───────────────────────────────────────────
+  async function openProjectFile() {
+    if (!('showOpenFilePicker' in window)) {
+      alert('Din webbläsare stöder inte filöppning. Använd Chrome eller Edge.');
+      return;
+    }
+    try {
+      const [fh] = await window.showOpenFilePicker({
+        types: [{ description: 'WriteON-projekt', accept: { 'application/json': ['.writeon'] } }],
+        multiple: false
+      });
+      await loadFromFileHandle(fh);
+    } catch(e) {
+      if (e.name !== 'AbortError') showAutosaveMsg('⚠ Kunde inte öppna filen');
+    }
+  }
+
+  async function loadFromFileHandle(fh) {
+    try {
+      const file = await fh.getFile();
+      const text = await file.text();
+      deserializeProject(text);
+      saveFileHandle = fh;
+      await idbPut('fileHandle_' + getProjectName(), fh);
+      // Spara mapp-handle
+      try { saveFolderHandle = await fh.getParent(); } catch(e) {}
+      updateFolderBtn(true);
+    } catch(e) {
+      alert('Kunde inte läsa filen: ' + e.message);
+    }
+  }
+
+  // ── Visuell feedback ───────────────────────────────────────────────────────
   function showAutosaveMsg(msg) {
     const el = document.getElementById('autosaveIndicator');
     if (!el) return;
     el.textContent = msg;
     el.style.opacity = '1';
-    // Färg beroende på typ
-    if (msg.startsWith('⚠')) {
-      el.style.color = '#c84040';
-    } else if (msg.startsWith('↑')) {
-      el.style.color = '#888';
-    } else {
-      el.style.color = '#4a8a5a';
-    }
+    el.style.color = msg.startsWith('⚠') ? '#c84040' : msg.startsWith('↑') ? '#888' : '#4a8a5a';
     clearTimeout(el._fadeTimer);
-    // Sparat-meddelandet tonas ut efter 4 sek, varningar ligger kvar längre
-    const delay = msg.startsWith('⚠') ? 8000 : 4000;
-    el._fadeTimer = setTimeout(() => { el.style.opacity = '0'; }, delay);
+    el._fadeTimer = setTimeout(() => { el.style.opacity = '0'; }, msg.startsWith('⚠') ? 8000 : 4000);
   }
 
   function updateFolderBtn(connected) {
     const btn = document.getElementById('dropboxConnectBtn');
     if (!btn) return;
-    if (connected) {
-      btn.textContent = '☁ Molnet ✓';
-      btn.style.color = '#4a8a5a';
-    } else {
-      btn.textContent = '☁ Molnet';
-      btn.style.color = '';
-    }
+    btn.textContent = connected ? '☁ Molnet ✓' : '☁ Molnet';
+    btn.style.color  = connected ? '#4a8a5a' : '';
   }
 
-  // Återställ sparad mapp vid sidladdning
+  // ── Init vid sidladdning ───────────────────────────────────────────────────
   (async function initAutoSave() {
-    const handle = await loadFolderHandle();
-    if (handle) {
-      saveFolderHandle = handle;
+    renderRecentProjects();
+    const folderHandle = await idbGet('folderHandle');
+    if (folderHandle) {
       try {
-        const perm = await handle.queryPermission({ mode: 'readwrite' });
+        const perm = await folderHandle.queryPermission({ mode: 'readwrite' });
         if (perm === 'granted') {
+          saveFolderHandle = folderHandle;
           updateFolderBtn(true);
+          // Försök hitta projektfilen
+          const fname = getProjectName() + '.writeon';
+          try {
+            saveFileHandle = await folderHandle.getFileHandle(fname);
+          } catch(e) {}
         } else {
-          saveFolderHandle = null;
           updateFolderBtn(false);
         }
-      } catch(e) {
-        saveFolderHandle = null;
-        updateFolderBtn(false);
-      }
+      } catch(e) { updateFolderBtn(false); }
     } else {
       const hasSeenGuide = localStorage.getItem('writeon_autosave_guide_shown');
       if (!hasSeenGuide && 'showDirectoryPicker' in window) {
         setTimeout(() => {
-          showAutosaveMsg('Tips: Klicka ☁ Molnet för att aktivera autospar till Dropbox');
+          showAutosaveMsg('Tips: Klicka ☁ Molnet för att koppla Dropbox-mapp');
           localStorage.setItem('writeon_autosave_guide_shown', '1');
         }, 2000);
       }
     }
   })();
-  // ──────────────────────────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════════════
 
   function saveApiKey() {
     const key = document.getElementById('apiKeyInput').value.trim();
@@ -7052,9 +7214,9 @@ p:first-of-type{text-indent:0;}`);
   document.addEventListener('keydown', function(e) {
     const mod = e.ctrlKey || e.metaKey;
     if (!mod) return;
-    if (e.key === 's' && !e.shiftKey) { e.preventDefault(); filSpara(); }
-    if (e.key === 's' && e.shiftKey)  { e.preventDefault(); filSparasom(); }
-    if (e.key === 'o') { e.preventDefault(); filOppna(); }
+    if (e.key === 's' && !e.shiftKey) { e.preventDefault(); doAutoSave(); }
+    if (e.key === 's' && e.shiftKey)  { e.preventDefault(); selectSaveFolder(); }
+    if (e.key === 'o') { e.preventDefault(); openProjectFile(); }
     if (e.key === 'p') { e.preventDefault(); filSkrivUt(); }
   });
   // ──────────────────────────────────────────────────────────────────────────
