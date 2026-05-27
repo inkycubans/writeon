@@ -2950,7 +2950,7 @@
 
   <span class="word-count-toolbar" id="wordCountToolbar">0 ord</span>
 
-  <span id="autosaveIndicator" style="font-size:0.7rem;color:#4a8a5a;margin-left:6px;opacity:0;transition:opacity 0.6s;white-space:nowrap;"></span>
+  <span id="autosaveIndicator" style="font-size:0.75rem;color:#4a8a5a;margin-left:10px;opacity:0;transition:opacity 0.5s;white-space:nowrap;font-weight:500;"></span>
 
 </div>
 
@@ -6366,20 +6366,41 @@ VIKTIGT:
     try {
       const perm = await saveFolderHandle.queryPermission({ mode: 'readwrite' });
       if (perm !== 'granted') {
-        const asked = await saveFolderHandle.requestPermission({ mode: 'readwrite' });
-        if (asked !== 'granted') return;
+        // Kan inte begära tillstånd utan användargest — visa diskret uppmaning
+        updateFolderBtn(false);
+        saveFolderHandle = null;
+        showAutosaveMsg('⚠ Klicka ☁ Molnet för att återkoppla autospar');
+        return;
       }
-      const content = getWritingArea().innerHTML;
+      showAutosaveMsg('↑ Sparar…');
+      // Samla ihop ALL text från alla scener (hela projektet)
       const name = getProjectName();
+      let allContent = '';
+      if (typeof projectData !== 'undefined') {
+        projectData.chapters.forEach(ch => {
+          allContent += `<h1>${ch.title || 'Kapitel'}</h1>`;
+          ch.scenes.forEach(sc => {
+            allContent += sc.text || '';
+          });
+        });
+      } else {
+        const wa = getWritingArea();
+        allContent = wa ? wa.innerHTML : '';
+      }
       const fh = await saveFolderHandle.getFileHandle(name + '.html', { create: true });
       const writable = await fh.createWritable();
       await writable.write(
-        `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name}</title></head><body style="font-family:Georgia,serif;max-width:700px;margin:40px auto;line-height:1.8;">${content}</body></html>`
+        `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name}</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;line-height:1.8;padding:20px}h1{font-size:1.4rem;margin-top:2em}</style></head><body>${allContent}</body></html>`
       );
       await writable.close();
-      showAutosaveMsg('Sparat ✓');
+      const tid = new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+      showAutosaveMsg('☁ Sparat ' + tid);
+      // Uppdatera "Synkad"-texten i headern
+      const syncEl = document.querySelector('.project-sync-time, [class*="sync"]');
+      if (syncEl) syncEl.textContent = 'Synkad ' + tid;
     } catch(e) {
       console.warn('Autospar misslyckades:', e);
+      showAutosaveMsg('⚠ Sparfel — försöker igen');
     }
   }
 
@@ -6393,8 +6414,18 @@ VIKTIGT:
     if (!el) return;
     el.textContent = msg;
     el.style.opacity = '1';
+    // Färg beroende på typ
+    if (msg.startsWith('⚠')) {
+      el.style.color = '#c84040';
+    } else if (msg.startsWith('↑')) {
+      el.style.color = '#888';
+    } else {
+      el.style.color = '#4a8a5a';
+    }
     clearTimeout(el._fadeTimer);
-    el._fadeTimer = setTimeout(() => { el.style.opacity = '0'; }, 3000);
+    // Sparat-meddelandet tonas ut efter 4 sek, varningar ligger kvar längre
+    const delay = msg.startsWith('⚠') ? 8000 : 4000;
+    el._fadeTimer = setTimeout(() => { el.style.opacity = '0'; }, delay);
   }
 
   function updateFolderBtn(connected) {
