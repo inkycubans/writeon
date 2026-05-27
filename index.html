@@ -6503,12 +6503,26 @@ VIKTIGT:
   }
 
   // ── Nytt projekt ───────────────────────────────────────────────────────────
-  async function nyttProjekt() {
-    if (!confirm('Starta ett nytt projekt? Osparade ändringar försvinner.')) return;
-    const namn = prompt('Projektets namn (t.ex. "Min roman"):');
-    if (!namn || !namn.trim()) return;
-    // Återställ projectData
-    projectData.title    = namn.trim();
+  function nyttProjekt() {
+    _closeDropdowns();
+    const modal = document.getElementById('nyttProjektModal');
+    const input = document.getElementById('nyttProjektNamn');
+    input.value = '';
+    modal.style.display = 'flex';
+    setTimeout(() => input.focus(), 80);
+  }
+
+  async function _bekraftaNyttProjekt() {
+    const namn = document.getElementById('nyttProjektNamn').value.trim();
+    if (!namn) {
+      document.getElementById('nyttProjektNamn').style.borderColor = '#c84040';
+      setTimeout(() => document.getElementById('nyttProjektNamn').style.borderColor = '', 1500);
+      return;
+    }
+    document.getElementById('nyttProjektModal').style.display = 'none';
+
+    // Återställ projectData med det nya namnet
+    projectData.title    = namn;
     projectData.wordGoal = 100000;
     projectData.chapters = [{ id: 'chap-1', title: 'Kapitel 1', scenes: [{
       id: 'chap-1-scene-1', title: 'Scen 1', status: 'draft', drama: 'ingen',
@@ -6516,15 +6530,33 @@ VIKTIGT:
       dateCreated: new Date().toISOString(), dateChanged: new Date().toISOString()
     }]}];
     projectData.characters = [];
-    saveFileHandle  = null;
+    saveFileHandle   = null;
     saveFolderHandle = null;
     updateFolderBtn(false);
     activeScene = projectData.chapters[0].scenes[0];
     if (typeof loadManuscript === 'function') loadManuscript();
     if (typeof renderCharacters === 'function') renderCharacters();
     updateProjectTitle();
-    // Be användaren välja mapp för det nya projektet
-    setTimeout(() => selectSaveFolder(), 300);
+
+    // Steg 2: välj Dropbox-mapp
+    setTimeout(async () => {
+      if (!('showDirectoryPicker' in window)) {
+        showAutosaveMsg('⚠ Använd Chrome eller Edge för autospar');
+        return;
+      }
+      try {
+        alert(`Välj en mapp i Dropbox för projektet "${namn}".\n\nTips: Skapa en ny undermapp med projektets namn direkt i filväljaren.\n\nExempel: Dropbox → Skrivprojekt → ${namn}`);
+        saveFolderHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        saveFileHandle   = null;
+        await idbPut('folderHandle', saveFolderHandle);
+        localStorage.setItem('writeon_folder_chosen_before', '1');
+        updateFolderBtn(true);
+        showAutosaveMsg('↑ Skapar ' + namn + '…');
+        await doAutoSave();
+      } catch(e) {
+        if (e.name !== 'AbortError') showAutosaveMsg('⚠ Ingen mapp vald — projektet sparas inte');
+      }
+    }, 200);
   }
 
   // ── Välj mapp för aktivt projekt ───────────────────────────────────────────
@@ -8109,6 +8141,39 @@ window.addEventListener('load', function() {
 </script>
 
 <!-- EXPORT FORMAT MODAL -->
+<!-- NYTT PROJEKT-MODAL -->
+<div id="nyttProjektModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-card);border-radius:14px;padding:32px 34px;width:440px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.22);font-family:'DM Sans',sans-serif;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <h2 style="margin:0;font-size:1.05rem;font-weight:700;">Nytt projekt</h2>
+      <button onclick="document.getElementById('nyttProjektModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--text-muted);padding:2px 6px;border-radius:6px;">✕</button>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 22px;">Ge din roman eller ditt projekt ett namn. Du väljer Dropbox-mapp i nästa steg.</p>
+
+    <label style="font-size:0.78rem;font-weight:600;color:var(--text-primary);display:block;margin-bottom:6px;">Projektets namn</label>
+    <input id="nyttProjektNamn" type="text" placeholder="t.ex. Min roman, Fallet, Frihet…"
+      style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border-strong);background:var(--bg-soft);color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:0.92rem;outline:none;margin-bottom:10px;"
+      onkeydown="if(event.key==='Enter') _bekraftaNyttProjekt()"
+    />
+
+    <p style="font-size:0.75rem;color:var(--text-muted);margin:0 0 24px;line-height:1.5;">
+      ☁ Projektet sparas automatiskt till den Dropbox-mapp du väljer.<br>
+      Varje projekt får en egen mapp och en egen <code style="font-size:0.72rem;background:var(--bg-soft);padding:1px 5px;border-radius:4px;">.writeon</code>-fil.
+    </p>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;">
+      <button onclick="document.getElementById('nyttProjektModal').style.display='none'"
+        style="padding:9px 18px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border-strong);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;color:var(--text-primary);">
+        Avbryt
+      </button>
+      <button onclick="_bekraftaNyttProjekt()"
+        style="padding:9px 22px;border-radius:8px;background:#4a8981;color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;">
+        Skapa projekt →
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="exportModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:var(--bg-card);border-radius:14px;padding:28px 30px;width:500px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.22);font-family:'DM Sans',sans-serif;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
