@@ -6539,27 +6539,24 @@ VIKTIGT:
     updateProjectTitle();
 
     // Steg 2: välj Dropbox-mapp och skapa undermapp med projektnamnet
-    setTimeout(async () => {
-      if (!('showDirectoryPicker' in window)) {
-        showAutosaveMsg('⚠ Använd Chrome eller Edge för autospar');
-        return;
-      }
-      try {
-        alert(`Välj var i Dropbox projektet ska ligga.\n\nWriteON skapar automatiskt en mapp som heter "${namn}" på det ställe du väljer.\n\nExempel: välj Dropbox → Skrivprojekt, så skapas mappen Dropbox/Skrivprojekt/${namn}/`);
-        const parentHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-        // Skapa undermapp med projektnamnet
-        const projektMapp = await parentHandle.getDirectoryHandle(namn, { create: true });
-        saveFolderHandle = projektMapp;
-        saveFileHandle   = null;
-        await idbPut('folderHandle', projektMapp);
-        localStorage.setItem('writeon_folder_chosen_before', '1');
-        updateFolderBtn(true);
-        showAutosaveMsg('↑ Skapar ' + namn + '…');
-        await doAutoSave();
-      } catch(e) {
-        if (e.name !== 'AbortError') showAutosaveMsg('⚠ Ingen mapp vald — projektet sparas inte');
-      }
-    }, 200);
+    // OBS: showDirectoryPicker måste anropas direkt, inte i setTimeout
+    if (!('showDirectoryPicker' in window)) {
+      showAutosaveMsg('⚠ Använd Chrome eller Edge för autospar');
+      return;
+    }
+    try {
+      const parentHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      const projektMapp  = await parentHandle.getDirectoryHandle(namn, { create: true });
+      saveFolderHandle = projektMapp;
+      saveFileHandle   = null;
+      await idbPut('folderHandle', projektMapp);
+      localStorage.setItem('writeon_folder_chosen_before', '1');
+      updateFolderBtn(true);
+      showAutosaveMsg('↑ Skapar ' + namn + '…');
+      await doAutoSave();
+    } catch(e) {
+      if (e.name !== 'AbortError') showAutosaveMsg('⚠ Ingen mapp vald — projektet sparas inte');
+    }
   }
 
   // ── Välj mapp för aktivt projekt ───────────────────────────────────────────
