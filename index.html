@@ -4305,6 +4305,7 @@
       },
     ]
   };
+  window.projectData = projectData;
 
   // Aktiv scen — pekar på scene-objektet i projectData
   let activeScene = projectData.chapters[0].scenes[0];
@@ -6501,6 +6502,7 @@ VIKTIGT:
     clearTimeout(autoSaveTimer);
     autoSaveTimer = setTimeout(doAutoSave, AUTOSAVE_DELAY);
   }
+  window.scheduleAutoSave = scheduleAutoSave;
 
   // ── Nytt projekt ───────────────────────────────────────────────────────────
   function nyttProjekt() {
@@ -6627,6 +6629,7 @@ VIKTIGT:
     clearTimeout(el._fadeTimer);
     el._fadeTimer = setTimeout(() => { el.style.opacity = '0'; }, msg.startsWith('⚠') ? 8000 : 4000);
   }
+  window.showAutosaveMsg = showAutosaveMsg;
 
   function updateFolderBtn(connected) {
     const btn = document.getElementById('dropboxConnectBtn');
@@ -9216,6 +9219,186 @@ window.addEventListener('load', function() {
 
 })();
 </script>
+
+
+<!-- Exponera interna funktioner globalt för Firebase -->
+<script>
+// Dessa sätts av IIFE-blocket ovan via window.*
+// Firebase-modulen använder window.projectData, window.showAutosaveMsg osv.
+</script>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC_q5vcLW1MvXxgythlXcEasw9uI-ICEPE",
+  authDomain: "writeon-506d0.firebaseapp.com",
+  projectId: "writeon-506d0",
+  storageBucket: "writeon-506d0.firebasestorage.app",
+  messagingSenderId: "47654236548",
+  appId: "1:47654236548:web:8e7320b50df360c1ccedd1"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── Autospar till Firebase ────────────────────────────────────────────────────
+window.firebaseSaveProject = async function() {
+  const user = auth.currentUser;
+  if (!user) return;
+  try {
+    const projektNamn = (window.projectData?.title || 'Manus').trim();
+    const data = {
+      title:      window.projectData?.title || 'Manus',
+      wordGoal:   window.projectData?.wordGoal || 100000,
+      chapters:   window.projectData?.chapters || [],
+      characters: window.projectData?.characters || [],
+      savedAt:    serverTimestamp()
+    };
+    await setDoc(doc(db, 'users', user.uid, 'projects', projektNamn), data);
+    const tid = new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+    if (window.showAutosaveMsg) window.showAutosaveMsg('☁ Sparat ' + tid);
+  } catch(e) {
+    console.error('Firebase-sparfel:', e);
+    if (window.showAutosaveMsg) window.showAutosaveMsg('⚠ Sparfel: ' + e.message);
+  }
+};
+
+window.firebaseLoadProject = async function(projektNamn) {
+  const user = auth.currentUser;
+  if (!user) return null;
+  const snap = await getDoc(doc(db, 'users', user.uid, 'projects', projektNamn));
+  return snap.exists() ? snap.data() : null;
+};
+
+window.firebaseListProjects = async function() {
+  const user = auth.currentUser;
+  if (!user) return [];
+  const snap = await getDocs(collection(db, 'users', user.uid, 'projects'));
+  return snap.docs.map(d => d.id);
+};
+
+// ── Auth-tillstånd ────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById('fbLoginModal').style.display = 'none';
+    document.getElementById('fbUserEmail').textContent = user.email;
+    document.getElementById('fbUserBar').style.display = 'flex';
+    if (window.showAutosaveMsg) window.showAutosaveMsg('✓ Inloggad: ' + user.email);
+    // Uppdatera senaste projekt i menyn
+    window.firebaseListProjects().then(list => {
+      const menu = document.getElementById('recentProjectsMenu');
+      if (!menu) return;
+      if (!list.length) {
+        menu.innerHTML = '<div class="nav-dd-item" style="color:var(--text-muted);font-style:italic;pointer-events:none;">Inga projekt ännu</div>';
+        return;
+      }
+      menu.innerHTML = list.map(namn =>
+        `<div class="nav-dd-item" onclick="window.firebaseOpenProject('${namn.replace(/'/g,"\\'")}')">📄 ${namn}</div>`
+      ).join('');
+    });
+  } else {
+    document.getElementById('fbUserBar').style.display = 'none';
+    // Visa inloggningsrutan om ingen är inloggad
+    setTimeout(() => {
+      if (!auth.currentUser) {
+        document.getElementById('fbLoginModal').style.display = 'flex';
+      }
+    }, 1000);
+  }
+});
+
+window.firebaseOpenProject = async function(namn) {
+  const data = await window.firebaseLoadProject(namn);
+  if (!data) { alert('Kunde inte ladda projektet.'); return; }
+  window.projectData.title    = data.title;
+  window.projectData.wordGoal = data.wordGoal;
+  window.projectData.chapters = data.chapters;
+  window.projectData.characters = data.characters || [];
+  if (window.loadManuscript) window.loadManuscript();
+  if (window.renderCharacters) window.renderCharacters();
+  if (window.showAutosaveMsg) window.showAutosaveMsg('✓ ' + namn + ' laddat');
+};
+
+// ── Inloggning / Registrering ─────────────────────────────────────────────────
+window.fbLogga = async function(typ) {
+  const email = document.getElementById('fbEmail').value.trim();
+  const pass  = document.getElementById('fbPass').value;
+  const status = document.getElementById('fbStatus');
+  if (!email || !pass) { status.textContent = 'Fyll i e-post och lösenord.'; return; }
+  try {
+    if (typ === 'login') {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } else {
+      await createUserWithEmailAndPassword(auth, email, pass);
+    }
+    status.textContent = '';
+  } catch(e) {
+    const msg = {
+      'auth/user-not-found':    'Ingen användare med den e-postadressen.',
+      'auth/wrong-password':    'Fel lösenord.',
+      'auth/email-already-in-use': 'E-postadressen används redan.',
+      'auth/weak-password':     'Lösenordet måste vara minst 6 tecken.',
+      'auth/invalid-email':     'Ogiltig e-postadress.',
+      'auth/invalid-credential': 'Fel e-post eller lösenord.'
+    }[e.code] || e.message;
+    status.textContent = msg;
+  }
+};
+
+window.fbLoggaUt = async function() {
+  await signOut(auth);
+  if (window.showAutosaveMsg) window.showAutosaveMsg('Utloggad');
+};
+
+// Koppla Firebase-spara till befintligt autospar-system
+const _origSchedule = window.scheduleAutoSave;
+window.scheduleAutoSave = function() {
+  if (_origSchedule) _origSchedule();
+  clearTimeout(window._fbSaveTimer);
+  window._fbSaveTimer = setTimeout(() => window.firebaseSaveProject(), 3000);
+};
+</script>
+
+<!-- INLOGGNINGSMODAL -->
+<div id="fbLoginModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-card,#fff);border-radius:14px;padding:32px 34px;width:400px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.25);font-family:'DM Sans',sans-serif;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:1.6rem;font-weight:800;letter-spacing:-0.5px;">Write<span style="color:#fcb136;">O</span><span style="color:#4a8981;">N</span></div>
+      <p style="color:#888;font-size:0.85rem;margin:6px 0 0;">Logga in för att spara och synka dina projekt</p>
+    </div>
+    <label style="font-size:0.78rem;font-weight:600;display:block;margin-bottom:4px;">E-postadress</label>
+    <input id="fbEmail" type="email" placeholder="din@epost.se"
+      style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:8px;border:1.5px solid #ddd;font-size:0.92rem;margin-bottom:10px;outline:none;"
+      onkeydown="if(event.key==='Enter')window.fbLogga('login')" />
+    <label style="font-size:0.78rem;font-weight:600;display:block;margin-bottom:4px;">Lösenord</label>
+    <input id="fbPass" type="password" placeholder="minst 6 tecken"
+      style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:8px;border:1.5px solid #ddd;font-size:0.92rem;margin-bottom:6px;outline:none;"
+      onkeydown="if(event.key==='Enter')window.fbLogga('login')" />
+    <div id="fbStatus" style="color:#c84040;font-size:0.8rem;min-height:18px;margin-bottom:12px;"></div>
+    <button onclick="window.fbLogga('login')"
+      style="width:100%;padding:11px;border-radius:8px;background:#4a8981;color:white;border:none;cursor:pointer;font-size:0.95rem;font-weight:600;margin-bottom:8px;">
+      Logga in
+    </button>
+    <button onclick="window.fbLogga('register')"
+      style="width:100%;padding:11px;border-radius:8px;background:transparent;color:#4a8981;border:2px solid #4a8981;cursor:pointer;font-size:0.92rem;font-weight:600;">
+      Skapa konto
+    </button>
+  </div>
+</div>
+
+<!-- INLOGGAD-RAD -->
+<div id="fbUserBar" style="display:none;position:fixed;bottom:16px;right:16px;background:var(--bg-card,#fff);border-radius:10px;padding:8px 14px;box-shadow:0 4px 16px rgba(0,0,0,0.12);font-size:0.78rem;font-family:'DM Sans',sans-serif;z-index:9000;align-items:center;gap:10px;">
+  <span style="color:#4a8981;">☁</span>
+  <span id="fbUserEmail" style="color:#555;"></span>
+  <button onclick="window.fbLoggaUt()" style="background:none;border:none;color:#c84040;cursor:pointer;font-size:0.78rem;padding:0;">Logga ut</button>
+</div>
 
 </body>
 </html>
