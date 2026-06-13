@@ -2883,15 +2883,13 @@
             </div>
           </div>
           <div class="nav-dd-sep"></div>
-          <div class="nav-dd-item" onclick="doAutoSave()">Spara <span class="nav-dd-sc">⌘S</span></div>
-          <div class="nav-dd-item" onclick="selectSaveFolder()">Spara i annan mapp…</div>
+          <div class="nav-dd-item" onclick="if(window.firebaseSaveProject) window.firebaseSaveProject(); else doAutoSave();">Spara <span class="nav-dd-sc">⌘S</span></div>
           <div class="nav-dd-sep"></div>
           <div class="nav-dd-item" onclick="filImportera()">Importera</div>
           <div class="nav-dd-item" onclick="filExportera()">Exportera / Kompilera…</div>
           <div class="nav-dd-sep"></div>
           <div class="nav-dd-item" onclick="filSkrivUt()">Skriv ut <span class="nav-dd-sc">⌘P</span></div>
           <div class="nav-dd-sep"></div>
-          <div class="nav-dd-item" onclick="selectSaveFolder()">☁ Koppla autospar-mapp…</div>
         </div>
       </div>
       <button class="nav-item">Manus</button>
@@ -2901,7 +2899,7 @@
       <button class="nav-item">AI-verktyg</button>
       <button class="nav-item">Vy</button>
       <button class="nav-item" onclick="openBackupDialog()">Revisioner</button>
-      <button class="nav-item" id="dropboxConnectBtn" onclick="selectSaveFolder()" title="Koppla autospar-mapp (Dropbox, Google Drive…)">☁ Molnet</button>
+      <button class="nav-item" id="dropboxConnectBtn" onclick="document.getElementById('fbLoginModal').style.display='flex'" title="Molnet — inloggning och synk">☁ Molnet</button>
     </div>
   </div>
 
@@ -6532,32 +6530,15 @@ VIKTIGT:
       dateCreated: new Date().toISOString(), dateChanged: new Date().toISOString()
     }]}];
     projectData.characters = [];
-    saveFileHandle   = null;
-    saveFolderHandle = null;
-    updateFolderBtn(false);
     activeScene = projectData.chapters[0].scenes[0];
     if (typeof loadManuscript === 'function') loadManuscript();
     if (typeof renderCharacters === 'function') renderCharacters();
     updateProjectTitle();
 
-    // Steg 2: välj Dropbox-mapp och skapa undermapp med projektnamnet
-    // OBS: showDirectoryPicker måste anropas direkt, inte i setTimeout
-    if (!('showDirectoryPicker' in window)) {
-      showAutosaveMsg('⚠ Använd Chrome eller Edge för autospar');
-      return;
-    }
-    try {
-      const parentHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-      const projektMapp  = await parentHandle.getDirectoryHandle(namn, { create: true });
-      saveFolderHandle = projektMapp;
-      saveFileHandle   = null;
-      await idbPut('folderHandle', projektMapp);
-      localStorage.setItem('writeon_folder_chosen_before', '1');
-      updateFolderBtn(true);
-      showAutosaveMsg('↑ Skapar ' + namn + '…');
-      await doAutoSave();
-    } catch(e) {
-      if (e.name !== 'AbortError') showAutosaveMsg('⚠ Ingen mapp vald — projektet sparas inte');
+    // Spara till Firebase direkt
+    showAutosaveMsg('↑ Skapar ' + namn + '…');
+    if (window.firebaseSaveProject) {
+      await window.firebaseSaveProject();
     }
   }
 
@@ -7275,8 +7256,8 @@ p:first-of-type{text-indent:0;}`);
   document.addEventListener('keydown', function(e) {
     const mod = e.ctrlKey || e.metaKey;
     if (!mod) return;
-    if (e.key === 's' && !e.shiftKey) { e.preventDefault(); doAutoSave(); }
-    if (e.key === 's' && e.shiftKey)  { e.preventDefault(); selectSaveFolder(); }
+    if (e.key === 's' && !e.shiftKey) { e.preventDefault(); if(window.firebaseSaveProject) window.firebaseSaveProject(); else doAutoSave(); }
+    if (e.key === 's' && e.shiftKey)  { e.preventDefault(); if(window.firebaseSaveProject) window.firebaseSaveProject(); }
     if (e.key === 'o') { e.preventDefault(); openProjectFile(); }
     if (e.key === 'p') { e.preventDefault(); filSkrivUt(); }
   });
@@ -8177,7 +8158,7 @@ window.addEventListener('load', function() {
       <h2 style="margin:0;font-size:1.05rem;font-weight:700;">Nytt projekt</h2>
       <button onclick="document.getElementById('nyttProjektModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--text-muted);padding:2px 6px;border-radius:6px;">✕</button>
     </div>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 22px;">Ge din roman eller ditt projekt ett namn. Du väljer Dropbox-mapp i nästa steg.</p>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 22px;">Ge din roman eller ditt projekt ett namn.</p>
 
     <label style="font-size:0.78rem;font-weight:600;color:var(--text-primary);display:block;margin-bottom:6px;">Projektets namn</label>
     <input id="nyttProjektNamn" type="text" placeholder="t.ex. Min roman, Fallet, Frihet…"
@@ -8186,8 +8167,8 @@ window.addEventListener('load', function() {
     />
 
     <p style="font-size:0.75rem;color:var(--text-muted);margin:0 0 24px;line-height:1.5;">
-      ☁ Projektet sparas automatiskt till den Dropbox-mapp du väljer.<br>
-      Varje projekt får en egen mapp och en egen <code style="font-size:0.72rem;background:var(--bg-soft);padding:1px 5px;border-radius:4px;">.writeon</code>-fil.
+      ☁ Projektet sparas automatiskt till molnet.<br>
+      Du kan öppna det från vilken dator som helst genom att logga in.
     </p>
 
     <div style="display:flex;justify-content:flex-end;gap:10px;">
