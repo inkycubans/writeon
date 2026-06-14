@@ -6366,19 +6366,8 @@ VIKTIGT:
   }
 
   function renderRecentProjects() {
-    const menu = document.getElementById('recentProjectsMenu');
-    if (!menu) return;
-    const list = getRecentProjects();
-    if (!list.length) {
-      menu.innerHTML = '<div class="nav-dd-item" style="color:var(--text-muted);font-style:italic;pointer-events:none;">Inga senaste projekt</div>';
-      return;
-    }
-    menu.innerHTML = list.map(p =>
-      `<div class="nav-dd-item" onclick="openRecentProject('${p.name.replace(/'/g,"\\'")}')">
-        ${p.name}
-        <span style="font-size:0.7rem;color:var(--text-muted);margin-left:6px;">${new Date(p.savedAt).toLocaleDateString('sv-SE')}</span>
-      </div>`
-    ).join('') + '<div class="nav-dd-sep"></div><div class="nav-dd-item" onclick="clearRecentProjects()">Rensa lista</div>';
+    // GAMMAL Dropbox/localStorage-meny avstängd. Firebase är nu enda källan.
+    if (window.fbRefreshRecentMenu) window.fbRefreshRecentMenu();
   }
 
   function clearRecentProjects() {
@@ -6538,7 +6527,14 @@ VIKTIGT:
     // Spara till Firebase direkt
     showAutosaveMsg('↑ Skapar ' + namn + '…');
     if (window.firebaseSaveProject) {
-      await window.firebaseSaveProject();
+      const ok = await window.firebaseSaveProject();
+      if (ok) {
+        showAutosaveMsg('✓ ' + namn + ' skapat');
+        if (window.fbRefreshRecentMenu) await window.fbRefreshRecentMenu();
+      }
+    } else {
+      console.warn('[Firebase] firebaseSaveProject saknas — Firebase-modulen kanske inte laddat än.');
+      showAutosaveMsg('⚠ Firebase ej redo');
     }
   }
 
@@ -9229,12 +9225,30 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
+// ── Vänta in inloggning (auth-tillståndet kan komma efter att appen laddat) ────
+function fbWaitForUser(timeoutMs = 6000) {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+  return new Promise(resolve => {
+    let done = false;
+    const unsub = onAuthStateChanged(auth, u => {
+      if (u && !done) { done = true; unsub(); resolve(u); }
+    });
+    setTimeout(() => { if (!done) { done = true; unsub(); resolve(auth.currentUser || null); } }, timeoutMs);
+  });
+}
+
 // ── Autospar till Firebase ────────────────────────────────────────────────────
 window.firebaseSaveProject = async function() {
-  const user = auth.currentUser;
-  if (!user) return;
+  console.log('[Firebase] firebaseSaveProject anropad. currentUser =', auth.currentUser && auth.currentUser.email);
+  const user = auth.currentUser || await fbWaitForUser();
+  if (!user) {
+    console.warn('[Firebase] Ingen inloggad användare — kan inte spara.');
+    if (window.showAutosaveMsg) window.showAutosaveMsg('⚠ Logga in för att spara');
+    document.getElementById('fbLoginModal').style.display = 'flex';
+    return false;
+  }
   try {
-    const projektNamn = (window.projectData?.title || 'Manus').trim();
+    const projektNamn = (window.projectData?.title || 'Manus').trim() || 'Manus';
     const data = {
       title:      window.projectData?.title || 'Manus',
       wordGoal:   window.projectData?.wordGoal || 100000,
@@ -9242,12 +9256,18 @@ window.firebaseSaveProject = async function() {
       characters: window.projectData?.characters || [],
       savedAt:    serverTimestamp()
     };
+    console.log('[Firebase] Sparar projekt "' + projektNamn + '" till users/' + user.uid + '/projects …');
     await setDoc(doc(db, 'users', user.uid, 'projects', projektNamn), data);
+    console.log('[Firebase] ✓ Sparat OK:', projektNamn);
     const tid = new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
     if (window.showAutosaveMsg) window.showAutosaveMsg('☁ Sparat ' + tid);
+    // Uppdatera "Öppna senaste"-menyn direkt så nya projekt syns på en gång
+    if (window.fbRefreshRecentMenu) window.fbRefreshRecentMenu();
+    return true;
   } catch(e) {
-    console.error('Firebase-sparfel:', e);
-    if (window.showAutosaveMsg) window.showAutosaveMsg('⚠ Sparfel: ' + e.message);
+    console.error('[Firebase] Sparfel:', e.code, e.message, e);
+    if (window.showAutosaveMsg) window.showAutosaveMsg('⚠ Sparfel: ' + (e.code || e.message));
+    return false;
   }
 };
 
@@ -9265,6 +9285,26 @@ window.firebaseListProjects = async function() {
   return snap.docs.map(d => d.id);
 };
 
+// ── Fyll "Öppna senaste"-menyn från Firestore (enda källan) ───────────────────
+window.fbRefreshRecentMenu = async function() {
+  const menu = document.getElementById('recentProjectsMenu');
+  if (!menu) return;
+  if (!auth.currentUser) { return; }
+  try {
+    const list = await window.firebaseListProjects();
+    console.log('[Firebase] Projekt i Firestore:', list);
+    if (!list.length) {
+      menu.innerHTML = '<div class="nav-dd-item" style="color:var(--text-muted);font-style:italic;pointer-events:none;">Inga projekt ännu</div>';
+      return;
+    }
+    menu.innerHTML = list.map(namn =>
+      `<div class="nav-dd-item" onclick="window.firebaseOpenProject('${namn.replace(/'/g,"\\'")}')">📄 ${namn}</div>`
+    ).join('');
+  } catch(e) {
+    console.error('[Firebase] Kunde inte lista projekt:', e);
+  }
+};
+
 // ── Auth-tillstånd ────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, user => {
   if (user) {
@@ -9272,21 +9312,9 @@ onAuthStateChanged(auth, user => {
     document.getElementById('fbUserEmail').textContent = user.email;
     document.getElementById('fbUserBar').style.display = 'flex';
     if (window.showAutosaveMsg) window.showAutosaveMsg('✓ Inloggad: ' + user.email);
-    // Uppdatera senaste projekt i menyn
-    window.firebaseListProjects().then(list => {
-      const menu = document.getElementById('recentProjectsMenu');
-      if (!menu) return;
-      if (!list.length) {
-        menu.innerHTML = '<div class="nav-dd-item" style="color:var(--text-muted);font-style:italic;pointer-events:none;">Inga projekt ännu</div>';
-        return;
-      }
-      menu.innerHTML = list.map(namn =>
-        `<div class="nav-dd-item" onclick="window.firebaseOpenProject('${namn.replace(/'/g,"\\'")}')">📄 ${namn}</div>`
-      ).join('');
-    });
+    window.fbRefreshRecentMenu();
   } else {
     document.getElementById('fbUserBar').style.display = 'none';
-    // Visa inloggningsrutan om ingen är inloggad
     setTimeout(() => {
       if (!auth.currentUser) {
         document.getElementById('fbLoginModal').style.display = 'flex';
