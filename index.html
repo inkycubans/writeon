@@ -5330,6 +5330,11 @@
   }
 
   function loadManuscript(scene) {
+    // Fall tillbaka på första scenen om ingen scen skickades med (t.ex. nytt projekt)
+    if (!scene) {
+      scene = activeScene || projectData.chapters?.[0]?.scenes?.[0];
+    }
+    if (!scene) return;            // tomt projekt utan scener — inget att rita
     const chap = chapterForScene(scene.id);
     if (!chap) return;
     loadChapter(chap);
