@@ -2847,31 +2847,20 @@
 
 /* ── Utskrift: visa bara manustexten, dölj appens UI ──────────────────────── */
 @media print {
-  /* Dölj allt utanför manuset */
-  body > *:not(.canvas-coach-wrap),
-  .navbar, .toolbar, .nav-bar, .top-bar, .menu-bar,
-  .project-sidebar, .sidebar, #sidebar,
-  .inspector, #inspector, .inspektor,
-  .below-manus, #belowManus,
-  .coach-panel, #coachPanel,
-  .view-tabs, .tab-row,
-  .sync-badge, .nav-menu, .project-title-area {
-    display: none !important;
-  }
-  /* Låt själva sid-containern fylla pappret rent */
-  .canvas-coach-wrap, #canvasCoachWrap,
-  .canvas-wrap, #canvasWrap {
-    display: block !important;
-    position: static !important;
-    width: auto !important; height: auto !important;
-    margin: 0 !important; padding: 0 !important;
-    overflow: visible !important; background: #fff !important;
-  }
+  /* Dölj allt i body som standard */
+  body * { visibility: hidden !important; }
+  /* Visa pageContainer och allt inuti den */
+  #pageContainer, #pageContainer * { visibility: visible !important; }
+  /* Lyft fram manuset överst på pappret */
   #pageContainer {
+    position: absolute !important;
+    left: 0 !important; top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important; padding: 0 !important;
     box-shadow: none !important;
-    margin: 0 !important;
+    background: #fff !important;
   }
-  /* Snygg sidbrytning mellan kapitel/scener om de finns */
+  /* Snygg sidbrytning */
   .scene-block, .chapter-doc { page-break-inside: avoid; }
   @page { margin: 2cm; }
 }
@@ -9251,7 +9240,7 @@ window.addEventListener('load', function() {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs, serverTimestamp }
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -9327,6 +9316,30 @@ window.firebaseListProjects = async function() {
   return snap.docs.map(d => d.id);
 };
 
+// ── Ta bort projekt (med bekräftelse) ─────────────────────────────────────────
+window.fbDeleteProjectConfirm = function(namn) {
+  const ok = confirm('Ta bort projektet "' + namn + '"?\n\nDetta går inte att ångra. Projektet raderas permanent från molnet.');
+  if (ok) window.firebaseDeleteProject(namn);
+};
+
+window.firebaseDeleteProject = async function(namn) {
+  const user = auth.currentUser;
+  if (!user) return;
+  try {
+    await deleteDoc(doc(db, 'users', user.uid, 'projects', namn));
+    console.log('[Firebase] ✓ Raderade projekt:', namn);
+    if (window.showAutosaveMsg) window.showAutosaveMsg('🗑 ' + namn + ' borttaget');
+    // Om det var det aktiva projektet — nollställ titeln
+    if (window.fbActiveProject === namn) {
+      window.fbActiveProject = null;
+    }
+    if (window.fbRefreshRecentMenu) await window.fbRefreshRecentMenu();
+  } catch(e) {
+    console.error('[Firebase] Raderingsfel:', e);
+    if (window.showAutosaveMsg) window.showAutosaveMsg('⚠ Kunde inte ta bort');
+  }
+};
+
 // ── Fyll "Öppna senaste"-menyn från Firestore (enda källan) ───────────────────
 window.fbRefreshRecentMenu = async function() {
   const menu = document.getElementById('recentProjectsMenu');
@@ -9344,9 +9357,11 @@ window.fbRefreshRecentMenu = async function() {
       const style = aktiv
         ? 'background:var(--text,#1a1a1a);color:#fff;border-radius:6px;font-weight:600;'
         : '';
-      const bock = aktiv ? ' <span style="margin-left:auto;">✓</span>' : '';
       const safe = namn.replace(/'/g,"\\'");
-      return `<div class="nav-dd-item" style="display:flex;align-items:center;${style}" onclick="window.firebaseOpenProject('${safe}')">📄 ${namn}${bock}</div>`;
+      const hogerIkon = aktiv
+        ? '<span style="margin-left:auto;">✓</span>'
+        : `<span class="proj-delete" title="Ta bort projekt" style="margin-left:auto;opacity:0.45;cursor:pointer;padding:2px 6px;border-radius:4px;" onclick="event.stopPropagation(); window.fbDeleteProjectConfirm('${safe}')">🗑</span>`;
+      return `<div class="nav-dd-item" style="display:flex;align-items:center;gap:6px;${style}" onclick="window.firebaseOpenProject('${safe}')">📄 <span>${namn}</span>${hogerIkon}</div>`;
     }).join('');
   } catch(e) {
     console.error('[Firebase] Kunde inte lista projekt:', e);
