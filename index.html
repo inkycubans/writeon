@@ -2845,6 +2845,36 @@
 
 
 
+/* ── Utskrift: visa bara manustexten, dölj appens UI ──────────────────────── */
+@media print {
+  /* Dölj allt utanför manuset */
+  body > *:not(.canvas-coach-wrap),
+  .navbar, .toolbar, .nav-bar, .top-bar, .menu-bar,
+  .project-sidebar, .sidebar, #sidebar,
+  .inspector, #inspector, .inspektor,
+  .below-manus, #belowManus,
+  .coach-panel, #coachPanel,
+  .view-tabs, .tab-row,
+  .sync-badge, .nav-menu, .project-title-area {
+    display: none !important;
+  }
+  /* Låt själva sid-containern fylla pappret rent */
+  .canvas-coach-wrap, #canvasCoachWrap,
+  .canvas-wrap, #canvasWrap {
+    display: block !important;
+    position: static !important;
+    width: auto !important; height: auto !important;
+    margin: 0 !important; padding: 0 !important;
+    overflow: visible !important; background: #fff !important;
+  }
+  #pageContainer {
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+  /* Snygg sidbrytning mellan kapitel/scener om de finns */
+  .scene-block, .chapter-doc { page-break-inside: avoid; }
+  @page { margin: 2cm; }
+}
 </style>
 </head>
 <body>
@@ -6528,6 +6558,7 @@ VIKTIGT:
     if (typeof loadManuscript === 'function') loadManuscript();
     if (typeof renderCharacters === 'function') renderCharacters();
     updateProjectTitle();
+    if (window.fbSetActiveProject) window.fbSetActiveProject(namn);
 
     // Spara till Firebase direkt
     showAutosaveMsg('↑ Skapar ' + namn + '…');
@@ -9308,9 +9339,15 @@ window.fbRefreshRecentMenu = async function() {
       menu.innerHTML = '<div class="nav-dd-item" style="color:var(--text-muted);font-style:italic;pointer-events:none;">Inga projekt ännu</div>';
       return;
     }
-    menu.innerHTML = list.map(namn =>
-      `<div class="nav-dd-item" onclick="window.firebaseOpenProject('${namn.replace(/'/g,"\\'")}')">📄 ${namn}</div>`
-    ).join('');
+    menu.innerHTML = list.map(namn => {
+      const aktiv = (namn === window.fbActiveProject);
+      const style = aktiv
+        ? 'background:var(--text,#1a1a1a);color:#fff;border-radius:6px;font-weight:600;'
+        : '';
+      const bock = aktiv ? ' <span style="margin-left:auto;">✓</span>' : '';
+      const safe = namn.replace(/'/g,"\\'");
+      return `<div class="nav-dd-item" style="display:flex;align-items:center;${style}" onclick="window.firebaseOpenProject('${safe}')">📄 ${namn}${bock}</div>`;
+    }).join('');
   } catch(e) {
     console.error('[Firebase] Kunde inte lista projekt:', e);
   }
@@ -9341,9 +9378,20 @@ window.firebaseOpenProject = async function(namn) {
   window.projectData.wordGoal = data.wordGoal;
   window.projectData.chapters = data.chapters;
   window.projectData.characters = data.characters || [];
+  if (window.fbSetActiveProject) window.fbSetActiveProject(namn);
   if (window.loadManuscript) window.loadManuscript();
   if (window.renderCharacters) window.renderCharacters();
   if (window.showAutosaveMsg) window.showAutosaveMsg('✓ ' + namn + ' laddat');
+};
+
+// ── Uppdatera titeln uppe till vänster + spara vilket projekt som är aktivt ─────
+window.fbActiveProject = null;
+window.fbSetActiveProject = function(namn) {
+  window.fbActiveProject = namn;
+  const titleEl = document.querySelector('.project-name, #projectTitle, .proj-title');
+  if (titleEl) titleEl.textContent = namn;
+  document.title = 'WriteON – ' + namn;
+  if (window.fbRefreshRecentMenu) window.fbRefreshRecentMenu();
 };
 
 // ── Inloggning / Registrering ─────────────────────────────────────────────────
