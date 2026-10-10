@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>WriteON – Fallet [Gemini v3]</title>
+<title>WriteON</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
@@ -112,7 +112,31 @@
     width: 6px; height: 6px;
     border-radius: 50%;
     background: var(--accent-n);
+    flex-shrink: 0;
   }
+  .sync-badge { white-space: nowrap; user-select: none; transition: background 0.2s, color 0.2s; }
+  .sync-badge[data-state="dirty"],
+  .sync-badge[data-state="saving"],
+  .sync-badge[data-state="loading"]  { color: var(--text-muted); background: var(--bg-soft); }
+  .sync-badge[data-state="dirty"] .sync-dot   { background: var(--accent-o, #fcb136); }
+  .sync-badge[data-state="saving"] .sync-dot,
+  .sync-badge[data-state="loading"] .sync-dot { background: var(--text-muted); animation: syncPulse 1s ease-in-out infinite; }
+  .sync-badge[data-state="offline"],
+  .sync-badge[data-state="unnamed"] { color: var(--text-muted); background: var(--bg-soft); cursor: pointer; }
+  .sync-badge[data-state="offline"] .sync-dot { background: var(--border-strong); }
+  .sync-badge[data-state="unnamed"] .sync-dot { background: var(--accent-o, #fcb136); }
+  .sync-badge[data-state="error"] { color: #c84040; background: rgba(200,64,64,0.1); cursor: pointer; }
+  .sync-badge[data-state="error"] .sync-dot { background: #c84040; }
+  /* ── Ikoner (Lucide, linjestil — följer textfärgen, även i mörkt läge) ── */
+  .ic { width: 1em; height: 1em; flex-shrink: 0; display: inline-block; vertical-align: -0.14em;
+        fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .vicon .ic { width: 15px; height: 15px; vertical-align: -3px; }
+  .hdr-icon .ic, .icon-bar-btn .ic { width: 17px; height: 17px; vertical-align: middle; }
+  .tb-btn .ic, .ai-popup-btn .ic { width: 16px; height: 16px; vertical-align: middle; }
+  .ic-lg { width: 22px; height: 22px; }
+  .export-fmt-icon .ic { width: 24px; height: 24px; }
+  .sb-trash-btn { color: var(--text-muted); }
+  @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   .nav-menu {
     display: flex;
@@ -658,7 +682,7 @@
     height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
   }
   .inspector-progress-fill {
-    height: 100%; width: 38.4%; background: var(--accent-n); border-radius: 2px;
+    height: 100%; width: 0%; background: var(--accent-n); transition: width 0.3s; border-radius: 2px;
   }
 
   .notes-panel {
@@ -1080,7 +1104,7 @@
     transition: all 0.15s;
   }
   .view-btn:hover { background: var(--bg-soft); color: var(--text-primary); }
-  .view-btn.active { background: var(--text-primary); color: white; }
+  .view-btn.active { background: var(--text-primary); color: var(--bg); }
   .view-btn .vicon { font-size: 0.8rem; }
 
   /* WRITING WRAP */
@@ -2175,7 +2199,7 @@
     border: 1px solid rgba(74,137,129,0.3);
   }
   .pomo-btn {
-    background: none; border: none; cursor: pointer;
+    background: none; border: none; cursor: pointer; color: var(--text-secondary, var(--text-muted)); display: flex;
     font-size: 1rem; padding: 3px; border-radius: 6px;
     transition: transform 0.15s;
   }
@@ -2845,9 +2869,93 @@
 
 
 
+/* ── Utskrift: visa bara manustexten, dölj appens UI ──────────────────────── */
+@media print {
+  /* Dölj allt i body som standard */
+  body * { visibility: hidden !important; }
+  /* Visa pageContainer och allt inuti den */
+  #pageContainer, #pageContainer * { visibility: visible !important; }
+  /* Lyft fram manuset överst på pappret */
+  #pageContainer {
+    position: absolute !important;
+    left: 0 !important; top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important; padding: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+  }
+  /* Snygg sidbrytning */
+  .scene-block, .chapter-doc { page-break-inside: avoid; }
+  @page { margin: 2cm; }
+}
 </style>
 </head>
 <body>
+<!-- Ikoner: Lucide v0.454.0 (ISC-licens, lucide.dev) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-circle-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/></symbol>
+  <symbol id="i-list-ordered" viewBox="0 0 24 24"><path d="M10 12h11"/><path d="M10 18h11"/><path d="M10 6h11"/><path d="M4 10h2"/><path d="M4 6h1v4"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></symbol>
+  <symbol id="i-align-left" viewBox="0 0 24 24"><path d="M15 12H3"/><path d="M17 18H3"/><path d="M21 6H3"/></symbol>
+  <symbol id="i-align-center" viewBox="0 0 24 24"><path d="M17 12H7"/><path d="M19 18H5"/><path d="M21 6H3"/></symbol>
+  <symbol id="i-align-right" viewBox="0 0 24 24"><path d="M21 12H9"/><path d="M21 18H7"/><path d="M21 6H3"/></symbol>
+  <symbol id="i-pen-line" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></symbol>
+  <symbol id="i-layout-grid" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></symbol>
+  <symbol id="i-list-tree" viewBox="0 0 24 24"><path d="M21 12h-8"/><path d="M21 6H8"/><path d="M21 18h-8"/><path d="M3 6v4c0 1.1.9 2 2 2h3"/><path d="M3 10v6c0 1.1.9 2 2 2h3"/></symbol>
+  <symbol id="i-network" viewBox="0 0 24 24"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></symbol>
+  <symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-library" viewBox="0 0 24 24"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></symbol>
+  <symbol id="i-timer" viewBox="0 0 24 24"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></symbol>
+  <symbol id="i-coffee" viewBox="0 0 24 24"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></symbol>
+  <symbol id="i-scroll-text" viewBox="0 0 24 24"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-file-plus" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 18v-6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-trash-2" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></symbol>
+  <symbol id="i-file-text" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+  <symbol id="i-brain" viewBox="0 0 24 24"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></symbol>
+  <symbol id="i-drama" viewBox="0 0 24 24"><path d="M10 11h.01"/><path d="M14 6h.01"/><path d="M18 6h.01"/><path d="M6.5 13.1h.01"/><path d="M22 5c0 9-4 12-6 12s-6-3-6-12c0-2 2-3 6-3s6 1 6 3"/><path d="M17.4 9.9c-.8.8-2 .8-2.8 0"/><path d="M10.1 7.1C9 7.2 7.7 7.7 6 8.6c-3.5 2-4.7 3.9-3.7 5.6 4.5 7.8 9.5 8.4 11.2 7.4.9-.5 1.9-2.1 1.9-4.7"/><path d="M9.1 16.5c.3-1.1 1.4-1.7 2.4-1.4"/></symbol>
+  <symbol id="i-feather" viewBox="0 0 24 24"><path d="M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z"/><path d="M16 8 2 22"/><path d="M17.5 15H9"/></symbol>
+  <symbol id="i-book-open" viewBox="0 0 24 24"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></symbol>
+  <symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+  <symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol>
+  <symbol id="i-trending-up" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></symbol>
+  <symbol id="i-chart-gantt" viewBox="0 0 24 24"><path d="M10 6h8"/><path d="M12 16h6"/><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M8 11h7"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+  <symbol id="i-quote" viewBox="0 0 24 24"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></symbol>
+  <symbol id="i-contact" viewBox="0 0 24 24"><path d="M16 2v2"/><path d="M7 22v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/><path d="M8 2v2"/><circle cx="12" cy="11" r="3"/><rect x="3" y="4" width="18" height="18" rx="2"/></symbol>
+  <symbol id="i-image-down" viewBox="0 0 24 24"><path d="M10.3 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10l-3.1-3.1a2 2 0 0 0-2.814.014L6 21"/><path d="m14 19 3 3v-5.5"/><path d="m17 22 3-3"/><circle cx="9" cy="9" r="2"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+  <symbol id="i-dices" viewBox="0 0 24 24"><rect width="12" height="12" x="2" y="10" rx="2" ry="2"/><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"/><path d="M6 18h.01"/><path d="M10 14h.01"/><path d="M15 6h.01"/><path d="M18 9h.01"/></symbol>
+  <symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></symbol>
+  <symbol id="i-hash" viewBox="0 0 24 24"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></symbol>
+  <symbol id="i-code-xml" viewBox="0 0 24 24"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></symbol>
+  <symbol id="i-hammer" viewBox="0 0 24 24"><path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/></symbol>
+  <symbol id="i-scan-text" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8h8"/><path d="M7 12h10"/><path d="M7 16h6"/></symbol>
+  <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></symbol>
+  <symbol id="i-replace" viewBox="0 0 24 24"><path d="M14 4a2 2 0 0 1 2-2"/><path d="M16 10a2 2 0 0 1-2-2"/><path d="M20 2a2 2 0 0 1 2 2"/><path d="M22 8a2 2 0 0 1-2 2"/><path d="m3 7 3 3 3-3"/><path d="M6 10V5a3 3 0 0 1 3-3h1"/><rect x="2" y="14" width="8" height="8" rx="2"/></symbol>
+  <symbol id="i-spell-check" viewBox="0 0 24 24"><path d="m6 16 6-12 6 12"/><path d="M8 12h8"/><path d="m16 20 2 2 4-4"/></symbol>
+</svg>
 
 <!-- HEADER -->
 <header>
@@ -2864,11 +2972,11 @@
   </div>
 
   <div class="project-title-area">
-    <button class="back-btn" title="Tillbaka">←</button>
-    <span class="project-name">Fallet</span>
-    <div class="sync-badge">
+    <button class="back-btn" title="Tillbaka"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg></button>
+    <span class="project-name"></span>
+    <div class="sync-badge" id="syncBadge" data-state="offline" title="Logga in för att spara i molnet" onclick="onSyncBadgeClick()">
       <div class="sync-dot"></div>
-      Synkad 16:38
+      <span class="sync-text">Inte inloggad</span>
     </div>
     <div class="nav-menu">
       <div class="nav-dropdown" id="filMenu">
@@ -2877,21 +2985,19 @@
           <div class="nav-dd-item" onclick="nyttProjekt()">Nytt projekt <span class="nav-dd-sc">⌘N</span></div>
           <div class="nav-dd-item" onclick="openProjectFile()">Öppna… <span class="nav-dd-sc">⌘O</span></div>
           <div class="nav-dropdown nav-dd-submenu" id="recentMenu">
-            <div class="nav-dd-item nav-dd-has-sub" onclick="toggleNavDropdown('recentMenu')">Öppna senaste ▸</div>
+            <div class="nav-dd-item nav-dd-has-sub" onclick="toggleNavDropdown('recentMenu')">Öppna senaste</div>
             <div class="nav-dropdown-menu nav-dd-sub-menu" id="recentProjectsMenu">
               <div class="nav-dd-item" style="color:var(--text-muted);font-style:italic;pointer-events:none;">Inga senaste projekt</div>
             </div>
           </div>
           <div class="nav-dd-sep"></div>
-          <div class="nav-dd-item" onclick="doAutoSave()">Spara <span class="nav-dd-sc">⌘S</span></div>
-          <div class="nav-dd-item" onclick="selectSaveFolder()">Spara i annan mapp…</div>
+          <div class="nav-dd-item" onclick="_closeDropdowns(); saveNow();">Spara <span class="nav-dd-sc">⌘S</span></div>
           <div class="nav-dd-sep"></div>
           <div class="nav-dd-item" onclick="filImportera()">Importera</div>
           <div class="nav-dd-item" onclick="filExportera()">Exportera / Kompilera…</div>
           <div class="nav-dd-sep"></div>
           <div class="nav-dd-item" onclick="filSkrivUt()">Skriv ut <span class="nav-dd-sc">⌘P</span></div>
           <div class="nav-dd-sep"></div>
-          <div class="nav-dd-item" onclick="selectSaveFolder()">☁ Koppla autospar-mapp…</div>
         </div>
       </div>
       <button class="nav-item">Manus</button>
@@ -2901,18 +3007,18 @@
       <button class="nav-item">AI-verktyg</button>
       <button class="nav-item">Vy</button>
       <button class="nav-item" onclick="openBackupDialog()">Revisioner</button>
-      <button class="nav-item" id="dropboxConnectBtn" onclick="selectSaveFolder()" title="Koppla autospar-mapp (Dropbox, Google Drive…)">☁ Molnet</button>
+      <button class="nav-item" id="molnetBtn" onclick="document.getElementById('fbLoginModal').style.display='flex'" title="Molnet — inloggning och synk"><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg> Molnet</button>
     </div>
   </div>
 
   <div class="header-right">
     <div class="toggle-wrap">
       <button class="toggle" id="themeToggle"></button>
-      <span class="moon">☾</span>
+      <span class="moon"><svg class="ic" aria-hidden="true"><use href="#i-moon"/></svg></span>
     </div>
-    <button class="hdr-icon" title="Hjälp">?</button>
-    <button class="hdr-icon" title="Info">ℹ</button>
-    <button class="hdr-icon" title="Inställningar">⚙</button>
+    <button class="hdr-icon" title="Hjälp"><svg class="ic" aria-hidden="true"><use href="#i-circle-help"/></svg></button>
+    <button class="hdr-icon" title="Info"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg></button>
+    <button class="hdr-icon" title="Inställningar"><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg></button>
     <div class="avatar">HÅ</div>
   </div>
 </header>
@@ -2951,11 +3057,11 @@
 
   <div class="toolbar-divider"></div>
 
-  <button class="tb-btn" title="Punktlista">≡</button>
-  <button class="tb-btn" title="Numrerad lista">№</button>
-  <button class="tb-btn" title="Vänster">⬤</button>
-  <button class="tb-btn" title="Centrera">◎</button>
-  <button class="tb-btn" title="Höger">○</button>
+  <button class="tb-btn" title="Punktlista"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg></button>
+  <button class="tb-btn" title="Numrerad lista"><svg class="ic" aria-hidden="true"><use href="#i-list-ordered"/></svg></button>
+  <button class="tb-btn" title="Vänster"><svg class="ic" aria-hidden="true"><use href="#i-align-left"/></svg></button>
+  <button class="tb-btn" title="Centrera"><svg class="ic" aria-hidden="true"><use href="#i-align-center"/></svg></button>
+  <button class="tb-btn" title="Höger"><svg class="ic" aria-hidden="true"><use href="#i-align-right"/></svg></button>
 
   <div class="toolbar-divider"></div>
 
@@ -2970,37 +3076,37 @@
 <!-- VIEW SWITCHER -->
 <div class="view-switcher">
   <button class="view-btn active" onclick="switchView('writing')" id="btn-writing">
-    <span class="vicon">✎</span> Manus
+    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-pen-line"/></svg></span> Manus
   </button>
   <button class="view-btn" onclick="switchView('corkboard')" id="btn-corkboard">
-    <span class="vicon">⊞</span> Scenkort
+    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-layout-grid"/></svg></span> Scenkort
   </button>
   <button class="view-btn" onclick="switchView('outline')" id="btn-outline">
-    <span class="vicon">☰</span> Outline
+    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-list-tree"/></svg></span> Outline
   </button>
   <button class="view-btn" onclick="switchView('brainstorm')" id="btn-brainstorm">
-    <span class="vicon">⚡</span> Brainstorm
+    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-network"/></svg></span> Brainstorm
   </button>
   <div class="view-divider"></div>
   <button class="view-btn" onclick="toggleAiEditor()" id="btn-coach">
-    <span class="vicon">✦</span> AI-redaktör
+    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></span> AI-redaktör
   </button>
   <button class="view-btn" onclick="switchView('idebank')" id="btn-idebank">
-    <span class="vicon">💡</span> Idébanken
+    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></span> Idébanken
   </button>
   <button class="view-btn" onclick="switchView('character')" id="btn-character">
-    <span class="vicon">🎭</span> Karaktärer
+    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span> Karaktärer
   </button>
   <button class="view-btn" onclick="switchView('research')" id="btn-research">
-    <span class="vicon">🔍</span> Research
+    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg></span> Research
   </button>
   <div class="view-divider"></div>
   <div class="pomo-widget" id="pomoWidget" title="Pomodoro-timer — klicka för att starta 25 min fokustid">
-    <button class="pomo-btn" onclick="togglePomo()" id="pomoBtn">🍅</button>
+    <button class="pomo-btn" onclick="togglePomo()" id="pomoBtn"><svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg></button>
     <span class="pomo-time" id="pomoTime" style="display:none;">25:00</span>
   </div>
   <button class="view-btn" onclick="toggleSynopsisPanel()" id="btn-synopsis" title="Visa scensynopsis bredvid manuset" style="font-size:0.7rem;">
-    <span class="vicon">📋</span> Synopsis
+    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-scroll-text"/></svg></span> Synopsis
   </button>
 </div>
 
@@ -3012,7 +3118,7 @@
     <div class="sidebar-header">
       <div class="sidebar-title">
         Projekt
-        <button class="sidebar-search">🔍</button>
+        <button class="sidebar-search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
       </div>
       <div class="sidebar-actions">
         <button class="btn-add" onclick="addChapterToProject()">+ Lägg till</button>
@@ -3048,13 +3154,13 @@
     <!-- BOTTOM TOOLBAR -->
     <div class="sidebar-bottom">
       <button class="sb-bottom-btn" onclick="addChapterToProject()" title="Nytt kapitel">
-        <span>📄</span> Nytt kapitel
+        <svg class="ic" aria-hidden="true"><use href="#i-file-plus"/></svg> Nytt kapitel
       </button>
       <button class="sb-bottom-btn" onclick="addSceneToActiveChapter()" title="Ny scen">
-        <span>＋</span> Ny scen
+        <svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> Ny scen
       </button>
       <button class="sb-trash-btn" title="Sopkorg" id="trashBtn">
-        🗑
+        <svg class="ic" aria-hidden="true"><use href="#i-trash-2"/></svg>
       </button>
     </div>
   </div>
@@ -3082,7 +3188,7 @@
       <div class="bm-section" id="bm-idebank-section">
         <div class="bm-section-hdr" onclick="toggleBmSection('bm-idebank')">
           <span class="bm-arrow" id="bmarr-bm-idebank">▶</span>
-          <span class="bm-section-icon">💡</span>
+          <span class="bm-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></span>
           <span class="bm-section-title">Idébanken</span>
           <span class="bm-section-sub">Kort, listor, idéfragment</span>
         </div>
@@ -3091,12 +3197,12 @@
           <!-- Idéhög -->
           <div class="ib-section" id="ibs-idehogg2">
             <div class="ib-section-hdr" onclick="toggleIbSection('idehogg2')">
-              <span class="ib-section-icon">🧠</span>
+              <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-brain"/></svg></span>
               <span class="ib-section-title">Idéhög</span>
               <span class="ib-section-arrow" id="ibsa-idehogg2">▼</span>
             </div>
             <div class="ib-section-body" id="ibsb-idehogg2">
-              <textarea class="ib-textarea" placeholder="Skriv allt du vet om boken — karaktärer, stämning, teman, vad som helst. Ingen struktur krävs.">Frank är en trasig detektiv i 1987 Göteborg. Hamnen. Dimma. Mord som ingen vill lösa. Han dricker för mycket och vet för lite om sig själv.</textarea>
+              <textarea class="ib-textarea" placeholder="Skriv allt du vet om boken — karaktärer, stämning, teman, vad som helst. Ingen struktur krävs."></textarea>
               <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Generera synopsis</button>
             </div>
           </div>
@@ -3104,25 +3210,25 @@
           <!-- Genre & ton -->
           <div class="ib-section" id="ibs-genre2">
             <div class="ib-section-hdr" onclick="toggleIbSection('genre2')">
-              <span class="ib-section-icon">🎭</span>
+              <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-drama"/></svg></span>
               <span class="ib-section-title">Genre &amp; ton</span>
               <span class="ib-section-arrow" id="ibsa-genre2">▼</span>
             </div>
             <div class="ib-section-body" id="ibsb-genre2">
-              <input class="ib-input" type="text" value="Noir-thriller" placeholder="T.ex. Noir-thriller, Historisk roman...">
-              <input class="ib-input" type="text" value="Mörk, atmosfärisk, poetisk" placeholder="Ton och stämning...">
+              <input class="ib-input" type="text" placeholder="T.ex. Noir-thriller, Historisk roman...">
+              <input class="ib-input" type="text" placeholder="Ton och stämning...">
             </div>
           </div>
 
           <!-- Din röst -->
           <div class="ib-section" id="ibs-rost2">
             <div class="ib-section-hdr" onclick="toggleIbSection('rost2')">
-              <span class="ib-section-icon">✍️</span>
+              <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-feather"/></svg></span>
               <span class="ib-section-title">Din röst</span>
               <span class="ib-section-arrow" id="ibsa-rost2">▼</span>
             </div>
             <div class="ib-section-body" id="ibsb-rost2">
-              <textarea class="ib-textarea" placeholder="Beskriv din skrivstil. Korta meningar eller långa? Mycket dialog? Inre monolog?">Korta, rytmiska meningar. Sparsam dialog. Mycket introspektion. Hämtar från Sjöwall-Wahlöö men mörkare.</textarea>
+              <textarea class="ib-textarea" placeholder="Beskriv din skrivstil. Korta meningar eller långa? Mycket dialog? Inre monolog?"></textarea>
               <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Analysera min stil</button>
             </div>
           </div>
@@ -3130,12 +3236,12 @@
           <!-- Synopsis -->
           <div class="ib-section" id="ibs-synopsis2">
             <div class="ib-section-hdr" onclick="toggleIbSection('synopsis2')">
-              <span class="ib-section-icon">📖</span>
+              <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-book-open"/></svg></span>
               <span class="ib-section-title">Synopsis</span>
               <span class="ib-section-arrow" id="ibsa-synopsis2">▼</span>
             </div>
             <div class="ib-section-body" id="ibsb-synopsis2">
-              <textarea class="ib-textarea" style="min-height:100px;" placeholder="Sammanfatta din berättelse i ett stycke.">En ung kvinna hittas mördad i Göteborgs hamn. Detektiven Frank Lindgren tar fallet motvilligt — och inser snart att svaret leder rakt tillbaka till hans eget förflutna.</textarea>
+              <textarea class="ib-textarea" style="min-height:100px;" placeholder="Sammanfatta din berättelse i ett stycke."></textarea>
               <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Skriv om</button>
             </div>
           </div>
@@ -3143,19 +3249,11 @@
           <!-- Världen -->
           <div class="ib-section" id="ibs-varld2">
             <div class="ib-section-hdr" onclick="toggleIbSection('varld2')">
-              <span class="ib-section-icon">🌍</span>
+              <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg></span>
               <span class="ib-section-title">Världen</span>
               <span class="ib-section-arrow" id="ibsa-varld2">▼</span>
             </div>
             <div class="ib-section-body" id="ibsb-varld2">
-              <div class="world-card">
-                <div class="world-card-name">📍 Göteborgs hamn, 1987</div>
-                <textarea class="ib-textarea-sm" placeholder="Beskriv platsen...">Industrihamn i nedgång. Kranarna rostar. Luktar diesel och salt. Dimman lägger sig tidigt.</textarea>
-              </div>
-              <div class="world-card">
-                <div class="world-card-name">📍 Franks kontor</div>
-                <textarea class="ib-textarea-sm" placeholder="Beskriv platsen...">Tredje våningen, Haga. Soljas ut. En skrivmaskin och för många tomflaskor.</textarea>
-              </div>
               <button class="ib-add-btn" onclick="addWorldCard()">+ Ny plats</button>
             </div>
           </div>
@@ -3167,7 +3265,7 @@
       <div class="bm-section" id="bm-chars-section">
         <div class="bm-section-hdr" onclick="toggleBmSection('bm-chars')">
           <span class="bm-arrow" id="bmarr-bm-chars">▶</span>
-          <span class="bm-section-icon">🎭</span>
+          <span class="bm-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span>
           <span class="bm-section-title">Karaktärer</span>
           <span class="bm-section-sub">Kort, relationer, röst</span>
           <button class="bm-add-btn" onclick="event.stopPropagation();addBmChar()">+ Ny</button>
@@ -3175,45 +3273,6 @@
         <div class="bm-section-body collapsed" id="bm-chars">
           <div id="bmCharList">
 
-            <!-- Frank -->
-            <div class="char-card">
-              <div class="char-card-hdr" onclick="toggleCharCard(this)">
-                <div class="char-avatar" style="background:linear-gradient(135deg,#c8b8e8,#b090d0);">F</div>
-                <div class="char-info">
-                  <div class="char-name">Frank Lindgren</div>
-                  <div class="char-role">Protagonist · Detektiv</div>
-                </div>
-                <span class="char-arrow">▼</span>
-              </div>
-              <div class="char-card-body">
-                <div class="char-field"><label>Ålder</label><input class="ib-input-sm" value="48"></div>
-                <div class="char-field"><label>Fysik</label><input class="ib-input-sm" value="Lång, gråsprängd, bär alltid samma jacka"></div>
-                <div class="char-field"><label>Drivkraft</label><input class="ib-input-sm" value="Hitta sanningen, undvika sig själv"></div>
-                <div class="char-field"><label>Dialogstil</label><input class="ib-input-sm" value="Lakonisk, torr humor, undviker känslor"></div>
-                <div class="char-field"><label>Arc</label><input class="ib-input-sm" value="Slutar med att acceptera sin skuld"></div>
-                <button class="ib-ai-btn ib-ai-disabled char-talk-btn" title="Kräver API-koppling">💬 Prata med Frank</button>
-              </div>
-            </div>
-
-            <!-- Juan -->
-            <div class="char-card">
-              <div class="char-card-hdr" onclick="toggleCharCard(this)">
-                <div class="char-avatar" style="background:linear-gradient(135deg,#b8e8d8,#4a8981);">J</div>
-                <div class="char-info">
-                  <div class="char-name">Juan Morales</div>
-                  <div class="char-role">Bikaraktär · Informatör</div>
-                </div>
-                <span class="char-arrow">▶</span>
-              </div>
-              <div class="char-card-body" style="display:none;">
-                <div class="char-field"><label>Ålder</label><input class="ib-input-sm" value="35"></div>
-                <div class="char-field"><label>Fysik</label><input class="ib-input-sm" value="Liten, nervös, rör händerna när han pratar"></div>
-                <div class="char-field"><label>Drivkraft</label><input class="ib-input-sm" value="Överleva, skydda sin familj"></div>
-                <div class="char-field"><label>Dialogstil</label><input class="ib-input-sm" value="Snabb, hoppar i ämne, ljuger ofta"></div>
-                <div class="char-field"><label>Arc</label><input class="ib-input-sm" value="Tvingas välja sida"></div>
-                <button class="ib-ai-btn ib-ai-disabled char-talk-btn" title="Kräver API-koppling">💬 Prata med Juan</button>
-              </div>
-            </div>
 
           </div>
           <button class="ib-add-btn" style="margin:8px 14px;" onclick="addCharCard()">+ Ny karaktär</button>
@@ -3254,7 +3313,7 @@
           </button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <div class="coach-api-badge" id="coachApiBadge">⚡ Gemini ej kopplat — mock-läge</div>
+          <div class="coach-api-badge" id="coachApiBadge">Gemini ej kopplat — mock-läge</div>
           <button class="coach-close-btn" onclick="toggleCoachPanel()">↓ Stäng</button>
         </div>
       </div>
@@ -3267,7 +3326,7 @@
           <div class="coach-info-desc" id="coachInfoDesc">Mästaren på spänning och karaktärsdriven skräck. Rak, ärlig feedback. Läser din Idébank.</div>
         </div>
         <div class="coach-context-pill" id="coachContextPill">
-          📖 Noir-thriller · 👤 Frank · 🌍 Göteborg 1987
+          Läser din Idébank
         </div>
       </div>
 
@@ -3275,7 +3334,7 @@
       <div class="coach-messages" id="coachMessages">
         <div class="coach-msg coach-msg-ai">
           <div class="coach-bubble">
-            Jag har läst din Idébank. Noir-thriller i Göteborg 1987 — det är ett starkt val. Frank Lindgren påminner mig om Jack Torrance fast utan övernaturliga krafter. Det gör honom farligare.<br><br>
+            Jag har läst din Idébank och ditt manus. Börja där det skaver — det är oftast där berättelsen gömmer sig.<br><br>
             Vad vill du ha hjälp med idag?
           </div>
         </div>
@@ -3284,7 +3343,7 @@
       <!-- Quick prompts -->
       <div class="coach-quick-row" id="coachQuickRow">
         <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Kommentera min senaste scen</button>
-        <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Är Frank en trovärdig karaktär?</button>
+        <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Är min huvudperson trovärdig?</button>
         <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Vad saknas i min synopsis?</button>
         <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Hjälp mig med spänningsuppbyggnad</button>
       </div>
@@ -3374,12 +3433,12 @@
         <input type="text" id="insp-label"
           class="inspector-synopsis"
           style="min-height:auto;height:36px;font-family:'DM Sans',sans-serif;resize:none;font-size:0.75rem;"
-          placeholder="T.ex. POV: Frank · Plats: Kajen"
+          placeholder="T.ex. POV: huvudpersonen · Plats: köket"
           oninput="saveInspectorData()">
       </div>
 
       <div class="inspector-word-count" id="insp-word-count" style="padding:8px 16px 16px;">
-        180 ord i scenen
+        0 ord i scenen
       </div>
 
       <!-- AI-REDAKTÖR RESULTAT (visas när man använt popup) -->
@@ -3401,7 +3460,7 @@
     <!-- Progress footer -->
     <div class="inspector-progress">
       <div class="inspector-progress-label">
-        <span>38 400 ord</span><span>Mål: 100 000 ord</span>
+        <span>0 ord</span><span>Mål: 100&nbsp;000 ord</span>
       </div>
       <div class="inspector-progress-bar">
         <div class="inspector-progress-fill"></div>
@@ -3414,7 +3473,7 @@
   <div class="notes-panel" id="panel-idebank" style="display:none;">
     <div class="notes-header">
       <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:1rem;">💡</span>
+        <span style="font-size:1rem;display:flex;"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></span>
         <div class="notes-title">Idébanken</div>
       </div>
       <button class="notes-close" onclick="closePanel()">✕</button>
@@ -3424,12 +3483,12 @@
       <!-- Idéhög -->
       <div class="ib-section" id="ibs-idehogg">
         <div class="ib-section-hdr" onclick="toggleIbSection('idehogg')">
-          <span class="ib-section-icon">🧠</span>
+          <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-brain"/></svg></span>
           <span class="ib-section-title">Idéhög</span>
           <span class="ib-section-arrow" id="ibsa-idehogg">▼</span>
         </div>
         <div class="ib-section-body" id="ibsb-idehogg">
-          <textarea class="ib-textarea" placeholder="Skriv allt du vet om boken — karaktärer, stämning, teman, vad som helst. Ingen struktur krävs.">Frank är en trasig detektiv i 1987 Göteborg. Hamnen. Dimma. Mord som ingen vill lösa. Han dricker för mycket och vet för lite om sig själv.</textarea>
+          <textarea class="ib-textarea" placeholder="Skriv allt du vet om boken — karaktärer, stämning, teman, vad som helst. Ingen struktur krävs."></textarea>
           <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Generera synopsis</button>
         </div>
       </div>
@@ -3437,25 +3496,25 @@
       <!-- Genre & ton -->
       <div class="ib-section" id="ibs-genre">
         <div class="ib-section-hdr" onclick="toggleIbSection('genre')">
-          <span class="ib-section-icon">🎭</span>
+          <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-drama"/></svg></span>
           <span class="ib-section-title">Genre & ton</span>
           <span class="ib-section-arrow" id="ibsa-genre">▼</span>
         </div>
         <div class="ib-section-body" id="ibsb-genre">
-          <input class="ib-input" type="text" value="Noir-thriller" placeholder="T.ex. Noir-thriller, Historisk roman...">
-          <input class="ib-input" type="text" value="Mörk, atmosfärisk, poetisk" placeholder="Ton och stämning...">
+          <input class="ib-input" type="text" placeholder="T.ex. Noir-thriller, Historisk roman...">
+          <input class="ib-input" type="text" placeholder="Ton och stämning...">
         </div>
       </div>
 
       <!-- Din röst -->
       <div class="ib-section" id="ibs-rost">
         <div class="ib-section-hdr" onclick="toggleIbSection('rost')">
-          <span class="ib-section-icon">✍️</span>
+          <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-feather"/></svg></span>
           <span class="ib-section-title">Din röst</span>
           <span class="ib-section-arrow" id="ibsa-rost">▼</span>
         </div>
         <div class="ib-section-body" id="ibsb-rost">
-          <textarea class="ib-textarea" placeholder="Beskriv din skrivstil. Korta meningar eller långa? Mycket dialog? Inre monolog?">Korta, rytmiska meningar. Sparsam dialog. Mycket introspektion. Hämtar från Sjöwall-Wahlöö men mörkare.</textarea>
+          <textarea class="ib-textarea" placeholder="Beskriv din skrivstil. Korta meningar eller långa? Mycket dialog? Inre monolog?"></textarea>
           <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Analysera min stil</button>
         </div>
       </div>
@@ -3463,12 +3522,12 @@
       <!-- Synopsis -->
       <div class="ib-section" id="ibs-synopsis">
         <div class="ib-section-hdr" onclick="toggleIbSection('synopsis')">
-          <span class="ib-section-icon">📖</span>
+          <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-book-open"/></svg></span>
           <span class="ib-section-title">Synopsis</span>
           <span class="ib-section-arrow" id="ibsa-synopsis">▼</span>
         </div>
         <div class="ib-section-body" id="ibsb-synopsis">
-          <textarea class="ib-textarea" style="min-height:100px;" placeholder="Sammanfatta din berättelse i ett stycke.">En ung kvinna hittas mördad i Göteborgs hamn. Detektiven Frank Lindgren tar fallet motvilligt — och inser snart att svaret leder rakt tillbaka till hans eget förflutna.</textarea>
+          <textarea class="ib-textarea" style="min-height:100px;" placeholder="Sammanfatta din berättelse i ett stycke."></textarea>
           <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Skriv om</button>
         </div>
       </div>
@@ -3476,51 +3535,12 @@
       <!-- Karaktärer -->
       <div class="ib-section" id="ibs-karak">
         <div class="ib-section-hdr" onclick="toggleIbSection('karak')">
-          <span class="ib-section-icon">👤</span>
+          <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg></span>
           <span class="ib-section-title">Karaktärer</span>
           <span class="ib-section-arrow" id="ibsa-karak">▼</span>
         </div>
         <div class="ib-section-body" id="ibsb-karak">
 
-          <!-- Karaktärskort Frank -->
-          <div class="char-card">
-            <div class="char-card-hdr" onclick="toggleCharCard(this)">
-              <div class="char-avatar" style="background:linear-gradient(135deg,#c8b8e8,#b090d0);">F</div>
-              <div class="char-info">
-                <div class="char-name">Frank Lindgren</div>
-                <div class="char-role">Protagonist · Detektiv</div>
-              </div>
-              <span class="char-arrow">▼</span>
-            </div>
-            <div class="char-card-body">
-              <div class="char-field"><label>Ålder</label><input class="ib-input-sm" value="48"></div>
-              <div class="char-field"><label>Fysik</label><input class="ib-input-sm" value="Lång, gråsprängd, bär alltid samma jacka"></div>
-              <div class="char-field"><label>Drivkraft</label><input class="ib-input-sm" value="Hitta sanningen, undvika sig själv"></div>
-              <div class="char-field"><label>Dialogstil</label><input class="ib-input-sm" value="Lakonisk, torr humor, undviker känslor"></div>
-              <div class="char-field"><label>Arc</label><input class="ib-input-sm" value="Slutar med att acceptera sin skuld"></div>
-              <button class="ib-ai-btn ib-ai-disabled char-talk-btn" title="Kräver API-koppling">💬 Prata med Frank</button>
-            </div>
-          </div>
-
-          <!-- Karaktärskort Juan -->
-          <div class="char-card">
-            <div class="char-card-hdr" onclick="toggleCharCard(this)">
-              <div class="char-avatar" style="background:linear-gradient(135deg,#b8e8d8,#4a8981);">J</div>
-              <div class="char-info">
-                <div class="char-name">Juan Morales</div>
-                <div class="char-role">Bikaraktär · Informatör</div>
-              </div>
-              <span class="char-arrow">▶</span>
-            </div>
-            <div class="char-card-body" style="display:none;">
-              <div class="char-field"><label>Ålder</label><input class="ib-input-sm" value="35"></div>
-              <div class="char-field"><label>Fysik</label><input class="ib-input-sm" value="Liten, nervös, rör händerna när han pratar"></div>
-              <div class="char-field"><label>Drivkraft</label><input class="ib-input-sm" value="Överleva, skydda sin familj"></div>
-              <div class="char-field"><label>Dialogstil</label><input class="ib-input-sm" value="Snabb, hoppar i ämne, ljuger ofta"></div>
-              <div class="char-field"><label>Arc</label><input class="ib-input-sm" value="Tvingas välja sida"></div>
-              <button class="ib-ai-btn ib-ai-disabled char-talk-btn" title="Kräver API-koppling">💬 Prata med Juan</button>
-            </div>
-          </div>
 
           <button class="ib-add-btn" onclick="addCharCard()">+ Ny karaktär</button>
         </div>
@@ -3529,19 +3549,11 @@
       <!-- Världen -->
       <div class="ib-section" id="ibs-varld">
         <div class="ib-section-hdr" onclick="toggleIbSection('varld')">
-          <span class="ib-section-icon">🌍</span>
+          <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg></span>
           <span class="ib-section-title">Världen</span>
           <span class="ib-section-arrow" id="ibsa-varld">▼</span>
         </div>
         <div class="ib-section-body" id="ibsb-varld">
-          <div class="world-card">
-            <div class="world-card-name">📍 Göteborgs hamn, 1987</div>
-            <textarea class="ib-textarea-sm" placeholder="Beskriv platsen...">Industrihamn i nedgång. Kranarna rostar. Luktar diesel och salt. Dimman lägger sig tidigt.</textarea>
-          </div>
-          <div class="world-card">
-            <div class="world-card-name">📍 Franks kontor</div>
-            <textarea class="ib-textarea-sm" placeholder="Beskriv platsen...">Tredje våningen, Haga. Soljas ut. En skrivmaskin och för många tomflaskor.</textarea>
-          </div>
           <button class="ib-add-btn" onclick="addWorldCard()">+ Ny plats</button>
         </div>
       </div>
@@ -3549,7 +3561,7 @@
       <!-- Visualize -->
       <div class="ib-section" id="ibs-vis">
         <div class="ib-section-hdr" onclick="toggleIbSection('vis')">
-          <span class="ib-section-icon">🎨</span>
+          <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-palette"/></svg></span>
           <span class="ib-section-title">Visualize</span>
           <span class="ib-section-arrow" id="ibsa-vis">▼</span>
         </div>
@@ -3558,15 +3570,15 @@
           <div class="vis-grid">
             <div class="vis-card">
               <div class="vis-placeholder">
-                <span>👤</span>
-                <span style="font-size:0.65rem;">Frank Lindgren</span>
+                <svg class="ic ic-lg" aria-hidden="true"><use href="#i-user"/></svg>
+                <span style="font-size:0.65rem;">Karaktär</span>
               </div>
               <button class="ib-ai-btn ib-ai-disabled" style="margin-top:6px;" title="Kräver API-koppling">✦ Generera</button>
             </div>
             <div class="vis-card">
               <div class="vis-placeholder">
-                <span>🌆</span>
-                <span style="font-size:0.65rem;">Göteborgs hamn</span>
+                <svg class="ic ic-lg" aria-hidden="true"><use href="#i-map-pin"/></svg>
+                <span style="font-size:0.65rem;">Plats</span>
               </div>
               <button class="ib-ai-btn ib-ai-disabled" style="margin-top:6px;" title="Kräver API-koppling">✦ Generera</button>
             </div>
@@ -3579,7 +3591,7 @@
     <!-- Idébank footer -->
     <div class="ib-footer">
       <span style="font-size:0.7rem;color:var(--text-muted);">AI-coacherna läser din Idébank</span>
-      <div class="ib-api-badge">⚡ API ej kopplat</div>
+      <div class="ib-api-badge">API ej kopplat</div>
     </div>
   </div>
 
@@ -3587,7 +3599,7 @@
   <div class="notes-panel" id="panel-charchat" style="display:none;width:320px;">
     <div class="notes-header">
       <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:1rem;">🎭</span>
+        <span style="font-size:1rem;display:flex;"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span>
         <div class="notes-title">Karaktärsbyggaren</div>
       </div>
       <button class="notes-close" onclick="showPanel('panel-idebank')">←</button>
@@ -3601,21 +3613,21 @@
         <div class="cb-row">
           <div class="cb-field">
             <label>Namn</label>
-            <input class="ib-input" id="cb-name" placeholder="Frank Lindgren" value="Frank Lindgren">
+            <input class="ib-input" id="cb-name" placeholder="Namn">
           </div>
           <div class="cb-field" style="max-width:70px;">
             <label>Ålder</label>
-            <input class="ib-input" id="cb-age" placeholder="48" value="48">
+            <input class="ib-input" id="cb-age" placeholder="—">
           </div>
         </div>
         <div class="cb-row">
           <div class="cb-field">
             <label>Yrke</label>
-            <input class="ib-input" id="cb-job" placeholder="Detektiv" value="Detektiv">
+            <input class="ib-input" id="cb-job" placeholder="T.ex. lärare">
           </div>
           <div class="cb-field">
             <label>Nationalitet</label>
-            <input class="ib-input" id="cb-nationality" placeholder="Svensk" value="Svensk">
+            <input class="ib-input" id="cb-nationality" placeholder="T.ex. svensk">
           </div>
         </div>
       </div>
@@ -3624,10 +3636,10 @@
       <div class="cb-section">
         <div class="cb-section-title">Kön</div>
         <div class="cb-chip-row" id="cb-gender">
-          <button class="cb-chip active" onclick="toggleChip(this,'cb-gender')">Man</button>
+          <button class="cb-chip" onclick="toggleChip(this,'cb-gender')">Man</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-gender')">Kvinna</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-gender')">Icke-binär</button>
-          <button class="cb-chip" onclick="toggleChip(this,'cb-gender')">Slumpa</button>
+          <button class="cb-chip active" onclick="toggleChip(this,'cb-gender')">Slumpa</button>
         </div>
       </div>
 
@@ -3635,14 +3647,14 @@
       <div class="cb-section">
         <div class="cb-section-title">Personlighet <span style="color:var(--text-muted);font-weight:400;">(välj flera)</span></div>
         <div class="cb-chip-row" id="cb-personality">
-          <button class="cb-chip active" onclick="toggleChipMulti(this)">Cynisk</button>
+          <button class="cb-chip" onclick="toggleChipMulti(this)">Cynisk</button>
           <button class="cb-chip" onclick="toggleChipMulti(this)">Varm</button>
-          <button class="cb-chip active" onclick="toggleChipMulti(this)">Introvert</button>
+          <button class="cb-chip" onclick="toggleChipMulti(this)">Introvert</button>
           <button class="cb-chip" onclick="toggleChipMulti(this)">Extrovert</button>
           <button class="cb-chip" onclick="toggleChipMulti(this)">Bitter</button>
           <button class="cb-chip" onclick="toggleChipMulti(this)">Humoristisk</button>
           <button class="cb-chip" onclick="toggleChipMulti(this)">Naiv</button>
-          <button class="cb-chip active" onclick="toggleChipMulti(this)">Komplex</button>
+          <button class="cb-chip" onclick="toggleChipMulti(this)">Komplex</button>
           <button class="cb-chip" onclick="toggleChipMulti(this)">Impulsiv</button>
           <button class="cb-chip" onclick="toggleChipMulti(this)">Beräknande</button>
         </div>
@@ -3652,12 +3664,12 @@
       <div class="cb-section">
         <div class="cb-section-title">Bakgrund</div>
         <div class="cb-chip-row" id="cb-background">
-          <button class="cb-chip active" onclick="toggleChip(this,'cb-background')">Arbetarklass</button>
+          <button class="cb-chip" onclick="toggleChip(this,'cb-background')">Arbetarklass</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-background')">Medelklass</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-background')">Överklass</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-background')">Trasig uppväxt</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-background')">Immigrant</button>
-          <button class="cb-chip" onclick="toggleChip(this,'cb-background')">Slumpa</button>
+          <button class="cb-chip active" onclick="toggleChip(this,'cb-background')">Slumpa</button>
         </div>
       </div>
 
@@ -3665,13 +3677,13 @@
       <div class="cb-section">
         <div class="cb-section-title">Hur talar karaktären?</div>
         <div class="cb-chip-row" id="cb-speech">
-          <button class="cb-chip active" onclick="toggleChip(this,'cb-speech')">Korthuggad</button>
+          <button class="cb-chip" onclick="toggleChip(this,'cb-speech')">Korthuggad</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-speech')">Poetisk</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-speech')">Dialekt</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-speech')">Formell</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-speech')">Slang</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-speech')">Sarkastisk</button>
-          <button class="cb-chip" onclick="toggleChip(this,'cb-speech')">Slumpa</button>
+          <button class="cb-chip active" onclick="toggleChip(this,'cb-speech')">Slumpa</button>
         </div>
       </div>
 
@@ -3693,18 +3705,18 @@
         <div class="cb-section-title">Epok & miljö</div>
         <div class="cb-chip-row" id="cb-era">
           <button class="cb-chip" onclick="toggleChip(this,'cb-era')">Nutid</button>
-          <button class="cb-chip active" onclick="toggleChip(this,'cb-era')">1980-tal</button>
+          <button class="cb-chip" onclick="toggleChip(this,'cb-era')">1980-tal</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-era')">1940-tal</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-era')">Medeltid</button>
           <button class="cb-chip" onclick="toggleChip(this,'cb-era')">Framtid</button>
-          <button class="cb-chip" onclick="toggleChip(this,'cb-era')">Slumpa</button>
+          <button class="cb-chip active" onclick="toggleChip(this,'cb-era')">Slumpa</button>
         </div>
       </div>
 
       <!-- Extra not -->
       <div class="cb-section">
         <div class="cb-section-title">Något extra? <span style="color:var(--text-muted);font-weight:400;">(valfritt)</span></div>
-        <textarea class="ib-textarea" id="cb-extra" placeholder="T.ex. Frank dricker för mycket och vet att han är på väg utför..." style="min-height:56px;">Frank dricker för mycket. Tar fallet för att han måste, inte för att han vill.</textarea>
+        <textarea class="ib-textarea" id="cb-extra" placeholder="T.ex. hon har slutat svara i telefon och vet inte själv varför..." style="min-height:56px;"></textarea>
       </div>
 
     </div>
@@ -3712,7 +3724,7 @@
     <!-- Start chat button -->
     <div style="padding:12px 14px;border-top:1px solid var(--border);flex-shrink:0;">
       <button class="cb-start-btn" onclick="startCharChat()">
-        🎭 Starta samtal med Frank
+        <svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg> <span class="cb-start-label">Starta samtal</span>
       </button>
       <div style="font-size:0.67rem;color:var(--text-muted);text-align:center;margin-top:6px;">
         Tomma fält slumpas av Claude
@@ -3724,13 +3736,13 @@
   <div class="notes-panel" id="panel-charchat-active" style="display:none;width:320px;">
     <div class="notes-header">
       <div style="display:flex;align-items:center;gap:8px;">
-        <div class="char-avatar" id="ccAvatar" style="background:linear-gradient(135deg,#c8b8e8,#b090d0);width:28px;height:28px;font-size:0.8rem;">F</div>
+        <div class="char-avatar" id="ccAvatar" style="background:linear-gradient(135deg,#c8b8e8,#b090d0);width:28px;height:28px;font-size:0.8rem;">?</div>
         <div>
-          <div class="notes-title" id="ccName">Frank Lindgren</div>
-          <div class="notes-count" id="ccRole">Detektiv · 48 år</div>
+          <div class="notes-title" id="ccName">Karaktär</div>
+          <div class="notes-count" id="ccRole"></div>
         </div>
       </div>
-      <button class="notes-close" onclick="showPanel('panel-charchat')">✎</button>
+      <button class="notes-close" onclick="showPanel('panel-charchat')" title="Redigera karaktär"><svg class="ic" aria-hidden="true"><use href="#i-pencil"/></svg></button>
     </div>
     <div class="chat-messages" id="charChatMessages" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;">
     </div>
@@ -3740,24 +3752,24 @@
       <button class="chat-send" onclick="sendCharMessage()" id="charChatSend">↑</button>
     </div>
     <div style="padding:4px 12px 8px;text-align:center;" id="charApiStatus">
-      <span style="font-size:0.67rem;color:var(--text-muted);">⚡ Mock-läge — klistra in API-nyckel i AI-coach</span>
+      <span style="font-size:0.67rem;color:var(--text-muted);">Mock-läge — klistra in API-nyckel i AI-coach</span>
     </div>
   </div>
 
   <!-- FAR RIGHT ICON BAR -->
   <div class="icon-bar">
-    <button class="icon-bar-btn" data-tip="Tillbaka till projekt" onclick="window.location.href='writeon-dashboard.html'">↩</button>
-    <button class="icon-bar-btn active" id="ibtn-notes" data-tip="Kapitelnoter" onclick="showPanel('panel-notes')">📋</button>
-    <button class="icon-bar-btn" id="ibtn-idebank" data-tip="Idébanken" onclick="showPanel('panel-idebank')">💡</button>
-    <button class="icon-bar-btn" id="ibtn-charchat" data-tip="Prata med karaktär" onclick="showPanel('panel-charchat')">💬</button>
+    <button class="icon-bar-btn" data-tip="Tillbaka till projekt" onclick="window.location.href='writeon-dashboard.html'"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg></button>
+    <button class="icon-bar-btn active" id="ibtn-notes" data-tip="Kapitelnoter" onclick="showPanel('panel-notes')"><svg class="ic" aria-hidden="true"><use href="#i-clipboard-list"/></svg></button>
+    <button class="icon-bar-btn" id="ibtn-idebank" data-tip="Idébanken" onclick="showPanel('panel-idebank')"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></button>
+    <button class="icon-bar-btn" id="ibtn-charchat" data-tip="Prata med karaktär" onclick="showPanel('panel-charchat')"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg></button>
     <div class="icon-bar-divider"></div>
-    <button class="icon-bar-btn" data-tip="Statistik">📈</button>
-    <button class="icon-bar-btn" data-tip="Inställningar">⚙</button>
+    <button class="icon-bar-btn" data-tip="Statistik"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"/></svg></button>
+    <button class="icon-bar-btn" data-tip="Inställningar"><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg></button>
     <div class="icon-bar-divider"></div>
     <button class="icon-bar-btn" data-tip="AI-coach">
       <span class="ai-badge">AI</span>
     </button>
-    <button class="icon-bar-btn" data-tip="Versioner">⎘</button>
+    <button class="icon-bar-btn" data-tip="Versioner"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg></button>
   </div>
 
 
@@ -3766,8 +3778,8 @@
 <!-- CORKBOARD VIEW -->
 <div class="corkboard-wrap" id="view-corkboard">
   <div class="corkboard-subbar">
-    <button class="cb-sub-btn active" onclick="setCorkMode('grid', this)">⊞ Rutnät</button>
-    <button class="cb-sub-btn" onclick="setCorkMode('timeline', this)">⏱ Tidslinje</button>
+    <button class="cb-sub-btn active" onclick="setCorkMode('grid', this)"><svg class="ic" aria-hidden="true"><use href="#i-layout-grid"/></svg> Rutnät</button>
+    <button class="cb-sub-btn" onclick="setCorkMode('timeline', this)"><svg class="ic" aria-hidden="true"><use href="#i-chart-gantt"/></svg> Tidslinje</button>
     <div class="corkboard-subbar-divider" id="akt-divider" style="display:none;"></div>
     <button class="cb-sub-btn" onclick="addTimelineAkt()" id="btn-add-akt"
       style="display:none; border-color:rgba(252,177,54,0.45); color:var(--accent-o);">+ Akt</button>
@@ -3783,7 +3795,7 @@
 
       <!-- Global note -->
       <div class="cork-global-note">
-        <span class="cork-global-note-label">📌 Notat</span>
+        <span class="cork-global-note-label"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg> Notat</span>
         <div class="cork-global-note-text" contenteditable="true"></div>
       </div>
       <!-- Rendered by renderCorkGrid() -->
@@ -3900,9 +3912,9 @@
     <!-- Idébank context -->
     <div class="coach-context-box">
       <div class="coach-context-label">Coachen läser din Idébank</div>
-      <div class="coach-context-item">📖 <span id="cvGenre">Noir-thriller</span></div>
-      <div class="coach-context-item">👤 <span id="cvChars">Frank, Juan</span></div>
-      <div class="coach-context-item">🌍 <span id="cvWorld">Göteborg 1987</span></div>
+      <div class="coach-context-item"><svg class="ic" aria-hidden="true"><use href="#i-book-open"/></svg> <span id="cvGenre">—</span></div>
+      <div class="coach-context-item"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg> <span id="cvChars">—</span></div>
+      <div class="coach-context-item"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg> <span id="cvWorld">—</span></div>
     </div>
 
     <!-- API key -->
@@ -3919,7 +3931,7 @@
           font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:700;
           white-space:nowrap;">Spara</button>
       </div>
-      <div class="coach-api-status" id="coachApiStatus">⚡ Mock-läge</div>
+      <div class="coach-api-status" id="coachApiStatus">Mock-läge</div>
     </div>
 
 
@@ -3941,7 +3953,7 @@
     <div class="coach-messages" id="coachMessages">
       <div class="coach-msg coach-msg-ai">
         <div class="coach-bubble">
-          Jag har läst din Idébank. Noir-thriller i Göteborg 1987 — det är ett starkt val. Frank Lindgren påminner mig om Jack Torrance fast utan övernaturliga krafter. Det gör honom farligare.<br><br>
+          Jag har läst din Idébank och ditt manus. Börja där det skaver — det är oftast där berättelsen gömmer sig.<br><br>
           Vad vill du ha hjälp med idag?
         </div>
       </div>
@@ -3950,7 +3962,7 @@
     <!-- Quick prompts -->
     <div class="coach-quick-row" id="coachQuickRow">
       <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Kommentera min senaste scen</button>
-      <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Är Frank en trovärdig karaktär?</button>
+      <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Är min huvudperson trovärdig?</button>
       <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Vad saknas i min synopsis?</button>
       <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Hjälp mig med spänningsuppbyggnad</button>
     </div>
@@ -3972,12 +3984,12 @@
   <div class="idebank-view-inner">
 
     <div class="idebank-view-hdr">
-      <span style="font-size:1.4rem;">💡</span>
+      <span style="display:flex;"><svg class="ic ic-lg" aria-hidden="true"><use href="#i-lightbulb"/></svg></span>
       <div>
         <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;">Idébanken</div>
         <div style="font-size:0.75rem;color:var(--text-muted);">AI-coacherna läser allt du skriver här</div>
       </div>
-      <div class="ib-api-badge" style="margin-left:auto;">⚡ API ej kopplat</div>
+      <div class="ib-api-badge" style="margin-left:auto;">API ej kopplat</div>
     </div>
 
     <div class="idebank-view-grid">
@@ -3986,19 +3998,19 @@
       <div class="idebank-col">
 
         <div class="idebank-card">
-          <div class="idebank-card-title">🧠 Idéhög</div>
-          <textarea class="ib-textarea" style="min-height:120px;" placeholder="Skriv allt du vet om boken — karaktärer, stämning, teman, vad som helst.">Frank är en trasig detektiv i 1987 Göteborg. Hamnen. Dimma. Mord som ingen vill lösa. Han dricker för mycket och vet för lite om sig själv.</textarea>
+          <div class="idebank-card-title"><svg class="ic" aria-hidden="true"><use href="#i-brain"/></svg> Idéhög</div>
+          <textarea class="ib-textarea" style="min-height:120px;" placeholder="Skriv allt du vet om boken — karaktärer, stämning, teman, vad som helst."></textarea>
         </div>
 
         <div class="idebank-card">
-          <div class="idebank-card-title">🎭 Genre & ton</div>
-          <input class="ib-input" style="margin-bottom:8px;" value="Noir-thriller" placeholder="Genre...">
-          <input class="ib-input" value="Mörk, atmosfärisk, poetisk" placeholder="Ton och stämning...">
+          <div class="idebank-card-title"><svg class="ic" aria-hidden="true"><use href="#i-drama"/></svg> Genre & ton</div>
+          <input class="ib-input" style="margin-bottom:8px;" placeholder="Genre...">
+          <input class="ib-input" placeholder="Ton och stämning...">
         </div>
 
         <div class="idebank-card">
-          <div class="idebank-card-title">✍️ Din röst</div>
-          <textarea class="ib-textarea" placeholder="Beskriv din skrivstil...">Korta, rytmiska meningar. Sparsam dialog. Mycket introspektion.</textarea>
+          <div class="idebank-card-title"><svg class="ic" aria-hidden="true"><use href="#i-feather"/></svg> Din röst</div>
+          <textarea class="ib-textarea" placeholder="Beskriv din skrivstil..."></textarea>
           <button class="ib-ai-btn ib-ai-disabled" style="margin-top:8px;">✦ Analysera min stil</button>
         </div>
 
@@ -4009,22 +4021,14 @@
 
         <div class="idebank-card">
           <div class="idebank-card-title" style="display:flex;justify-content:space-between;">
-            📖 Synopsis
+            <span><svg class="ic" aria-hidden="true"><use href="#i-book-open"/></svg> Synopsis</span>
             <button class="ib-ai-btn ib-ai-disabled" style="padding:3px 10px;">✦ Generera</button>
           </div>
-          <textarea class="ib-textarea" style="min-height:100px;">En ung kvinna hittas mördad i Göteborgs hamn. Detektiven Frank Lindgren tar fallet motvilligt — och inser snart att svaret leder rakt tillbaka till hans eget förflutna.</textarea>
+          <textarea class="ib-textarea" style="min-height:100px;" placeholder="Sammanfatta din berättelse i ett stycke."></textarea>
         </div>
 
         <div class="idebank-card">
-          <div class="idebank-card-title">🌍 Världen</div>
-          <div class="world-card">
-            <div class="world-card-name">📍 Göteborgs hamn, 1987</div>
-            <textarea class="ib-textarea-sm">Industrihamn i nedgång. Kranarna rostar. Luktar diesel och salt.</textarea>
-          </div>
-          <div class="world-card" style="margin-top:6px;">
-            <div class="world-card-name">📍 Franks kontor</div>
-            <textarea class="ib-textarea-sm">Tredje våningen, Haga. Soljas ut. En skrivmaskin och för många tomflaskor.</textarea>
-          </div>
+          <div class="idebank-card-title"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg> Världen</div>
           <button class="ib-add-btn" style="margin-top:8px;">+ Ny plats</button>
         </div>
 
@@ -4041,13 +4045,13 @@
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:1.3rem;">🎭</span>
+        <span style="display:flex;"><svg class="ic ic-lg" aria-hidden="true"><use href="#i-users"/></svg></span>
         <div>
           <div style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;">Karaktärer</div>
           <div style="font-size:0.73rem;color:var(--text-muted);">Bygg och dokumentera dina karaktärer</div>
         </div>
       </div>
-      <button onclick="addNewCharacter()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:var(--accent);color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;">
+      <button onclick="addNewCharacter()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:var(--accent-n);color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;">
         + Lägg till karaktär
       </button>
     </div>
@@ -4062,7 +4066,7 @@
 <div id="char-history-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:var(--bg-primary);border-radius:14px;width:min(800px,95vw);height:80vh;display:flex;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
     <div style="width:220px;border-right:1px solid var(--border);padding:16px;overflow-y:auto;background:var(--bg-soft);">
-      <div style="font-weight:700;font-size:0.82rem;margin-bottom:12px;display:flex;align-items:center;gap:6px;">🕐 Versionshistorik</div>
+      <div style="font-weight:700;font-size:0.82rem;margin-bottom:12px;display:flex;align-items:center;gap:6px;"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg> Versionshistorik</div>
       <div id="char-history-list"></div>
     </div>
     <div style="flex:1;padding:24px;overflow-y:auto;" id="char-history-detail"></div>
@@ -4076,7 +4080,7 @@
   <div class="idebank-view-inner" style="max-width:1000px;">
 
     <div class="idebank-view-hdr">
-      <span style="font-size:1.4rem;">🔍</span>
+      <span style="display:flex;"><svg class="ic ic-lg" aria-hidden="true"><use href="#i-library"/></svg></span>
       <div>
         <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;">Research</div>
         <div style="font-size:0.75rem;color:var(--text-muted);">Fakta, bilder, inspirationer och källor kopplade till din bok</div>
@@ -4093,100 +4097,15 @@
     <!-- Kategoriflikar -->
     <div class="research-tabs" id="researchTabs">
       <button class="research-tab active" onclick="filterResearch('alla', this)">Alla</button>
-      <button class="research-tab" onclick="filterResearch('fakta', this)">📋 Fakta</button>
-      <button class="research-tab" onclick="filterResearch('bild', this)">🖼 Bilder</button>
-      <button class="research-tab" onclick="filterResearch('kalla', this)">🔗 Källor</button>
-      <button class="research-tab" onclick="filterResearch('citat', this)">💬 Citat</button>
-      <button class="research-tab" onclick="filterResearch('namn', this)">👤 Namn & platser</button>
+      <button class="research-tab" onclick="filterResearch('fakta', this)"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg> Fakta</button>
+      <button class="research-tab" onclick="filterResearch('bild', this)"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg> Bilder</button>
+      <button class="research-tab" onclick="filterResearch('kalla', this)"><svg class="ic" aria-hidden="true"><use href="#i-link"/></svg> Källor</button>
+      <button class="research-tab" onclick="filterResearch('citat', this)"><svg class="ic" aria-hidden="true"><use href="#i-quote"/></svg> Citat</button>
+      <button class="research-tab" onclick="filterResearch('namn', this)"><svg class="ic" aria-hidden="true"><use href="#i-contact"/></svg> Namn & platser</button>
     </div>
 
     <!-- Research grid -->
     <div class="research-grid" id="researchGrid">
-
-      <!-- Fakta-kort -->
-      <div class="research-card" data-type="fakta">
-        <div class="research-card-type">📋 Fakta</div>
-        <div class="research-card-title" contenteditable="true">Göteborgs hamn 1987</div>
-        <div class="research-card-body" contenteditable="true">Göteborgs hamn var på 1980-talet Nordens största. Containerhanteringen hade tagit över från bulk. Ca 8 000 hamnarbetare. Saabs bilar exporterades härifrån. Starka fackföreningar — sympatiaktioner vanliga.</div>
-        <div class="research-card-tags">
-          <span class="research-tag">Göteborg</span>
-          <span class="research-tag">1980-tal</span>
-          <span class="research-tag">Miljö</span>
-        </div>
-        <button class="research-card-del" onclick="this.closest('.research-card').remove()">✕</button>
-      </div>
-
-      <!-- Fakta-kort 2 -->
-      <div class="research-card" data-type="fakta">
-        <div class="research-card-type">📋 Fakta</div>
-        <div class="research-card-title" contenteditable="true">Svenska detektiver på 80-talet</div>
-        <div class="research-card-body" contenteditable="true">Polisen i Sverige hade inga dedikerade mordutredare på samma sätt som idag. Allmänkriminalare utredde allt. Kommunikation via telefon och teletype. Inga datorer i fält. Rökning tillåten på kontoret.</div>
-        <div class="research-card-tags">
-          <span class="research-tag">Frank</span>
-          <span class="research-tag">Polis</span>
-        </div>
-        <button class="research-card-del" onclick="this.closest('.research-card').remove()">✕</button>
-      </div>
-
-      <!-- Bild-kort -->
-      <div class="research-card" data-type="bild">
-        <div class="research-card-type">🖼 Bild</div>
-        <div class="research-card-title" contenteditable="true">Atmosfärsreferens — hamndimma</div>
-        <div class="research-img-placeholder">
-          <div style="font-size:2rem;">🌫️</div>
-          <div style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;">Dra in bild eller klistra in URL</div>
-          <input class="ib-input" style="margin-top:8px;font-size:0.7rem;" placeholder="https://..." oninput="loadResearchImg(this)">
-        </div>
-        <div class="research-card-body" contenteditable="true">Referensbild för stämningen vid hamnen tidiga morgnar.</div>
-        <button class="research-card-del" onclick="this.closest('.research-card').remove()">✕</button>
-      </div>
-
-      <!-- Källa-kort -->
-      <div class="research-card" data-type="kalla">
-        <div class="research-card-type">🔗 Källa</div>
-        <div class="research-card-title" contenteditable="true">Sjöwall & Wahlöö — Martin Beck-serien</div>
-        <div class="research-card-body" contenteditable="true">Primär inspiration. Rosaanna (1965) — den procedurala stilen. Mannen på balkongen för atmosfären. Notera: deras politiska agenda behöver inte synas men sociala observationer är guld.</div>
-        <div class="research-card-link">
-          <input class="ib-input" style="font-size:0.72rem;" placeholder="URL eller ISBN..." value="ISBN 978-91-0-010856-3">
-        </div>
-        <div class="research-card-tags">
-          <span class="research-tag">Inspiration</span>
-          <span class="research-tag">Genre</span>
-        </div>
-        <button class="research-card-del" onclick="this.closest('.research-card').remove()">✕</button>
-      </div>
-
-      <!-- Citat-kort -->
-      <div class="research-card" data-type="citat">
-        <div class="research-card-type">💬 Citat</div>
-        <div class="research-card-title" contenteditable="true">Chandler om noir</div>
-        <div class="research-card-quote" contenteditable="true">"Down these mean streets a man must go who is not himself mean, who is neither tarnished nor afraid."</div>
-        <div class="research-card-body" contenteditable="true">Raymond Chandler, The Simple Art of Murder. Kärnan i vad Frank är — eller försöker vara.</div>
-        <div class="research-card-tags">
-          <span class="research-tag">Frank</span>
-          <span class="research-tag">Noir</span>
-        </div>
-        <button class="research-card-del" onclick="this.closest('.research-card').remove()">✕</button>
-      </div>
-
-      <!-- Namn-kort -->
-      <div class="research-card" data-type="namn">
-        <div class="research-card-type">👤 Namn & platser</div>
-        <div class="research-card-title" contenteditable="true">Svenska mansnamn — 1940-tal</div>
-        <div class="research-card-body" contenteditable="true">
-          <div class="research-name-grid">
-            <span class="research-name-item">Bertil</span>
-            <span class="research-name-item">Gunnar</span>
-            <span class="research-name-item">Rune</span>
-            <span class="research-name-item">Stig</span>
-            <span class="research-name-item">Åke</span>
-            <span class="research-name-item">Lennart</span>
-            <span class="research-name-item">Torsten</span>
-            <span class="research-name-item">Ragnar</span>
-          </div>
-        </div>
-        <button class="research-card-del" onclick="this.closest('.research-card').remove()">✕</button>
-      </div>
 
     </div>
   </div>
@@ -4195,39 +4114,19 @@
 <!-- BRAINSTORM VIEW -->
 <div class="brainstorm-wrap" id="view-brainstorm">
   <div class="brainstorm-canvas" id="brainstormCanvas"><div class="bs-infinite" id="bsInfinite"><svg class="bs-svg" id="bsSvg"><defs><marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="rgba(176,144,208,0.7)"/></marker></defs></svg>
-    <div class="bs-card" style="left:80px;top:60px;">
-      <div class="bs-card-hdr"><span class="bs-card-label">💡 Idé</span><button class="bs-card-del" onclick="deleteBsCard(this)">✕</button></div>
-      <div class="bs-card-body" contenteditable="true">Frank hittar ett fotografi i offrets ficka — det är hans dotter.</div>
-    </div>
-    <div class="bs-card" style="left:340px;top:40px;">
-      <div class="bs-card-hdr"><span class="bs-card-label">🎭 Scen</span><button class="bs-card-del" onclick="deleteBsCard(this)">✕</button></div>
-      <div class="bs-card-body" contenteditable="true">Konfrontation på kajen. Regn. Juan vet mer än han säger.</div>
-    </div>
-    <div class="bs-card" style="left:580px;top:120px;">
-      <div class="bs-card-hdr"><span class="bs-card-label">❓ Fråga</span><button class="bs-card-del" onclick="deleteBsCard(this)">✕</button></div>
-      <div class="bs-card-body" contenteditable="true">Vem kände offret egentligen? Varför var hon vid hamnen kl 03?</div>
-    </div>
-    <div class="bs-card" style="left:160px;top:280px;">
-      <div class="bs-card-hdr"><span class="bs-card-label">✍️ Uttryck</span><button class="bs-card-del" onclick="deleteBsCard(this)">✕</button></div>
-      <div class="bs-card-body" contenteditable="true">"Dimman smög sig in som en gammal bekant och lade sig tungt över hans axlar."</div>
-    </div>
-    <div class="bs-card" style="left:480px;top:300px;">
-      <div class="bs-card-hdr"><span class="bs-card-label">👤 Karaktär</span><button class="bs-card-del" onclick="deleteBsCard(this)">✕</button></div>
-      <div class="bs-card-body" contenteditable="true">Ny karaktär: hamnvakten som ser allt men pratar med ingen.</div>
-    </div>
   </div>
   </div><!-- end bs-infinite -->
   <div class="bs-connect-hint" id="bsHint"><span style="font-size:1.1rem;">⟷</span> Klicka på ett annat kort för att koppla — eller <span style="opacity:0.6;font-size:0.78rem;">ESC för att avbryta</span></div>
   <div class="bs-toolbar">
     <div id="bsSaveStatus" style="font-size:0.68rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;margin-right:8px;">
-      <span id="bsSaveIcon">💾</span>
+      <span id="bsSaveIcon"><svg class="ic" aria-hidden="true"><use href="#i-save"/></svg></span>
       <span id="bsSaveText">Ej sparat</span>
     </div>
-    <button class="bs-add-btn" onclick="addBsCard(&apos;💡 Idé&apos;)">+ Idé</button>
-    <button class="bs-add-btn" onclick="addBsCard(&apos;🎭 Scen&apos;)">+ Scen</button>
-    <button class="bs-add-btn" onclick="addBsCard(&apos;👤 Karaktär&apos;)">+ Karaktär</button>
-    <button class="bs-add-btn" onclick="addBsCard(&apos;❓ Fråga&apos;)">+ Fråga</button>
-    <button class="bs-add-btn" onclick="addBsCard(&apos;✍️ Uttryck&apos;)">+ Uttryck</button>
+    <button class="bs-add-btn" onclick="addBsCard(&apos;ide&apos;)">+ Idé</button>
+    <button class="bs-add-btn" onclick="addBsCard(&apos;scen&apos;)">+ Scen</button>
+    <button class="bs-add-btn" onclick="addBsCard(&apos;karaktar&apos;)">+ Karaktär</button>
+    <button class="bs-add-btn" onclick="addBsCard(&apos;fraga&apos;)">+ Fråga</button>
+    <button class="bs-add-btn" onclick="addBsCard(&apos;uttryck&apos;)">+ Uttryck</button>
     <div style="flex:1;"></div>
     <div style="display:flex;align-items:center;gap:6px;margin-right:8px;">
       <button class="bs-add-btn" onclick="bsScale=Math.max(bsScale-0.1,0.2);applyTransform();drawAllLines();document.getElementById('bsZoomLabel').textContent=Math.round(bsScale*100)+'%'" style="width:28px;padding:4px;font-size:1rem;">−</button>
@@ -4235,7 +4134,7 @@
       <button class="bs-add-btn" onclick="bsScale=Math.min(bsScale+0.1,3);applyTransform();drawAllLines();document.getElementById('bsZoomLabel').textContent=Math.round(bsScale*100)+'%'" style="width:28px;padding:4px;font-size:1rem;">+</button>
       <button class="bs-add-btn" onclick="bsResetView()" style="font-size:0.7rem;">↺ Återställ</button>
     </div>
-    <button class="bs-add-btn" onclick="exportBsPng()" style="background:rgba(74,137,129,0.1);color:var(--accent-n);border-color:rgba(74,137,129,0.3);">📷 Exportera PNG</button>
+    <button class="bs-add-btn" onclick="exportBsPng()" style="background:rgba(74,137,129,0.1);color:var(--accent-n);border-color:rgba(74,137,129,0.3);"><svg class="ic" aria-hidden="true"><use href="#i-image-down"/></svg> Exportera PNG</button>
     <button class="bs-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ AI-brainstorm</button>
   </div>
 </div>
@@ -4243,12 +4142,19 @@
 
 <script>
 
+  // Ikon från sprite-arket högst upp i <body> (Lucide-linjeikoner)
+  function ic(name, cls) {
+    return '<svg class="ic' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="#i-' + name + '"/></svg>';
+  }
+  window.ic = ic;
+
   // ╔══════════════════════════════════════════════════════════╗
   // ║  projectData — SINGLE SOURCE OF TRUTH för WriteON       ║
   // ║  Alla vyer läser härifrån. Inspektören skriver hit.     ║
   // ╚══════════════════════════════════════════════════════════╝
+  // Startläge: tomt projekt utan namn. Vid inloggning öppnas senast sparade projekt.
   const projectData = {
-    title: 'Fallet',
+    title: '',
     wordGoal: 100000,
     chapters: [
       {
@@ -4258,53 +4164,17 @@
           {
             id: 'chap-1-scene-1',
             title: 'Scen 1',
-            status: 'draft', drama: 'klimax', pov: 'Frank',
-            synopsis: 'Frank hittar spåren vid hamnen. Regnet öser ner och dimman lägger sig tät.',
-            notes: '', 
-            text: '<p>Frank stod vid kajen och såg ut över vattnet. Det var något med dimman den morgonen — den lade sig som en hand över hamnen och kvävde ljuset innan det ens hunnit vakna.</p><p>Han tände en cigarett och blåste röken mot skyn. Någonstans bakom honom hördes steg på kullerstenen. Tunga, jämna steg. Steg som inte ville höras men ändå hördes.</p><p>Han vände sig inte om.</p>',
-            words: 65,
-            dateCreated: '2026-03-08T08:00', dateChanged: '2026-03-08T08:00',
-          },
-        ]
-      },
-      {
-        id: 'chap-2',
-        title: 'Kapitel 2',
-        scenes: [
-          {
-            id: 'chap-2-scene-1',
-            title: 'Scen 1',
             status: 'draft', drama: 'ingen', pov: '',
             synopsis: '', notes: '', text: '',
             words: 0,
-            dateCreated: '2026-03-08T08:00', dateChanged: '2026-03-08T08:00',
-          },
-          {
-            id: 'chap-2-scene-2',
-            title: 'Scen 2',
-            status: 'draft', drama: 'ingen', pov: '',
-            synopsis: '', notes: '', text: '',
-            words: 0,
-            dateCreated: '2026-03-08T08:00', dateChanged: '2026-03-08T08:00',
+            dateCreated: new Date().toISOString(), dateChanged: new Date().toISOString(),
           },
         ]
       },
-      {
-        id: 'chap-3',
-        title: 'Kapitel 3',
-        scenes: [
-          {
-            id: 'chap-3-scene-1',
-            title: 'Scen 1',
-            status: 'draft', drama: 'ingen', pov: '',
-            synopsis: '', notes: '', text: '',
-            words: 0,
-            dateCreated: '2026-03-08T08:00', dateChanged: '2026-03-08T08:00',
-          },
-        ]
-      },
-    ]
+    ],
+    characters: []
   };
+  window.projectData = projectData;
 
   // Aktiv scen — pekar på scene-objektet i projectData
   let activeScene = projectData.chapters[0].scenes[0];
@@ -4322,11 +4192,11 @@
 
   const DRAMA_COLORS = {
     ingen:        { color: 'var(--border-strong)', label: '— Ingen' },
-    klimax:       { color: '#dc4646', label: '🔴 Klimax' },
-    vändpunkt:    { color: '#fcb136', label: '🟡 Vändpunkt' },
-    upptrappning: { color: '#b090d0', label: '🟣 Upptrappning' },
-    svacka:       { color: '#6495ed', label: '🔵 Svacka' },
-    lugn:         { color: '#4a8981', label: '🟢 Lugn' },
+    klimax:       { color: '#dc4646', label: 'Klimax' },
+    vändpunkt:    { color: '#fcb136', label: 'Vändpunkt' },
+    upptrappning: { color: '#b090d0', label: 'Upptrappning' },
+    svacka:       { color: '#6495ed', label: 'Svacka' },
+    lugn:         { color: '#4a8981', label: 'Lugn' },
   };
 
   // Hjälp: hämta alla scener platt
@@ -4347,12 +4217,75 @@
 
   // Uppdatera dateChanged på aktiv scen
   function touchScene(scene) {
-    const now = new Date();
-    const p = n => String(n).padStart(2,'0');
-    scene.dateChanged = now.getFullYear()+'-'+p(now.getMonth()+1)+'-'+p(now.getDate())
-      +'T'+p(now.getHours())+':'+p(now.getMinutes());
-    scheduleDropboxSync();
+    scene = scene || activeScene;
+    if (scene) {
+      const now = new Date();
+      const p = n => String(n).padStart(2,'0');
+      scene.dateChanged = now.getFullYear()+'-'+p(now.getMonth()+1)+'-'+p(now.getDate())
+        +'T'+p(now.getHours())+':'+p(now.getMinutes());
+    }
     scheduleAutoSave();
+  }
+
+  // Byter kapitelnamn och sparar (används av binder, manus och scenkort)
+  function setChapterTitle(chap, t) {
+    if (!chap || !t || chap.title === t) return;
+    chap.title = t;
+    scheduleAutoSave();
+  }
+
+  // ═══ ORDRÄKNING — en enda källa för alla räknare ═══
+  const _wcDecoder = document.createElement('textarea');
+  function countWordsInHtml(html) {
+    if (!html) return 0;
+    let s = String(html)
+      .replace(/<(br|hr)\b[^>]*>/gi, ' ')
+      .replace(/<\/(p|div|h[1-6]|li|blockquote)>/gi, ' ')
+      .replace(/<[^>]*>/g, '');
+    _wcDecoder.innerHTML = s;
+    s = _wcDecoder.value;
+    // Ett ord måste innehålla minst en bokstav eller siffra (tankstreck räknas inte)
+    return s.split(/\s+/).filter(w => /[\p{L}\p{N}]/u.test(w)).length;
+  }
+  const fmtNum = n => (n || 0).toLocaleString('sv-SE');
+  function chapterWordCount(chap) { return chap.scenes.reduce((s, sc) => s + (sc.words || 0), 0); }
+  function totalWordCount() { return allScenes().reduce((s, sc) => s + (sc.words || 0), 0); }
+
+  // Snabb uppdatering (vid varje tangenttryck): en scen + dess kapitel + totaler
+  function updateWordCountDisplays(scene) {
+    if (scene) {
+      const sEl = document.querySelector('.scene-item[data-scene-id="' + scene.id + '"] .scene-words');
+      if (sEl) sEl.textContent = fmtNum(scene.words) + ' ord';
+      const chap = chapterForScene(scene.id);
+      if (chap) {
+        const cEl = document.querySelector('.chapter-group[data-chap-id="' + chap.id + '"] .chapter-words');
+        if (cEl) cEl.textContent = fmtNum(chapterWordCount(chap));
+      }
+    }
+    const a = activeScene ? (activeScene.words || 0) : 0;
+    const tb = document.getElementById('wordCountToolbar');
+    if (tb) { tb.textContent = fmtNum(a) + ' ord'; tb.title = 'Ord i aktuell scen'; }
+    const ins = document.getElementById('insp-word-count');
+    if (ins) ins.textContent = fmtNum(a) + ' ord i scenen';
+    const total = totalWordCount();
+    const goal  = projectData.wordGoal || 100000;
+    const lbl = document.querySelector('.inspector-progress-label');
+    if (lbl) lbl.innerHTML = '<span>' + fmtNum(total) + ' ord</span><span>Mål: ' + fmtNum(goal) + ' ord</span>';
+    const fill = document.querySelector('.inspector-progress-fill');
+    if (fill) fill.style.width = Math.min(100, total / goal * 100).toFixed(1) + '%';
+  }
+
+  // Full uppdatering (efter att binder ritats om / projekt laddats)
+  function refreshAllWordCounts() {
+    projectData.chapters.forEach(ch => {
+      const cEl = document.querySelector('.chapter-group[data-chap-id="' + ch.id + '"] .chapter-words');
+      if (cEl) cEl.textContent = fmtNum(chapterWordCount(ch));
+      ch.scenes.forEach(sc => {
+        const sEl = document.querySelector('.scene-item[data-scene-id="' + sc.id + '"] .scene-words');
+        if (sEl) sEl.textContent = fmtNum(sc.words) + ' ord';
+      });
+    });
+    updateWordCountDisplays(null);
   }
   // ─── VIEW SWITCHING ───
   function switchView(view) {
@@ -4469,7 +4402,7 @@
         <div class="char-field"><label>Drivkraft</label><input class="ib-input-sm" placeholder="Vad vill karaktären?"></div>
         <div class="char-field"><label>Dialogstil</label><input class="ib-input-sm" placeholder="Hur pratar karaktären?"></div>
         <div class="char-field"><label>Arc</label><input class="ib-input-sm" placeholder="Karaktärens resa..."></div>
-        <button class="ib-ai-btn ib-ai-disabled char-talk-btn" title="Kräver API-koppling">💬 Prata med ${names[i].split(' ')[0]}</button>
+        <button class="ib-ai-btn ib-ai-disabled char-talk-btn" title="Kräver API-koppling">${ic('message-circle')} Prata med ${names[i].split(' ')[0]}</button>
       </div>`;
     list.insertBefore(card, addBtn);
   }
@@ -4479,12 +4412,12 @@
     const addBtn = list.querySelector('.ib-add-btn');
     const card = document.createElement('div');
     card.className = 'world-card';
-    card.innerHTML = '<div class="world-card-name" contenteditable="true">📍 Ny plats</div><textarea class="ib-textarea-sm" placeholder="Beskriv platsen..."></textarea>';
+    card.innerHTML = '<div class="world-card-name">' + ic('map-pin') + ' <span contenteditable="true">Ny plats</span></div><textarea class="ib-textarea-sm" placeholder="Beskriv platsen..."></textarea>';
     list.insertBefore(card, addBtn);
   }
 
   // ─── BRAINSTORM ───
-  let bsCount = 10;
+  let bsCount = 0;
   let bsConnecting = null; // card being connected from
   let bsLines = []; // [{from, to, el}]
   let bsCardId = 0;
@@ -4553,7 +4486,16 @@
     if(e.key === 'Escape') cancelConnecting();
   });
 
+  const BS_TYPES = {
+    ide:      ['lightbulb',   'Idé'],
+    scen:     ['drama',       'Scen'],
+    karaktar: ['user',        'Karaktär'],
+    fraga:    ['circle-help', 'Fråga'],
+    uttryck:  ['feather',     'Uttryck'],
+  };
   function addBsCard(type) {
+    const bt = BS_TYPES[type];
+    if (bt) type = ic(bt[0]) + ' ' + bt[1];
     bsCount++; bsCardId++;
     const canvas = document.getElementById('brainstormCanvas');
     const card = document.createElement('div');
@@ -4739,13 +4681,6 @@
     document.getElementById('bsZoomLabel').textContent = '100%';
   }
 
-  // Draw initial demo lines
-  window.addEventListener('load', () => {
-    const cards = document.querySelectorAll('.bs-card');
-    if(cards.length >= 2) addBsLine(cards[0], cards[1]);
-    if(cards.length >= 3) addBsLine(cards[0], cards[2]);
-    if(cards.length >= 4) addBsLine(cards[1], cards[3]);
-  });
 
   // ─── CORKBOARD SUB-MODES ───
   function setCorkMode(mode, btn) {
@@ -4932,16 +4867,6 @@
   }
 
 
-  // Word count toolbar — uses event delegation on document
-  // (writing areas are created dynamically so we can't bind directly at parse time)
-  document.addEventListener('input', (e) => {
-    if (!e.target.classList.contains('scene-writing-area')) return;
-    const wordCountToolbar = document.getElementById('wordCountToolbar');
-    const text = e.target.innerText.trim();
-    const words = text ? text.split(/\s+/).length : 0;
-    if (wordCountToolbar) wordCountToolbar.textContent = words + ' ord';
-  });
-
   // ── Verktygsfält: Font size (bara markerad text), typsnitt, B/I/U, styckeformat ──
 
   // Font size — bara på markerad text
@@ -5050,7 +4975,7 @@
 
       const icon = document.createElement('span');
       icon.className = 'chapter-icon';
-      icon.textContent = '📄';
+      icon.innerHTML = ic('file-text');
 
       // Editable chapter name
       const nameEl = document.createElement('span');
@@ -5065,7 +4990,7 @@
       nameEl.addEventListener('blur', () => {
         const t = nameEl.textContent.trim();
         if (!t) { nameEl.textContent = chap.title; return; }
-        chap.title = t;
+        setChapterTitle(chap, t);
         // Sync manus heading if this chapter is active
         if (chap.scenes.some(sc => sc.id === activeScene?.id)) {
           document.querySelectorAll('.scene-chapter-heading[data-chap-id="' + chap.id + '"]')
@@ -5082,7 +5007,7 @@
 
       const words = document.createElement('span');
       words.className = 'chapter-words';
-      words.textContent = chapWords;
+      words.textContent = fmtNum(chapWords);
 
       // Scene list
       const sceneList = document.createElement('div');
@@ -5147,7 +5072,7 @@
 
         const sw = document.createElement('span');
         sw.className = 'scene-words';
-        sw.textContent = (scene.words || 0) + ' ord';
+        sw.textContent = fmtNum(scene.words) + ' ord';
 
         sc.appendChild(dot);
         sc.appendChild(sName);
@@ -5235,7 +5160,7 @@
     titleEl.onblur = function() {
       const t = titleEl.textContent.trim();
       if (t) {
-        chap.title = t;
+        setChapterTitle(chap, t);
         renderBinder(); renderOutline(); renderCorkGrid();
         document.querySelectorAll('.chapter-doc[data-chap-id="' + chap.id + '"] .chapter-doc-title')
           .forEach(el => { if (el !== titleEl) el.textContent = t; });
@@ -5280,18 +5205,10 @@
       });
 
       area.addEventListener('input', function() {
-        scene.text = area.innerHTML;
-        const words = area.innerText.trim() ? area.innerText.trim().split(/\s+/).filter(Boolean).length : 0;
-        scene.words = words;
+        scene.text  = area.innerHTML;
+        scene.words = countWordsInHtml(scene.text);
         touchScene(scene);
-        const sceneEl = document.querySelector('.scene-item[data-scene-id="' + scene.id + '"] .scene-words');
-        if (sceneEl) sceneEl.textContent = words + ' ord';
-        const chapObj = chapterForScene(scene.id);
-        if (chapObj) {
-          const chapWords = chapObj.scenes.reduce((s, sc) => s + (sc.words || 0), 0);
-          const chapEl = document.querySelector('.chapter-group[data-chap-id="' + chapObj.id + '"] .chapter-words');
-          if (chapEl) chapEl.textContent = chapWords;
-        }
+        updateWordCountDisplays(scene);
       });
 
       block.appendChild(area);
@@ -5331,6 +5248,11 @@
   }
 
   function loadManuscript(scene) {
+    // Fall tillbaka på första scenen om ingen scen skickades med (t.ex. nytt projekt)
+    if (!scene) {
+      scene = activeScene || projectData.chapters?.[0]?.scenes?.[0];
+    }
+    if (!scene) return;            // tomt projekt utan scener — inget att rita
     const chap = chapterForScene(scene.id);
     if (!chap) return;
     loadChapter(chap);
@@ -5360,6 +5282,8 @@
 
     const notesEl = document.getElementById('insp-notes');
     if (notesEl) notesEl.value = scene.notes || '';
+
+    updateWordCountDisplays(scene);
   }
 
   // ── Sync binder dot + outline row after any change to scene ──
@@ -5430,6 +5354,8 @@
     renderOutline();
     renderCorkGrid();
     renderTimeline();
+    refreshAllWordCounts();
+    scheduleAutoSave();
   }
 
   // ── Add new chapter ──
@@ -5456,12 +5382,8 @@
     renderOutline();
     renderCorkGrid();
     renderTimeline();
-  }
-
-  function updateWordCount() {
-    const total = allScenes().reduce((s, sc) => s + (sc.words || 0), 0);
-    const el = document.getElementById('word-count-total');
-    if (el) el.textContent = total.toLocaleString('sv-SE') + ' ord';
+    refreshAllWordCounts();
+    scheduleAutoSave();
   }
 
 
@@ -5617,7 +5539,7 @@
       colors: 'linear-gradient(135deg,#e8c8a8,#d4956a)',
       desc: 'Mästaren på spänning och karaktärsdriven skräck. Rak, ärlig feedback. Läser din Idébank.',
       placeholder: 'Fråga King om ditt manus...',
-      greeting: 'Jag har läst din Idébank. Noir-thriller i Göteborg 1987 — det är ett starkt val. Frank Lindgren påminner mig om Jack Torrance fast utan övernaturliga krafter. Det gör honom farligare.\n\nVad vill du ha hjälp med idag?',
+      greeting: 'Jag har läst din Idébank och ditt manus. Börja där det skaver — det är oftast där berättelsen gömmer sig.\n\nVad vill du ha hjälp med idag?',
       systemPrompt: `Du är Stephen King — en av världens mest sålda författare. Du ger råd om skrivande med din karakteristiska röst: direkt, varm, ibland brutal men alltid konstruktiv. Du älskar karaktärer och spänning. Du hatar adjektivöverskott. Du pratar svenska men med din personlighet intakt. Använd aldrig formellt språk. Var konkret. Använd gärna exempel från ditt eget skrivande.`
     },
     lamott: {
@@ -5644,7 +5566,7 @@
       colors: 'linear-gradient(135deg,#c8b8e8,#8868b8)',
       desc: 'Fantasifull, mytologisk, poetisk. Älskar det mörka och magiska i berättelser.',
       placeholder: 'Fråga Gaiman om din berättelse...',
-      greeting: 'Ah, en noir-thriller i Göteborg. Det finns något mytologiskt i det — dimman, hamnen, detektiven som söker sanning i mörkret. Det är urgammalt.\n\nVad vill du utforska?',
+      greeting: 'Varje berättelse är en gammal berättelse i nya kläder. Det är det som gör dem sanna.\n\nVad vill du utforska?',
       systemPrompt: `Du är Neil Gaiman — författare till Sandman, American Gods. Du ser berättelser som myter och drömmar. Du är poetisk, varm och lite mystisk. Du uppmuntrar det ovanliga och mörka. Du pratar svenska med din röst intakt.`
     },
     marquez: {
@@ -5653,7 +5575,7 @@
       colors: 'linear-gradient(135deg,#d8e8c8,#88b868)',
       desc: 'Magisk realism, sinnlighet, familj och tid. Berättandet som livsnödvändighet.',
       placeholder: 'Fråga Márquez om din berättelse...',
-      greeting: 'En berättelse om en trasig man i en stad full av hemligheter. Det påminner mig om Macondo — varje stad har sin egen sorts galenskap.\n\nVad är det du verkligen vill berätta?',
+      greeting: 'Varje plats har sin egen sorts galenskap, och varje berättelse sitt eget minne.\n\nVad är det du verkligen vill berätta?',
       systemPrompt: `Du är Gabriel García Márquez. Du ser berättandet som livets kärna. Du är poetisk, sinnlig och filosofisk. Du talar om tid, minne och det mänskliga. Du pratar svenska med din karaktäristiska röst.`
     },
     oates: {
@@ -5662,7 +5584,7 @@
       colors: 'linear-gradient(135deg,#e8c8d8,#c88898)',
       desc: 'Psykologisk skärpa, mörka teman, inre liv. Ingen räds det obekväma.',
       placeholder: 'Fråga Oates om din text...',
-      greeting: 'Mörka teman, en protagonist med komplex psykologi. Det intresserar mig.\n\nVilken del av Franks inre liv har du ännu inte vågat skriva?',
+      greeting: 'Det är det obekväma som intresserar mig.\n\nVilken del av din huvudpersons inre liv har du ännu inte vågat skriva?',
       systemPrompt: `Du är Joyce Carol Oates — en av Amerikas mest produktiva och psykologiskt skarpa författare. Du intresserar dig för det mörka inre livet, trauma och det komplexa i mänskliga relationer. Du är direkt och intellektuell. Du pratar svenska.`
     }
   };
@@ -5775,12 +5697,12 @@ Karaktärer: ${chars}`;
       await new Promise(r => setTimeout(r, 1200));
       thinkDiv.remove();
       const mockReplies = {
-        king: 'Det är en stark scen. Dimman som metafor för Franks inre kaos — det funkar. Men se till att läsaren känner kölden i benen, inte bara ser den. Konkret sensorisk detalj. Det är det som skiljer bra från suveränt.',
-        lamott: 'Det du skriver om dimman är vackert. Kom ihåg att det är okej att scenen inte är perfekt nu — det är ett första utkast. Det viktiga är att du skriver. Fortsätt.',
+        king: 'Se till att läsaren känner kölden i benen, inte bara ser den. Konkret sensorisk detalj. Det är det som skiljer bra från suveränt.',
+        lamott: 'Kom ihåg att det är okej att scenen inte är perfekt nu — det är ett första utkast. Det viktiga är att du skriver. Fortsätt.',
         hemingway: 'För många adjektiv. Ta bort hälften. Läsaren förstår ändå.',
-        gaiman: 'Dimman är ett gammalt berättargrepp — men det finns en anledning till att det håller. Den döljer och avslöjar på en gång. Precis som Frank själv.',
-        marquez: 'Det finns en sorg i den här scenen som är djupare än mordet. Det är den sorgen som gör berättelsen odödlig.',
-        oates: 'Intressant. Men vad tänker Frank egentligen på i det ögonblicket? Det yttre är tydligt — det inre är fortfarande gömt.'
+        gaiman: 'De bästa bilderna döljer och avslöjar på en gång. Leta efter den bilden i scenen.',
+        marquez: 'Under det som händer i scenen finns något som inte sägs. Det är det som gör berättelsen odödlig.',
+        oates: 'Intressant. Men vad tänker din karaktär egentligen på i det ögonblicket? Det yttre är tydligt — det inre är fortfarande gömt.'
       };
       appendCoachMsg('ai', mockReplies[activeCoach] || 'Intressant. Berätta mer.');
       isCoachThinking = false;
@@ -5891,7 +5813,7 @@ VIKTIGT:
     document.getElementById('ccAvatar').textContent = name[0].toUpperCase();
 
     // Update start button label
-    document.querySelector('.cb-start-btn').textContent = '🎭 Starta samtal med ' + name;
+    document.querySelector('.cb-start-btn .cb-start-label').textContent = 'Starta samtal med ' + name;
 
     // Clear history
     charHistory = [];
@@ -6012,7 +5934,7 @@ VIKTIGT:
     document.getElementById('pomoTime').style.display = 'inline';
     document.getElementById('pomoWidget').classList.add('running');
     document.getElementById('pomoWidget').classList.remove('break');
-    document.getElementById('pomoBtn').textContent = '⏸';
+    document.getElementById('pomoBtn').innerHTML = ic('pause');
     clearInterval(pomoInterval);
     pomoInterval = setInterval(() => {
       pomoSeconds--;
@@ -6022,7 +5944,7 @@ VIKTIGT:
         clearInterval(pomoInterval);
         // Long break every 4 rounds
         const breakTime = pomoRound % 4 === 0 ? LONG_BREAK_TIME : BREAK_TIME;
-        const breakMsg = pomoRound % 4 === 0 ? '🎉 Bra jobbat! Lång paus — 15 minuter.' : '✅ Fokustid klar! Ta en paus — 5 minuter.';
+        const breakMsg = pomoRound % 4 === 0 ? 'Bra jobbat! Lång paus — 15 minuter.' : 'Fokustid klar! Ta en paus — 5 minuter.';
         showPomoToast(breakMsg);
         startPomoBrake(breakTime);
       }
@@ -6035,14 +5957,14 @@ VIKTIGT:
     updatePomoDisplay();
     document.getElementById('pomoWidget').classList.remove('running');
     document.getElementById('pomoWidget').classList.add('break');
-    document.getElementById('pomoBtn').textContent = '☕';
+    document.getElementById('pomoBtn').innerHTML = ic('coffee');
     clearInterval(pomoInterval);
     pomoInterval = setInterval(() => {
       pomoSeconds--;
       updatePomoDisplay();
       if(pomoSeconds <= 0) {
         clearInterval(pomoInterval);
-        showPomoToast('🍅 Pausen är slut! Dags att skriva igen.');
+        showPomoToast('Pausen är slut! Dags att skriva igen.');
         startPomoWork();
       }
     }, 1000);
@@ -6054,7 +5976,7 @@ VIKTIGT:
     pomoSeconds = WORK_TIME;
     document.getElementById('pomoTime').style.display = 'none';
     document.getElementById('pomoWidget').classList.remove('running','break');
-    document.getElementById('pomoBtn').textContent = '🍅';
+    document.getElementById('pomoBtn').innerHTML = ic('timer');
   }
 
   function updatePomoDisplay() {
@@ -6105,8 +6027,8 @@ VIKTIGT:
     document.getElementById('btn-research').classList.add('active');
 
     const labels = {
-      fakta: '📋 Fakta', bild: '🖼 Bild',
-      kalla: '🔗 Källa', citat: '💬 Citat', namn: '👤 Namn & platser'
+      fakta: ic('file-text') + ' Fakta', bild: ic('image') + ' Bild',
+      kalla: ic('link') + ' Källa', citat: ic('quote') + ' Citat', namn: ic('contact') + ' Namn & platser'
     };
     const grid = document.getElementById('researchGrid');
     const card = document.createElement('div');
@@ -6118,7 +6040,7 @@ VIKTIGT:
 
     if(type === 'bild') {
       inner += `<div class="research-img-placeholder">
-        <div style="font-size:2rem;">🖼</div>
+        <div style="font-size:2rem;color:var(--text-muted);">${ic('image')}</div>
         <div style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;">Klistra in bild-URL</div>
         <input class="ib-input" style="margin-top:8px;font-size:0.7rem;" placeholder="https://..." oninput="loadResearchImg(this)">
       </div>`;
@@ -6218,7 +6140,7 @@ VIKTIGT:
     document.getElementById('ccAvatar').textContent = name[0].toUpperCase();
 
     // Update start button label
-    document.querySelector('.cb-start-btn').textContent = '🎭 Starta samtal med ' + name;
+    document.querySelector('.cb-start-btn .cb-start-label').textContent = 'Starta samtal med ' + name;
 
     // Clear history
     charHistory = [];
@@ -6313,15 +6235,12 @@ VIKTIGT:
 
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // PROJEKTHANTERING — spara/ladda .writeon-filer, flera projekt, senaste
+  // PROJEKT & SPARANDE — Firebase är enda lagringen
+  // Ändring → scheduleAutoSave() → runSave() → window.firebaseSaveProject()
+  // Status visas i märket bredvid projektnamnet (#syncBadge).
   // ═══════════════════════════════════════════════════════════════════════════
 
-  let saveFolderHandle = null;   // FileSystemDirectoryHandle för aktivt projekt
-  let saveFileHandle  = null;    // FileSystemFileHandle för .writeon-filen
-  let autoSaveTimer   = null;
-  const AUTOSAVE_DELAY = 2000;
-
-  // ── IndexedDB: spara/ladda fil- och mapphandtag över sidladdningar ──────────
+  // IndexedDB används bara av Revisioner (säkerhetskopia till vald mapp)
   function openHandleStore() {
     return new Promise((resolve, reject) => {
       const req = indexedDB.open('writeon_handles', 2);
@@ -6334,365 +6253,309 @@ VIKTIGT:
     });
   }
 
-  async function idbPut(key, value) {
-    try {
-      const db = await openHandleStore();
-      const tx = db.transaction('handles', 'readwrite');
-      tx.objectStore('handles').put(value, key);
-      await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
-    } catch(e) { console.warn('idbPut fel:', e); }
-  }
-
-  async function idbGet(key) {
-    try {
-      const db = await openHandleStore();
-      const tx = db.transaction('handles', 'readonly');
-      const req = tx.objectStore('handles').get(key);
-      return await new Promise((res, rej) => { req.onsuccess = () => res(req.result); req.onerror = rej; });
-    } catch(e) { return null; }
-  }
-
-  // ── Senaste projekt (sparas i localStorage som lista med namn + sökväg) ────
-  function getRecentProjects() {
-    try { return JSON.parse(localStorage.getItem('writeon_recent') || '[]'); }
-    catch(e) { return []; }
-  }
-
-  function addRecentProject(name) {
-    let list = getRecentProjects().filter(p => p.name !== name);
-    list.unshift({ name, savedAt: new Date().toISOString() });
-    if (list.length > 10) list = list.slice(0, 10);
-    localStorage.setItem('writeon_recent', JSON.stringify(list));
-    renderRecentProjects();
-  }
-
-  function renderRecentProjects() {
-    const menu = document.getElementById('recentProjectsMenu');
-    if (!menu) return;
-    const list = getRecentProjects();
-    if (!list.length) {
-      menu.innerHTML = '<div class="nav-dd-item" style="color:var(--text-muted);font-style:italic;pointer-events:none;">Inga senaste projekt</div>';
-      return;
-    }
-    menu.innerHTML = list.map(p =>
-      `<div class="nav-dd-item" onclick="openRecentProject('${p.name.replace(/'/g,"\\'")}')">
-        ${p.name}
-        <span style="font-size:0.7rem;color:var(--text-muted);margin-left:6px;">${new Date(p.savedAt).toLocaleDateString('sv-SE')}</span>
-      </div>`
-    ).join('') + '<div class="nav-dd-sep"></div><div class="nav-dd-item" onclick="clearRecentProjects()">Rensa lista</div>';
-  }
-
-  function clearRecentProjects() {
-    localStorage.removeItem('writeon_recent');
-    renderRecentProjects();
-  }
-
-  async function openRecentProject(name) {
-    // Försök öppna via sparat handtag
-    const handle = await idbGet('fileHandle_' + name);
-    if (handle) {
-      try {
-        const perm = await handle.requestPermission({ mode: 'readwrite' });
-        if (perm === 'granted') {
-          await loadFromFileHandle(handle);
-          return;
-        }
-      } catch(e) {}
-    }
-    // Handtag saknas — be användaren peka ut filen
-    alert(`Kunde inte öppna "${name}" automatiskt.\n\nKlicka OK och välj filen ${name}.writeon i din Dropbox-mapp.`);
-    await openProjectFile();
-  }
-
-  // ── Projektnamn från projectData ───────────────────────────────────────────
+  // Filnamnsvänligt projektnamn (används av Revisioner)
   function getProjectName() {
     return (projectData.title || 'Manus').replace(/[^\wåäöÅÄÖ\s\-]/g, '').trim() || 'Manus';
   }
 
-  // ── Serialisera hela projektet till JSON ───────────────────────────────────
-  function serializeProject() {
-    return JSON.stringify({
-      _format:    'writeon-1',
-      _savedAt:   new Date().toISOString(),
-      title:      projectData.title,
-      wordGoal:   projectData.wordGoal,
-      chapters:   projectData.chapters,
-      characters: projectData.characters || [],
-      idebank:    collectIdebankData(),
-    }, null, 2);
-  }
-
-  function collectIdebankData() {
-    // Samla idébank-fält från DOM
-    const fields = ['ib-genre','ib-ton','ib-rost','ib-synopsis','ib-varld'];
-    const data = {};
-    fields.forEach(id => {
-      const el = document.getElementById(id) || document.querySelector('[data-ib="'+id+'"]');
-      if (el) data[id] = el.value || el.innerText || '';
-    });
-    return data;
-  }
-
-  // ── Ladda projekt från JSON ────────────────────────────────────────────────
-  function deserializeProject(json) {
-    const data = JSON.parse(json);
-    if (!data._format || !data.chapters) throw new Error('Ogiltig projektfil');
-    projectData.title    = data.title    || 'Utan titel';
-    projectData.wordGoal = data.wordGoal || 100000;
-    projectData.chapters = data.chapters;
-    if (data.characters) projectData.characters = data.characters;
-    // Återställ idébank
-    if (data.idebank) {
-      Object.entries(data.idebank).forEach(([id, val]) => {
-        const el = document.getElementById(id) || document.querySelector('[data-ib="'+id+'"]');
-        if (el) { if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') el.value = val; else el.innerText = val; }
-      });
-    }
-    // Uppdatera UI
-    activeScene = projectData.chapters[0]?.scenes[0] || null;
-    if (typeof loadManuscript === 'function') loadManuscript();
-    if (typeof renderCharacters === 'function') renderCharacters();
-    updateProjectTitle();
-    addRecentProject(projectData.title);
-    showAutosaveMsg('✓ Projekt laddat: ' + projectData.title);
-  }
-
   function updateProjectTitle() {
-    // Uppdatera projektnamnet i headern
-    const el = document.querySelector('.project-name, #projectTitle, .proj-title');
-    if (el) el.textContent = projectData.title;
+    const el = document.querySelector('.project-name');
+    if (el) el.textContent = projectData.title || '';
+    document.title = projectData.title ? 'WriteON – ' + projectData.title : 'WriteON';
   }
 
-  // ── Spara till fil ─────────────────────────────────────────────────────────
-  async function doAutoSave() {
-    if (!saveFileHandle && !saveFolderHandle) return;
-    try {
-      // Skapa filhandtag om det saknas
-      if (!saveFileHandle && saveFolderHandle) {
-        const perm = await saveFolderHandle.queryPermission({ mode: 'readwrite' });
-        if (perm !== 'granted') {
-          updateFolderBtn(false);
-          saveFolderHandle = null;
-          showAutosaveMsg('⚠ Klicka ☁ Molnet för att återkoppla');
-          return;
-        }
-        const fname = getProjectName() + '.writeon';
-        saveFileHandle = await saveFolderHandle.getFileHandle(fname, { create: true });
-        await idbPut('fileHandle_' + getProjectName(), saveFileHandle);
-      }
-      if (!saveFileHandle) return;
-      showAutosaveMsg('↑ Sparar…');
-      const writable = await saveFileHandle.createWritable();
-      await writable.write(serializeProject());
-      await writable.close();
-      const tid = new Date().toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
-      showAutosaveMsg('☁ Sparat ' + tid);
-      addRecentProject(getProjectName());
-      // Uppdatera synk-texten i headern
-      const syncEl = document.querySelector('.sync-label');
-      if (syncEl) syncEl.textContent = 'Synkad ' + tid;
-    } catch(e) {
-      console.warn('Autospar misslyckades:', e);
-      showAutosaveMsg('⚠ Sparfel');
-    }
+  function formatSavedAt(d) {
+    if (!d) return '';
+    const now = new Date();
+    if (d.toDateString() === now.toDateString())
+      return d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
   }
+  window.formatSavedAt = formatSavedAt;
+
+  // ── Sparstatus i märket bredvid projektnamnet ──────────────────────────────
+  let syncState = 'offline';
+  function setSyncStatus(state, detail) {
+    syncState = state;
+    const badge = document.getElementById('syncBadge');
+    if (!badge) return;
+    const labels = {
+      offline: 'Inte inloggad',
+      loading: 'Öppnar…',
+      unnamed: 'Inte sparat',
+      dirty:   'Ändrat',
+      saving:  'Sparar…',
+      saved:   detail ? 'Sparat ' + detail : 'Sparat',
+      error:   'Sparfel',
+    };
+    const tips = {
+      offline: 'Logga in för att spara i molnet',
+      loading: 'Hämtar projektet från molnet',
+      unnamed: 'Klicka för att ge projektet ett namn och spara det',
+      dirty:   'Ändringarna sparas om ett par sekunder',
+      saving:  'Sparar till molnet',
+      saved:   'Allt är sparat i molnet',
+      error:   (detail || 'Kunde inte spara') + ' — klicka för att försöka igen',
+    };
+    badge.dataset.state = state;
+    const txt = badge.querySelector('.sync-text');
+    if (txt) txt.textContent = labels[state] || '';
+    badge.title = tips[state] || '';
+  }
+  window.setSyncStatus = setSyncStatus;
+
+  function onSyncBadgeClick() {
+    if (syncState === 'offline') { document.getElementById('fbLoginModal').style.display = 'flex'; return; }
+    if (syncState === 'unnamed') { nyttProjekt({ keepContent: true }); return; }
+    if (syncState === 'error' || syncState === 'dirty') runSave();
+  }
+
+  // ── Autospar ───────────────────────────────────────────────────────────────
+  const AUTOSAVE_DELAY = 2000;
+  let autoSaveTimer = null;
+  let changeSeq = 0;        // ökar vid varje ändring
+  let savedSeq  = 0;        // senaste ändring som bekräftats sparad
+  let saveInFlight = null;  // pågående sparning (Promise)
+
+  function hasUnsavedChanges() { return changeSeq !== savedSeq; }
 
   function scheduleAutoSave() {
+    changeSeq++;
+    if (!window.fbActiveProject) {
+      setSyncStatus(window.fbSignedIn ? 'unnamed' : 'offline');
+      return;
+    }
+    setSyncStatus('dirty');
     clearTimeout(autoSaveTimer);
-    autoSaveTimer = setTimeout(doAutoSave, AUTOSAVE_DELAY);
+    autoSaveTimer = setTimeout(runSave, AUTOSAVE_DELAY);
+  }
+  window.scheduleAutoSave = scheduleAutoSave;
+
+  async function runSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = null;
+    if (!window.fbActiveProject) {
+      setSyncStatus(window.fbSignedIn ? 'unnamed' : 'offline');
+      return false;
+    }
+    if (typeof window.firebaseSaveProject !== 'function') {
+      setSyncStatus('error', 'Molnet är inte tillgängligt just nu');
+      return false;
+    }
+    if (saveInFlight) { try { await saveInFlight; } catch(e) {} }
+    const seq = changeSeq;
+    setSyncStatus('saving');
+    saveInFlight = window.firebaseSaveProject();
+    let ok = false;
+    try { ok = await saveInFlight; } catch(e) { ok = false; }
+    saveInFlight = null;
+    if (ok) {
+      if (seq > savedSeq) savedSeq = seq;
+      if (hasUnsavedChanges()) setSyncStatus('dirty');   // nya ändringar kom under sparningen — timern är redan satt
+      else setSyncStatus('saved', formatSavedAt(new Date()));
+      return true;
+    }
+    if (!window.fbSignedIn) setSyncStatus('offline');
+    else setSyncStatus('error', window.fbLastSaveError || 'Kunde inte spara');
+    return false;
   }
 
+  // Ctrl+S och Fil → Spara
+  function saveNow() {
+    if (!window.fbSignedIn) { document.getElementById('fbLoginModal').style.display = 'flex'; return; }
+    if (!window.fbActiveProject) { nyttProjekt({ keepContent: true }); return; }
+    changeSeq++;   // spara även om inget ändrats — användaren bad om det
+    return runSave();
+  }
+
+  // Sparar det öppna projektet innan man byter projekt / loggar ut.
+  // Returnerar false om något inte gick att spara.
+  async function flushPendingSave() {
+    if (saveInFlight) { try { await saveInFlight; } catch(e) {} }
+    if (window.fbActiveProject && hasUnsavedChanges()) return await runSave();
+    return true;
+  }
+  window.flushPendingSave = flushPendingSave;
+
+  window.addEventListener('beforeunload', function(e) {
+    if (hasUnsavedChanges() || saveInFlight) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  // ── Ladda in ett projekt i alla vyer ───────────────────────────────────────
+  function newSceneObj(chapId, n) {
+    const now = new Date().toISOString();
+    return { id: chapId + '-scene-' + n, title: 'Scen ' + n, status: 'draft', drama: 'ingen', pov: '',
+             synopsis: '', notes: '', text: '', words: 0, dateCreated: now, dateChanged: now };
+  }
+
+  function renderProjectViews() {
+    renderBinder();
+    const chap = activeScene ? chapterForScene(activeScene.id) : null;
+    if (chap) loadChapter(chap);
+    if (activeScene) loadInspector(activeScene);
+    renderOutline();
+    renderCorkGrid();
+    renderTimeline();
+    if (typeof renderCharacters === 'function') renderCharacters();
+    if (activeScene) {
+      document.querySelectorAll('.scene-item').forEach(el =>
+        el.classList.toggle('active', el.getAttribute('data-scene-id') === activeScene.id));
+      requestAnimationFrame(() => scrollToScene(activeScene.id));
+    }
+    refreshAllWordCounts();
+  }
+
+  function applyProject(data, name) {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = null;
+    data = data || {};
+    projectData.title      = name || data.title || '';
+    projectData.wordGoal   = data.wordGoal || 100000;
+    projectData.chapters   = Array.isArray(data.chapters) ? data.chapters : [];
+    projectData.characters = Array.isArray(data.characters) ? data.characters : [];
+    projectData.chapters.forEach(ch => { if (!Array.isArray(ch.scenes)) ch.scenes = []; });
+    if (!projectData.chapters.length)
+      projectData.chapters.push({ id: 'chap-1', title: 'Kapitel 1', scenes: [] });
+    if (!allScenes().length)
+      projectData.chapters[0].scenes.push(newSceneObj(projectData.chapters[0].id, 1));
+    // Räkna om alla ord från texten — sparade siffror kan vara inaktuella
+    allScenes().forEach(sc => { sc.words = countWordsInHtml(sc.text); });
+    activeScene = allScenes()[0];
+    changeSeq = savedSeq = 0;
+    updateProjectTitle();
+    renderProjectViews();
+  }
+  window.applyProject = applyProject;
+
+  // Tomt läge (vid start och efter utloggning)
+  function resetToBlankProject() {
+    window.fbActiveProject = null;
+    applyProject({}, '');
+  }
+  window.resetToBlankProject = resetToBlankProject;
+
   // ── Nytt projekt ───────────────────────────────────────────────────────────
-  function nyttProjekt() {
+  let nyttProjektKeep = false;   // true = döp om aktuellt (osparat) innehåll i stället för att tömma
+
+  function nyttProjekt(opts) {
     _closeDropdowns();
+    if (!window.fbSignedIn) { document.getElementById('fbLoginModal').style.display = 'flex'; return; }
+    nyttProjektKeep = !!(opts && opts.keepContent);
     const modal = document.getElementById('nyttProjektModal');
     const input = document.getElementById('nyttProjektNamn');
     input.value = '';
+    input.style.borderColor = '';
+    document.getElementById('nyttProjektFel').textContent = '';
     modal.style.display = 'flex';
     setTimeout(() => input.focus(), 80);
   }
 
   async function _bekraftaNyttProjekt() {
-    const namn = document.getElementById('nyttProjektNamn').value.trim();
-    if (!namn) {
-      document.getElementById('nyttProjektNamn').style.borderColor = '#c84040';
-      setTimeout(() => document.getElementById('nyttProjektNamn').style.borderColor = '', 1500);
-      return;
-    }
+    const input = document.getElementById('nyttProjektNamn');
+    const felEl = document.getElementById('nyttProjektFel');
+    const namn  = input.value.trim();
+    const fel = msg => {
+      input.style.borderColor = '#c84040';
+      felEl.textContent = msg || '';
+      setTimeout(() => { input.style.borderColor = ''; }, 1500);
+    };
+    if (!namn) { fel('Skriv ett namn.'); return; }
+    if (namn.includes('/')) { fel('Namnet får inte innehålla snedstreck (/).'); return; }
+    try {
+      const befintliga = window.firebaseListProjects ? await window.firebaseListProjects() : [];
+      if (befintliga.includes(namn)) { fel('Det finns redan ett projekt som heter så.'); return; }
+    } catch(e) { /* listan kunde inte hämtas — fortsätt */ }
+
+    if (!(await flushPendingSave()) &&
+        !confirm('De senaste ändringarna i "' + window.fbActiveProject + '" kunde inte sparas.\n\nSkapa nytt projekt ändå?')) return;
+
     document.getElementById('nyttProjektModal').style.display = 'none';
-
-    // Återställ projectData med det nya namnet
-    projectData.title    = namn;
-    projectData.wordGoal = 100000;
-    projectData.chapters = [{ id: 'chap-1', title: 'Kapitel 1', scenes: [{
-      id: 'chap-1-scene-1', title: 'Scen 1', status: 'draft', drama: 'ingen',
-      synopsis: '', notes: '', text: '', words: 0,
-      dateCreated: new Date().toISOString(), dateChanged: new Date().toISOString()
-    }]}];
-    projectData.characters = [];
-    saveFileHandle   = null;
-    saveFolderHandle = null;
-    updateFolderBtn(false);
-    activeScene = projectData.chapters[0].scenes[0];
-    if (typeof loadManuscript === 'function') loadManuscript();
-    if (typeof renderCharacters === 'function') renderCharacters();
-    updateProjectTitle();
-
-    // Steg 2: välj Dropbox-mapp och skapa undermapp med projektnamnet
-    // OBS: showDirectoryPicker måste anropas direkt, inte i setTimeout
-    if (!('showDirectoryPicker' in window)) {
-      showAutosaveMsg('⚠ Använd Chrome eller Edge för autospar');
-      return;
+    if (nyttProjektKeep) {
+      projectData.title = namn;          // behåll det som redan skrivits
+      updateProjectTitle();
+    } else {
+      applyProject({}, namn);
     }
-    try {
-      const parentHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-      const projektMapp  = await parentHandle.getDirectoryHandle(namn, { create: true });
-      saveFolderHandle = projektMapp;
-      saveFileHandle   = null;
-      await idbPut('folderHandle', projektMapp);
-      localStorage.setItem('writeon_folder_chosen_before', '1');
-      updateFolderBtn(true);
-      showAutosaveMsg('↑ Skapar ' + namn + '…');
-      await doAutoSave();
-    } catch(e) {
-      if (e.name !== 'AbortError') showAutosaveMsg('⚠ Ingen mapp vald — projektet sparas inte');
+    nyttProjektKeep = false;
+    if (window.fbSetActiveProject) window.fbSetActiveProject(namn);
+
+    changeSeq++;
+    const ok = await runSave();
+    if (ok) {
+      showAutosaveMsg('✓ ' + namn + ' skapat');
+      if (window.fbRefreshRecentMenu) window.fbRefreshRecentMenu();
     }
   }
 
-  // ── Välj mapp för aktivt projekt ───────────────────────────────────────────
-  async function selectSaveFolder() {
-    if (!('showDirectoryPicker' in window)) {
-      alert('Din webbläsare stöder inte mappval.\n\nAnvänd Chrome eller Edge.');
-      return;
-    }
-    try {
-      const namn = getProjectName();
-      const isFirst = !localStorage.getItem('writeon_folder_chosen_before');
-      if (isFirst) {
-        alert(`Välj var i Dropbox projektet "${namn}" ska ligga.\n\nWriteON skapar automatiskt en mapp som heter "${namn}" på det ställe du väljer.\n\nExempel: välj Dropbox → Skrivprojekt`);
-      }
-      const parentHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-      const projektMapp  = await parentHandle.getDirectoryHandle(namn, { create: true });
-      saveFolderHandle = projektMapp;
-      saveFileHandle   = null;
-      await idbPut('folderHandle', projektMapp);
-      localStorage.setItem('writeon_folder_chosen_before', '1');
-      updateFolderBtn(true);
-      showAutosaveMsg('Mapp kopplad — sparar nu…');
-      doAutoSave();
-    } catch(e) {
-      if (e.name !== 'AbortError') showAutosaveMsg('Fel vid mappval');
-    }
-  }
-
-  // ── Öppna befintlig .writeon-fil ───────────────────────────────────────────
-  async function openProjectFile() {
-    if (!('showOpenFilePicker' in window)) {
-      alert('Din webbläsare stöder inte filöppning. Använd Chrome eller Edge.');
-      return;
-    }
-    try {
-      const [fh] = await window.showOpenFilePicker({
-        types: [{ description: 'WriteON-projekt', accept: { 'application/json': ['.writeon'] } }],
-        multiple: false
+  // ── Öppna .writeon-fil från datorn → blir ett projekt i molnet ─────────────
+  function openProjectFile() {
+    _closeDropdowns();
+    let inp = document.getElementById('wnOpenFileInput');
+    if (!inp) {
+      inp = document.createElement('input');
+      inp.type = 'file';
+      inp.accept = '.writeon,.json,application/json';
+      inp.id = 'wnOpenFileInput';
+      inp.style.display = 'none';
+      inp.addEventListener('change', () => {
+        const f = inp.files && inp.files[0];
+        inp.value = '';
+        if (f) importProjectFile(f);
       });
-      await loadFromFileHandle(fh);
-    } catch(e) {
-      if (e.name !== 'AbortError') showAutosaveMsg('⚠ Kunde inte öppna filen');
+      document.body.appendChild(inp);
+    }
+    inp.click();
+  }
+
+  async function importProjectFile(file) {
+    let data;
+    try { data = JSON.parse(await file.text()); }
+    catch(e) { alert('Kunde inte läsa filen.'); return; }
+    if (!data || !Array.isArray(data.chapters)) { alert('Det här är ingen WriteON-projektfil.'); return; }
+    if (!window.fbSignedIn) { document.getElementById('fbLoginModal').style.display = 'flex'; return; }
+
+    let namn = String(data.title || file.name.replace(/\.(writeon|json)$/i, '') || 'Importerat')
+      .replace(/\//g, '-').trim() || 'Importerat';
+    let befintliga = [];
+    try { befintliga = window.firebaseListProjects ? await window.firebaseListProjects() : []; } catch(e) {}
+    if (befintliga.includes(namn)) {
+      let kopia = namn + ' (fil)', n = 2;
+      while (befintliga.includes(kopia)) kopia = namn + ' (fil ' + (n++) + ')';
+      if (!confirm('Det finns redan ett projekt som heter "' + namn + '" i molnet.\n\nFilen öppnas som en kopia: "' + kopia + '". Originalet rörs inte.')) return;
+      namn = kopia;
+    }
+    if (!(await flushPendingSave()) &&
+        !confirm('De senaste ändringarna i "' + window.fbActiveProject + '" kunde inte sparas.\n\nÖppna filen ändå?')) return;
+
+    applyProject(data, namn);
+    if (window.fbSetActiveProject) window.fbSetActiveProject(namn);
+    changeSeq++;
+    const ok = await runSave();
+    if (ok) {
+      showAutosaveMsg('✓ ' + namn + ' öppnat från fil');
+      if (window.fbRefreshRecentMenu) window.fbRefreshRecentMenu();
     }
   }
 
-  async function loadFromFileHandle(fh) {
-    try {
-      const file = await fh.getFile();
-      const text = await file.text();
-      deserializeProject(text);
-      saveFileHandle = fh;
-      await idbPut('fileHandle_' + getProjectName(), fh);
-      // Spara mapp-handle
-      try { saveFolderHandle = await fh.getParent(); } catch(e) {}
-      updateFolderBtn(true);
-    } catch(e) {
-      alert('Kunde inte läsa filen: ' + e.message);
-    }
-  }
-
-  // ── Visuell feedback ───────────────────────────────────────────────────────
+  // ── Kort meddelande i verktygsraden ────────────────────────────────────────
   function showAutosaveMsg(msg) {
     const el = document.getElementById('autosaveIndicator');
     if (!el) return;
-    el.textContent = msg;
+    const varning = msg.startsWith('⚠');            // ⚠ i början = röd varning (tecknet visas inte)
+    el.textContent = varning ? msg.replace(/^⚠\s*/, '') : msg;
     el.style.opacity = '1';
-    el.style.color = msg.startsWith('⚠') ? '#c84040' : msg.startsWith('↑') ? '#888' : '#4a8a5a';
+    el.style.color = varning ? '#c84040' : msg.startsWith('↑') ? '#888' : '#4a8a5a';
     clearTimeout(el._fadeTimer);
-    el._fadeTimer = setTimeout(() => { el.style.opacity = '0'; }, msg.startsWith('⚠') ? 8000 : 4000);
+    el._fadeTimer = setTimeout(() => { el.style.opacity = '0'; }, varning ? 8000 : 4000);
   }
-
-  function updateFolderBtn(connected) {
-    const btn = document.getElementById('dropboxConnectBtn');
-    if (!btn) return;
-    btn.textContent = connected ? '☁ Molnet ✓' : '☁ Molnet';
-    btn.style.color  = connected ? '#4a8a5a' : '';
-  }
-
-  // ── Init vid sidladdning ───────────────────────────────────────────────────
-  (async function initAutoSave() {
-    renderRecentProjects();
-
-    // Migrera gammalt IndexedDB-handtag (writeon_sync → writeon_handles)
-    try {
-      const oldDb = await new Promise((res, rej) => {
-        const r = indexedDB.open('writeon_sync', 1);
-        r.onsuccess = e => res(e.target.result);
-        r.onerror = () => res(null);
-      });
-      if (oldDb) {
-        const tx = oldDb.transaction('handles', 'readonly');
-        const req = tx.objectStore('handles').get('saveFolder');
-        const oldHandle = await new Promise(res => { req.onsuccess = () => res(req.result); req.onerror = () => res(null); });
-        if (oldHandle) {
-          await idbPut('folderHandle', oldHandle);
-          indexedDB.deleteDatabase('writeon_sync');
-        }
-      }
-    } catch(e) {}
-
-    const folderHandle = await idbGet('folderHandle');
-    if (folderHandle) {
-      try {
-        const perm = await folderHandle.queryPermission({ mode: 'readwrite' });
-        if (perm === 'granted') {
-          saveFolderHandle = folderHandle;
-          updateFolderBtn(true);
-          // Försök hitta projektfilen
-          const fname = getProjectName() + '.writeon';
-          try {
-            saveFileHandle = await folderHandle.getFileHandle(fname);
-          } catch(e) {
-            // Filen finns inte i mappen — skapas vid nästa sparning
-            saveFileHandle = null;
-          }
-        } else {
-          updateFolderBtn(false);
-          showAutosaveMsg('Klicka ☁ Molnet för att återkoppla autospar');
-        }
-      } catch(e) { updateFolderBtn(false); }
-    } else {
-      const hasSeenGuide = localStorage.getItem('writeon_autosave_guide_shown');
-      if (!hasSeenGuide && 'showDirectoryPicker' in window) {
-        setTimeout(() => {
-          showAutosaveMsg('Tips: Klicka ☁ Molnet för att koppla Dropbox-mapp');
-          localStorage.setItem('writeon_autosave_guide_shown', '1');
-        }, 2000);
-      }
-    }
-  })();
+  window.showAutosaveMsg = showAutosaveMsg;
   // ═══════════════════════════════════════════════════════════════════════════
+
 
   function saveApiKey() {
     const key = document.getElementById('apiKeyInput').value.trim();
     if(!key) {
-      document.getElementById('coachApiStatus').innerHTML = '<span style="color:#c84040;">⚠ Klistra in din nyckel först</span>';
+      document.getElementById('coachApiStatus').innerHTML = '<span style="color:#c84040;">Klistra in din nyckel först</span>';
       return;
     }
     localStorage.setItem('writeon_gemini_key', key);
@@ -6988,6 +6851,10 @@ VIKTIGT:
     const isOpen = el.classList.contains('open');
     document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
     if (!isOpen) el.classList.add('open');
+    // Läs alltid om projektlistan från Firebase när Fil- eller Öppna senaste-menyn öppnas
+    if (!isOpen && (id === 'filMenu' || id === 'recentMenu')) {
+      if (window.fbRefreshRecentMenu) window.fbRefreshRecentMenu();
+    }
   }
   document.addEventListener('click', function(e) {
     if (!e.target.closest('.nav-dropdown')) {
@@ -7272,8 +7139,7 @@ p:first-of-type{text-indent:0;}`);
   document.addEventListener('keydown', function(e) {
     const mod = e.ctrlKey || e.metaKey;
     if (!mod) return;
-    if (e.key === 's' && !e.shiftKey) { e.preventDefault(); doAutoSave(); }
-    if (e.key === 's' && e.shiftKey)  { e.preventDefault(); selectSaveFolder(); }
+    if (e.key === 's' || e.key === 'S') { e.preventDefault(); saveNow(); }
     if (e.key === 'o') { e.preventDefault(); openProjectFile(); }
     if (e.key === 'p') { e.preventDefault(); filSkrivUt(); }
   });
@@ -7283,11 +7149,11 @@ p:first-of-type{text-indent:0;}`);
   // ═══ DRAMA MENU — complete rewrite ═══
   const dramaColors = {
     'ingen':        { color: 'var(--border-strong)', label: '— Ingen' },
-    'klimax':       { color: '#dc4646',  label: '🔴 Klimax' },
-    'vändpunkt':    { color: '#fcb136',  label: '🟡 Vändpunkt' },
-    'upptrappning': { color: '#b090d0',  label: '🟣 Upptrappning' },
-    'svacka':       { color: '#6495ed',  label: '🔵 Svacka' },
-    'lugn':         { color: '#4a8981',  label: '🟢 Lugn' },
+    'klimax':       { color: '#dc4646',  label: 'Klimax' },
+    'vändpunkt':    { color: '#fcb136',  label: 'Vändpunkt' },
+    'upptrappning': { color: '#b090d0',  label: 'Upptrappning' },
+    'svacka':       { color: '#6495ed',  label: 'Svacka' },
+    'lugn':         { color: '#4a8981',  label: 'Lugn' },
   };
 
   function openDramaMenu(event, triggerEl) {
@@ -7816,7 +7682,7 @@ window.addEventListener('load', function() {
     if (!chap) return;
     const t = el.textContent.trim();
     if (!t) { el.textContent = chap.title; return; }
-    chap.title = t;
+    setChapterTitle(chap, t);
     // Sync binder and outline
     document.querySelectorAll('.chapter-name[data-chap-id="' + chapId + '"],' +
       '.outline-chapter-name[data-chap-id="' + chapId + '"]').forEach(e => e.textContent = t);
@@ -7864,19 +7730,8 @@ window.addEventListener('load', function() {
 
   // ── Bootstrap: render everything on load ──
   window.addEventListener('load', function() {
-      renderBinder();
-      loadInspector(activeScene);
-      // Load the chapter containing the active scene
-      const initChap = chapterForScene(activeScene.id);
-      if (initChap) loadChapter(initChap);
-      renderOutline();
-      renderCorkGrid();
-      renderTimeline();
-      // Highlight first scene in binder
-      const firstSceneEl = document.querySelector('.scene-item[data-scene-id="' + activeScene.id + '"]');
-      if (firstSceneEl) firstSceneEl.classList.add('active');
-      // Scroll to active scene
-      requestAnimationFrame(() => scrollToScene(activeScene.id));
+      renderProjectViews();
+      setSyncStatus(syncState);
       // Ensure writing view is visible
       const canvasEl = document.getElementById('canvasCoachWrap');
       if (canvasEl) canvasEl.style.display = '';
@@ -7905,10 +7760,7 @@ window.addEventListener('load', function() {
     'linear-gradient(135deg,#f8b8d8,#c0508a)',
   ];
 
-  if (!projectData.characters) projectData.characters = [
-    { id:'c1', name:'Frank Lindgren', roll:'Protagonist', pronomen:'han/honom', grupper:'', andra_namn:'', utseende:'Lång, gråsprängd, bär alltid samma jacka', personlighet:'Cynisk, introvert, skarp iakttagare', bakgrund:'Tidigare kriminaldetektiv, lämnade polisen efter ett misslyckande', mal:'Hitta sanningen, undvika sig själv', hemlighet:'Skuld för en olöst utredning', rost:'Lakonisk, torr humor, undviker känslor', synlig:true, color:0, history:[] },
-    { id:'c2', name:'Juan Morales', roll:'Bikaraktär', pronomen:'han/honom', grupper:'', andra_namn:'', utseende:'Liten, nervös, rör händerna när han pratar', personlighet:'Rastlös, lojal, rädd', bakgrund:'Informatör med kontakter i undre världen', mal:'Överleva, skydda sin familj', hemlighet:'Vet mer än han berättar', rost:'Snabb, hoppar i ämne, ljuger ofta', synlig:true, color:2, history:[] },
-  ];
+  if (!projectData.characters) projectData.characters = [];
 
   function saveCharSnapshot(char) {
     if (!char.history) char.history = [];
@@ -7938,10 +7790,10 @@ window.addEventListener('load', function() {
             <div style="font-size:0.72rem;color:var(--text-muted);">${char.roll||'Ingen roll'}</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px;" onclick="event.stopPropagation()">
-            <button title="${char.synlig===false?'Dold för AI':'Synlig för AI'}" onclick="toggleCharVisible('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:${char.synlig===false?'0.35':'1'};">👁</button>
-            <button title="Versionshistorik" onclick="openCharHistory('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;">🕐</button>
-            <button title="Duplicera karaktär" onclick="duplicateChar('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;">📋</button>
-            <button title="Ta bort karaktär" onclick="deleteChar('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;">🗑</button>
+            <button title="${char.synlig===false?'Dold för AI':'Synlig för AI'}" onclick="toggleCharVisible('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text-muted);opacity:${char.synlig===false?'0.5':'1'};">${ic(char.synlig===false?'eye-off':'eye')}</button>
+            <button title="Versionshistorik" onclick="openCharHistory('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text-muted);">${ic('history')}</button>
+            <button title="Duplicera karaktär" onclick="duplicateChar('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text-muted);">${ic('copy')}</button>
+            <button title="Ta bort karaktär" onclick="deleteChar('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text-muted);">${ic('trash-2')}</button>
             <span id="charexpand-${char.id}" style="color:var(--text-muted);font-size:0.8rem;">▼</span>
           </div>
         </div>
@@ -7951,7 +7803,7 @@ window.addEventListener('load', function() {
               <label style="font-size:0.7rem;color:var(--text-muted);display:block;margin-bottom:4px;">NAMN</label>
               <div style="display:flex;gap:6px;">
                 <input value="${char.name||''}" oninput="updateChar('${char.id}','name',this.value)" style="flex:1;padding:7px 10px;border-radius:7px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.82rem;font-family:'DM Sans',sans-serif;color:var(--text-primary);">
-                <button onclick="randomCharName('${char.id}')" title="Slumpa namn" style="padding:7px 9px;border-radius:7px;border:1px solid var(--border-strong);background:var(--bg-soft);cursor:pointer;font-size:0.85rem;">🎲</button>
+                <button onclick="randomCharName('${char.id}')" title="Slumpa namn" style="padding:7px 9px;border-radius:7px;border:1px solid var(--border-strong);background:var(--bg-soft);cursor:pointer;font-size:0.85rem;color:var(--text-muted);">${ic('dices')}</button>
               </div>
             </div>
             <div>
@@ -8016,7 +7868,7 @@ window.addEventListener('load', function() {
       const roleEl = card.querySelector('[style*="font-size:0.72rem;color:var(--text-muted)"]');
       if (roleEl) roleEl.textContent = value;
     }
-    doAutoSave();
+    scheduleAutoSave();
   }
 
   function addNewCharacter() {
@@ -8027,14 +7879,14 @@ window.addEventListener('load', function() {
     projectData.characters.push(newChar);
     renderCharacters();
     setTimeout(() => toggleCharExpand(id), 50);
-    doAutoSave();
+    scheduleAutoSave();
   }
 
   function deleteChar(id) {
     if (!confirm('Ta bort karaktären?')) return;
     projectData.characters = (projectData.characters||[]).filter(c => c.id !== id);
     renderCharacters();
-    doAutoSave();
+    scheduleAutoSave();
   }
 
   function duplicateChar(id) {
@@ -8046,7 +7898,7 @@ window.addEventListener('load', function() {
     copy.history = [];
     projectData.characters.push(copy);
     renderCharacters();
-    doAutoSave();
+    scheduleAutoSave();
   }
 
   function toggleCharVisible(id) {
@@ -8054,7 +7906,7 @@ window.addEventListener('load', function() {
     if (!char) return;
     char.synlig = char.synlig === false ? true : false;
     renderCharacters();
-    doAutoSave();
+    scheduleAutoSave();
   }
 
   function openCharHistory(id) {
@@ -8106,7 +7958,7 @@ window.addEventListener('load', function() {
     char.id = charId;
     document.getElementById('char-history-modal').style.display = 'none';
     renderCharacters();
-    doAutoSave();
+    scheduleAutoSave();
   }
 
   async function randomCharName(id) {
@@ -8174,17 +8026,19 @@ window.addEventListener('load', function() {
       <h2 style="margin:0;font-size:1.05rem;font-weight:700;">Nytt projekt</h2>
       <button onclick="document.getElementById('nyttProjektModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--text-muted);padding:2px 6px;border-radius:6px;">✕</button>
     </div>
-    <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 22px;">Ge din roman eller ditt projekt ett namn. Du väljer Dropbox-mapp i nästa steg.</p>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 22px;">Ge din roman eller ditt projekt ett namn.</p>
 
     <label style="font-size:0.78rem;font-weight:600;color:var(--text-primary);display:block;margin-bottom:6px;">Projektets namn</label>
-    <input id="nyttProjektNamn" type="text" placeholder="t.ex. Min roman, Fallet, Frihet…"
+    <input id="nyttProjektNamn" type="text" placeholder="t.ex. Min roman"
       style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:8px;border:1.5px solid var(--border-strong);background:var(--bg-soft);color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:0.92rem;outline:none;margin-bottom:10px;"
       onkeydown="if(event.key==='Enter') _bekraftaNyttProjekt()"
+      oninput="document.getElementById('nyttProjektFel').textContent=''"
     />
+    <div id="nyttProjektFel" style="color:#c84040;font-size:0.78rem;min-height:18px;margin:-4px 0 6px;"></div>
 
     <p style="font-size:0.75rem;color:var(--text-muted);margin:0 0 24px;line-height:1.5;">
-      ☁ Projektet sparas automatiskt till den Dropbox-mapp du väljer.<br>
-      Varje projekt får en egen mapp och en egen <code style="font-size:0.72rem;background:var(--bg-soft);padding:1px 5px;border-radius:4px;">.writeon</code>-fil.
+      <svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg> Projektet sparas automatiskt till molnet.<br>
+      Du kan öppna det från vilken dator som helst genom att logga in.
     </p>
 
     <div style="display:flex;justify-content:flex-end;gap:10px;">
@@ -8209,32 +8063,32 @@ window.addEventListener('load', function() {
     <p style="font-size:0.78rem;color:var(--text-muted);margin:0 0 14px;">Välj format att exportera manuset till.</p>
     <div class="export-fmt-grid">
       <button class="export-fmt-btn" onclick="_doExport('pdf')">
-        <span class="export-fmt-icon">🖨</span>
+        <span class="export-fmt-icon"><svg class="ic" aria-hidden="true"><use href="#i-printer"/></svg></span>
         <span class="export-fmt-label">PDF</span>
         <span class="export-fmt-desc">Utskrift & distribution</span>
       </button>
       <button class="export-fmt-btn" onclick="_doExport('docx')">
-        <span class="export-fmt-icon">📝</span>
+        <span class="export-fmt-icon"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg></span>
         <span class="export-fmt-label">DOCX</span>
         <span class="export-fmt-desc">Word & LibreOffice</span>
       </button>
       <button class="export-fmt-btn" onclick="_doExport('epub')">
-        <span class="export-fmt-icon">📖</span>
+        <span class="export-fmt-icon"><svg class="ic" aria-hidden="true"><use href="#i-book-open"/></svg></span>
         <span class="export-fmt-label">ePub</span>
         <span class="export-fmt-desc">E-läsare, Kindle, Kobo</span>
       </button>
       <button class="export-fmt-btn" onclick="_doExport('txt')">
-        <span class="export-fmt-icon">📄</span>
+        <span class="export-fmt-icon"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg></span>
         <span class="export-fmt-label">TXT</span>
         <span class="export-fmt-desc">Ren text, inga stilar</span>
       </button>
       <button class="export-fmt-btn" onclick="_doExport('md')">
-        <span class="export-fmt-icon">✍</span>
+        <span class="export-fmt-icon"><svg class="ic" aria-hidden="true"><use href="#i-hash"/></svg></span>
         <span class="export-fmt-label">Markdown</span>
         <span class="export-fmt-desc">Notion, Obsidian m.fl.</span>
       </button>
       <button class="export-fmt-btn" onclick="_doExport('html')">
-        <span class="export-fmt-icon">🌐</span>
+        <span class="export-fmt-icon"><svg class="ic" aria-hidden="true"><use href="#i-code-xml"/></svg></span>
         <span class="export-fmt-label">HTML</span>
         <span class="export-fmt-desc">Webb-format</span>
       </button>
@@ -8298,7 +8152,7 @@ window.addEventListener('load', function() {
   const FASER = {
     "bygg": {
       label: "Bygg",
-      icon: "🏗",
+      icon: ic('hammer'),
       beskrivning: "Struktur och grund — innan du skriver",
       verktyg: [
         { id: "synopsis",    namn: "Synopsis",            tips: "Sammanfatta berättelsen i ett stycke. Vad handlar det egentligen om?" },
@@ -8309,7 +8163,7 @@ window.addEventListener('load', function() {
     },
     "skriv": {
       label: "Skriv",
-      icon: "✍️",
+      icon: ic('pen-line'),
       beskrivning: "Medan du skriver — förstärk och fördjupa",
       verktyg: [
         { id: "las",         namn: "Läs & reagera",       tips: "Markera ett stycke. AI:n läser och säger vad den reagerar på — utan agenda." },
@@ -8320,7 +8174,7 @@ window.addEventListener('load', function() {
     },
     "putsa": {
       label: "Putsa",
-      icon: "✦",
+      icon: ic('sparkles'),
       beskrivning: "När utkastet är klart — kontrollera och städa",
       verktyg: [
         { id: "fullputs",    namn: "Full genomläsning",   tips: "AI:n läser hela texten och kommenterar det som sticker ut — stort och smått." },
@@ -8694,338 +8548,22 @@ window.addEventListener('load', function() {
   }
 
 
-  // ─── DROPBOX SYNC ───
-  // ─── DROPBOX OAUTH ───
-  const DROPBOX_APP_KEY = 'eflbkkx6hhk190b';
-
-  function openDropboxSettings() {
-    _closeDropdowns();
-    document.getElementById('dropboxModal').style.display = 'flex';
-    updateDropboxUI();
-  }
-
-  function updateDropboxUI() {
-    const token = localStorage.getItem('writeon_dropbox_key');
-    const folder = localStorage.getItem('writeon_dropbox_folder') || '';
-    const folderName = localStorage.getItem('writeon_dropbox_folder_name') || folder;
-    const pathEl = document.getElementById('dropboxChosenPath');
-    const connectBtn = document.getElementById('dropboxConnectBtn');
-    const disconnectBtn = document.getElementById('dropboxDisconnectBtn');
-    const statusEl = document.getElementById('dropboxStatus');
-
-    const notConn = document.getElementById('dropboxNotConnected');
-    const conn = document.getElementById('dropboxConnected');
-    if (token) {
-      if (notConn) notConn.style.display = 'none';
-      if (conn) conn.style.display = 'block';
-      if (pathEl) { pathEl.textContent = folderName || '/WriteON'; pathEl.style.color = 'var(--text-primary)'; }
-      if (disconnectBtn) disconnectBtn.style.display = 'inline-block';
-      testDropboxConnection(token);
-    } else {
-      if (notConn) notConn.style.display = 'block';
-      if (conn) conn.style.display = 'none';
-      if (statusEl) statusEl.innerHTML = '⚪ Ej ansluten';
-    }
-  }
-
-  function connectDropbox() {
-    // Server-side OAuth — Railway hanterar token-bytet säkert
-    const redirectUri = 'https://writeon-production-d435.up.railway.app/dropbox-callback';
-    const params = new URLSearchParams({
-      client_id: DROPBOX_APP_KEY,
-      response_type: 'code',
-      redirect_uri: redirectUri,
-      token_access_type: 'offline',
-    });
-    window.location.href = 'https://www.dropbox.com/oauth2/authorize?' + params.toString();
-  }
-
-  function generateCodeVerifier() {
-    const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
-    return btoa(String.fromCharCode(...array)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-  }
-
-  async function generateCodeChallenge(verifier) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(verifier);
-    const digest = await crypto.subtle.digest('SHA-256', data);
-    return btoa(String.fromCharCode(...new Uint8Array(digest))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-  }
-
-  async function exchangeDropboxCode(code, redirectUri) {
-    const verifier = sessionStorage.getItem('dropbox_verifier');
-    const statusEl = document.getElementById('dropboxStatus');
-    if (statusEl) statusEl.innerHTML = '<span style="color:var(--text-muted);">Ansluter...</span>';
-    try {
-      const res = await fetch('https://api.dropboxapi.com/oauth2/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          code,
-          grant_type: 'authorization_code',
-          client_id: DROPBOX_APP_KEY,
-          code_verifier: verifier,
-          redirect_uri: redirectUri,
-        })
-      });
-      const data = await res.json();
-      if (data.access_token) {
-        localStorage.setItem('writeon_dropbox_key', data.access_token);
-        if (data.refresh_token) localStorage.setItem('writeon_dropbox_refresh', data.refresh_token);
-        updateDropboxUI();
-      } else {
-        if (statusEl) statusEl.innerHTML = '<span style="color:#c84040;">⚠ Kunde inte ansluta: ' + (data.error_description || data.error) + '</span>';
-      }
-    } catch(e) {
-      if (statusEl) statusEl.innerHTML = '<span style="color:#c84040;">⚠ Anslutningsfel</span>';
-    }
-  }
-
-  async function refreshDropboxToken() {
-    const refreshToken = localStorage.getItem('writeon_dropbox_refresh');
-    if (!refreshToken) return null;
-    try {
-      const res = await fetch('https://api.dropboxapi.com/oauth2/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          grant_type: 'refresh_token',
-          refresh_token: refreshToken,
-          client_id: DROPBOX_APP_KEY,
-        })
-      });
-      const data = await res.json();
-      if (data.access_token) {
-        localStorage.setItem('writeon_dropbox_key', data.access_token);
-        return data.access_token;
-      }
-    } catch(e) {}
-    return null;
-  }
-
-  function hardResetDropbox() {
-    localStorage.removeItem('writeon_dropbox_key');
-    localStorage.removeItem('writeon_dropbox_refresh');
-    localStorage.removeItem('writeon_dropbox_folder');
-    localStorage.removeItem('writeon_dropbox_folder_name');
-    updateDropboxUI();
-    setTimeout(() => connectDropbox(), 300);
-  }
-
-  function disconnectDropbox() {
-    localStorage.removeItem('writeon_dropbox_key');
-    localStorage.removeItem('writeon_dropbox_refresh');
-    localStorage.removeItem('writeon_dropbox_folder');
-    localStorage.removeItem('writeon_dropbox_folder_name');
-    updateDropboxUI();
-  }
-
-  function openDropboxChooser() {
-    if (typeof Dropbox === 'undefined') {
-      document.getElementById('dropboxStatus').innerHTML = '<span style="color:#c84040;">⚠ Fungerar bara på Railway</span>';
-      return;
-    }
-    Dropbox.choose({
-      success: function(files) {
-        const file = files[0];
-        const name = file.name || '';
-        let path = '/' + name;
-        if (file.link && file.link.indexOf('/home/') !== -1) {
-          const parts = file.link.split('/home/');
-          if (parts[1]) path = '/' + decodeURIComponent(parts[1].split('?')[0]);
-        }
-        localStorage.setItem('writeon_dropbox_folder', path);
-        localStorage.setItem('writeon_dropbox_folder_name', name);
-        document.getElementById('dropboxChosenPath').textContent = path;
-        document.getElementById('dropboxChosenPath').style.color = 'var(--text-primary)';
-        document.getElementById('dropboxStatus').innerHTML = '<span style="color:#0061fe;">✓ Mapp vald: ' + path + '</span>';
-      },
-      cancel: function() {},
-      linkType: 'preview',
-      multiselect: false,
-      folderselect: true,
-    });
-  }
-
-  async function testDropboxConnection(key) {
-    const statusEl = document.getElementById('dropboxStatus');
-    if (!statusEl) return;
-    try {
-      const res = await fetch('https://api.dropboxapi.com/2/users/get_current_account', {
-        method: 'POST', headers: { 'Authorization': 'Bearer ' + key }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        statusEl.innerHTML = '<span style="color:#0061fe;">✓ Ansluten som ' + data.name.display_name + '</span>';
-      } else if (res.status === 401) {
-        // Token utgången — försök förnya
-        const newKey = await refreshDropboxToken();
-        if (newKey) {
-          testDropboxConnection(newKey);
-        } else {
-          statusEl.innerHTML = '<span style="color:#c84040;">⚠ Session utgången — anslut igen</span>';
-          localStorage.removeItem('writeon_dropbox_key');
-          updateDropboxUI();
-        }
-      }
-    } catch(e) {}
-  }
-
-  let dropboxSyncTimer = null;
-  function scheduleDropboxSync() {
-    const key = localStorage.getItem('writeon_dropbox_key');
-    if (!key) return;
-    clearTimeout(dropboxSyncTimer);
-    dropboxSyncTimer = setTimeout(() => syncToDropbox(key), 3000);
-  }
-
-  function syncToDropboxNow() {
-    const key = localStorage.getItem('writeon_dropbox_key');
-    if (!key) {
-      document.getElementById('dropboxModal').style.display = 'flex';
-      return;
-    }
-    syncToDropbox(key);
-  }
-
-  async function uploadToDropbox(key, path, body, contentType) {
-    const res = await fetch('https://content.dropboxapi.com/2/files/upload', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + key,
-        'Dropbox-API-Arg': JSON.stringify({ path, mode: 'overwrite', autorename: false }),
-        'Content-Type': contentType || 'application/octet-stream'
-      },
-      body
-    });
-    if (!res.ok) console.warn('Dropbox upload failed:', path, await res.text());
-    return res.ok;
-  }
-
-  async function syncToDropbox(key) {
-    const folder = localStorage.getItem('writeon_dropbox_folder') || '/WriteON';
-    const title = (projectData.title || 'Projekt').replace(/[\/\\:*?"<>|]/g, '_');
-    const statusEl = document.getElementById('dropboxStatus');
-    const badge = document.querySelector('.sync-badge');
-
-    try {
-      // 1. Spara JSON
-      const jsonData = JSON.stringify(projectData, null, 2);
-      await uploadToDropbox(key, folder + '/' + title + '.json', jsonData, 'application/octet-stream');
-
-      // 2. Spara DOCX
-      if (window.docx) {
-        const { Document, Packer, Paragraph, TextRun, HeadingLevel } = window.docx;
-        const wa = getWritingArea();
-        function parseInline(el) {
-          const runs = [];
-          el.childNodes.forEach(n => {
-            if (n.nodeType === 3) { if (n.textContent) runs.push(new TextRun({ text: n.textContent, font: 'Garamond', size: 24 })); }
-            else {
-              const t = n.tagName; const txt = n.textContent;
-              if (t==='STRONG'||t==='B') runs.push(new TextRun({ text: txt, bold: true, font: 'Garamond', size: 24 }));
-              else if (t==='EM'||t==='I') runs.push(new TextRun({ text: txt, italics: true, font: 'Garamond', size: 24 }));
-              else if (t==='U') runs.push(new TextRun({ text: txt, underline: {}, font: 'Garamond', size: 24 }));
-              else if (txt) runs.push(new TextRun({ text: txt, font: 'Garamond', size: 24 }));
-            }
-          });
-          return runs.length ? runs : [new TextRun({ text: '' })];
-        }
-        const children = [new Paragraph({ text: title, heading: HeadingLevel.TITLE, spacing: { after: 400 } })];
-        wa.childNodes.forEach(node => {
-          if (node.nodeType !== 1) return;
-          const tag = node.tagName;
-          if (tag==='H1') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_1, spacing: { before: 320, after: 160 } }));
-          else if (tag==='H2') children.push(new Paragraph({ text: node.textContent, heading: HeadingLevel.HEADING_2, spacing: { before: 240, after: 120 } }));
-          else if (tag==='P') children.push(new Paragraph({ children: parseInline(node), spacing: { after: 120 }, indent: { firstLine: 480 } }));
-        });
-        const doc = new Document({ sections: [{ properties: { page: { margin: { top: 1440, bottom: 1440, left: 1440, right: 1440 } } }, children }] });
-        const blob = await Packer.toBlob(doc);
-        const ab = await blob.arrayBuffer();
-        const uint8 = new Uint8Array(ab);
-        console.log('DOCX storlek:', uint8.length, 'bytes, sektioner:', children.length);
-        const docxOk = await uploadToDropbox(key, folder + '/' + title + '.docx', uint8, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-        console.log('DOCX upload result:', docxOk);
-      }
-
-      const now = new Date();
-      const t = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
-      if (statusEl) statusEl.innerHTML = '<span style="color:#0061fe;">✓ Synkad ' + t + ' (.json + .docx)</span>';
-      if (badge) badge.textContent = 'Synkad ' + t;
-
-    } catch(e) {
-      console.warn('Dropbox sync failed:', e);
-      if (statusEl) statusEl.innerHTML = '<span style="color:#c84040;">⚠ Synk misslyckades</span>';
-    }
-  }
-
 </script>
 
-
-<!-- Dropbox Chooser SDK -->
-<script src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="eflbkkx6hhk190b">
-</script>
-
-<!-- DROPBOX SETTINGS MODAL -->
-<div id="dropboxModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:var(--bg);border-radius:14px;padding:28px 32px;width:440px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,0.18);">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-      <span style="font-size:1rem;font-weight:700;color:var(--text-primary);">☁ Dropbox-inställningar</span>
-      <button onclick="document.getElementById('dropboxModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--text-muted);">✕</button>
-    </div>
-
-    <!-- Ej ansluten -->
-    <div id="dropboxNotConnected">
-      <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">
-        Anslut ditt Dropbox-konto så sparas projektet automatiskt. Du behöver aldrig logga in igen.
-      </p>
-      <button id="dropboxConnectBtn" onclick="connectDropbox()" style="width:100%;padding:12px 16px;border-radius:8px;background:#0061fe;color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;">
-        <svg width="18" height="18" viewBox="0 0 40 40" fill="white"><path d="M20 4L10 11l10 7 10-7zm-10 14L10 25l10 7 10-7-10-7zm10 8l-10 7 10 7 10-7z"/></svg>
-        Anslut Dropbox
-      </button>
-    </div>
-
-    <!-- Ansluten -->
-    <div id="dropboxConnected" style="display:none;">
-      <div style="font-size:0.72rem;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Sparas i</div>
-      <div id="dropboxChosenPath" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;font-family:'DM Sans',sans-serif;">
-        /WriteON
-      </div>
-      <button onclick="openDropboxChooser()" style="width:100%;padding:9px 16px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border-strong);color:var(--text-primary);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;margin-bottom:14px;">
-        Byt mapp…
-      </button>
-      <button id="dropboxDisconnectBtn" onclick="disconnectDropbox()" style="display:none;font-size:0.72rem;color:var(--text-muted);background:none;border:none;cursor:pointer;text-decoration:underline;margin-bottom:4px;">
-        Koppla från Dropbox
-      </button>
-      <br>
-      <button onclick="hardResetDropbox()" style="font-size:0.72rem;color:#c84040;background:none;border:none;cursor:pointer;text-decoration:underline;margin-bottom:12px;">
-        Rensa token och anslut igen
-      </button>
-    </div>
-
-    <div id="dropboxStatus" style="font-size:0.72rem;color:var(--text-muted);min-height:18px;margin-bottom:14px;">⚪ Ej ansluten</div>
-
-    <div style="padding-top:16px;border-top:1px solid var(--border);display:flex;gap:10px;">
-      <button onclick="syncToDropboxNow()" style="padding:7px 14px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border-strong);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-primary);">Synka nu</button>
-      <button onclick="document.getElementById('dropboxModal').style.display='none'" style="padding:7px 14px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border-strong);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.78rem;color:var(--text-primary);">Stäng</button>
-    </div>
-  </div>
-</div>
 
 <!-- AI MARKERINGS-POPUP -->
 <div id="aiSelectionPopup">
-  <button class="ai-popup-btn primary" onclick="runAiOnSelection('skriv-om')" title="Skriv om">✦</button>
+  <button class="ai-popup-btn primary" onclick="runAiOnSelection('skriv-om')" title="Skriv om"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></button>
   <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" onclick="runAiOnSelection('analys')" title="Analys">◎</button>
+  <button class="ai-popup-btn" onclick="runAiOnSelection('analys')" title="Analys"><svg class="ic" aria-hidden="true"><use href="#i-scan-text"/></svg></button>
   <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" onclick="runAiOnSelection('putsa')" title="Putsa">✂</button>
+  <button class="ai-popup-btn" onclick="runAiOnSelection('putsa')" title="Putsa"><svg class="ic" aria-hidden="true"><use href="#i-scissors"/></svg></button>
   <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" onclick="runAiOnSelection('synonym')" title="Synonym">≈</button>
+  <button class="ai-popup-btn" onclick="runAiOnSelection('synonym')" title="Synonym"><svg class="ic" aria-hidden="true"><use href="#i-replace"/></svg></button>
   <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" onclick="runAiOnSelection('rattstavning')" title="Rättstavning">✓</button>
+  <button class="ai-popup-btn" onclick="runAiOnSelection('rattstavning')" title="Rättstavning"><svg class="ic" aria-hidden="true"><use href="#i-spell-check"/></svg></button>
   <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" id="aiPopupDialogBtn" onclick="runAiOnSelection('dialog')" title="Dialog">💬</button>
+  <button class="ai-popup-btn" id="aiPopupDialogBtn" onclick="runAiOnSelection('dialog')" title="Dialog"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg></button>
 </div>
 
 <script>
@@ -9139,7 +8677,7 @@ window.addEventListener('load', function() {
       }
     }
     toolLabel.textContent = labels[typ];
-    resultEl.textContent = '⏳ Analyserar...';
+    resultEl.textContent = 'Analyserar…';
 
     // Scrolla inspektören ner till AI-sektionen
     // Scrolla inspektör-panelen (inte hela sidan)
@@ -9198,11 +8736,13 @@ window.addEventListener('load', function() {
     const range  = window._aiLastRange;
     if(!result || !range) return;
     try {
+      const anc = range.commonAncestorContainer;
+      const area = (anc.nodeType === 1 ? anc : anc.parentElement)?.closest('.scene-writing-area');
       range.deleteContents();
       range.insertNode(document.createTextNode(result));
       window.getSelection().removeAllRanges();
-      // Trigga autosave
-      if(typeof touchScene === 'function') touchScene();
+      // Låt skrivytan uppdatera scenens text, ordräkning och autospar
+      if (area) area.dispatchEvent(new Event('input', { bubbles: true }));
     } catch(e){ console.warn('Ersätt misslyckades', e); }
     closeInspAi();
   };
@@ -9216,6 +8756,298 @@ window.addEventListener('load', function() {
 
 })();
 </script>
+
+
+<!-- Exponera interna funktioner globalt för Firebase -->
+<script>
+// Dessa sätts av IIFE-blocket ovan via window.*
+// Firebase-modulen använder window.projectData, window.showAutosaveMsg osv.
+</script>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC_q5vcLW1MvXxgythlXcEasw9uI-ICEPE",
+  authDomain: "writeon-506d0.firebaseapp.com",
+  projectId: "writeon-506d0",
+  storageBucket: "writeon-506d0.firebasestorage.app",
+  messagingSenderId: "47654236548",
+  appId: "1:47654236548:web:8e7320b50df360c1ccedd1"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── Vänta in inloggning (auth-tillståndet kan komma efter att appen laddat) ────
+function fbWaitForUser(timeoutMs = 6000) {
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+  return new Promise(resolve => {
+    let done = false;
+    const unsub = onAuthStateChanged(auth, u => {
+      if (u && !done) { done = true; unsub(); resolve(u); }
+    });
+    setTimeout(() => { if (!done) { done = true; unsub(); resolve(auth.currentUser || null); } }, timeoutMs);
+  });
+}
+
+// ── Spara det öppna projektet (anropas av runSave i huvudskriptet) ─────────────
+window.fbLastSaveError = null;
+window.firebaseSaveProject = async function() {
+  const user = auth.currentUser || await fbWaitForUser();
+  if (!user) {
+    window.fbLastSaveError = 'Inte inloggad';
+    document.getElementById('fbLoginModal').style.display = 'flex';
+    return false;
+  }
+  const projektNamn = (window.fbActiveProject || '').trim();
+  if (!projektNamn) { window.fbLastSaveError = 'Projektet saknar namn'; return false; }
+  try {
+    const p = window.projectData || {};
+    const data = {
+      title:      projektNamn,
+      wordGoal:   p.wordGoal || 100000,
+      chapters:   p.chapters || [],
+      characters: p.characters || [],
+      savedAt:    serverTimestamp()
+    };
+    await setDoc(doc(db, 'users', user.uid, 'projects', projektNamn), data);
+    window.fbLastSaveError = null;
+    return true;
+  } catch(e) {
+    console.error('[Firebase] Sparfel:', e.code, e.message, e);
+    window.fbLastSaveError = 'Sparfel: ' + (e.code || e.message);
+    return false;
+  }
+};
+
+window.firebaseLoadProject = async function(projektNamn) {
+  const user = auth.currentUser;
+  if (!user) return null;
+  const snap = await getDoc(doc(db, 'users', user.uid, 'projects', projektNamn));
+  return snap.exists() ? snap.data() : null;
+};
+
+window.firebaseListProjects = async function() {
+  const user = auth.currentUser;
+  if (!user) return [];
+  const snap = await getDocs(collection(db, 'users', user.uid, 'projects'));
+  return snap.docs.map(d => d.id);
+};
+
+// ── Ta bort projekt (med bekräftelse) ─────────────────────────────────────────
+window.fbDeleteProjectConfirm = function(namn) {
+  const ok = confirm('Ta bort projektet "' + namn + '"?\n\nDetta går inte att ångra. Projektet raderas permanent från molnet.');
+  if (ok) window.firebaseDeleteProject(namn);
+};
+
+window.firebaseDeleteProject = async function(namn) {
+  const user = auth.currentUser;
+  if (!user) return;
+  try {
+    await deleteDoc(doc(db, 'users', user.uid, 'projects', namn));
+    console.log('[Firebase] ✓ Raderade projekt:', namn);
+    if (window.showAutosaveMsg) window.showAutosaveMsg(namn + ' borttaget');
+    // Om det var det aktiva projektet — nollställ titeln
+    if (window.fbActiveProject === namn && window.resetToBlankProject) {
+      window.resetToBlankProject();
+      window.setSyncStatus('unnamed');
+    }
+    if (window.fbRefreshRecentMenu) await window.fbRefreshRecentMenu();
+  } catch(e) {
+    console.error('[Firebase] Raderingsfel:', e);
+    if (window.showAutosaveMsg) window.showAutosaveMsg('⚠ Kunde inte ta bort');
+  }
+};
+
+// ── Fyll "Öppna senaste"-menyn från Firestore (enda källan) ───────────────────
+window.fbRefreshRecentMenu = async function() {
+  const menu = document.getElementById('recentProjectsMenu');
+  if (!menu) return;
+  if (!auth.currentUser) { return; }
+  try {
+    const list = await window.firebaseListProjects();
+    console.log('[Firebase] Projekt i Firestore:', list);
+    if (!list.length) {
+      menu.innerHTML = '<div class="nav-dd-item" style="color:var(--text-muted);font-style:italic;pointer-events:none;">Inga projekt ännu</div>';
+      return;
+    }
+    menu.innerHTML = list.map(namn => {
+      const aktiv = (namn === window.fbActiveProject);
+      const style = aktiv
+        ? 'background:var(--text,#1a1a1a);color:#fff;border-radius:6px;font-weight:600;'
+        : '';
+      const safe = namn.replace(/'/g,"\\'");
+      const hogerIkon = aktiv
+        ? '<span style="margin-left:auto;">✓</span>'
+        : `<span class="proj-delete" title="Ta bort projekt" style="margin-left:auto;opacity:0.45;cursor:pointer;padding:2px 6px;border-radius:4px;" onclick="event.stopPropagation(); window.fbDeleteProjectConfirm('${safe}')">${window.ic('trash-2')}</span>`;
+      return `<div class="nav-dd-item" style="display:flex;align-items:center;gap:6px;${style}" onclick="window.firebaseOpenProject('${safe}')">${window.ic('file-text')} <span>${namn}</span>${hogerIkon}</div>`;
+    }).join('');
+  } catch(e) {
+    console.error('[Firebase] Kunde inte lista projekt:', e);
+  }
+};
+
+// ── Auth-tillstånd ────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  window.fbSignedIn = !!user;
+  if (user) {
+    document.getElementById('fbLoginModal').style.display = 'none';
+    document.getElementById('fbUserEmail').textContent = user.email;
+    document.getElementById('fbUserBar').style.display = 'flex';
+    window.fbRefreshRecentMenu();
+    if (!window.fbActiveProject) await fbOpenLatestProject();
+  } else {
+    document.getElementById('fbUserBar').style.display = 'none';
+    if (window.fbActiveProject && window.resetToBlankProject) window.resetToBlankProject();
+    window.fbActiveProject = null;
+    if (window.setSyncStatus) window.setSyncStatus('offline');
+    const menu = document.getElementById('recentProjectsMenu');
+    if (menu) menu.innerHTML = '<div class="nav-dd-item" style="color:var(--text-muted);font-style:italic;pointer-events:none;">Inga senaste projekt</div>';
+    setTimeout(() => {
+      if (!auth.currentUser) {
+        document.getElementById('fbLoginModal').style.display = 'flex';
+      }
+    }, 1000);
+  }
+});
+
+// Lägg in ett projekt från Firestore i appen och visa när det senast sparades
+function fbApply(namn, data) {
+  window.applyProject(data, namn);
+  window.fbSetActiveProject(namn);
+  const t = data.savedAt && data.savedAt.toDate ? data.savedAt.toDate() : null;
+  window.setSyncStatus('saved', t ? window.formatSavedAt(t) : '');
+}
+
+// Vid inloggning: öppna det projekt som sparades senast
+async function fbOpenLatestProject() {
+  const user = auth.currentUser;
+  if (!user) return;
+  window.setSyncStatus('loading');
+  try {
+    const snap = await getDocs(collection(db, 'users', user.uid, 'projects'));
+    if (window.fbActiveProject) return;            // användaren hann öppna något själv
+    if (snap.empty) {
+      window.setSyncStatus('unnamed');
+      if (window.nyttProjekt) window.nyttProjekt();
+      return;
+    }
+    let senaste = null;
+    snap.docs.forEach(d => {
+      const data = d.data();
+      const t = data.savedAt && data.savedAt.toMillis ? data.savedAt.toMillis() : 0;
+      if (!senaste || t > senaste.t) senaste = { namn: d.id, data, t };
+    });
+    fbApply(senaste.namn, senaste.data);
+  } catch(e) {
+    console.error('[Firebase] Kunde inte hämta projekt:', e);
+    window.setSyncStatus('error', 'Kunde inte hämta dina projekt');
+  }
+}
+
+window.firebaseOpenProject = async function(namn) {
+  if (typeof _closeDropdowns === 'function') _closeDropdowns();
+  if (window.flushPendingSave && !(await window.flushPendingSave())) {
+    if (!confirm('De senaste ändringarna i "' + window.fbActiveProject + '" kunde inte sparas.\n\nByta projekt ändå?')) return;
+  }
+  window.setSyncStatus('loading');
+  let data = null;
+  try { data = await window.firebaseLoadProject(namn); } catch(e) { console.error(e); }
+  if (!data) {
+    alert('Kunde inte öppna projektet.');
+    window.setSyncStatus(window.fbActiveProject ? 'saved' : 'unnamed');
+    return;
+  }
+  fbApply(namn, data);
+  if (window.showAutosaveMsg) window.showAutosaveMsg('✓ ' + namn + ' öppnat');
+};
+
+// ── Uppdatera titeln uppe till vänster + spara vilket projekt som är aktivt ─────
+window.fbActiveProject = null;
+window.fbSetActiveProject = function(namn) {
+  window.fbActiveProject = namn;
+  const titleEl = document.querySelector('.project-name, #projectTitle, .proj-title');
+  if (titleEl) titleEl.textContent = namn;
+  document.title = 'WriteON – ' + namn;
+  if (window.fbRefreshRecentMenu) window.fbRefreshRecentMenu();
+};
+
+// ── Inloggning / Registrering ─────────────────────────────────────────────────
+window.fbLogga = async function(typ) {
+  const email = document.getElementById('fbEmail').value.trim();
+  const pass  = document.getElementById('fbPass').value;
+  const status = document.getElementById('fbStatus');
+  if (!email || !pass) { status.textContent = 'Fyll i e-post och lösenord.'; return; }
+  try {
+    if (typ === 'login') {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } else {
+      await createUserWithEmailAndPassword(auth, email, pass);
+    }
+    status.textContent = '';
+  } catch(e) {
+    const msg = {
+      'auth/user-not-found':    'Ingen användare med den e-postadressen.',
+      'auth/wrong-password':    'Fel lösenord.',
+      'auth/email-already-in-use': 'E-postadressen används redan.',
+      'auth/weak-password':     'Lösenordet måste vara minst 6 tecken.',
+      'auth/invalid-email':     'Ogiltig e-postadress.',
+      'auth/invalid-credential': 'Fel e-post eller lösenord.'
+    }[e.code] || e.message;
+    status.textContent = msg;
+  }
+};
+
+window.fbLoggaUt = async function() {
+  if (window.flushPendingSave && !(await window.flushPendingSave())) {
+    if (!confirm('De senaste ändringarna kunde inte sparas.\n\nLogga ut ändå?')) return;
+  }
+  await signOut(auth);
+  if (window.showAutosaveMsg) window.showAutosaveMsg('Utloggad');
+};
+
+</script>
+
+<!-- INLOGGNINGSMODAL -->
+<div id="fbLoginModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-card,#fff);border-radius:14px;padding:32px 34px;width:400px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.25);font-family:'DM Sans',sans-serif;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:1.6rem;font-weight:800;letter-spacing:-0.5px;">Write<span style="color:#fcb136;">O</span><span style="color:#4a8981;">N</span></div>
+      <p style="color:#888;font-size:0.85rem;margin:6px 0 0;">Logga in för att spara och synka dina projekt</p>
+    </div>
+    <label style="font-size:0.78rem;font-weight:600;display:block;margin-bottom:4px;">E-postadress</label>
+    <input id="fbEmail" type="email" placeholder="din@epost.se"
+      style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:8px;border:1.5px solid #ddd;font-size:0.92rem;margin-bottom:10px;outline:none;"
+      onkeydown="if(event.key==='Enter')window.fbLogga('login')" />
+    <label style="font-size:0.78rem;font-weight:600;display:block;margin-bottom:4px;">Lösenord</label>
+    <input id="fbPass" type="password" placeholder="minst 6 tecken"
+      style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:8px;border:1.5px solid #ddd;font-size:0.92rem;margin-bottom:6px;outline:none;"
+      onkeydown="if(event.key==='Enter')window.fbLogga('login')" />
+    <div id="fbStatus" style="color:#c84040;font-size:0.8rem;min-height:18px;margin-bottom:12px;"></div>
+    <button onclick="window.fbLogga('login')"
+      style="width:100%;padding:11px;border-radius:8px;background:#4a8981;color:white;border:none;cursor:pointer;font-size:0.95rem;font-weight:600;margin-bottom:8px;">
+      Logga in
+    </button>
+    <button onclick="window.fbLogga('register')"
+      style="width:100%;padding:11px;border-radius:8px;background:transparent;color:#4a8981;border:2px solid #4a8981;cursor:pointer;font-size:0.92rem;font-weight:600;">
+      Skapa konto
+    </button>
+  </div>
+</div>
+
+<!-- INLOGGAD-RAD -->
+<div id="fbUserBar" style="display:none;position:fixed;bottom:16px;right:16px;background:var(--bg-card,#fff);border-radius:10px;padding:8px 14px;box-shadow:0 4px 16px rgba(0,0,0,0.12);font-size:0.78rem;font-family:'DM Sans',sans-serif;z-index:9000;align-items:center;gap:10px;">
+  <span style="color:#4a8981;display:flex;"><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg></span>
+  <span id="fbUserEmail" style="color:#555;"></span>
+  <button onclick="window.fbLoggaUt()" style="background:none;border:none;color:#c84040;cursor:pointer;font-size:0.78rem;padding:0;">Logga ut</button>
+</div>
 
 </body>
 </html>
