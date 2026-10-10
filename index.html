@@ -136,6 +136,95 @@
   .ic-lg { width: 22px; height: 22px; }
   .export-fmt-icon .ic { width: 24px; height: 24px; }
   .sb-trash-btn { color: var(--text-muted); }
+  /* ═══ ETAPP 2a — sidolist, en headerrad, markeringsrad, fokusläge ═══ */
+  :root { --rail-w: 64px; }
+  .writing-wrap, .corkboard-wrap, .outline-wrap, .coach-view-wrap,
+  .idebank-view-wrap, .brainstorm-wrap { margin-left: var(--rail-w); }
+
+  /* Sidolisten */
+  .app-rail { position: fixed; left: 0; top: var(--header-h); bottom: 0; width: var(--rail-w);
+    background: var(--bg-sidebar); border-right: 1px solid var(--border); z-index: 40;
+    display: flex; flex-direction: column; align-items: center; padding-top: 10px; gap: 2px; }
+  .rail-btn { width: 56px; padding: 7px 0 6px; border: none; background: none; border-radius: 10px;
+    color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font: 600 0.6rem 'DM Sans', sans-serif; cursor: pointer; transition: background 0.15s, color 0.15s; }
+  .rail-btn .ic { width: 19px; height: 19px; }
+  .rail-btn:hover { color: var(--text-primary); background: var(--bg-soft); }
+  .rail-btn.active { background: var(--bg-card); color: var(--text-primary); box-shadow: var(--shadow); }
+  .rail-sep { width: 28px; height: 1px; background: var(--border-strong); margin: 6px 0; }
+
+  /* Headern: en rad */
+  .header-right { width: auto; gap: 10px; }
+  .header-right .word-count-toolbar { margin-left: 0; color: var(--text-muted); font-size: 0.78rem; white-space: nowrap; }
+  .hdr-btn { background: none; border: none; color: var(--text-secondary); width: 32px; height: 32px;
+    border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .hdr-btn:hover { background: var(--bg-soft); color: var(--text-primary); }
+  .hdr-btn .ic { width: 17px; height: 17px; }
+  .avatar-wrap { position: relative; }
+  .avatar { border: none; }
+  .avatar-menu { display: none; position: absolute; right: 0; top: calc(100% + 8px); min-width: 220px;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 9px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.14); padding: 4px 0; z-index: 1000; }
+  .avatar-wrap.open .avatar-menu { display: block; }
+  .avatar-menu-email { padding: 8px 16px 6px; font-size: 0.78rem; color: var(--text-muted); }
+  .nav-dd-label { padding: 6px 16px 2px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text-muted); }
+  .nav-dd-item.checked::after { content: '✓'; color: var(--accent-n); font-weight: 700; }
+  .nav-dd-row { display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    padding: 6px 16px; font-size: 0.82rem; color: var(--text-primary); }
+  .stepper { display: flex; align-items: center; gap: 2px; background: var(--bg-soft); border-radius: 7px; padding: 2px; }
+  .stepper button { border: none; background: none; width: 24px; height: 24px; border-radius: 5px;
+    cursor: pointer; color: var(--text-primary); font-size: 0.9rem; }
+  .stepper button:hover { background: var(--bg-card); }
+  .stepper span { min-width: 46px; text-align: center; font-size: 0.78rem; font-weight: 600; }
+
+  /* Korta meddelanden (sparat, öppnat …) längst ner i mitten */
+  #autosaveIndicator { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+    background: var(--bg-card); padding: 7px 16px; border-radius: 20px; box-shadow: var(--shadow-lg);
+    font-size: 0.78rem; font-weight: 600; z-index: 9500; pointer-events: none; white-space: nowrap; }
+
+  /* Manusets typsnitt, storlek och zoom (menyn Format) */
+  #pageContainer .scene-writing-area { font-family: var(--ms-font, 'Lora', serif); font-size: var(--ms-size, 1rem); }
+  #pageContainer .scene-writing-area h2 { font-size: 1.45em; font-weight: 700; line-height: 1.3; margin: 0.9em 0 0.4em; }
+  #pageContainer .scene-writing-area h3 { font-size: 1.2em; font-weight: 700; line-height: 1.35; margin: 0.8em 0 0.35em; }
+  #pageContainer .scene-writing-area blockquote { font-style: italic; margin: 0.6em 0 0.6em 1.6em; padding-left: 0.9em;
+    border-left: 2px solid var(--border-strong); color: var(--text-secondary); }
+  #pageContainer .scene-writing-area ul { margin: 0.4em 0 0.4em 1.4em; }
+
+  /* Kapitellistan kan fällas ihop */
+  .sb-collapse { background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex;
+    padding: 3px; border-radius: 6px; }
+  .sb-collapse:hover { background: var(--bg-soft); color: var(--text-primary); }
+  .sb-collapse .ic { width: 16px; height: 16px; }
+  body.binder-collapsed .sidebar { display: none !important; }
+  .binder-open-btn { display: none; position: absolute; top: 12px; left: 12px; z-index: 5;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; width: 32px; height: 32px;
+    align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; box-shadow: var(--shadow); }
+  .binder-open-btn .ic { width: 16px; height: 16px; }
+  body.binder-collapsed .binder-open-btn { display: flex; }
+  .canvas-coach-wrap { position: relative; }
+
+  /* Fokusläge */
+  body.focus { --rail-w: 0px; }
+  body.focus .app-rail, body.focus .sidebar, body.focus .notes-panel, body.focus .icon-bar,
+  body.focus .below-manus, body.focus .binder-open-btn { display: none !important; }
+  body.focus header { opacity: 0.15; transition: opacity 0.3s; }
+  body.focus header:hover { opacity: 1; }
+
+  /* Markeringsraden: formatering + AI */
+  .ai-popup-btn.fmt { font-family: 'DM Sans', sans-serif; font-size: 0.9rem; }
+  .ai-popup-btn.ai { color: #fcb136; }
+  .ai-popup-btn.ai.primary { color: #fcb136; }
+  .pop-style-wrap { position: relative; }
+  .pop-style-btn { width: auto !important; padding: 0 8px; font-size: 0.74rem !important; font-weight: 600; white-space: nowrap; }
+  .pop-style-menu { display: none; position: absolute; top: calc(100% + 8px); left: 0; background: #2d4a47;
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 9px; padding: 4px; min-width: 130px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.28); }
+  .pop-style-menu.open { display: block; }
+  .pop-style-menu button { display: block; width: 100%; text-align: left; border: none; background: none;
+    color: rgba(255,255,255,0.92); padding: 6px 10px; border-radius: 6px; font: 500 0.8rem 'DM Sans', sans-serif; cursor: pointer; }
+  .pop-style-menu button:hover, .pop-style-menu button.on { background: rgba(255,255,255,0.12); }
+
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   .nav-menu {
@@ -2954,6 +3043,12 @@
   <symbol id="i-scan-text" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8h8"/><path d="M7 12h10"/><path d="M7 16h6"/></symbol>
   <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></symbol>
   <symbol id="i-replace" viewBox="0 0 24 24"><path d="M14 4a2 2 0 0 1 2-2"/><path d="M16 10a2 2 0 0 1-2-2"/><path d="M20 2a2 2 0 0 1 2 2"/><path d="M22 8a2 2 0 0 1-2 2"/><path d="m3 7 3 3 3-3"/><path d="M6 10V5a3 3 0 0 1 3-3h1"/><rect x="2" y="14" width="8" height="8" rx="2"/></symbol>
+  <symbol id="i-panel-left-close" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/></symbol>
+  <symbol id="i-panel-left-open" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m14 9 3 3-3 3"/></symbol>
+  <symbol id="i-maximize-2" viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></symbol>
+  <symbol id="i-minimize-2" viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" x2="21" y1="10" y2="3"/><line x1="3" x2="10" y1="21" y2="14"/></symbol>
+  <symbol id="i-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></symbol>
+  <symbol id="i-log-in" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></symbol>
   <symbol id="i-spell-check" viewBox="0 0 24 24"><path d="m6 16 6-12 6 12"/><path d="M8 12h8"/><path d="m16 20 2 2 4-4"/></symbol>
 </svg>
 
@@ -2972,7 +3067,6 @@
   </div>
 
   <div class="project-title-area">
-    <button class="back-btn" title="Tillbaka"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg></button>
     <span class="project-name"></span>
     <div class="sync-badge" id="syncBadge" data-state="offline" title="Logga in för att spara i molnet" onclick="onSyncBadgeClick()">
       <div class="sync-dot"></div>
@@ -3000,115 +3094,79 @@
           <div class="nav-dd-sep"></div>
         </div>
       </div>
-      <button class="nav-item">Manus</button>
-      <button class="nav-item">Redigera</button>
-      <button class="nav-item">Infoga</button>
-      <button class="nav-item">Format</button>
-      <button class="nav-item">AI-verktyg</button>
-      <button class="nav-item">Vy</button>
+      <div class="nav-dropdown" id="formatMenu">
+        <button class="nav-item nav-item-arrow" onclick="toggleNavDropdown('formatMenu')">Format <span style="font-size:0.65rem;opacity:0.7;">▾</span></button>
+        <div class="nav-dropdown-menu">
+          <div class="nav-dd-label">Typsnitt i manuset</div>
+          <div class="nav-dd-item fmt-font" data-font="Lora" style="font-family:'Lora',serif;" onclick="setManuscriptFont('Lora')">Lora</div>
+          <div class="nav-dd-item fmt-font" data-font="EB Garamond" style="font-family:'EB Garamond',serif;" onclick="setManuscriptFont('EB Garamond')">Garamond</div>
+          <div class="nav-dd-item fmt-font" data-font="Georgia" style="font-family:Georgia,serif;" onclick="setManuscriptFont('Georgia')">Georgia</div>
+          <div class="nav-dd-item fmt-font" data-font="Times New Roman" style="font-family:'Times New Roman',serif;" onclick="setManuscriptFont('Times New Roman')">Times New Roman</div>
+          <div class="nav-dd-item fmt-font" data-font="Playfair Display" style="font-family:'Playfair Display',serif;" onclick="setManuscriptFont('Playfair Display')">Playfair Display</div>
+          <div class="nav-dd-item fmt-font" data-font="Verdana" style="font-family:Verdana,sans-serif;" onclick="setManuscriptFont('Verdana')">Verdana</div>
+          <div class="nav-dd-sep"></div>
+          <div class="nav-dd-row">Textstorlek
+            <span class="stepper"><button onclick="stepFontSize(-1)" title="Mindre">−</button><span id="fmtSizeVal">12 pt</span><button onclick="stepFontSize(1)" title="Större">+</button></span>
+          </div>
+          <div class="nav-dd-row">Zoom
+            <span class="stepper"><button onclick="stepZoom(-1)" title="Zooma ut">−</button><span id="fmtZoomVal">100 %</span><button onclick="stepZoom(1)" title="Zooma in">+</button></span>
+          </div>
+        </div>
+      </div>
+      <div class="nav-dropdown" id="vyMenu">
+        <button class="nav-item nav-item-arrow" onclick="toggleNavDropdown('vyMenu')">Vy <span style="font-size:0.65rem;opacity:0.7;">▾</span></button>
+        <div class="nav-dropdown-menu" style="min-width:280px;">
+          <div class="nav-dd-item" onclick="_closeDropdowns(); toggleFocusMode()">Fokusläge <span class="nav-dd-sc">Ctrl+Shift+F</span></div>
+          <div class="nav-dd-item" onclick="_closeDropdowns(); toggleBinder()">Visa/dölj kapitellistan</div>
+          <div class="nav-dd-item" onclick="_closeDropdowns(); toggleInspector()">Visa/dölj inspektören</div>
+          <div class="nav-dd-item" onclick="_closeDropdowns(); switchView('writing'); toggleSynopsisPanel()">Scensynopsis bredvid manuset</div>
+          <div class="nav-dd-sep"></div>
+          <div class="nav-dd-item" onclick="_closeDropdowns(); document.getElementById('themeToggle').click()">Mörkt läge</div>
+        </div>
+      </div>
       <button class="nav-item" onclick="openBackupDialog()">Revisioner</button>
-      <button class="nav-item" id="molnetBtn" onclick="document.getElementById('fbLoginModal').style.display='flex'" title="Molnet — inloggning och synk"><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg> Molnet</button>
     </div>
   </div>
 
   <div class="header-right">
-    <div class="toggle-wrap">
+    <span class="word-count-toolbar" id="wordCountToolbar" title="Ord i aktuell scen">0 ord i scenen</span>
+    <div class="pomo-widget" id="pomoWidget" title="Pomodoro-timer — klicka för att starta 25 min fokustid">
+      <button class="pomo-btn" onclick="togglePomo()" id="pomoBtn"><svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg></button>
+      <span class="pomo-time" id="pomoTime" style="display:none;">25:00</span>
+    </div>
+    <button class="hdr-btn" id="focusBtn" onclick="toggleFocusMode()" title="Fokusläge (Ctrl+Shift+F)"><svg class="ic" aria-hidden="true"><use href="#i-maximize-2"/></svg></button>
+    <div class="toggle-wrap" title="Mörkt läge">
       <button class="toggle" id="themeToggle"></button>
       <span class="moon"><svg class="ic" aria-hidden="true"><use href="#i-moon"/></svg></span>
     </div>
-    <button class="hdr-icon" title="Hjälp"><svg class="ic" aria-hidden="true"><use href="#i-circle-help"/></svg></button>
-    <button class="hdr-icon" title="Info"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg></button>
-    <button class="hdr-icon" title="Inställningar"><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg></button>
-    <div class="avatar">HÅ</div>
+    <div class="avatar-wrap" id="avatarWrap">
+      <button class="avatar" id="avatarBtn" onclick="toggleAvatarMenu(event)" title="Konto">?</button>
+      <div class="avatar-menu">
+        <div class="avatar-menu-email" id="avatarEmail">Inte inloggad</div>
+        <div class="nav-dd-sep"></div>
+        <div class="nav-dd-item" id="avatarLogin" onclick="closeAvatarMenu(); document.getElementById('fbLoginModal').style.display='flex'">Logga in</div>
+        <div class="nav-dd-item" id="avatarLogout" style="display:none;color:#c84040;" onclick="closeAvatarMenu(); window.fbLoggaUt && window.fbLoggaUt()">Logga ut</div>
+      </div>
+    </div>
   </div>
 </header>
 
-<!-- TOOLBAR -->
-<div class="toolbar">
-  <select class="toolbar-select" id="paragraphStyle">
-    <option value="p">Normaltext</option>
-    <option value="h1">Rubrik 1</option>
-    <option value="h2">Rubrik 2</option>
-    <option value="blockquote">Citat</option>
-  </select>
+<!-- SIDOLIST: vyerna -->
+<nav class="app-rail" aria-label="Vyer">
+  <button class="rail-btn active" onclick="switchView('writing')" id="btn-writing" title="Manus"><svg class="ic" aria-hidden="true"><use href="#i-pen-line"/></svg>Manus</button>
+  <button class="rail-btn" onclick="switchView('corkboard')" id="btn-corkboard" title="Scenkort"><svg class="ic" aria-hidden="true"><use href="#i-layout-grid"/></svg>Scenkort</button>
+  <button class="rail-btn" onclick="switchView('outline')" id="btn-outline" title="Outline"><svg class="ic" aria-hidden="true"><use href="#i-list-tree"/></svg>Outline</button>
+  <button class="rail-btn" onclick="switchView('brainstorm')" id="btn-brainstorm" title="Brainstorm"><svg class="ic" aria-hidden="true"><use href="#i-network"/></svg>Brainstorm</button>
+  <div class="rail-sep"></div>
+  <button class="rail-btn" onclick="switchView('idebank')" id="btn-idebank" title="Idébanken"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg>Idébank</button>
+  <button class="rail-btn" onclick="switchView('character')" id="btn-character" title="Karaktärer"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>Karaktärer</button>
+  <button class="rail-btn" onclick="switchView('research')" id="btn-research" title="Research"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg>Research</button>
+  <div class="rail-sep"></div>
+  <button class="rail-btn" onclick="toggleAiEditor()" id="btn-coach" title="AI-redaktör"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg>Redaktör</button>
+</nav>
 
-  <div class="toolbar-divider"></div>
+<span id="autosaveIndicator" style="opacity:0;transition:opacity 0.5s;"></span>
 
-  <select class="toolbar-select" id="fontFamily" style="width:120px;">
-    <option value="Lora">Lora</option>
-    <option value="Georgia">Georgia</option>
-    <option value="Times New Roman">Times New Roman</option>
-    <option value="Verdana">Verdana</option>
-    <option value="Playfair Display">Playfair Display</option>
-    <option value="EB Garamond">Garamond</option>
-  </select>
-
-  <div class="font-size-group">
-    <button class="fs-btn" id="fsBtnMinus">−</button>
-    <span id="fontSize" contenteditable="true">12</span>
-    <button class="fs-btn" id="fsBtnPlus">+</button>
-  </div>
-
-  <div class="toolbar-divider"></div>
-
-  <button class="tb-btn" style="font-weight:700;" title="Fet" id="tbBold">B</button>
-  <button class="tb-btn" style="font-style:italic;" title="Kursiv" id="tbItalic">I</button>
-  <button class="tb-btn" style="text-decoration:underline;" title="Understruken" id="tbUnderline">U</button>
-
-  <div class="toolbar-divider"></div>
-
-  <button class="tb-btn" title="Punktlista"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg></button>
-  <button class="tb-btn" title="Numrerad lista"><svg class="ic" aria-hidden="true"><use href="#i-list-ordered"/></svg></button>
-  <button class="tb-btn" title="Vänster"><svg class="ic" aria-hidden="true"><use href="#i-align-left"/></svg></button>
-  <button class="tb-btn" title="Centrera"><svg class="ic" aria-hidden="true"><use href="#i-align-center"/></svg></button>
-  <button class="tb-btn" title="Höger"><svg class="ic" aria-hidden="true"><use href="#i-align-right"/></svg></button>
-
-  <div class="toolbar-divider"></div>
-
-  <button class="tb-btn" title="Zoom">100%</button>
-
-  <span class="word-count-toolbar" id="wordCountToolbar">0 ord</span>
-
-  <span id="autosaveIndicator" style="font-size:0.75rem;color:#4a8a5a;margin-left:10px;opacity:0;transition:opacity 0.5s;white-space:nowrap;font-weight:500;"></span>
-
-</div>
-
-<!-- VIEW SWITCHER -->
-<div class="view-switcher">
-  <button class="view-btn active" onclick="switchView('writing')" id="btn-writing">
-    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-pen-line"/></svg></span> Manus
-  </button>
-  <button class="view-btn" onclick="switchView('corkboard')" id="btn-corkboard">
-    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-layout-grid"/></svg></span> Scenkort
-  </button>
-  <button class="view-btn" onclick="switchView('outline')" id="btn-outline">
-    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-list-tree"/></svg></span> Outline
-  </button>
-  <button class="view-btn" onclick="switchView('brainstorm')" id="btn-brainstorm">
-    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-network"/></svg></span> Brainstorm
-  </button>
-  <div class="view-divider"></div>
-  <button class="view-btn" onclick="toggleAiEditor()" id="btn-coach">
-    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></span> AI-redaktör
-  </button>
-  <button class="view-btn" onclick="switchView('idebank')" id="btn-idebank">
-    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></span> Idébanken
-  </button>
-  <button class="view-btn" onclick="switchView('character')" id="btn-character">
-    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span> Karaktärer
-  </button>
-  <button class="view-btn" onclick="switchView('research')" id="btn-research">
-    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg></span> Research
-  </button>
-  <div class="view-divider"></div>
-  <div class="pomo-widget" id="pomoWidget" title="Pomodoro-timer — klicka för att starta 25 min fokustid">
-    <button class="pomo-btn" onclick="togglePomo()" id="pomoBtn"><svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg></button>
-    <span class="pomo-time" id="pomoTime" style="display:none;">25:00</span>
-  </div>
-  <button class="view-btn" onclick="toggleSynopsisPanel()" id="btn-synopsis" title="Visa scensynopsis bredvid manuset" style="font-size:0.7rem;">
-    <span class="vicon"><svg class="ic" aria-hidden="true"><use href="#i-scroll-text"/></svg></span> Synopsis
-  </button>
-</div>
 
 <!-- WRITING VIEW -->
 <div class="writing-wrap active" id="view-writing">
@@ -3116,13 +3174,9 @@
   <!-- LEFT SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-title">
+      <div class="sidebar-title" style="margin-bottom:0;">
         Projekt
-        <button class="sidebar-search"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
-      </div>
-      <div class="sidebar-actions">
-        <button class="btn-add" onclick="addChapterToProject()">+ Lägg till</button>
-        <button class="btn-import" onclick="alert('Importera — kommer snart')">↓ Importera</button>
+        <button class="sb-collapse" onclick="toggleBinder(true)" title="Fäll ihop kapitellistan"><svg class="ic" aria-hidden="true"><use href="#i-panel-left-close"/></svg></button>
       </div>
     </div>
 
@@ -3159,14 +3213,12 @@
       <button class="sb-bottom-btn" onclick="addSceneToActiveChapter()" title="Ny scen">
         <svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> Ny scen
       </button>
-      <button class="sb-trash-btn" title="Sopkorg" id="trashBtn">
-        <svg class="ic" aria-hidden="true"><use href="#i-trash-2"/></svg>
-      </button>
     </div>
   </div>
 
   <!-- WRITING CANVAS + COACH PANEL WRAPPER -->
   <div class="canvas-coach-wrap" id="canvasCoachWrap">
+    <button class="binder-open-btn" onclick="toggleBinder(false)" title="Visa kapitellistan"><svg class="ic" aria-hidden="true"><use href="#i-panel-left-open"/></svg></button>
 
     <div class="canvas-wrap" id="canvasWrap">
       <div id="pageContainer">
@@ -3758,17 +3810,10 @@
 
   <!-- FAR RIGHT ICON BAR -->
   <div class="icon-bar">
-    <button class="icon-bar-btn" data-tip="Tillbaka till projekt" onclick="window.location.href='writeon-dashboard.html'"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg></button>
     <button class="icon-bar-btn active" id="ibtn-notes" data-tip="Kapitelnoter" onclick="showPanel('panel-notes')"><svg class="ic" aria-hidden="true"><use href="#i-clipboard-list"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-idebank" data-tip="Idébanken" onclick="showPanel('panel-idebank')"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-charchat" data-tip="Prata med karaktär" onclick="showPanel('panel-charchat')"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg></button>
     <div class="icon-bar-divider"></div>
-    <button class="icon-bar-btn" data-tip="Statistik"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"/></svg></button>
-    <button class="icon-bar-btn" data-tip="Inställningar"><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg></button>
-    <div class="icon-bar-divider"></div>
-    <button class="icon-bar-btn" data-tip="AI-coach">
-      <span class="ai-badge">AI</span>
-    </button>
     <button class="icon-bar-btn" data-tip="Versioner"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg></button>
   </div>
 
@@ -4134,7 +4179,6 @@
       <button class="bs-add-btn" onclick="bsScale=Math.min(bsScale+0.1,3);applyTransform();drawAllLines();document.getElementById('bsZoomLabel').textContent=Math.round(bsScale*100)+'%'" style="width:28px;padding:4px;font-size:1rem;">+</button>
       <button class="bs-add-btn" onclick="bsResetView()" style="font-size:0.7rem;">↺ Återställ</button>
     </div>
-    <button class="bs-add-btn" onclick="exportBsPng()" style="background:rgba(74,137,129,0.1);color:var(--accent-n);border-color:rgba(74,137,129,0.3);"><svg class="ic" aria-hidden="true"><use href="#i-image-down"/></svg> Exportera PNG</button>
     <button class="bs-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ AI-brainstorm</button>
   </div>
 </div>
@@ -4264,7 +4308,7 @@
     }
     const a = activeScene ? (activeScene.words || 0) : 0;
     const tb = document.getElementById('wordCountToolbar');
-    if (tb) { tb.textContent = fmtNum(a) + ' ord'; tb.title = 'Ord i aktuell scen'; }
+    if (tb) tb.textContent = fmtNum(a) + ' ord i scenen';
     const ins = document.getElementById('insp-word-count');
     if (ins) ins.textContent = fmtNum(a) + ' ord i scenen';
     const total = totalWordCount();
@@ -4867,73 +4911,79 @@
   }
 
 
-  // ── Verktygsfält: Font size (bara markerad text), typsnitt, B/I/U, styckeformat ──
+  // ── Manusets typsnitt, textstorlek och zoom (menyn Format) — sparas i webbläsaren ──
+  const DISPLAY_KEY = 'writeon_display';
+  const ZOOM_STEPS = [80, 90, 100, 110, 125, 150];
+  const msDisplay = { font: 'Lora', size: 12, zoom: 100 };
+  try { Object.assign(msDisplay, JSON.parse(localStorage.getItem(DISPLAY_KEY) || '{}')); } catch(e) {}
 
-  // Font size — bara på markerad text
-  let fontSize = 12;
-  function applyFontSizeToSelection(pt){
-    const sel = window.getSelection();
-    if(!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
-    document.execCommand('fontSize', false, '7');
-    document.querySelectorAll('font[size="7"]').forEach(el => {
-      el.removeAttribute('size');
-      el.style.fontSize = pt + 'pt';
-    });
-    document.getElementById('fontSize').textContent = pt;
+  function applyDisplay() {
+    const root = document.documentElement.style;
+    root.setProperty('--ms-font', "'" + msDisplay.font + "', Georgia, serif");
+    root.setProperty('--ms-size', (msDisplay.size / 12) + 'rem');
+    const pc = document.getElementById('pageContainer');
+    if (pc) pc.style.zoom = msDisplay.zoom / 100;
+    const sv = document.getElementById('fmtSizeVal'); if (sv) sv.textContent = msDisplay.size + ' pt';
+    const zv = document.getElementById('fmtZoomVal'); if (zv) zv.textContent = msDisplay.zoom + ' %';
+    document.querySelectorAll('.fmt-font').forEach(el => el.classList.toggle('checked', el.dataset.font === msDisplay.font));
   }
-  document.getElementById('fsBtnMinus')?.addEventListener('click', () => {
-    fontSize = Math.max(8, fontSize - 1);
-    applyFontSizeToSelection(fontSize);
+  function saveDisplay() {
+    try { localStorage.setItem(DISPLAY_KEY, JSON.stringify(msDisplay)); } catch(e) {}
+    applyDisplay();
+  }
+  function setManuscriptFont(font) { msDisplay.font = font; saveDisplay(); }
+  function stepFontSize(dir) { msDisplay.size = Math.max(9, Math.min(20, msDisplay.size + dir)); saveDisplay(); }
+  function stepZoom(dir) {
+    let i = ZOOM_STEPS.indexOf(msDisplay.zoom); if (i < 0) i = 2;
+    msDisplay.zoom = ZOOM_STEPS[Math.max(0, Math.min(ZOOM_STEPS.length - 1, i + dir))];
+    saveDisplay();
+  }
+  applyDisplay();
+
+  // ── Kapitellistan, inspektören och fokusläget ──
+  function toggleBinder(collapse) {
+    const c = typeof collapse === 'boolean' ? collapse : !document.body.classList.contains('binder-collapsed');
+    document.body.classList.toggle('binder-collapsed', c);
+    try { localStorage.setItem('writeon_binder_collapsed', c ? '1' : '0'); } catch(e) {}
+  }
+  try { if (localStorage.getItem('writeon_binder_collapsed') === '1') document.body.classList.add('binder-collapsed'); } catch(e) {}
+
+  function toggleInspector() {
+    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active']
+      .some(id => { const el = document.getElementById(id); return el && el.style.display !== 'none'; });
+    if (open) closePanel(); else showPanel('panel-notes');
+  }
+
+  function toggleFocusMode(on) {
+    const f = typeof on === 'boolean' ? on : !document.body.classList.contains('focus');
+    if (f && !document.getElementById('view-writing').classList.contains('active')) switchView('writing');
+    document.body.classList.toggle('focus', f);
+    const btn = document.getElementById('focusBtn');
+    if (btn) { btn.innerHTML = ic(f ? 'minimize-2' : 'maximize-2'); btn.title = f ? 'Lämna fokusläge (Esc)' : 'Fokusläge (Ctrl+Shift+F)'; }
+    if (f) showAutosaveMsg('Fokusläge · Esc för att gå ur');
+    else { const t = document.getElementById('autosaveIndicator'); if (t) t.style.opacity = '0'; }
+  }
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'F' || e.key === 'f')) { e.preventDefault(); toggleFocusMode(); }
+    else if (e.key === 'Escape' && document.body.classList.contains('focus')) toggleFocusMode(false);
   });
-  document.getElementById('fsBtnPlus')?.addEventListener('click', () => {
-    fontSize = Math.min(72, fontSize + 1);
-    applyFontSizeToSelection(fontSize);
-  });
 
-  // Typsnitt-väljare
-  const fontFamilySelect = document.getElementById('fontFamily');
-  if(fontFamilySelect){
-    fontFamilySelect.addEventListener('change', function(){
-      const font = this.value;
-      const sel = window.getSelection();
-      if(sel && sel.rangeCount > 0 && !sel.isCollapsed){
-        document.execCommand('fontName', false, font);
-      } else {
-        document.querySelectorAll('.scene-writing-area').forEach(a => a.style.fontFamily = font);
-      }
-    });
+  // ── Konto (profilbilden uppe till höger) ──
+  function setAccountUI(email) {
+    const btn = document.getElementById('avatarBtn');
+    if (btn) { btn.textContent = email ? email.trim()[0].toUpperCase() : '?'; btn.title = email || 'Inte inloggad'; }
+    const em = document.getElementById('avatarEmail'); if (em) em.textContent = email || 'Inte inloggad';
+    const li = document.getElementById('avatarLogin');  if (li) li.style.display = email ? 'none' : '';
+    const lo = document.getElementById('avatarLogout'); if (lo) lo.style.display = email ? '' : 'none';
   }
-
-  // Styckeformat
-  const paragraphSelect = document.getElementById('paragraphStyle');
-  const paraStyles = {
-    p:          { fontSize: '12pt', fontWeight: 'normal', fontStyle: 'normal', marginLeft: '0' },
-    h1:         { fontSize: '20pt', fontWeight: 'bold',   fontStyle: 'normal', marginLeft: '0' },
-    h2:         { fontSize: '16pt', fontWeight: 'bold',   fontStyle: 'normal', marginLeft: '0' },
-    blockquote: { fontSize: '12pt', fontWeight: 'normal', fontStyle: 'italic', marginLeft: '2em' },
-  };
-  if(paragraphSelect){
-    paragraphSelect.addEventListener('change', function(){
-      const tag = this.value;
-      const style = paraStyles[tag];
-      if(!style) return;
-      const sel = window.getSelection();
-      if(!sel || sel.rangeCount === 0) return;
-      let node = sel.getRangeAt(0).commonAncestorContainer;
-      if(node.nodeType === 3) node = node.parentNode;
-      const area = node.closest('.scene-writing-area');
-      if(!area) return;
-      let block = node;
-      while(block && block.parentNode !== area) block = block.parentNode;
-      if(!block || block === area) return;
-      Object.assign(block.style, style);
-    });
+  window.setAccountUI = setAccountUI;
+  function toggleAvatarMenu(e) {
+    e.stopPropagation();
+    _closeDropdowns();
+    document.getElementById('avatarWrap').classList.toggle('open');
   }
-
-  // B / I / U
-  document.getElementById('tbBold')?.addEventListener('mousedown',      e => { e.preventDefault(); document.execCommand('bold'); });
-  document.getElementById('tbItalic')?.addEventListener('mousedown',    e => { e.preventDefault(); document.execCommand('italic'); });
-  document.getElementById('tbUnderline')?.addEventListener('mousedown', e => { e.preventDefault(); document.execCommand('underline'); });
+  function closeAvatarMenu() { document.getElementById('avatarWrap').classList.remove('open'); }
+  document.addEventListener('click', e => { if (!e.target.closest('#avatarWrap')) closeAvatarMenu(); });
 
   // Dark mode
   const toggle = document.getElementById('themeToggle');
@@ -6023,8 +6073,6 @@ VIKTIGT:
   function addResearchItem(type) {
     // Switch to research view if not there
     switchView('research');
-    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('btn-research').classList.add('active');
 
     const labels = {
       fakta: ic('file-text') + ' Fakta', bild: ic('image') + ' Bild',
@@ -8553,17 +8601,28 @@ window.addEventListener('load', function() {
 
 <!-- AI MARKERINGS-POPUP -->
 <div id="aiSelectionPopup">
-  <button class="ai-popup-btn primary" onclick="runAiOnSelection('skriv-om')" title="Skriv om"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></button>
+  <button class="ai-popup-btn fmt" data-cmd="bold" title="Fet (Ctrl+B)"><b>B</b></button>
+  <button class="ai-popup-btn fmt" data-cmd="italic" title="Kursiv (Ctrl+I)"><i style="font-family:Georgia,serif;">I</i></button>
+  <button class="ai-popup-btn fmt" data-cmd="underline" title="Understruken (Ctrl+U)"><u>U</u></button>
   <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" onclick="runAiOnSelection('analys')" title="Analys"><svg class="ic" aria-hidden="true"><use href="#i-scan-text"/></svg></button>
+  <div class="pop-style-wrap">
+    <button class="ai-popup-btn fmt pop-style-btn" id="popStyleBtn" title="Stycketyp">Normal ▾</button>
+    <div class="pop-style-menu" id="popStyleMenu">
+      <button data-block="p">Normaltext</button>
+      <button data-block="h2">Rubrik 1</button>
+      <button data-block="h3">Rubrik 2</button>
+      <button data-block="blockquote">Citat</button>
+    </div>
+  </div>
+  <button class="ai-popup-btn fmt" data-cmd="insertUnorderedList" title="Punktlista"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg></button>
+  <button class="ai-popup-btn fmt" id="popQuoteBtn" title="Citat"><svg class="ic" aria-hidden="true"><use href="#i-quote"/></svg></button>
   <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" onclick="runAiOnSelection('putsa')" title="Putsa"><svg class="ic" aria-hidden="true"><use href="#i-scissors"/></svg></button>
-  <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" onclick="runAiOnSelection('synonym')" title="Synonym"><svg class="ic" aria-hidden="true"><use href="#i-replace"/></svg></button>
-  <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" onclick="runAiOnSelection('rattstavning')" title="Rättstavning"><svg class="ic" aria-hidden="true"><use href="#i-spell-check"/></svg></button>
-  <div class="ai-popup-divider"></div>
-  <button class="ai-popup-btn" id="aiPopupDialogBtn" onclick="runAiOnSelection('dialog')" title="Dialog"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg></button>
+  <button class="ai-popup-btn ai primary" onclick="runAiOnSelection('skriv-om')" title="Skriv om"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></button>
+  <button class="ai-popup-btn ai" onclick="runAiOnSelection('analys')" title="Analys"><svg class="ic" aria-hidden="true"><use href="#i-scan-text"/></svg></button>
+  <button class="ai-popup-btn ai" onclick="runAiOnSelection('putsa')" title="Putsa"><svg class="ic" aria-hidden="true"><use href="#i-scissors"/></svg></button>
+  <button class="ai-popup-btn ai" onclick="runAiOnSelection('synonym')" title="Synonym"><svg class="ic" aria-hidden="true"><use href="#i-replace"/></svg></button>
+  <button class="ai-popup-btn ai" onclick="runAiOnSelection('rattstavning')" title="Rättstavning"><svg class="ic" aria-hidden="true"><use href="#i-spell-check"/></svg></button>
+  <button class="ai-popup-btn ai" id="aiPopupDialogBtn" onclick="runAiOnSelection('dialog')" title="Dialog"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg></button>
 </div>
 
 <script>
@@ -8600,6 +8659,7 @@ window.addEventListener('load', function() {
       const dialogBtn = document.getElementById('aiPopupDialogBtn');
       if(dialogBtn) dialogBtn.style.display = (text.includes('—') || text.includes('"') || text.includes('»')) ? '' : 'none';
 
+      refreshStyleLabel();
       // Placera popup ovanför markeringen
       const rect = sel.getRangeAt(0).getBoundingClientRect();
       // Visa tillfälligt för att mäta höjd
@@ -8625,7 +8685,41 @@ window.addEventListener('load', function() {
 
   function hidePopup(){
     popup.classList.remove('visible');
+    const sm = document.getElementById('popStyleMenu'); if (sm) sm.classList.remove('open');
   }
+
+  // ── Formatering i markeringsraden ──
+  const STYLE_LABELS = { P: 'Normal', H2: 'Rubrik 1', H3: 'Rubrik 2', BLOCKQUOTE: 'Citat' };
+  function currentBlockTag() {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return 'P';
+    let n = sel.getRangeAt(0).startContainer;
+    if (n.nodeType === 3) n = n.parentNode;
+    const b = n.closest && n.closest('h2, h3, blockquote, p, li, div.scene-writing-area');
+    return b && STYLE_LABELS[b.tagName] ? b.tagName : 'P';
+  }
+  function refreshStyleLabel() {
+    const tag = currentBlockTag();
+    const btn = document.getElementById('popStyleBtn');
+    if (btn) btn.textContent = STYLE_LABELS[tag] + ' ▾';
+    document.querySelectorAll('#popStyleMenu button').forEach(b => b.classList.toggle('on', b.dataset.block.toUpperCase() === tag));
+  }
+  function setBlock(tag) {
+    document.execCommand('formatBlock', false, tag);   // utlöser input → sparas
+    refreshStyleLabel();
+  }
+  popup.querySelectorAll('[data-cmd]').forEach(b => b.addEventListener('mousedown', e => {
+    e.preventDefault(); document.execCommand(b.dataset.cmd);
+  }));
+  document.getElementById('popStyleBtn').addEventListener('mousedown', e => {
+    e.preventDefault(); refreshStyleLabel(); document.getElementById('popStyleMenu').classList.toggle('open');
+  });
+  document.querySelectorAll('#popStyleMenu button').forEach(b => b.addEventListener('mousedown', e => {
+    e.preventDefault(); setBlock(b.dataset.block); document.getElementById('popStyleMenu').classList.remove('open');
+  }));
+  document.getElementById('popQuoteBtn').addEventListener('mousedown', e => {
+    e.preventDefault(); setBlock(currentBlockTag() === 'BLOCKQUOTE' ? 'p' : 'blockquote');
+  });
 
   // Kör AI på markerad text
   window.runAiOnSelection = async function(typ){
@@ -8634,7 +8728,7 @@ window.addEventListener('load', function() {
     if(!text) return;
 
     const key = localStorage.getItem('writeon_gemini_key') || localStorage.getItem('writeon_ai_key');
-    if(!key){ alert('Lägg till Gemini API-nyckel under Molnet-ikonen.'); return; }
+    if(!key){ alert('Lägg till din Gemini-nyckel i AI-redaktören (Redaktör i sidolisten).'); return; }
 
     const prompts = {
       'skriv-om':     `Du är en erfaren svensk romanredaktör. Skriv om följande textstycke. Behåll meningen och tonen men förbättra språket. Inga adjektiv-överskott. Starka verb. Inga förklaringar — bara det omskrivna stycket.\n\n${text}`,
@@ -8899,12 +8993,11 @@ onAuthStateChanged(auth, async user => {
   window.fbSignedIn = !!user;
   if (user) {
     document.getElementById('fbLoginModal').style.display = 'none';
-    document.getElementById('fbUserEmail').textContent = user.email;
-    document.getElementById('fbUserBar').style.display = 'flex';
+    if (window.setAccountUI) window.setAccountUI(user.email);
     window.fbRefreshRecentMenu();
     if (!window.fbActiveProject) await fbOpenLatestProject();
   } else {
-    document.getElementById('fbUserBar').style.display = 'none';
+    if (window.setAccountUI) window.setAccountUI(null);
     if (window.fbActiveProject && window.resetToBlankProject) window.resetToBlankProject();
     window.fbActiveProject = null;
     if (window.setSyncStatus) window.setSyncStatus('offline');
@@ -9042,12 +9135,6 @@ window.fbLoggaUt = async function() {
   </div>
 </div>
 
-<!-- INLOGGAD-RAD -->
-<div id="fbUserBar" style="display:none;position:fixed;bottom:16px;right:16px;background:var(--bg-card,#fff);border-radius:10px;padding:8px 14px;box-shadow:0 4px 16px rgba(0,0,0,0.12);font-size:0.78rem;font-family:'DM Sans',sans-serif;z-index:9000;align-items:center;gap:10px;">
-  <span style="color:#4a8981;display:flex;"><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg></span>
-  <span id="fbUserEmail" style="color:#555;"></span>
-  <button onclick="window.fbLoggaUt()" style="background:none;border:none;color:#c84040;cursor:pointer;font-size:0.78rem;padding:0;">Logga ut</button>
-</div>
 
 </body>
 </html>
