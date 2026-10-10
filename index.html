@@ -3226,112 +3226,6 @@
       </div>
     </div>
 
-    <!-- IDÉBANK + KARAKTÄRER UNDER MANUS -->
-    <div class="below-manus" id="belowManus">
-
-      <div class="bm-collapse-handle" id="bmCollapseHandle" onclick="toggleBelowManus()" title="Visa/dölj verktyg">
-        <span id="bmCollapseIcon">▼</span>
-        <span class="bm-collapse-label">Idébanken · Karaktärer</span>
-      </div>
-
-      <div id="bmSectionsWrap">
-
-      <!-- IDÉBANKEN UNDER MANUS -->
-      <div class="bm-section" id="bm-idebank-section">
-        <div class="bm-section-hdr" onclick="toggleBmSection('bm-idebank')">
-          <span class="bm-arrow" id="bmarr-bm-idebank">▶</span>
-          <span class="bm-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></span>
-          <span class="bm-section-title">Idébanken</span>
-          <span class="bm-section-sub">Kort, listor, idéfragment</span>
-        </div>
-        <div class="bm-section-body collapsed" id="bm-idebank">
-
-          <!-- Idéhög -->
-          <div class="ib-section" id="ibs-idehogg2">
-            <div class="ib-section-hdr" onclick="toggleIbSection('idehogg2')">
-              <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-brain"/></svg></span>
-              <span class="ib-section-title">Idéhög</span>
-              <span class="ib-section-arrow" id="ibsa-idehogg2">▼</span>
-            </div>
-            <div class="ib-section-body" id="ibsb-idehogg2">
-              <textarea class="ib-textarea" placeholder="Skriv allt du vet om boken — karaktärer, stämning, teman, vad som helst. Ingen struktur krävs."></textarea>
-              <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Generera synopsis</button>
-            </div>
-          </div>
-
-          <!-- Genre & ton -->
-          <div class="ib-section" id="ibs-genre2">
-            <div class="ib-section-hdr" onclick="toggleIbSection('genre2')">
-              <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-drama"/></svg></span>
-              <span class="ib-section-title">Genre &amp; ton</span>
-              <span class="ib-section-arrow" id="ibsa-genre2">▼</span>
-            </div>
-            <div class="ib-section-body" id="ibsb-genre2">
-              <input class="ib-input" type="text" placeholder="T.ex. Noir-thriller, Historisk roman...">
-              <input class="ib-input" type="text" placeholder="Ton och stämning...">
-            </div>
-          </div>
-
-          <!-- Din röst -->
-          <div class="ib-section" id="ibs-rost2">
-            <div class="ib-section-hdr" onclick="toggleIbSection('rost2')">
-              <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-feather"/></svg></span>
-              <span class="ib-section-title">Din röst</span>
-              <span class="ib-section-arrow" id="ibsa-rost2">▼</span>
-            </div>
-            <div class="ib-section-body" id="ibsb-rost2">
-              <textarea class="ib-textarea" placeholder="Beskriv din skrivstil. Korta meningar eller långa? Mycket dialog? Inre monolog?"></textarea>
-              <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Analysera min stil</button>
-            </div>
-          </div>
-
-          <!-- Synopsis -->
-          <div class="ib-section" id="ibs-synopsis2">
-            <div class="ib-section-hdr" onclick="toggleIbSection('synopsis2')">
-              <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-book-open"/></svg></span>
-              <span class="ib-section-title">Synopsis</span>
-              <span class="ib-section-arrow" id="ibsa-synopsis2">▼</span>
-            </div>
-            <div class="ib-section-body" id="ibsb-synopsis2">
-              <textarea class="ib-textarea" style="min-height:100px;" placeholder="Sammanfatta din berättelse i ett stycke."></textarea>
-              <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Skriv om</button>
-            </div>
-          </div>
-
-          <!-- Världen -->
-          <div class="ib-section" id="ibs-varld2">
-            <div class="ib-section-hdr" onclick="toggleIbSection('varld2')">
-              <span class="ib-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg></span>
-              <span class="ib-section-title">Världen</span>
-              <span class="ib-section-arrow" id="ibsa-varld2">▼</span>
-            </div>
-            <div class="ib-section-body" id="ibsb-varld2">
-              <button class="ib-add-btn" onclick="addWorldCard()">+ Ny plats</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- KARAKTÄRER UNDER MANUS -->
-      <div class="bm-section" id="bm-chars-section">
-        <div class="bm-section-hdr" onclick="toggleBmSection('bm-chars')">
-          <span class="bm-arrow" id="bmarr-bm-chars">▶</span>
-          <span class="bm-section-icon"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg></span>
-          <span class="bm-section-title">Karaktärer</span>
-          <span class="bm-section-sub">Kort, relationer, röst</span>
-          <button class="bm-add-btn" onclick="event.stopPropagation();addBmChar()">+ Ny</button>
-        </div>
-        <div class="bm-section-body collapsed" id="bm-chars">
-          <div id="bmCharList">
-
-
-          </div>
-          <button class="ib-add-btn" style="margin:8px 14px;" onclick="addCharCard()">+ Ny karaktär</button>
-        </div>
-      </div>
-
-</div><!-- end below-manus -->
 
     <!-- COACH PANEL — glider upp underifrån -->
     <div class="coach-panel" id="coachPanel">
@@ -3410,8 +3304,6 @@
 
     </div><!-- end coach-panel -->
 
-  
-      </div><!-- /bmSectionsWrap -->
     </div><!-- end canvas-coach-wrap -->
 
 
@@ -4458,6 +4350,7 @@
     card.className = 'world-card';
     card.innerHTML = '<div class="world-card-name">' + ic('map-pin') + ' <span contenteditable="true">Ny plats</span></div><textarea class="ib-textarea-sm" placeholder="Beskriv platsen..."></textarea>';
     list.insertBefore(card, addBtn);
+    if (typeof collectWorld === 'function') { collectWorld(); scheduleAutoSave(); }
   }
 
   // ─── BRAINSTORM ───
@@ -6461,6 +6354,7 @@ VIKTIGT:
     projectData.wordGoal   = data.wordGoal || 100000;
     projectData.chapters   = Array.isArray(data.chapters) ? data.chapters : [];
     projectData.characters = Array.isArray(data.characters) ? data.characters : [];
+    projectData.idebank    = (data.idebank && typeof data.idebank === 'object') ? data.idebank : {};
     projectData.chapters.forEach(ch => { if (!Array.isArray(ch.scenes)) ch.scenes = []; });
     if (!projectData.chapters.length)
       projectData.chapters.push({ id: 'chap-1', title: 'Kapitel 1', scenes: [] });
@@ -6472,6 +6366,7 @@ VIKTIGT:
     changeSeq = savedSeq = 0;
     updateProjectTitle();
     renderProjectViews();
+    renderIdebank();
   }
   window.applyProject = applyProject;
 
@@ -6584,6 +6479,56 @@ VIKTIGT:
       if (window.fbRefreshRecentMenu) window.fbRefreshRecentMenu();
     }
   }
+
+  // ── Idébanken (högerpanelen + helsidesvyn) sparas i projektet ──────────────
+  const IB_KEYS_TEXT  = ['idehog', 'rost', 'synopsis'];   // .ib-textarea i ordning
+  const IB_KEYS_INPUT = ['genre', 'ton'];                 // .ib-input i ordning
+  function ibFields() {
+    const out = [];
+    ['#panel-idebank', '#view-idebank'].forEach(root => {
+      const r = document.querySelector(root); if (!r) return;
+      r.querySelectorAll('textarea.ib-textarea').forEach((el, i) => { if (IB_KEYS_TEXT[i]) { el.dataset.ib = IB_KEYS_TEXT[i]; out.push(el); } });
+      r.querySelectorAll('input.ib-input').forEach((el, i) => { if (IB_KEYS_INPUT[i]) { el.dataset.ib = IB_KEYS_INPUT[i]; out.push(el); } });
+    });
+    return out;
+  }
+  function collectWorld() {
+    projectData.idebank = projectData.idebank || {};
+    projectData.idebank.varld = [...document.querySelectorAll('#ibsb-varld .world-card')].map(c => ({
+      name: (c.querySelector('[contenteditable]')?.textContent || '').trim(),
+      text: c.querySelector('textarea')?.value || ''
+    }));
+  }
+  function renderIdebank() {
+    const ib = projectData.idebank || {};
+    ibFields().forEach(el => { el.value = ib[el.dataset.ib] || ''; });
+    const list = document.getElementById('ibsb-varld');
+    if (list) {
+      list.querySelectorAll('.world-card').forEach(c => c.remove());
+      const addBtn = list.querySelector('.ib-add-btn');
+      (ib.varld || []).forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'world-card';
+        card.innerHTML = '<div class="world-card-name">' + ic('map-pin') + ' <span contenteditable="true"></span></div><textarea class="ib-textarea-sm" placeholder="Beskriv platsen..."></textarea>';
+        card.querySelector('[contenteditable]').textContent = p.name || '';
+        card.querySelector('textarea').value = p.text || '';
+        list.insertBefore(card, addBtn);
+      });
+    }
+  }
+  window.renderIdebank = renderIdebank;
+  document.addEventListener('input', e => {
+    const el = e.target;
+    if (el.dataset && el.dataset.ib) {
+      projectData.idebank = projectData.idebank || {};
+      projectData.idebank[el.dataset.ib] = el.value;
+      document.querySelectorAll('[data-ib="' + el.dataset.ib + '"]').forEach(o => { if (o !== el) o.value = el.value; });
+      scheduleAutoSave();
+    } else if (el.closest && el.closest('#ibsb-varld')) {
+      collectWorld(); scheduleAutoSave();
+    }
+  });
+  ibFields();
 
   // ── Kort meddelande i verktygsraden ────────────────────────────────────────
   function showAutosaveMsg(msg) {
@@ -7393,6 +7338,7 @@ p:first-of-type{text-indent:0;}`);
   
   function toggleBelowManus() {
     const bm = document.getElementById('belowManus');
+    if (!bm) return;
     const icon = document.getElementById('bmCollapseIcon');
     if (!bm) return;
     const isCollapsed = bm.classList.toggle('collapsed');
@@ -8909,6 +8855,7 @@ window.firebaseSaveProject = async function() {
       wordGoal:   p.wordGoal || 100000,
       chapters:   p.chapters || [],
       characters: p.characters || [],
+      idebank:    p.idebank || {},
       savedAt:    serverTimestamp()
     };
     await setDoc(doc(db, 'users', user.uid, 'projects', projektNamn), data);
