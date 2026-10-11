@@ -11,7 +11,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Lora:ital,wght@0,400;0,500;1,400&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Lora:ital,wght@0,400;0,500;1,400&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   /* ═══ DESIGNSYSTEM — alla färger, typsnitt och grader bestäms här ═══
      Ljust läge i :root, mörkt läge i body.dark. Grönt (--action) är enda färgen för handling,
@@ -290,6 +290,38 @@
   .fp-sugg { font-family: var(--font-text); font-weight: 600; color: var(--text-primary); }
   .fp-prev { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
   .fp-goto { position: absolute; right: 0; top: 8px; border: none; background: none; color: var(--action-text); font: 700 13px var(--font-ui); cursor: pointer; text-decoration: underline; }
+
+  /* Gemensamma dialoger */
+  .wn-modal { background: var(--bg-card); color: var(--text-primary); border-radius: 14px; padding: 26px 28px; width: 460px; max-width: 95vw; box-shadow: 0 12px 48px rgba(0,0,0,0.22); font-family: var(--font-ui); }
+  .wn-modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .wn-modal-head h2 { margin: 0; font-size: var(--fs-lg); font-weight: 700; }
+  .wn-x { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-muted); padding: 2px 6px; border-radius: 6px; }
+  .wn-p { font-size: var(--fs-md); line-height: 1.55; color: var(--text-secondary); margin: 0 0 16px; }
+  .wn-note { font-size: var(--fs-sm); line-height: 1.5; color: var(--text-muted); margin: 14px 0 0; }
+  .wn-btn { padding: 9px 18px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--bg-soft); color: var(--text-primary); font: 600 var(--fs-sm) var(--font-ui); cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+  .wn-btn-primary { background: var(--action); color: var(--on-action); border-color: var(--action); }
+  .wn-modal-foot { display: flex; justify-content: flex-end; margin-top: 20px; }
+  /* Mallar i Nytt projekt */
+  .tpl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+  .tpl-card { display: flex; gap: 10px; align-items: flex-start; text-align: left; background: var(--bg-card); border: 1.5px solid var(--border-strong); border-radius: 10px; padding: 10px 12px; cursor: pointer; font-family: var(--font-ui); color: var(--text-primary); }
+  .tpl-card .ic { width: 18px; height: 18px; color: var(--accent-n); margin-top: 2px; }
+  .tpl-card.on { border-color: var(--action); box-shadow: 0 0 0 2px color-mix(in srgb, var(--action) 25%, transparent); }
+  .tpl-t { font-size: var(--fs-md); font-weight: 700; }
+  .tpl-d { font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.4; margin-top: 2px; }
+
+  /* ═══ Filmmanus (standardformat: Courier 12 pt, 10 tecken per tum) ═══ */
+  body.screenplay-mode #pageContainer .scene-writing-area { font-family: 'Courier Prime', 'Courier New', monospace; font-size: 12pt; line-height: 1.25; max-width: 61ch; }
+  body.screenplay-mode .scene-writing-area p { margin: 0; }
+  body.screenplay-mode .scene-writing-area p[data-el="scene"] { text-transform: uppercase; font-weight: 700; margin-top: 2.5em; }
+  body.screenplay-mode .scene-writing-area p[data-el="scene"]:first-child { margin-top: 0; }
+  body.screenplay-mode .scene-writing-area p[data-el="action"] { margin-top: 1.25em; }
+  body.screenplay-mode .scene-writing-area p[data-el="character"] { text-transform: uppercase; margin: 1.25em 0 0 22ch; }
+  body.screenplay-mode .scene-writing-area p[data-el="paren"] { margin-left: 16ch; max-width: 26ch; }
+  body.screenplay-mode .scene-writing-area p[data-el="dialogue"] { margin-left: 10ch; max-width: 35ch; }
+  body.screenplay-mode .scene-writing-area p[data-el="transition"] { text-transform: uppercase; text-align: right; margin-top: 1.25em; }
+  .sp-chip { position: absolute; left: 16px; bottom: 16px; z-index: 6; display: flex; gap: 10px; align-items: center; background: var(--bg-card); border: 1px solid var(--border-strong); box-shadow: var(--shadow); border-radius: 10px; padding: 7px 12px; font: 13px var(--font-ui); color: var(--text-muted); }
+  .sp-chip b { color: var(--action-text); font-size: 14px; }
+  body.screenplay-mode .pop-style-wrap, body.screenplay-mode #aiSelectionPopup [data-cmd="insertUnorderedList"], body.screenplay-mode #popQuoteBtn { display: none; }
 
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
@@ -3118,6 +3150,7 @@
   <symbol id="i-minimize-2" viewBox="0 0 24 24"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" x2="21" y1="10" y2="3"/><line x1="3" x2="10" y1="21" y2="14"/></symbol>
   <symbol id="i-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></symbol>
   <symbol id="i-log-in" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></symbol>
+  <symbol id="i-clapperboard" viewBox="0 0 24 24"><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></symbol>
   <symbol id="i-spell-check" viewBox="0 0 24 24"><path d="m6 16 6-12 6 12"/><path d="M8 12h8"/><path d="m16 20 2 2 4-4"/></symbol>
 </svg>
 
@@ -3145,8 +3178,8 @@
       <div class="nav-dropdown" id="filMenu">
         <button class="nav-item nav-item-arrow" onclick="toggleNavDropdown('filMenu')">Fil <span style="font-size:13px;opacity:0.7;">▾</span></button>
         <div class="nav-dropdown-menu">
-          <div class="nav-dd-item" onclick="nyttProjekt()">Nytt projekt <span class="nav-dd-sc">⌘N</span></div>
-          <div class="nav-dd-item" onclick="openProjectFile()">Öppna… <span class="nav-dd-sc">⌘O</span></div>
+          <div class="nav-dd-item" onclick="nyttProjekt()">Nytt projekt …</div>
+          <div class="nav-dd-item" onclick="openProjectFile()">Öppna… <span class="nav-dd-sc">Ctrl+O</span></div>
           <div class="nav-dropdown nav-dd-submenu" id="recentMenu">
             <div class="nav-dd-item nav-dd-has-sub" onclick="toggleNavDropdown('recentMenu')">Öppna senaste</div>
             <div class="nav-dropdown-menu nav-dd-sub-menu" id="recentProjectsMenu">
@@ -3154,12 +3187,12 @@
             </div>
           </div>
           <div class="nav-dd-sep"></div>
-          <div class="nav-dd-item" onclick="_closeDropdowns(); saveNow();">Spara <span class="nav-dd-sc">⌘S</span></div>
+          <div class="nav-dd-item" onclick="_closeDropdowns(); saveNow();">Spara <span class="nav-dd-sc">Ctrl+S</span></div>
           <div class="nav-dd-sep"></div>
           <div class="nav-dd-item" onclick="filImportera()">Importera</div>
           <div class="nav-dd-item" onclick="filExportera()">Exportera / Kompilera…</div>
           <div class="nav-dd-sep"></div>
-          <div class="nav-dd-item" onclick="filSkrivUt()">Skriv ut <span class="nav-dd-sc">⌘P</span></div>
+          <div class="nav-dd-item" onclick="filSkrivUt()">Skriv ut <span class="nav-dd-sc">Ctrl+P</span></div>
           <div class="nav-dd-sep"></div>
         </div>
       </div>
@@ -3194,7 +3227,7 @@
           <div class="nav-dd-item" onclick="_closeDropdowns(); document.getElementById('themeToggle').click()">Mörkt läge</div>
         </div>
       </div>
-      <button class="nav-item" onclick="openBackupDialog()">Revisioner</button>
+      <button class="nav-item" onclick="openBackupDialog()">Säkerhetskopia</button>
     </div>
   </div>
 
@@ -3267,6 +3300,7 @@
 
   <!-- WRITING CANVAS + COACH PANEL WRAPPER -->
   <div class="canvas-coach-wrap" id="canvasCoachWrap">
+    <div class="sp-chip" id="spChip" style="display:none;"></div>
     <button class="binder-open-btn" onclick="toggleBinder(false)" title="Visa kapitellistan"><svg class="ic" aria-hidden="true"><use href="#i-panel-left-open"/></svg></button>
 
     <div class="canvas-wrap" id="canvasWrap">
@@ -3704,7 +3738,7 @@
     <button class="icon-bar-btn" id="ibtn-idebank" data-tip="Idébanken" onclick="showPanel('panel-idebank')"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-charchat" data-tip="Prata med karaktär" onclick="showPanel('panel-charchat')"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg></button>
     <div class="icon-bar-divider"></div>
-    <button class="icon-bar-btn" data-tip="Versioner"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg></button>
+    <button class="icon-bar-btn" data-tip="Säkerhetskopia" id="ibtn-backup" onclick="openBackupDialog()"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg></button>
   </div>
 
 
@@ -4739,6 +4773,14 @@
     else if (e.key === 'Escape' && document.body.classList.contains('focus')) toggleFocusMode(false);
   });
 
+  // Inloggningsknapparna: Firebase finns bara på den riktiga adressen (inte i förhandsvisningar)
+  function fbLoginAction(typ) {
+    const fn = typ === 'reset' ? window.fbGlomtLosenord : window.fbLogga;
+    if (typeof fn === 'function') return typ === 'reset' ? fn() : fn(typ);
+    const st = document.getElementById('fbStatus');
+    if (st) { st.style.color = '#c84040'; st.textContent = 'Inloggningen fungerar bara på WriteONs riktiga adress, inte i en förhandsvisning.'; }
+  }
+
   // ── Konto (profilbilden uppe till höger) ──
   function setAccountUI(email) {
     const btn = document.getElementById('avatarBtn');
@@ -5657,20 +5699,7 @@ VIKTIGT:
   // Status visas i märket bredvid projektnamnet (#syncBadge).
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // IndexedDB används bara av Revisioner (säkerhetskopia till vald mapp)
-  function openHandleStore() {
-    return new Promise((resolve, reject) => {
-      const req = indexedDB.open('writeon_handles', 2);
-      req.onupgradeneeded = e => {
-        const db = e.target.result;
-        if (!db.objectStoreNames.contains('handles')) db.createObjectStore('handles');
-      };
-      req.onsuccess = e => resolve(e.target.result);
-      req.onerror  = () => reject(req.error);
-    });
-  }
-
-  // Filnamnsvänligt projektnamn (används av Revisioner)
+  // Filnamnsvänligt projektnamn (används av säkerhetskopian)
   function getProjectName() {
     return (projectData.title || 'Manus').replace(/[^\wåäöÅÄÖ\s\-]/g, '').trim() || 'Manus';
   }
@@ -5831,6 +5860,8 @@ VIKTIGT:
     projectData.chapters   = Array.isArray(data.chapters) ? data.chapters : [];
     projectData.characters = Array.isArray(data.characters) ? data.characters : [];
     projectData.idebank    = (data.idebank && typeof data.idebank === 'object') ? data.idebank : {};
+    projectData.format     = data.format === 'screenplay' ? 'screenplay' : 'prosa';
+    document.body.classList.toggle('screenplay-mode', projectData.format === 'screenplay');
     projectData.chapters.forEach(ch => { if (!Array.isArray(ch.scenes)) ch.scenes = []; });
     if (!projectData.chapters.length)
       projectData.chapters.push({ id: 'chap-1', title: 'Kapitel 1', scenes: [] });
@@ -5856,6 +5887,53 @@ VIKTIGT:
   // ── Nytt projekt ───────────────────────────────────────────────────────────
   let nyttProjektKeep = false;   // true = döp om aktuellt (osparat) innehåll i stället för att tömma
 
+  // ── Projektmallar ──
+  // Hjälptexten hamnar i scenens Notering (inte i synopsis), så assistenten inte tar den för handling.
+  const PROJECT_TEMPLATES = [
+    { id: 'roman', namn: 'Roman', ikon: 'book-open', text: 'Kapitel och scener. Fri struktur.', mal: 80000,
+      kapitel: [['Kapitel 1', [['Scen 1']]], ['Kapitel 2', [['Scen 1']]], ['Kapitel 3', [['Scen 1']]]] },
+    { id: 'treakter', namn: 'Roman i tre akter', ikon: 'chart-gantt', text: 'Anslag, konflikt och upplösning med vändpunkterna utmärkta.', mal: 80000,
+      kapitel: [
+        ['Akt I – Anslag', [['Öppning', 'Visa huvudpersonens vardag och vad som saknas.', 'lugn'], ['Det utlösande', 'Händelsen som rubbar allt.', 'vändpunkt'], ['Beslutet', 'Huvudpersonen väljer att agera. Ingen väg tillbaka.', 'upptrappning']]],
+        ['Akt II – Konflikt', [['Den nya världen', 'Hinder, allierade och motståndare.', 'upptrappning'], ['Mittpunkten', 'En vändning som ändrar vad berättelsen handlar om.', 'vändpunkt'], ['Allt går fel', 'Det mörkaste ögonblicket.', 'svacka']]],
+        ['Akt III – Upplösning', [['Klimax', 'Den avgörande konfrontationen.', 'klimax'], ['Efteråt', 'Vad har förändrats?', 'lugn']]]] },
+    { id: 'deckare', namn: 'Deckare', ikon: 'scan-text', text: 'Brott, utredning, falska spår och upplösning.', mal: 90000, genre: 'Deckare',
+      kapitel: [
+        ['Brottet', [['Fyndet', 'Brottet upptäcks. Vad ser den som hittar det?', 'vändpunkt'], ['Utredaren', 'Vem tar fallet, och vad bär hen på?', 'lugn']]],
+        ['Utredningen', [['Första spåret', 'Det uppenbara spåret.', 'upptrappning'], ['De misstänkta', 'Alla har något att dölja.', 'upptrappning'], ['Falskt spår', 'Läsaren och utredaren leds fel.', 'svacka']]],
+        ['Vändningen', [['Det nya beviset', 'Allt ställs på ända.', 'vändpunkt'], ['Insatserna höjs', 'Utredaren eller någon nära är i fara.', 'upptrappning']]],
+        ['Upplösningen', [['Konfrontationen', 'Sanningen kommer fram.', 'klimax'], ['Efterspelet', 'Vad kostade det?', 'lugn']]]] },
+    { id: 'novell', namn: 'Novell', ikon: 'feather', text: 'En kort berättelse i tre rörelser.', mal: 8000,
+      kapitel: [['Novell', [['Början', 'Sätt tonen och spänningen redan i första meningen.', 'upptrappning'], ['Mitten', 'Det som står på spel blir tydligt.', 'vändpunkt'], ['Slutet', 'Ett slut som ändrar hur början läses.', 'klimax']]]] },
+    { id: 'dagbok', namn: 'Dagboksroman', ikon: 'scroll-text', text: 'Varje kapitel är en dag. Lägg till fler med Nytt kapitel.', mal: 70000,
+      kapitel: [['Dag 1', [['Anteckning']]], ['Dag 2', [['Anteckning']]], ['Dag 3', [['Anteckning']]]] },
+    { id: 'film', namn: 'Filmmanus', ikon: 'clapperboard', text: 'Scenrubriker, roller och repliker. Enter och Tab byter element som i Final Draft.', mal: 20000, format: 'screenplay',
+      kapitel: [['Akt I', [['Scen 1']]], ['Akt II', [['Scen 1']]], ['Akt III', [['Scen 1']]]] },
+    { id: 'tomt', namn: 'Tomt projekt', ikon: 'file', text: 'Ett kapitel och en scen. Bygg resten själv.', mal: 80000,
+      kapitel: [['Kapitel 1', [['Scen 1']]]] },
+  ];
+  let selectedTemplate = 'roman';
+
+  function buildTemplateProject(id) {
+    const t = PROJECT_TEMPLATES.find(x => x.id === id) || PROJECT_TEMPLATES[0];
+    const now = new Date().toISOString();
+    const chapters = t.kapitel.map(([ctitle, scenes], ci) => {
+      const cid = 'chap-' + (ci + 1);
+      return { id: cid, title: ctitle, scenes: scenes.map(([stitle, note, drama], si) => ({
+        id: cid + '-scene-' + (si + 1), title: stitle, status: 'draft', drama: drama || 'ingen', pov: '',
+        synopsis: '', notes: note || '', text: '', words: 0, dateCreated: now, dateChanged: now })) };
+    });
+    return { chapters, characters: [], wordGoal: t.mal, idebank: t.genre ? { genre: t.genre } : {}, format: t.format || 'prosa' };
+  }
+  function renderTemplateGrid() {
+    const g = document.getElementById('tplGrid'); if (!g) return;
+    g.style.display = nyttProjektKeep ? 'none' : '';
+    g.innerHTML = PROJECT_TEMPLATES.map(t =>
+      '<button type="button" class="tpl-card' + (t.id === selectedTemplate ? ' on' : '') + '" onclick="selectTemplate(\'' + t.id + '\')">' +
+      ic(t.ikon) + '<div><div class="tpl-t">' + t.namn + '</div><div class="tpl-d">' + t.text + '</div></div></button>').join('');
+  }
+  function selectTemplate(id) { selectedTemplate = id; renderTemplateGrid(); document.getElementById('nyttProjektNamn').focus(); }
+
   function nyttProjekt(opts) {
     _closeDropdowns();
     if (!window.fbSignedIn) { document.getElementById('fbLoginModal').style.display = 'flex'; return; }
@@ -5865,6 +5943,7 @@ VIKTIGT:
     input.value = '';
     input.style.borderColor = '';
     document.getElementById('nyttProjektFel').textContent = '';
+    renderTemplateGrid();
     modal.style.display = 'flex';
     setTimeout(() => input.focus(), 80);
   }
@@ -5893,7 +5972,7 @@ VIKTIGT:
       projectData.title = namn;          // behåll det som redan skrivits
       updateProjectTitle();
     } else {
-      applyProject({}, namn);
+      applyProject(buildTemplateProject(selectedTemplate), namn);
     }
     nyttProjektKeep = false;
     if (window.fbSetActiveProject) window.fbSetActiveProject(namn);
@@ -6070,6 +6149,176 @@ VIKTIGT:
     return _wcDecoder.value.replace(/\n{3,}/g, '\n\n').trim();
   }
 
+  // ═══ FILMMANUS — element per stycke, Enter/Tab som i Final Draft ═══
+  // Varje stycke i ett manusprojekt är <p data-el="…">. Versaler sätts med CSS.
+  const SP_NAMES = { scene: 'Scenrubrik', action: 'Handling', character: 'Roll', paren: 'Parentes', dialogue: 'Replik', transition: 'Övergång' };
+  const SP_ENTER = { scene: 'action', action: 'action', character: 'dialogue', paren: 'dialogue', dialogue: 'action', transition: 'scene' };
+  const SP_KEYS  = ['scene', 'action', 'character', 'paren', 'dialogue', 'transition'];   // Alt+1–6
+  function isScreenplay() { return projectData.format === 'screenplay'; }
+
+  function spBlock(area) {
+    const sel = window.getSelection();
+    if (!sel.rangeCount) return null;
+    let n = sel.getRangeAt(0).startContainer;
+    if (n === area) n = area.childNodes[sel.getRangeAt(0).startOffset] || area.lastChild;
+    while (n && n.parentNode !== area) n = n.parentNode;
+    return (n && n.nodeType === 1) ? n : null;
+  }
+  function spCaret(el, atEnd) {
+    const r = document.createRange();
+    r.selectNodeContents(el); r.collapse(!atEnd);
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+  function spIsEmpty(el) { return !el.textContent.replace(/\u200b/g, '').trim(); }
+  function spNewLine(after, type) {
+    const p = document.createElement('p');
+    p.dataset.el = type; p.innerHTML = '<br>';
+    after.after(p);
+    return p;
+  }
+  function spSetType(el, type) {
+    el.dataset.el = type;
+    if (type === 'paren' && spIsEmpty(el)) {
+      el.textContent = '()';
+      const r = document.createRange(); r.setStart(el.firstChild, 1); r.collapse(true);
+      const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    }
+  }
+  // Allt i ytan ska vara <p data-el>; text som klistrats in blir Handling
+  function spNormalize(area) {
+    [...area.childNodes].forEach(n => {
+      if (n.nodeType === 3) {
+        if (!n.textContent.trim()) { n.remove(); return; }
+        const p = document.createElement('p'); p.dataset.el = 'action'; n.replaceWith(p); p.appendChild(n);
+      } else if (n.nodeType === 1) {
+        if (n.tagName !== 'P') {
+          const p = document.createElement('p'); p.dataset.el = n.dataset.el || 'action';
+          while (n.firstChild) p.appendChild(n.firstChild);
+          if (!p.childNodes.length) p.innerHTML = '<br>';
+          n.replaceWith(p);
+        } else if (!n.dataset.el) n.dataset.el = 'action';
+      }
+    });
+    if (!area.children.length) area.innerHTML = '<p data-el="scene"><br></p>';
+  }
+  function spSave(area) { area.dispatchEvent(new Event('input', { bubbles: true })); }
+
+  function spUpdateChip(area) {
+    const chip = document.getElementById('spChip'); if (!chip) return;
+    const b = area && spBlock(area);
+    if (!isScreenplay() || !b) { chip.style.display = 'none'; return; }
+    const t = b.dataset.el || 'action';
+    const empty = spIsEmpty(b);
+    const tab = { scene: 'Handling', action: 'Roll', character: empty ? 'Övergång' : 'Parentes', paren: 'Replik', dialogue: 'Parentes', transition: 'Scenrubrik' }[t];
+    chip.innerHTML = '<b>' + SP_NAMES[t] + '</b><span>Enter: ' + SP_NAMES[SP_ENTER[t]] + '</span><span>Tab: ' + tab + '</span><span>Alt+1–6: välj</span>';
+    chip.style.display = '';
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (!isScreenplay()) return;
+    const area = e.target.closest && e.target.closest('.scene-writing-area');
+    if (!area) return;
+    spNormalize(area);
+    const b = spBlock(area); if (!b) return;
+    const type = b.dataset.el || 'action';
+
+    if (e.altKey && !e.ctrlKey && !e.metaKey && /^Digit[1-6]$/.test(e.code)) {
+      e.preventDefault();
+      spSetType(b, SP_KEYS[+e.code.slice(5) - 1]);
+      spSave(area); spUpdateChip(area); return;
+    }
+    if (e.key === 'Tab' && !e.ctrlKey && !e.altKey) {
+      e.preventDefault();
+      const empty = spIsEmpty(b);
+      if (type === 'scene') spSetType(b, 'action');
+      else if (type === 'action') spSetType(b, 'character');
+      else if (type === 'character') {
+        if (empty) spSetType(b, 'transition');
+        else { const p = spNewLine(b, 'paren'); spSetType(p, 'paren'); }
+      }
+      else if (type === 'dialogue') {
+        if (empty) spSetType(b, 'paren');
+        else { const p = spNewLine(b, 'paren'); spSetType(p, 'paren'); }
+      }
+      else if (type === 'paren') {
+        if (empty || b.textContent.trim() === '()') { b.textContent = ''; b.innerHTML = '<br>'; spSetType(b, 'dialogue'); spCaret(b, true); }
+        else spCaret(spNewLine(b, 'dialogue'), true);
+      }
+      else if (type === 'transition') spSetType(b, 'scene');
+      spSave(area); spUpdateChip(area); return;
+    }
+    if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+      e.preventDefault();
+      // Tom rad + Enter: hoppa tillbaka till Handling (som i Final Draft)
+      if (spIsEmpty(b) && type !== 'action' && type !== 'scene') { spSetType(b, 'action'); spSave(area); spUpdateChip(area); return; }
+      const sel = window.getSelection(); const r = sel.getRangeAt(0);
+      if (!r.collapsed) r.deleteContents();
+      const tail = document.createRange(); tail.setStart(r.endContainer, r.endOffset); tail.setEnd(b, b.childNodes.length);
+      const rest = tail.extractContents();
+      let atEnd = !rest.textContent.trim();
+      // I en parentes står ")" efter markören — Enter betyder ändå "klar, vidare till repliken"
+      if (type === 'paren' && rest.textContent.trim() === ')') { b.appendChild(rest); atEnd = true; }
+      const p = spNewLine(b, atEnd ? SP_ENTER[type] : type);
+      if (!atEnd) { p.innerHTML = ''; p.appendChild(rest); }
+      b.normalize();
+      if (!b.textContent.length) b.innerHTML = '<br>';
+      // parentes som saknar avslutning får en
+      if (type === 'paren' && atEnd && !b.textContent.trim().endsWith(')')) b.textContent = b.textContent.trim() + ')';
+      spCaret(p, !atEnd ? false : true);
+      if (!atEnd) spCaret(p, false);
+      spSave(area); spUpdateChip(area); return;
+    }
+  }, true);
+
+  // INT./EXT. i början av en handlingsrad gör den till scenrubrik
+  document.addEventListener('input', function(e) {
+    if (!isScreenplay()) return;
+    const area = e.target.closest && e.target.closest('.scene-writing-area'); if (!area) return;
+    const b = spBlock(area);
+    if (b && b.dataset.el === 'action' && /^(int|ext|i\/e|int\/ext|ext\/int)[\.\s]/i.test(b.textContent)) {
+      b.dataset.el = 'scene';
+      setTimeout(() => spSave(area), 0);
+    }
+    spUpdateChip(area);
+  });
+  document.addEventListener('selectionchange', function() {
+    if (!isScreenplay()) return;
+    const a = document.activeElement;
+    spUpdateChip(a && a.classList && a.classList.contains('scene-writing-area') ? a : null);
+  });
+  document.addEventListener('focusin', function(e) {
+    if (!isScreenplay() || !e.target.classList || !e.target.classList.contains('scene-writing-area')) return;
+    const area = e.target;
+    if (!area.textContent.trim() && !area.querySelector('p[data-el]')) {
+      area.innerHTML = '<p data-el="scene"><br></p>';
+      spCaret(area.firstChild, true);
+    }
+    spUpdateChip(area);
+  });
+  document.addEventListener('focusout', function(e) {
+    if (e.target.classList && e.target.classList.contains('scene-writing-area')) {
+      setTimeout(() => { if (!document.activeElement || !document.activeElement.classList.contains('scene-writing-area')) spUpdateChip(null); }, 100);
+    }
+  });
+
+  // Manustext → läsbar text för assistenten och Finputs (som Fountain)
+  function spToText(html) {
+    const div = document.createElement('div'); div.innerHTML = html || '';
+    const out = [];
+    [...div.children].forEach(p => {
+      const t = p.textContent.trim(); if (!t) return;
+      const el = p.dataset.el || 'action';
+      if (el === 'scene') out.push('', t.toUpperCase());
+      else if (el === 'character') out.push('', '    ' + t.toUpperCase());
+      else if (el === 'paren') out.push('    ' + t);
+      else if (el === 'dialogue') out.push('    ' + t);
+      else if (el === 'transition') out.push('', t.toUpperCase());
+      else out.push('', t);
+    });
+    return out.join('\n').trim();
+  }
+  function sceneToText(html) { return isScreenplay() ? spToText(html) : htmlToPlain(html); }
+
   function clip(s, n) { s = (s || '').trim(); return s.length > n ? s.slice(0, n) + ' […]' : s; }
 
   // Projektets material som text till Claude
@@ -6078,6 +6327,7 @@ VIKTIGT:
     const ib = projectData.idebank || {};
     const out = [];
     out.push('PROJEKT: ' + (projectData.title || 'Utan titel'));
+    if (isScreenplay()) out.push('FORMAT: Filmmanus i standardformat (scenrubriker, handling, roller, parenteser, repliker). Bedöm det som manus, inte som prosa. Föreslå ändringar i samma format.');
     if (ib.genre || ib.ton) out.push('GENRE OCH TON: ' + [ib.genre, ib.ton].filter(Boolean).join(' · '));
     if (ib.synopsis) out.push('SYNOPSIS:\n' + clip(ib.synopsis, 3000));
     if (ib.rost) out.push('FÖRFATTARENS BESKRIVNING AV SIN RÖST:\n' + clip(ib.rost, 2000));
@@ -6102,7 +6352,7 @@ VIKTIGT:
       let txt = '', cut = false;
       for (const ch of projectData.chapters) {
         for (const sc of ch.scenes) {
-          const part = '\n\n## ' + ch.title + ' · ' + sc.title + '\n\n' + htmlToPlain(sc.text);
+          const part = '\n\n## ' + ch.title + ' · ' + sc.title + '\n\n' + sceneToText(sc.text);
           if (txt.length + part.length > LIMIT) { cut = true; break; }
           txt += part;
         }
@@ -6113,7 +6363,7 @@ VIKTIGT:
       const chap = chapterForScene(activeScene.id);
       out.push('AKTUELL SCEN: ' + (chap ? chap.title + ' · ' : '') + activeScene.title +
         (activeScene.synopsis ? '\nScenens synopsis: ' + clip(activeScene.synopsis, 800) : '') +
-        '\nText:\n' + (clip(htmlToPlain(activeScene.text), 30000) || '(tom)'));
+        '\nText:\n' + (clip(sceneToText(activeScene.text), 30000) || '(tom)'));
     }
     return out.join('\n\n');
   }
@@ -6402,7 +6652,7 @@ VIKTIGT:
       const ch = chapters[i];
       status.innerHTML = 'Läser ' + asstEsc(ch.title) + ' (' + (i + 1) + ' av ' + chapters.length + ') … ' +
         '<button class="fp-cancel" onclick="fpCancel=true;this.disabled=true;this.textContent=\'Avbryter …\'">Avbryt</button>';
-      let text = ch.scenes.map(sc => '### ' + sc.title + '\n' + htmlToPlain(sc.text)).join('\n\n');
+      let text = ch.scenes.map(sc => '### ' + sc.title + '\n' + sceneToText(sc.text)).join('\n\n');
       if (text.length > 60000) text = text.slice(0, 60000) + '\n[… resten av kapitlet fick inte plats]';
       const user = 'FAKTALISTA FRÅN TIDIGARE KAPITEL:\n' +
         (facts.length ? facts.map(f => '– ' + f).join('\n') : '(inga ännu, detta är första kapitlet)') +
@@ -6575,157 +6825,41 @@ VIKTIGT:
   }
 
 
-  // ─── BACKUP-SYSTEM ────────────────────────────────────────────────────────
-  const backupSettings = {
-    autoBackup: true,
-    maxBackups: 5,
-    folderHandle: null,
-    folderName: null
-  };
-
-  async function loadBackupSettings() {
-    try {
-      const saved = localStorage.getItem('writeon_backup_settings');
-      if (saved) {
-        const s = JSON.parse(saved);
-        backupSettings.autoBackup = s.autoBackup ?? true;
-        backupSettings.maxBackups = s.maxBackups ?? 5;
-        backupSettings.folderName = s.folderName;
-      }
-      const db = await openHandleStore();
-      const tx = db.transaction('handles', 'readonly');
-      const req = tx.objectStore('handles').get('backupFolder');
-      const handle = await new Promise((res, rej) => { req.onsuccess = () => res(req.result); req.onerror = rej; });
-      if (handle) {
-        backupSettings.folderHandle = handle;
-        backupSettings.folderName = handle.name;
-      }
-    } catch(e) { /* inget sparad backup-mapp */ }
-  }
-
-  function saveBackupMetaToLS() {
-    localStorage.setItem('writeon_backup_settings', JSON.stringify({
-      autoBackup: backupSettings.autoBackup,
-      maxBackups: backupSettings.maxBackups,
-      folderName: backupSettings.folderName
-    }));
-  }
-
-  async function persistBackupFolderHandle(handle) {
-    const db = await openHandleStore();
-    const tx = db.transaction('handles', 'readwrite');
-    tx.objectStore('handles').put(handle, 'backupFolder');
-    await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
-  }
-
+  // ─── SÄKERHETSKOPIA ───────────────────────────────────────────────────────
+  // Allt sparas automatiskt i molnet. Här kan man dessutom ladda ner hela
+  // projektet som en .writeon-fil, som öppnas igen med Fil → Öppna….
   function openBackupDialog() {
+    _closeDropdowns();
+    const n = document.getElementById('backupProjName');
+    if (n) n.textContent = projectData.title || 'projektet';
     document.getElementById('backupModal').style.display = 'flex';
-    updateBackupDialogUI();
   }
+  function closeBackupDialog() { document.getElementById('backupModal').style.display = 'none'; }
 
-  function closeBackupDialog() {
-    document.getElementById('backupModal').style.display = 'none';
+  function downloadBackup() {
+    if (!projectData.title) { alert('Öppna eller skapa ett projekt först.'); return; }
+    const data = {
+      format: 'writeon-2',
+      title: projectData.title,
+      wordGoal: projectData.wordGoal,
+      chapters: projectData.chapters,
+      characters: projectData.characters || [],
+      idebank: projectData.idebank || {},
+      format: projectData.format || 'prosa',
+      exportedAt: new Date().toISOString()
+    };
+    const d = new Date(), p = n => String(n).padStart(2, '0');
+    const stamp = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + '.' + p(d.getMinutes());
+    const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = getProjectName() + ' ' + stamp + '.writeon';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    showAutosaveMsg('✓ Säkerhetskopian är nedladdad');
   }
-
-  function getBackupFilename() {
-    const name = getProjectName();
-    const d = new Date();
-    const p = n => String(n).padStart(2, '0');
-    const stamp = `${d.getFullYear()}_${p(d.getMonth()+1)}_${p(d.getDate())}_${p(d.getHours())}_${p(d.getMinutes())}_${p(d.getSeconds())}`;
-    return `${name} [${stamp}].html`;
-  }
-
-  function updateBackupDialogUI() {
-    const folderEl = document.getElementById('backupFolderName');
-    if (folderEl) folderEl.textContent = backupSettings.folderName || 'Ingen mapp vald';
-    const autoEl = document.getElementById('backupAutoCheck');
-    if (autoEl) autoEl.checked = backupSettings.autoBackup;
-    const fileEl = document.getElementById('backupFilenamePreview');
-    if (fileEl) fileEl.textContent = getBackupFilename();
-    const copiesEl = document.getElementById('backupMaxCopiesInput');
-    if (copiesEl) copiesEl.value = backupSettings.maxBackups ?? 5;
-  }
-
-  async function selectBackupFolder() {
-    if (!('showDirectoryPicker' in window)) {
-      alert('Din webbläsare stöder inte mappval. Använd Chrome eller Edge.');
-      return;
-    }
-    try {
-      const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
-      backupSettings.folderHandle = handle;
-      backupSettings.folderName = handle.name;
-      await persistBackupFolderHandle(handle);
-      saveBackupMetaToLS();
-      updateBackupDialogUI();
-    } catch(e) {
-      if (e.name !== 'AbortError') console.error('Mappval misslyckades:', e);
-    }
-  }
-
-  async function pruneOldBackups(projectName) {
-    try {
-      const max = backupSettings.maxBackups || 5;
-      const files = [];
-      for await (const [name, handle] of backupSettings.folderHandle.entries()) {
-        if (name.startsWith(projectName + ' [') && name.endsWith('].html')) {
-          const file = await handle.getFile();
-          files.push({ name, handle, lastModified: file.lastModified });
-        }
-      }
-      files.sort((a, b) => b.lastModified - a.lastModified);
-      for (let i = max; i < files.length; i++) {
-        await backupSettings.folderHandle.removeEntry(files[i].name);
-      }
-    } catch(e) { console.warn('Kunde inte rensa gamla backuper:', e); }
-  }
-
-  async function runBackup(silent = false) {
-    if (!backupSettings.folderHandle) {
-      if (!silent) alert('Välj en mapp för säkerhetskopior först.');
-      return false;
-    }
-    try {
-      const perm = await backupSettings.folderHandle.queryPermission({ mode: 'readwrite' });
-      if (perm !== 'granted') {
-        const asked = await backupSettings.folderHandle.requestPermission({ mode: 'readwrite' });
-        if (asked !== 'granted') return false;
-      }
-      const content = getWritingArea().innerHTML;
-      const name = getProjectName();
-      const filename = getBackupFilename();
-      const fh = await backupSettings.folderHandle.getFileHandle(filename, { create: true });
-      const writable = await fh.createWritable();
-      await writable.write(
-        `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${name}</title></head>` +
-        `<body style="font-family:Georgia,serif;max-width:700px;margin:40px auto;line-height:1.8;"><h1>${name}</h1><div>${content}</div></body></html>`
-      );
-      await writable.close();
-      await pruneOldBackups(name);
-      if (!silent) {
-        showAutosaveMsg('Säkerhetskopia sparad ✓');
-        closeBackupDialog();
-      }
-      return true;
-    } catch(e) {
-      console.error('Backup misslyckades:', e);
-      if (!silent) alert('Backup misslyckades: ' + e.message);
-      return false;
-    }
-  }
-
-  // Auto-backup vid sessionsslut
-  window.addEventListener('beforeunload', () => {
-    if (backupSettings.autoBackup && backupSettings.folderHandle) {
-      runBackup(true);
-    }
-  });
-
-  (async function initBackup() {
-    await loadBackupSettings();
-    const verBtn = document.querySelector('[data-tip="Versioner"]');
-    if (verBtn) verBtn.addEventListener('click', openBackupDialog);
-  })();
+  if (/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent))
+    document.querySelectorAll('.nav-dd-sc').forEach(s => { s.textContent = s.textContent.replace(/Ctrl\+/g, '⌘'); });
 
   // ─── DROPDOWN-MENY (Fil) ──────────────────────────────────────────────────
   function toggleNavDropdown(id) {
@@ -7892,12 +8026,13 @@ window.addEventListener('load', function() {
 <!-- EXPORT FORMAT MODAL -->
 <!-- NYTT PROJEKT-MODAL -->
 <div id="nyttProjektModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:var(--bg-card);border-radius:14px;padding:32px 34px;width:440px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.22);font-family:'DM Sans',sans-serif;">
+  <div style="background:var(--bg-card);border-radius:14px;padding:32px 34px;width:560px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.22);font-family:'DM Sans',sans-serif;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
       <h2 style="margin:0;font-size:1.05rem;font-weight:700;">Nytt projekt</h2>
       <button onclick="document.getElementById('nyttProjektModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--text-muted);padding:2px 6px;border-radius:6px;">✕</button>
     </div>
-    <p style="font-size:14px;color:var(--text-muted);margin:0 0 22px;">Ge din roman eller ditt projekt ett namn.</p>
+    <p style="font-size:14px;color:var(--text-muted);margin:0 0 16px;">Välj en mall och ge projektet ett namn.</p>
+    <div class="tpl-grid" id="tplGrid"></div>
 
     <label style="font-size:13px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:6px;">Projektets namn</label>
     <input id="nyttProjektNamn" type="text" placeholder="t.ex. Min roman"
@@ -7918,7 +8053,7 @@ window.addEventListener('load', function() {
         Avbryt
       </button>
       <button onclick="_bekraftaNyttProjekt()"
-        style="padding:9px 22px;border-radius:8px;background:#4a8981;color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;">
+        style="padding:9px 22px;border-radius:8px;background:var(--action);color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;">
         Skapa projekt →
       </button>
     </div>
@@ -7967,47 +8102,14 @@ window.addEventListener('load', function() {
   </div>
 </div>
 
-<!-- BACKUP-DIALOG -->
-<div id="backupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:var(--bg-card);border-radius:14px;padding:28px 30px;width:440px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.22);font-family:'DM Sans',sans-serif;color:var(--text-primary);">
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
-      <h2 style="margin:0;font-size:1.05rem;font-weight:700;font-family:'DM Sans',sans-serif;letter-spacing:0.01em;">Säkerhetskopiera</h2>
-      <button onclick="closeBackupDialog()" style="background:none;border:none;cursor:pointer;font-size:1.2rem;line-height:1;color:var(--text-muted);padding:2px 6px;border-radius:6px;font-family:'DM Sans',sans-serif;">✕</button>
-    </div>
-
-    <div style="font-size:13px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Plats för säkerhetskopior</div>
-    <div style="display:flex;gap:8px;margin-bottom:6px;">
-      <div id="backupFolderName" style="flex:1;padding:8px 12px;background:var(--bg-soft);border-radius:7px;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-secondary);font-family:'DM Sans',sans-serif;">Ingen mapp vald</div>
-      <button onclick="selectBackupFolder()" style="padding:8px 14px;background: var(--action);color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:14px;white-space:nowrap;font-weight:600;font-family:'DM Sans',sans-serif;">Välj mapp…</button>
-    </div>
-    <p style="font-size:13px;color:var(--text-muted);margin:0 0 18px;line-height:1.5;">
-      Välj din <strong>Google Drive-</strong> eller <strong>Dropbox-mapp</strong> — kopian synkas då till molnet automatiskt. Kräver att deras skrivbordsapp är installerad.
-    </p>
-
-    <div style="display:flex;gap:16px;margin-bottom:18px;align-items:flex-start;">
-      <div style="flex:1;">
-        <div style="font-size:13px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Filnamn</div>
-        <div id="backupFilenamePreview" style="padding:8px 12px;background:var(--bg-soft);border-radius:7px;font-size:14px;color:var(--text-secondary);font-family:'DM Sans',sans-serif;word-break:break-all;"></div>
-      </div>
-      <div>
-        <div style="font-size:13px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Antal kopior</div>
-        <input type="number" id="backupMaxCopiesInput" min="1" max="50" value="5"
-          onchange="backupSettings.maxBackups=Math.max(1,parseInt(this.value)||5);saveBackupMetaToLS();"
-          style="width:70px;padding:8px 10px;background:var(--bg-soft);border:1px solid var(--border);border-radius:7px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text-primary);text-align:center;">
-      </div>
-    </div>
-
-    <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;margin-bottom:24px;font-family:'DM Sans',sans-serif;">
-      <input type="checkbox" id="backupAutoCheck" onchange="backupSettings.autoBackup=this.checked;saveBackupMetaToLS();" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent-n);">
-      Säkerhetskopiera automatiskt när du stänger sidan
-    </label>
-
-    <div style="display:flex;justify-content:flex-end;gap:10px;">
-      <button onclick="closeBackupDialog()" style="padding:9px 20px;background:var(--bg-soft);border:none;border-radius:7px;cursor:pointer;font-size:14px;color:var(--text-primary);font-family:'DM Sans',sans-serif;">Stäng</button>
-      <button onclick="runBackup(false)" style="padding:9px 22px;background: var(--action);color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;">Spara kopia nu</button>
-    </div>
-
+<!-- SÄKERHETSKOPIA -->
+<div id="backupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this) closeBackupDialog()">
+  <div class="wn-modal">
+    <div class="wn-modal-head"><h2>Säkerhetskopia</h2><button class="wn-x" onclick="closeBackupDialog()" title="Stäng">✕</button></div>
+    <p class="wn-p">Allt du skriver sparas automatiskt i molnet. Här kan du dessutom ladda ner en egen kopia av <b id="backupProjName">projektet</b> till datorn: text, karaktärer och Idébanken.</p>
+    <button class="wn-btn wn-btn-primary" onclick="downloadBackup()"><svg class="ic" aria-hidden="true"><use href="#i-save"/></svg> Ladda ner säkerhetskopia</button>
+    <p class="wn-note">Vill du återställa från en kopia? Välj <b>Fil → Öppna…</b> och välj filen. Den öppnas som ett eget projekt, så originalet rörs inte.</p>
+    <div class="wn-modal-foot"><button class="wn-btn" onclick="closeBackupDialog()">Stäng</button></div>
   </div>
 </div>
 
@@ -8435,7 +8537,7 @@ window.addEventListener('load', function() {
 <!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -8484,6 +8586,7 @@ window.firebaseSaveProject = async function() {
       chapters:   p.chapters || [],
       characters: p.characters || [],
       idebank:    p.idebank || {},
+      format:     p.format || 'prosa',
       savedAt:    serverTimestamp()
     };
     await setDoc(doc(db, 'users', user.uid, 'projects', projektNamn), data);
@@ -8677,6 +8780,20 @@ window.fbLogga = async function(typ) {
   }
 };
 
+window.fbGlomtLosenord = async function() {
+  const email = (document.getElementById('fbEmail').value || '').trim();
+  const st = document.getElementById('fbStatus');
+  if (!email) { st.style.color = '#c84040'; st.textContent = 'Skriv din e-postadress först.'; return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    st.style.color = 'var(--action-text)';
+    st.textContent = 'Klart. Kolla din e-post för en länk där du väljer nytt lösenord.';
+  } catch(e) {
+    st.style.color = '#c84040';
+    st.textContent = e.code === 'auth/invalid-email' ? 'E-postadressen ser inte rätt ut.' : 'Kunde inte skicka: ' + (e.code || e.message);
+  }
+};
+
 window.fbLoggaUt = async function() {
   if (window.flushPendingSave && !(await window.flushPendingSave())) {
     if (!confirm('De senaste ändringarna kunde inte sparas.\n\nLogga ut ändå?')) return;
@@ -8692,23 +8809,24 @@ window.fbLoggaUt = async function() {
   <div style="background:var(--bg-card,#fff);border-radius:14px;padding:32px 34px;width:400px;max-width:95vw;box-shadow:0 12px 48px rgba(0,0,0,0.25);font-family:'DM Sans',sans-serif;">
     <div style="text-align:center;margin-bottom:20px;">
       <div style="font-size:1.6rem;font-weight:800;letter-spacing:-0.5px;">Write<span style="color:#fcb136;">O</span><span style="color:#4a8981;">N</span></div>
-      <p style="color:#888;font-size:15px;margin:6px 0 0;">Logga in för att spara och synka dina projekt</p>
+      <p style="color:var(--text-secondary);font-size:15px;margin:6px 0 0;">Logga in för att spara och synka dina projekt</p>
     </div>
     <label style="font-size:13px;font-weight:600;display:block;margin-bottom:4px;">E-postadress</label>
     <input id="fbEmail" type="email" placeholder="din@epost.se"
       style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:8px;border:1.5px solid #ddd;font-size:0.92rem;margin-bottom:10px;outline:none;"
-      onkeydown="if(event.key==='Enter')window.fbLogga('login')" />
+      onkeydown="if(event.key==='Enter')fbLoginAction('login')" />
     <label style="font-size:13px;font-weight:600;display:block;margin-bottom:4px;">Lösenord</label>
     <input id="fbPass" type="password" placeholder="minst 6 tecken"
       style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:8px;border:1.5px solid #ddd;font-size:0.92rem;margin-bottom:6px;outline:none;"
-      onkeydown="if(event.key==='Enter')window.fbLogga('login')" />
+      onkeydown="if(event.key==='Enter')fbLoginAction('login')" />
+    <div style="text-align:right;margin:-2px 0 6px;"><button onclick="fbLoginAction('reset')" style="background:none;border:none;color:var(--action-text);font:600 13px 'DM Sans',sans-serif;cursor:pointer;padding:0;">Glömt lösenordet?</button></div>
     <div id="fbStatus" style="color:#c84040;font-size:14px;min-height:18px;margin-bottom:12px;"></div>
-    <button onclick="window.fbLogga('login')"
-      style="width:100%;padding:11px;border-radius:8px;background:#4a8981;color:white;border:none;cursor:pointer;font-size:0.95rem;font-weight:600;margin-bottom:8px;">
+    <button onclick="fbLoginAction('login')"
+      style="width:100%;padding:11px;border-radius:8px;background:var(--action);color:white;border:none;cursor:pointer;font-size:0.95rem;font-weight:600;margin-bottom:8px;">
       Logga in
     </button>
-    <button onclick="window.fbLogga('register')"
-      style="width:100%;padding:11px;border-radius:8px;background:transparent;color:#4a8981;border:2px solid #4a8981;cursor:pointer;font-size:0.92rem;font-weight:600;">
+    <button onclick="fbLoginAction('register')"
+      style="width:100%;padding:11px;border-radius:8px;background:transparent;color:var(--action-text);border:2px solid var(--action);cursor:pointer;font-size:0.92rem;font-weight:600;">
       Skapa konto
     </button>
   </div>
