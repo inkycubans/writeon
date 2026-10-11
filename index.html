@@ -275,6 +275,22 @@
   .asst-foot button { border: none; background: none; color: var(--text-muted); font: 600 13px 'DM Sans', sans-serif; cursor: pointer; }
   .asst-foot button:hover { color: var(--text-primary); }
 
+  /* Finputs-rapporten */
+  .coach-bubble.fp-bubble { font-family: var(--font-ui) !important; width: 100%; }
+  .fp-status { font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.5; }
+  .fp-cancel { margin-left: 6px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-primary); border-radius: 6px; padding: 2px 8px; font: 600 13px var(--font-ui); cursor: pointer; }
+  .fp-ch { margin-top: 12px; }
+  .fp-ch-h { display: flex; justify-content: space-between; gap: 8px; font-weight: 700; font-size: var(--fs-md); padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .fp-ch-h span { font-weight: 500; font-size: 13px; color: var(--text-muted); }
+  .fp-none { font-size: var(--fs-sm); color: var(--text-muted); padding: 6px 0; }
+  .fp-item { position: relative; padding: 8px 52px 8px 0; border-bottom: 1px solid var(--border); font-size: var(--fs-sm); line-height: 1.45; }
+  .fp-lbl { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
+  .fp-kont .fp-lbl { color: var(--action-text); }
+  .fp-orig { font-family: var(--font-text); color: var(--text-secondary); }
+  .fp-sugg { font-family: var(--font-text); font-weight: 600; color: var(--text-primary); }
+  .fp-prev { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+  .fp-goto { position: absolute; right: 0; top: 8px; border: none; background: none; color: var(--action-text); font: 700 13px var(--font-ui); cursor: pointer; text-decoration: underline; }
+
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   .nav-menu {
@@ -6128,6 +6144,8 @@ VIKTIGT:
         prompt: 'Granska språket i scenen: grammatik, stavning, tempusbyten, meningslängd och rytm. Lista varje fel eller förslag som original → förslag.' },
     ]},
     { rubrik: 'Granska hela boken', hela: true, kort: [
+      { id: 'finputs', ikon: 'spell-check', titel: 'Finputs', text: 'Stavning, grammatik och logiska kullerbyttor genom hela boken, kapitel för kapitel.',
+        prompt: '' },
       { id: 'bage', ikon: 'chart-gantt', titel: 'Dramaturgisk båge', text: 'Vändpunkter, klimax och var berättelsen planar ut.',
         prompt: 'Analysera den dramaturgiska bågen i manuset: anslag, stegring, vändpunkter, klimax, upplösning. Vad finns, vad saknas, var planar den ut?' },
       { id: 'konsistens', ikon: 'scan-text', titel: 'Konsekvenskoll', text: 'Namn, tider och detaljer som inte stämmer.',
@@ -6224,6 +6242,7 @@ VIKTIGT:
     asstStarted = true;
     asstRenderCards();
     asstShowCards(false);
+    if (id === 'finputs') { runFinputs(); return; }
     asstAsk(f.k.prompt, { label: f.k.titel, whole: f.hela, oneShot: f.hela });
   }
   function asstAppend(role, html, footer) {
@@ -6283,6 +6302,130 @@ VIKTIGT:
     asstRenderCards();
     asstShowCards(true);
   }
+  // ═══ FINPUTS — stavning, grammatik och kontinuitet genom hela boken ═══
+  // Läser kapitel för kapitel och för en faktalista som nästa kapitel jämförs mot.
+  // Skriver aldrig om något: pekar bara ut och föreslår minsta möjliga rättelse.
+  const FINPUTS_SYSTEM = [
+    'Du är en noggrann svensk korrekturläsare och kontinuitetsgranskare för en roman.',
+    'Du skriver aldrig om texten. Du pekar bara ut problem och föreslår minsta möjliga rättelse.',
+    '',
+    'Svara ENBART med JSON, utan någon annan text, i exakt detta format:',
+    '{"sprak":[{"scen":"scenens rubrik","original":"ordagrant utdrag ur texten, högst 12 ord","forslag":"samma utdrag rättat","typ":"stavning|grammatik|tempus|skiljetecken|ordval"}],',
+    ' "kontinuitet":[{"scen":"scenens rubrik","original":"ordagrant utdrag ur texten, högst 12 ord","problem":"vad som krockar, kort","tidigare":"vad som sagts tidigare och var"}],',
+    ' "fakta":["kort faktarad (kapitel)"]}',
+    '',
+    'Regler:',
+    '- "original" måste vara ordagrant kopierat ur kapitlet, så att det går att hitta i texten.',
+    '- Ta bara med verkliga fel. Stilval, talspråk i dialog och medvetna normbrott är inte fel.',
+    '- Kontinuitet: jämför med faktalistan och med det som sägs tidigare i samma kapitel. Flagga motsägelser i detaljer (mat, kläder, tider, väder, namn, platser, föremål, vem som vet vad), i tidslinjen och i logiken.',
+    '- Fakta: högst 25 nya korta rader om vem, var, när och vad som är värt att minnas för att upptäcka motsägelser senare. Upprepa inte faktalistan. Skriv kapitlets namn inom parentes.',
+    '- Hittar du inget: använd tomma listor.'
+  ].join('\n');
+
+  let fpCancel = false;
+
+  function fpParse(text) {
+    const s = String(text || '');
+    const a = s.indexOf('{'), b = s.lastIndexOf('}');
+    if (a < 0 || b <= a) return null;
+    try { return JSON.parse(s.slice(a, b + 1)); } catch(e) { return null; }
+  }
+
+  function fpSceneId(chap, title) {
+    const t = (title || '').trim().toLowerCase();
+    const sc = chap.scenes.find(s => (s.title || '').trim().toLowerCase() === t) || chap.scenes[0];
+    return sc ? sc.id : '';
+  }
+
+  function fpGoto(sceneId, snippet) {
+    if (!sceneId) return;
+    selectSceneById(sceneId);
+    setTimeout(() => {
+      const area = document.getElementById('writingArea-' + sceneId);
+      if (!area || !snippet) return;
+      const needle = snippet.trim().slice(0, 40);
+      const walker = document.createTreeWalker(area, NodeFilter.SHOW_TEXT);
+      let n;
+      while ((n = walker.nextNode())) {
+        const i = n.textContent.indexOf(needle);
+        if (i >= 0) {
+          const r = document.createRange();
+          r.setStart(n, i); r.setEnd(n, Math.min(n.textContent.length, i + snippet.trim().length));
+          const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+          (n.parentElement || area).scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+      }
+      area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 120);
+  }
+  window.fpGoto = fpGoto;
+
+  function fpChapterHtml(chap, data) {
+    const sp = Array.isArray(data.sprak) ? data.sprak : [];
+    const ko = Array.isArray(data.kontinuitet) ? data.kontinuitet : [];
+    const btn = (it) => {
+      const id = fpSceneId(chap, it.scen);
+      return '<button class="fp-goto" data-scene="' + id + '" data-snip="' + asstEsc(it.original || '') + '">Visa</button>';
+    };
+    let h = '<div class="fp-ch"><div class="fp-ch-h">' + asstEsc(chap.title) +
+      '<span>' + sp.length + ' språk · ' + ko.length + ' kontinuitet</span></div>';
+    if (!sp.length && !ko.length) h += '<div class="fp-none">Inget att anmärka.</div>';
+    ko.forEach(it => {
+      h += '<div class="fp-item fp-kont"><div class="fp-lbl">Kontinuitet' + (it.scen ? ' · ' + asstEsc(it.scen) : '') + '</div>' +
+        '<div>' + asstEsc(it.problem || '') + '</div>' +
+        (it.original ? '<div class="fp-orig">”' + asstEsc(it.original) + '”</div>' : '') +
+        (it.tidigare ? '<div class="fp-prev">Tidigare: ' + asstEsc(it.tidigare) + '</div>' : '') + btn(it) + '</div>';
+    });
+    sp.forEach(it => {
+      h += '<div class="fp-item"><div class="fp-lbl">' + asstEsc(it.typ || 'språk') + (it.scen ? ' · ' + asstEsc(it.scen) : '') + '</div>' +
+        '<div><span class="fp-orig">' + asstEsc(it.original || '') + '</span> → <span class="fp-sugg">' + asstEsc(it.forslag || '') + '</span></div>' + btn(it) + '</div>';
+    });
+    return h + '</div>';
+  }
+
+  async function runFinputs() {
+    if (asstBusy) return;
+    const chapters = projectData.chapters.filter(ch => ch.scenes.some(sc => htmlToPlain(sc.text).trim()));
+    asstAppend('user', 'Finputs');
+    if (!chapters.length) { asstAppend('ai', 'Manuset är tomt. Skriv något först.'); return; }
+    const row = asstAppend('ai', '<div class="fp"><div class="fp-status"></div><div class="fp-body"></div></div>');
+    const status = row.querySelector('.fp-status'), body = row.querySelector('.fp-body');
+    row.querySelector('.coach-bubble').classList.add('fp-bubble');
+    body.addEventListener('click', e => {
+      const b = e.target.closest('.fp-goto'); if (b) fpGoto(b.dataset.scene, b.dataset.snip);
+    });
+    asstBusy = true; fpCancel = false;
+    let facts = [], nSp = 0, nKo = 0, done = 0, failed = 0;
+    for (let i = 0; i < chapters.length; i++) {
+      if (fpCancel) break;
+      const ch = chapters[i];
+      status.innerHTML = 'Läser ' + asstEsc(ch.title) + ' (' + (i + 1) + ' av ' + chapters.length + ') … ' +
+        '<button class="fp-cancel" onclick="fpCancel=true;this.disabled=true;this.textContent=\'Avbryter …\'">Avbryt</button>';
+      let text = ch.scenes.map(sc => '### ' + sc.title + '\n' + htmlToPlain(sc.text)).join('\n\n');
+      if (text.length > 60000) text = text.slice(0, 60000) + '\n[… resten av kapitlet fick inte plats]';
+      const user = 'FAKTALISTA FRÅN TIDIGARE KAPITEL:\n' +
+        (facts.length ? facts.map(f => '– ' + f).join('\n') : '(inga ännu, detta är första kapitlet)') +
+        '\n\nKAPITEL ATT GRANSKA: ' + ch.title + '\n\n' + text;
+      try {
+        const res = await callClaude({ system: FINPUTS_SYSTEM, messages: [{ role: 'user', content: user }], max_tokens: 4000 });
+        const data = fpParse(res.text);
+        if (!data) { failed++; body.insertAdjacentHTML('beforeend', '<div class="fp-ch"><div class="fp-ch-h">' + asstEsc(ch.title) + '</div><div class="fp-none">Svaret gick inte att läsa. Kör Finputs igen.</div></div>'); continue; }
+        body.insertAdjacentHTML('beforeend', fpChapterHtml(ch, data));
+        nSp += (data.sprak || []).length; nKo += (data.kontinuitet || []).length; done++;
+        if (Array.isArray(data.fakta)) facts = facts.concat(data.fakta.map(String)).slice(-200);
+        document.getElementById('asstMessages').scrollTop = 1e9;
+      } catch(e) {
+        status.innerHTML = '<span style="color:#c84040;">' + asstEsc(e.message) + '</span>';
+        asstBusy = false; return;
+      }
+    }
+    status.innerHTML = (fpCancel ? 'Avbrutet. ' : 'Klart. ') + '<b>' + nSp + '</b> språkförslag och <b>' + nKo +
+      '</b> ' + (nKo === 1 ? 'kontinuitetsfråga' : 'kontinuitetsfrågor') + ' i ' + done + ' av ' + chapters.length + ' kapitel.' + (failed ? ' ' + failed + ' kapitel gick inte att läsa.' : '') +
+      ' Klicka Visa för att hoppa till stället.';
+    asstBusy = false;
+  }
+
   function openAssistant() {
     if (document.body.classList.contains('focus')) toggleFocusMode(false);
     switchView('writing');
