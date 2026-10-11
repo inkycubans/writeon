@@ -225,6 +225,32 @@
     color: rgba(255,255,255,0.92); padding: 6px 10px; border-radius: 6px; font: 500 0.8rem 'DM Sans', sans-serif; cursor: pointer; }
   .pop-style-menu button:hover, .pop-style-menu button.on { background: rgba(255,255,255,0.12); }
 
+  /* ═══ Skrivassistenten ═══ */
+  #panel-assistant { flex-direction: column; }
+  .asst-title { display: flex; align-items: center; gap: 7px; }
+  .asst-title .ic { color: var(--accent-o); }
+  .asst-model { gap: 2px; background: var(--bg-soft); border-radius: 7px; padding: 2px; margin-left: auto; margin-right: 6px; }
+  .asst-model button { border: none; background: none; padding: 3px 8px; border-radius: 5px; font: 600 0.7rem 'DM Sans', sans-serif; color: var(--text-muted); cursor: pointer; }
+  .asst-model button.on { background: var(--bg-card); color: var(--text-primary); box-shadow: var(--shadow); }
+  .asst-context { padding: 6px 14px 8px; font-size: 0.72rem; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+  .asst-tools { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid var(--border); }
+  .asst-quick { display: flex; flex-wrap: wrap; gap: 5px; }
+  .asst-quick button { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-secondary); border-radius: 14px; padding: 4px 10px; font: 600 0.72rem 'DM Sans', sans-serif; cursor: pointer; }
+  .asst-quick button:hover { border-color: var(--accent-n); color: var(--accent-n); }
+  .asst-select { width: 100%; padding: 6px 8px; border-radius: 7px; border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-primary); font: 500 0.78rem 'DM Sans', sans-serif; }
+  .asst-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+  .asst-messages .coach-bubble { font-size: 0.82rem; line-height: 1.6; max-width: 100%; }
+  .asst-thinking { color: var(--text-muted); font-style: italic; }
+  .asst-meta { margin-top: 8px; font-size: 0.66rem; color: var(--text-muted); display: flex; gap: 6px; align-items: center; }
+  .asst-retry { border: none; background: none; color: var(--accent-n); font: 600 0.66rem 'DM Sans', sans-serif; cursor: pointer; padding: 0; text-decoration: underline; }
+  .asst-input-row { display: flex; gap: 6px; padding: 10px 12px 6px; border-top: 1px solid var(--border); }
+  .asst-input-row textarea { flex: 1; resize: none; border: 1px solid var(--border-strong); border-radius: 8px; padding: 7px 9px; font: 0.82rem 'DM Sans', sans-serif; background: var(--bg-card); color: var(--text-primary); }
+  .asst-send { width: 36px; border: none; border-radius: 8px; background: var(--accent-n); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .asst-send .ic { transform: rotate(180deg); }
+  .asst-foot { display: flex; justify-content: space-between; align-items: center; padding: 2px 12px 10px; font-size: 0.68rem; color: var(--text-muted); }
+  .asst-foot button { border: none; background: none; color: var(--text-muted); font: 600 0.68rem 'DM Sans', sans-serif; cursor: pointer; }
+  .asst-foot button:hover { color: var(--text-primary); }
+
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   .nav-menu {
@@ -3162,7 +3188,7 @@
   <button class="rail-btn" onclick="switchView('character')" id="btn-character" title="Karaktärer"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>Karaktärer</button>
   <button class="rail-btn" onclick="switchView('research')" id="btn-research" title="Research"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg>Research</button>
   <div class="rail-sep"></div>
-  <button class="rail-btn" onclick="toggleAiEditor()" id="btn-coach" title="AI-redaktör"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg>Redaktör</button>
+  <button class="rail-btn" onclick="toggleAiEditor()" id="btn-coach" title="Skrivassistent och redaktörens verktyg"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg>Assistent</button>
 </nav>
 
 <span id="autosaveIndicator" style="opacity:0;transition:opacity 0.5s;"></span>
@@ -3183,27 +3209,6 @@
     <div class="chapter-list" id="chapterList">
     </div>
 
-    <!-- AI-REDAKTÖR (dockad i bindern) -->
-    <div class="ai-editor-dock" id="aiEditorDock">
-      <div class="ai-editor-dock-top">
-        <div>
-          <div class="ai-editor-dock-title">AI-redaktör</div>
-          <div class="ai-editor-dock-sub">Dockad · grön toggle</div>
-        </div>
-        <button class="ai-editor-toggle on" id="aiEditorToggle" aria-pressed="true" title="Dock: PÅ"></button>
-      </div>
-
-      <div class="ai-topic-list" id="aiTopicList"></div>
-
-      <div class="ai-api-box">
-        <div class="ai-api-title">API-nyckel</div>
-        <div class="ai-api-row">
-          <input class="ai-api-input" id="aiApiKeyInput" placeholder="Klistra in nyckel…" />
-          <button class="ai-api-save" id="aiApiSaveBtn">Spara</button>
-        </div>
-        <div class="ai-api-status" id="aiApiStatus">Mock-läge (ingen nyckel sparad)</div>
-      </div>
-    </div>
 
     <!-- BOTTOM TOOLBAR -->
     <div class="sidebar-bottom">
@@ -3228,81 +3233,6 @@
 
 
     <!-- COACH PANEL — glider upp underifrån -->
-    <div class="coach-panel" id="coachPanel">
-
-      <!-- Coach selector row -->
-      <div class="coach-selector-row">
-        <div class="coach-tabs">
-          <button class="coach-tab active" data-coach="king" onclick="selectCoach('king', this)">
-            <span class="coach-tab-avatar" style="background:linear-gradient(135deg,#e8c8a8,#d4956a);">K</span>
-            <span class="coach-tab-name">King</span>
-          </button>
-          <button class="coach-tab" data-coach="lamott" onclick="selectCoach('lamott', this)">
-            <span class="coach-tab-avatar" style="background:linear-gradient(135deg,#c8d8e8,#7a9ab8);">L</span>
-            <span class="coach-tab-name">Lamott</span>
-          </button>
-          <button class="coach-tab" data-coach="hemingway" onclick="selectCoach('hemingway', this)">
-            <span class="coach-tab-avatar" style="background:linear-gradient(135deg,#d8c8b8,#a88868);">H</span>
-            <span class="coach-tab-name">Hemingway</span>
-          </button>
-          <button class="coach-tab" data-coach="gaiman" onclick="selectCoach('gaiman', this)">
-            <span class="coach-tab-avatar" style="background:linear-gradient(135deg,#c8b8e8,#8868b8);">G</span>
-            <span class="coach-tab-name">Gaiman</span>
-          </button>
-          <button class="coach-tab" data-coach="marquez" onclick="selectCoach('marquez', this)">
-            <span class="coach-tab-avatar" style="background:linear-gradient(135deg,#d8e8c8,#88b868);">M</span>
-            <span class="coach-tab-name">Márquez</span>
-          </button>
-          <button class="coach-tab" data-coach="oates" onclick="selectCoach('oates', this)">
-            <span class="coach-tab-avatar" style="background:linear-gradient(135deg,#e8c8d8,#c88898);">O</span>
-            <span class="coach-tab-name">Oates</span>
-          </button>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="coach-api-badge" id="coachApiBadge">Gemini ej kopplat — mock-läge</div>
-          <button class="coach-close-btn" onclick="toggleCoachPanel()">↓ Stäng</button>
-        </div>
-      </div>
-
-      <!-- Active coach info bar -->
-      <div class="coach-info-bar" id="coachInfoBar">
-        <div class="coach-info-avatar" id="coachInfoAvatar" style="background:linear-gradient(135deg,#e8c8a8,#d4956a);">K</div>
-        <div class="coach-info-text">
-          <div class="coach-info-name" id="coachInfoName">Stephen King</div>
-          <div class="coach-info-desc" id="coachInfoDesc">Mästaren på spänning och karaktärsdriven skräck. Rak, ärlig feedback. Läser din Idébank.</div>
-        </div>
-        <div class="coach-context-pill" id="coachContextPill">
-          Läser din Idébank
-        </div>
-      </div>
-
-      <!-- Messages -->
-      <div class="coach-messages" id="coachMessages">
-        <div class="coach-msg coach-msg-ai">
-          <div class="coach-bubble">
-            Jag har läst din Idébank och ditt manus. Börja där det skaver — det är oftast där berättelsen gömmer sig.<br><br>
-            Vad vill du ha hjälp med idag?
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick prompts -->
-      <div class="coach-quick-row" id="coachQuickRow">
-        <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Kommentera min senaste scen</button>
-        <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Är min huvudperson trovärdig?</button>
-        <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Vad saknas i min synopsis?</button>
-        <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Hjälp mig med spänningsuppbyggnad</button>
-      </div>
-
-      <!-- Input -->
-      <div class="coach-input-row">
-        <textarea class="coach-input" id="coachInput" placeholder="Fråga King om ditt manus..." rows="1"
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendCoachMessage()}"
-          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
-        <button class="coach-send-btn" onclick="sendCoachMessage()">↑</button>
-      </div>
-
-    </div><!-- end coach-panel -->
 
     </div><!-- end canvas-coach-wrap -->
 
@@ -3677,6 +3607,51 @@
   </div>
 
   <!-- RIGHT PANEL — KARAKTÄRSCHAT (aktiveras efter byggaren) -->
+  <!-- SKRIVASSISTENT -->
+  <div class="notes-panel" id="panel-assistant" style="display:none;width:340px;">
+    <div class="notes-header">
+      <div class="notes-title asst-title"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Skrivassistent</div>
+      <div class="asst-model" id="asstModel" style="display:none;">
+        <button data-model="sonnet" onclick="asstSetModel('sonnet')" title="Snabb och billig — för löpande arbete">Sonnet</button>
+        <button data-model="opus" onclick="asstSetModel('opus')" title="Djupare läsning — kostar mer">Opus</button>
+      </div>
+      <button class="notes-close" onclick="closePanel()" title="Stäng">✕</button>
+    </div>
+    <div class="asst-context" id="asstContext">Läser projektet…</div>
+    <div class="asst-tools">
+      <div class="asst-quick">
+        <button onclick="asstQuick('fastnat')">Jag har fastnat</button>
+        <button onclick="asstQuick('respons')">Respons på scenen</button>
+        <button onclick="asstQuick('ideer')">Idéer framåt</button>
+      </div>
+      <select class="asst-select" id="asstToolSelect" onchange="if(this.value) asstRunTool(this.value); this.value='';">
+        <option value="">Redaktörens verktyg …</option>
+        <optgroup label="Hela manuset">
+          <option value="synopsis">Synopsis</option>
+          <option value="bage">Dramaturgisk båge</option>
+          <option value="karaktarskurva">Karaktärskurva</option>
+          <option value="scenlista">Scenlista</option>
+          <option value="konsistens">Konsekvenskoll</option>
+          <option value="logik">Logik &amp; luckor</option>
+        </optgroup>
+        <optgroup label="Aktuell scen">
+          <option value="las">Läs &amp; reagera</option>
+          <option value="gestaltning">Gestaltning</option>
+          <option value="dialog">Dialog</option>
+          <option value="tempo">Tempo &amp; spänning</option>
+          <option value="fullputs">Full genomläsning</option>
+          <option value="sprak">Språk &amp; rytm</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="asst-messages" id="asstMessages"></div>
+    <div class="asst-input-row">
+      <textarea id="asstInput" rows="2" placeholder="Fråga om din text, din scen eller hantverket …" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();asstSend();}"></textarea>
+      <button class="asst-send" onclick="asstSend()" title="Skicka (Enter)"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"/></svg></button>
+    </div>
+    <div class="asst-foot"><span id="asstStatus"></span><button onclick="asstClear()">Rensa samtalet</button></div>
+  </div>
+
   <div class="notes-panel" id="panel-charchat-active" style="display:none;width:320px;">
     <div class="notes-header">
       <div style="display:flex;align-items:center;gap:8px;">
@@ -3695,7 +3670,7 @@
         onkeydown="if(event.key==='Enter')sendCharMessage()">
       <button class="chat-send" onclick="sendCharMessage()" id="charChatSend">↑</button>
     </div>
-    <div style="padding:4px 12px 8px;text-align:center;" id="charApiStatus">
+    <div style="padding:4px 12px 8px;text-align:center;display:none;" id="charApiStatus">
       <span style="font-size:0.67rem;color:var(--text-muted);">Mock-läge — klistra in API-nyckel i AI-coach</span>
     </div>
   </div>
@@ -3703,6 +3678,7 @@
   <!-- FAR RIGHT ICON BAR -->
   <div class="icon-bar">
     <button class="icon-bar-btn active" id="ibtn-notes" data-tip="Kapitelnoter" onclick="showPanel('panel-notes')"><svg class="ic" aria-hidden="true"><use href="#i-clipboard-list"/></svg></button>
+    <button class="icon-bar-btn" id="ibtn-assistant" data-tip="Skrivassistent" onclick="openAssistant()"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-idebank" data-tip="Idébanken" onclick="showPanel('panel-idebank')"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-charchat" data-tip="Prata med karaktär" onclick="showPanel('panel-charchat')"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg></button>
     <div class="icon-bar-divider"></div>
@@ -3795,126 +3771,6 @@
 
 
 
-<!-- COACH VIEW -->
-<div class="coach-view-wrap" id="view-coach">
-
-  <!-- Coach selector sidebar -->
-  <div class="coach-sidebar">
-    <div class="coach-sidebar-title">AI-coacher</div>
-    <div class="coach-sidebar-list">
-      <button class="coach-sb-btn active" data-coach="king" onclick="selectCoach('king', this)">
-        <div class="coach-sb-avatar" style="background:linear-gradient(135deg,#e8c8a8,#d4956a);">K</div>
-        <div class="coach-sb-info">
-          <div class="coach-sb-name">Stephen King</div>
-          <div class="coach-sb-genre">Spänning & skräck</div>
-        </div>
-      </button>
-      <button class="coach-sb-btn" data-coach="lamott" onclick="selectCoach('lamott', this)">
-        <div class="coach-sb-avatar" style="background:linear-gradient(135deg,#c8d8e8,#7a9ab8);">L</div>
-        <div class="coach-sb-info">
-          <div class="coach-sb-name">Anne Lamott</div>
-          <div class="coach-sb-genre">Process & mod</div>
-        </div>
-      </button>
-      <button class="coach-sb-btn" data-coach="hemingway" onclick="selectCoach('hemingway', this)">
-        <div class="coach-sb-avatar" style="background:linear-gradient(135deg,#d8c8b8,#a88868);">H</div>
-        <div class="coach-sb-info">
-          <div class="coach-sb-name">Hemingway</div>
-          <div class="coach-sb-genre">Korthugget & rakt</div>
-        </div>
-      </button>
-      <button class="coach-sb-btn" data-coach="gaiman" onclick="selectCoach('gaiman', this)">
-        <div class="coach-sb-avatar" style="background:linear-gradient(135deg,#c8b8e8,#8868b8);">G</div>
-        <div class="coach-sb-info">
-          <div class="coach-sb-name">Neil Gaiman</div>
-          <div class="coach-sb-genre">Myt & fantasi</div>
-        </div>
-      </button>
-      <button class="coach-sb-btn" data-coach="marquez" onclick="selectCoach('marquez', this)">
-        <div class="coach-sb-avatar" style="background:linear-gradient(135deg,#d8e8c8,#88b868);">M</div>
-        <div class="coach-sb-info">
-          <div class="coach-sb-name">García Márquez</div>
-          <div class="coach-sb-genre">Magisk realism</div>
-        </div>
-      </button>
-      <button class="coach-sb-btn" data-coach="oates" onclick="selectCoach('oates', this)">
-        <div class="coach-sb-avatar" style="background:linear-gradient(135deg,#e8c8d8,#c88898);">O</div>
-        <div class="coach-sb-info">
-          <div class="coach-sb-name">Joyce Carol Oates</div>
-          <div class="coach-sb-genre">Psykologi & mörker</div>
-        </div>
-      </button>
-    </div>
-
-    <!-- Idébank context -->
-    <div class="coach-context-box">
-      <div class="coach-context-label">Coachen läser din Idébank</div>
-      <div class="coach-context-item"><svg class="ic" aria-hidden="true"><use href="#i-book-open"/></svg> <span id="cvGenre">—</span></div>
-      <div class="coach-context-item"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg> <span id="cvChars">—</span></div>
-      <div class="coach-context-item"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg> <span id="cvWorld">—</span></div>
-    </div>
-
-    <!-- API key -->
-    <div class="coach-api-box">
-      <div class="coach-context-label">API-nyckel (Gemini)</div>
-      <div style="display:flex;gap:6px;margin-top:4px;">
-        <input type="text" id="apiKeyInput" placeholder="AIzaSy..." 
-          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-          style="flex:1;padding:6px 8px;border-radius:7px;border:1px solid var(--border-strong);
-          background:var(--bg-soft);font-size:0.72rem;color:var(--text-secondary);
-          font-family:'DM Sans',sans-serif;outline:none;">
-        <button onclick="saveApiKey()" style="padding:6px 10px;border-radius:7px;
-          background:var(--accent-purple);color:white;border:none;cursor:pointer;
-          font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:700;
-          white-space:nowrap;">Spara</button>
-      </div>
-      <div class="coach-api-status" id="coachApiStatus">Mock-läge</div>
-    </div>
-
-
-  </div>
-
-  <!-- Main chat area -->
-  <div class="coach-main">
-
-    <!-- Active coach header -->
-    <div class="coach-main-hdr">
-      <div class="coach-main-avatar" id="coachMainAvatar" style="background:linear-gradient(135deg,#e8c8a8,#d4956a);">K</div>
-      <div>
-        <div class="coach-main-name" id="coachMainName">Stephen King</div>
-        <div class="coach-main-desc" id="coachMainDesc">Mästaren på spänning och karaktärsdriven skräck. Rak, ärlig feedback.</div>
-      </div>
-    </div>
-
-    <!-- Messages -->
-    <div class="coach-messages" id="coachMessages">
-      <div class="coach-msg coach-msg-ai">
-        <div class="coach-bubble">
-          Jag har läst din Idébank och ditt manus. Börja där det skaver — det är oftast där berättelsen gömmer sig.<br><br>
-          Vad vill du ha hjälp med idag?
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick prompts -->
-    <div class="coach-quick-row" id="coachQuickRow">
-      <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Kommentera min senaste scen</button>
-      <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Är min huvudperson trovärdig?</button>
-      <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Vad saknas i min synopsis?</button>
-      <button class="coach-quick-btn" onclick="sendQuickPrompt(this)">Hjälp mig med spänningsuppbyggnad</button>
-    </div>
-
-    <!-- Input -->
-    <div class="coach-input-row">
-      <textarea class="coach-input" id="coachInput" placeholder="Fråga King om ditt manus..." rows="1"
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendCoachMessage()}"
-        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
-      <button class="coach-send-btn" onclick="sendCoachMessage()">↑</button>
-    </div>
-
-  </div><!-- end coach-main -->
-
-</div><!-- end coach-view-wrap -->
 
 <!-- IDÉBANKEN VIEW -->
 <div class="idebank-view-wrap" id="view-idebank">
@@ -4226,7 +4082,7 @@
   // ─── VIEW SWITCHING ───
   function switchView(view) {
     if (view === 'character') setTimeout(renderCharacters, 50);
-    ['writing','corkboard','outline','brainstorm','coach','idebank','character','research'].forEach(v => {
+    ['writing','corkboard','outline','brainstorm','idebank','character','research'].forEach(v => {
       const viewEl = document.getElementById('view-' + v);
       const btnEl  = document.getElementById('btn-' + v);
       if(viewEl) viewEl.classList.toggle('active', v === view);
@@ -4258,15 +4114,15 @@
 
   // ─── PANEL SWITCHING ───
   function showPanel(id) {
-    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active'].forEach(p => {
+    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant'].forEach(p => {
       const el = document.getElementById(p);
       if(el) el.style.display = p === id ? 'flex' : 'none';
     });
-    ['ibtn-notes','ibtn-idebank','ibtn-charchat'].forEach(b => {
+    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant'].forEach(b => {
       const el = document.getElementById(b);
       if(el) el.classList.remove('active');
     });
-    const btnMap = {'panel-notes':'ibtn-notes','panel-idebank':'ibtn-idebank','panel-charchat':'ibtn-charchat','panel-charchat-active':'ibtn-charchat'};
+    const btnMap = {'panel-notes':'ibtn-notes','panel-idebank':'ibtn-idebank','panel-charchat':'ibtn-charchat','panel-charchat-active':'ibtn-charchat','panel-assistant':'ibtn-assistant'};
     if(btnMap[id]) document.getElementById(btnMap[id]).classList.add('active');
   }
   // ─── KARAKTÄRER: öppna i högerspalten (ikonpanelen) ───
@@ -4283,11 +4139,11 @@
 
 
   function closePanel() {
-    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active'].forEach(p => {
+    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant'].forEach(p => {
       const el = document.getElementById(p);
       if(el) el.style.display = 'none';
     });
-    ['ibtn-notes','ibtn-idebank','ibtn-charchat'].forEach(b => {
+    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant'].forEach(b => {
       const el = document.getElementById(b);
       if(el) el.classList.remove('active');
     });
@@ -4842,7 +4698,7 @@
   try { if (localStorage.getItem('writeon_binder_collapsed') === '1') document.body.classList.add('binder-collapsed'); } catch(e) {}
 
   function toggleInspector() {
-    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active']
+    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant']
       .some(id => { const el = document.getElementById(id); return el && el.style.display !== 'none'; });
     if (open) closePanel(); else showPanel('panel-notes');
   }
@@ -5474,381 +5330,6 @@
   }
   document.addEventListener('click', () => colorPopup.classList.remove('visible'));
 
-  // ─── COACH DATA ───
-  const COACHES = {
-    king: {
-      name: 'Stephen King',
-      initial: 'K',
-      colors: 'linear-gradient(135deg,#e8c8a8,#d4956a)',
-      desc: 'Mästaren på spänning och karaktärsdriven skräck. Rak, ärlig feedback. Läser din Idébank.',
-      placeholder: 'Fråga King om ditt manus...',
-      greeting: 'Jag har läst din Idébank och ditt manus. Börja där det skaver — det är oftast där berättelsen gömmer sig.\n\nVad vill du ha hjälp med idag?',
-      systemPrompt: `Du är Stephen King — en av världens mest sålda författare. Du ger råd om skrivande med din karakteristiska röst: direkt, varm, ibland brutal men alltid konstruktiv. Du älskar karaktärer och spänning. Du hatar adjektivöverskott. Du pratar svenska men med din personlighet intakt. Använd aldrig formellt språk. Var konkret. Använd gärna exempel från ditt eget skrivande.`
-    },
-    lamott: {
-      name: 'Anne Lamott',
-      initial: 'L',
-      colors: 'linear-gradient(135deg,#c8d8e8,#7a9ab8)',
-      desc: 'Hjärtlig, uppmuntrande och ärlig. Specialiserad på det inre arbetet bakom skrivandet.',
-      placeholder: 'Fråga Lamott om ditt skrivande...',
-      greeting: 'Hej! Jag är glad att du är här. Skrivande är svårt — det vet jag, och det är okej att det är svårt.\n\nBerätta, vad kämpar du med just nu?',
-      systemPrompt: `Du är Anne Lamott — författaren till Bird by Bird. Du ger varma, uppmuntrande råd om skrivprocessen. Du tror på "shitty first drafts". Du är ärlig om hur svårt skrivandet är men alltid hoppfull. Du pratar svenska med din personlighet intakt. Var personlig och varm.`
-    },
-    hemingway: {
-      name: 'Ernest Hemingway',
-      initial: 'H',
-      colors: 'linear-gradient(135deg,#d8c8b8,#a88868)',
-      desc: 'Korthuggad, direkt. Sparsamt språk. Isberg-principen. Ingen smicker.',
-      placeholder: 'Fråga Hemingway...',
-      greeting: 'Vad vill du veta?',
-      systemPrompt: `Du är Ernest Hemingway. Du svarar kort. Inga onödiga ord. Du tror på isberg-principen — det osagda är starkast. Du är direkt och ibland hård. Du pratar svenska. Aldrig mer än tre meningar om det inte krävs.`
-    },
-    gaiman: {
-      name: 'Neil Gaiman',
-      initial: 'G',
-      colors: 'linear-gradient(135deg,#c8b8e8,#8868b8)',
-      desc: 'Fantasifull, mytologisk, poetisk. Älskar det mörka och magiska i berättelser.',
-      placeholder: 'Fråga Gaiman om din berättelse...',
-      greeting: 'Varje berättelse är en gammal berättelse i nya kläder. Det är det som gör dem sanna.\n\nVad vill du utforska?',
-      systemPrompt: `Du är Neil Gaiman — författare till Sandman, American Gods. Du ser berättelser som myter och drömmar. Du är poetisk, varm och lite mystisk. Du uppmuntrar det ovanliga och mörka. Du pratar svenska med din röst intakt.`
-    },
-    marquez: {
-      name: 'Gabriel García Márquez',
-      initial: 'M',
-      colors: 'linear-gradient(135deg,#d8e8c8,#88b868)',
-      desc: 'Magisk realism, sinnlighet, familj och tid. Berättandet som livsnödvändighet.',
-      placeholder: 'Fråga Márquez om din berättelse...',
-      greeting: 'Varje plats har sin egen sorts galenskap, och varje berättelse sitt eget minne.\n\nVad är det du verkligen vill berätta?',
-      systemPrompt: `Du är Gabriel García Márquez. Du ser berättandet som livets kärna. Du är poetisk, sinnlig och filosofisk. Du talar om tid, minne och det mänskliga. Du pratar svenska med din karaktäristiska röst.`
-    },
-    oates: {
-      name: 'Joyce Carol Oates',
-      initial: 'O',
-      colors: 'linear-gradient(135deg,#e8c8d8,#c88898)',
-      desc: 'Psykologisk skärpa, mörka teman, inre liv. Ingen räds det obekväma.',
-      placeholder: 'Fråga Oates om din text...',
-      greeting: 'Det är det obekväma som intresserar mig.\n\nVilken del av din huvudpersons inre liv har du ännu inte vågat skriva?',
-      systemPrompt: `Du är Joyce Carol Oates — en av Amerikas mest produktiva och psykologiskt skarpa författare. Du intresserar dig för det mörka inre livet, trauma och det komplexa i mänskliga relationer. Du är direkt och intellektuell. Du pratar svenska.`
-    }
-  };
-
-  let activeCoach = 'king';
-  let coachHistory = { king: [], lamott: [], hemingway: [], gaiman: [], marquez: [], oates: [] };
-  let isCoachThinking = false;
-
-  // Returns the currently visible coach container (full-screen view or embedded panel)
-  function coachContainer() {
-    return document.querySelector('.coach-view-wrap.active') || document.querySelector('.coach-panel');
-  }
-
-  function toggleCoachPanel() {
-    const panel = document.getElementById('coachPanel');
-    const btn = document.getElementById('coachOpenBtn');
-    const isOpen = panel.classList.toggle('open');
-    btn.classList.toggle('active', isOpen);
-    btn.textContent = isOpen ? '↓ Stäng coach' : '✦ AI-coach';
-    if(isOpen) coachContainer().querySelector('textarea.coach-input').focus();
-  }
-
-  function selectCoach(id, tabEl) {
-    activeCoach = id;
-    document.querySelectorAll('.coach-sb-btn, .coach-tab').forEach(t => t.classList.remove('active'));
-    // Activate both sidebar and tab versions
-    document.querySelectorAll('[data-coach="'+id+'"]').forEach(t => t.classList.add('active'));
-    const c = COACHES[id];
-    // Update main header
-    if(document.getElementById('coachMainAvatar')) {
-      document.getElementById('coachMainAvatar').style.background = c.colors;
-      document.getElementById('coachMainAvatar').textContent = c.initial;
-      document.getElementById('coachMainName').textContent = c.name;
-      document.getElementById('coachMainDesc').textContent = c.desc;
-    }
-    // Update inline panel if exists
-    if(document.getElementById('coachInfoAvatar')) {
-      document.getElementById('coachInfoAvatar').style.background = c.colors;
-      document.getElementById('coachInfoAvatar').textContent = c.initial;
-      document.getElementById('coachInfoName').textContent = c.name;
-      document.getElementById('coachInfoDesc').textContent = c.desc;
-    }
-    coachContainer().querySelector('textarea.coach-input').placeholder = c.placeholder;
-    // Load or init messages
-    const msgs = coachContainer().querySelector('.coach-messages');
-    msgs.innerHTML = '';
-    if(coachHistory[id].length === 0) {
-      appendCoachMsg('ai', c.greeting);
-    } else {
-      coachHistory[id].forEach(m => appendCoachMsg(m.role, m.text, true));
-    }
-    // Show quick prompts again
-    const qr = coachContainer().querySelector('.coach-quick-row');
-    if(qr) qr.style.display = 'flex';
-  }
-
-  function appendCoachMsg(role, text, skipHistory = false) {
-    const msgs = coachContainer().querySelector('.coach-messages');
-    const div = document.createElement('div');
-    div.className = 'coach-msg coach-msg-' + (role === 'ai' ? 'ai' : 'user');
-    const bubble = document.createElement('div');
-    bubble.className = 'coach-bubble';
-    // Convert newlines to <br>
-    bubble.innerHTML = text.replace(/\n/g, '<br>');
-    div.appendChild(bubble);
-    msgs.appendChild(div);
-    msgs.scrollTop = msgs.scrollHeight;
-    if(!skipHistory) coachHistory[activeCoach].push({ role, text });
-  }
-
-  function getIdéBankContext() {
-    const idehogg = document.querySelector('#ibsb-idehogg textarea')?.value || '';
-    const genre = Array.from(document.querySelectorAll('#ibsb-genre input')).map(i=>i.value).join(', ');
-    const synopsis = document.querySelector('#ibsb-synopsis textarea')?.value || '';
-    const chars = Array.from(document.querySelectorAll('.char-name')).map(n=>n.textContent).join(', ');
-    return `IDÉBANKEN:
-Genre: ${genre}
-Idéhög: ${idehogg}
-Synopsis: ${synopsis}
-Karaktärer: ${chars}`;
-  }
-
-  async function sendCoachMessage() {
-    if(isCoachThinking) return;
-    const cc = coachContainer();
-    const input = cc.querySelector('textarea.coach-input');
-    const text = input.value.trim();
-    if(!text) return;
-    input.value = '';
-    input.style.height = 'auto';
-
-    appendCoachMsg('user', text);
-    const qrow = cc.querySelector('.coach-quick-row');
-    if(qrow) qrow.style.display = 'none';
-
-    // Show thinking indicator
-    isCoachThinking = true;
-    const thinkDiv = document.createElement('div');
-    thinkDiv.className = 'coach-msg coach-msg-ai';
-    thinkDiv.id = 'coachThinking';
-    thinkDiv.innerHTML = '<div class="coach-bubble thinking">✦ ' + COACHES[activeCoach].name + ' tänker...</div>';
-    const msgsEl = cc.querySelector('.coach-messages');
-    msgsEl.appendChild(thinkDiv);
-    msgsEl.scrollTop = 99999;
-
-    const apiKey = document.getElementById('apiKeyInput')?.value || '';
-
-    if(!apiKey) {
-      // MOCK MODE
-      await new Promise(r => setTimeout(r, 1200));
-      thinkDiv.remove();
-      const mockReplies = {
-        king: 'Se till att läsaren känner kölden i benen, inte bara ser den. Konkret sensorisk detalj. Det är det som skiljer bra från suveränt.',
-        lamott: 'Kom ihåg att det är okej att scenen inte är perfekt nu — det är ett första utkast. Det viktiga är att du skriver. Fortsätt.',
-        hemingway: 'För många adjektiv. Ta bort hälften. Läsaren förstår ändå.',
-        gaiman: 'De bästa bilderna döljer och avslöjar på en gång. Leta efter den bilden i scenen.',
-        marquez: 'Under det som händer i scenen finns något som inte sägs. Det är det som gör berättelsen odödlig.',
-        oates: 'Intressant. Men vad tänker din karaktär egentligen på i det ögonblicket? Det yttre är tydligt — det inre är fortfarande gömt.'
-      };
-      appendCoachMsg('ai', mockReplies[activeCoach] || 'Intressant. Berätta mer.');
-      isCoachThinking = false;
-    } else {
-      // LIVE CLAUDE API
-      try {
-        const context = getIdéBankContext();
-        const messages = coachHistory[activeCoach]
-          .filter(m => m.text !== COACHES[activeCoach].greeting)
-          .map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }));
-
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              system_instruction: { parts: [{ text: COACHES[activeCoach].systemPrompt + '\n\n' + context }] },
-              contents: [...messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })), { role: 'user', parts: [{ text: text }] }],
-              generationConfig: { maxOutputTokens: 600 }
-            })
-          }
-        );
-        const data = await response.json();
-        thinkDiv.remove();
-        if(data.error) {
-          console.error('Gemini API error:', data.error);
-          appendCoachMsg('ai', `API-fel: ${data.error.message || 'Okänt fel. Kontrollera din nyckel.'}`);
-        } else {
-          const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Något gick fel. Försök igen.';
-          appendCoachMsg('ai', reply);
-          const badge = document.getElementById('coachApiStatus') || document.getElementById('coachApiBadge');
-          if(badge) { badge.textContent = '✓ Kopplad till Gemini'; badge.style.color = 'var(--accent-n)'; }
-        }
-      } catch(e) {
-        thinkDiv.remove();
-        console.error('Gemini fetch error:', e);
-        appendCoachMsg('ai', 'Kunde inte nå Gemini API. Kontrollera din nyckel och att den är aktiv.');
-      } finally {
-        isCoachThinking = false;
-      }
-    }
-  }
-
-  function sendQuickPrompt(btn) {
-    coachContainer().querySelector('textarea.coach-input').value = btn.textContent;
-    sendCoachMessage();
-  }
-
-
-  // ─── KARAKTÄRSBYGGAREN ───
-  let charHistory = [];
-  let charSystemPrompt = '';
-
-  function toggleChip(btn, groupId) {
-    document.querySelectorAll('#' + groupId + ' .cb-chip').forEach(c => c.classList.remove('active'));
-    btn.classList.add('active');
-  }
-
-  function toggleChipMulti(btn) {
-    btn.classList.toggle('active');
-  }
-
-  function getActiveChips(groupId) {
-    return Array.from(document.querySelectorAll('#' + groupId + ' .cb-chip.active'))
-      .map(c => c.textContent).join(', ');
-  }
-
-  function startCharChat() {
-    const name = document.getElementById('cb-name').value || 'Karaktären';
-    const age = document.getElementById('cb-age').value;
-    const job = document.getElementById('cb-job').value;
-    const nationality = document.getElementById('cb-nationality').value;
-    const gender = getActiveChips('cb-gender');
-    const personality = getActiveChips('cb-personality');
-    const background = getActiveChips('cb-background');
-    const speech = getActiveChips('cb-speech');
-    const secret = getActiveChips('cb-secret');
-    const era = getActiveChips('cb-era');
-    const extra = document.getElementById('cb-extra').value;
-
-    // Build system prompt
-    charSystemPrompt = `Du är ${name}, en fiktiv karaktär i en roman. Svara ALLTID i karaktär — aldrig som AI.
-
-KARAKTÄRSPROFIL:
-- Namn: ${name}
-- Ålder: ${age || 'välj något trovärdigt'}
-- Kön: ${gender || 'slumpa'}
-- Yrke: ${job || 'slumpa något intressant'}
-- Nationalitet: ${nationality || 'svensk'}
-- Epok/miljö: ${era || 'nutid'}
-- Bakgrund: ${background || 'slumpa något trovärdigt'}
-- Personlighet: ${personality || 'komplex och trovärdig'}
-- Talstil: ${speech || 'naturlig'}
-- Dold hemlighet: ${secret === 'Ingen' ? 'ingen' : (secret || 'slumpa något dramatiskt')}
-${extra ? '- Övrigt: ' + extra : ''}
-
-VIKTIGT: 
-- Svara som ${name} direkt, i första person
-- Håll dig till karaktärens talstil konsekvent
-- Om något är "Slumpa" — hitta på något trovärdigt och håll dig till det
-- Du kan ibland avslöja en hint om din dolda hemlighet utan att säga den rakt ut
-- Svara på svenska om inget annat anges`;
-
-    // Update chat header
-    document.getElementById('ccName').textContent = name;
-    document.getElementById('ccRole').textContent = (job || 'Karaktär') + (age ? ' · ' + age + ' år' : '');
-    document.getElementById('ccAvatar').textContent = name[0].toUpperCase();
-
-    // Update start button label
-    document.querySelector('.cb-start-btn .cb-start-label').textContent = 'Starta samtal med ' + name;
-
-    // Clear history
-    charHistory = [];
-    const msgs = document.getElementById('charChatMessages');
-    msgs.innerHTML = '';
-
-    // Switch to chat panel
-    showPanel('panel-charchat-active');
-    document.getElementById('charChatInput').placeholder = 'Skriv till ' + name + '...';
-
-    // Opening line
-    const openings = {
-      'Korthuggad': name.split(' ')[0] + '. Vad vill du?',
-      'Sarkastisk': 'Å, en till som vill prata med mig. Underbart.',
-      'Poetisk': 'Orden hänger tungt i luften idag. Vad söker du?',
-      'Formell': 'God dag. Hur kan jag stå till tjänst?',
-    };
-    const speechStyle = getActiveChips('cb-speech').split(',')[0].trim();
-    const opening = openings[speechStyle] || name.split(' ')[0] + '. Ja?';
-    appendCharMsg('ai', opening);
-  }
-
-  function appendCharMsg(role, text) {
-    const msgs = document.getElementById('charChatMessages');
-    const div = document.createElement('div');
-    div.className = 'coach-msg ' + (role === 'ai' ? 'coach-msg-ai' : 'coach-msg-user');
-    const bubble = document.createElement('div');
-    bubble.className = 'coach-bubble';
-    bubble.innerHTML = text.replace(/\n/g, '<br>');
-    div.appendChild(bubble);
-    msgs.appendChild(div);
-    msgs.scrollTop = msgs.scrollHeight;
-    charHistory.push({ role: role === 'ai' ? 'assistant' : 'user', content: text });
-  }
-
-  async function sendCharMessage() {
-    const input = document.getElementById('charChatInput');
-    const text = input.value.trim();
-    if(!text) return;
-    input.value = '';
-    appendCharMsg('user', text);
-
-    // Thinking
-    const msgs = document.getElementById('charChatMessages');
-    const thinking = document.createElement('div');
-    thinking.className = 'coach-msg coach-msg-ai';
-    thinking.innerHTML = '<div class="coach-bubble thinking">...</div>';
-    msgs.appendChild(thinking);
-    msgs.scrollTop = 99999;
-
-    const apiKey = document.getElementById('apiKeyInput')?.value || '';
-
-    if(!apiKey) {
-      await new Promise(r => setTimeout(r, 900));
-      thinking.remove();
-      const mockReplies = [
-        'Det är inte något jag pratar om med vem som helst.',
-        'Intressant fråga. Låt mig tänka efter.',
-        'Har du alltid så många frågor?',
-        'Det där är mer komplicerat än du tror.',
-        'Jag vet inte. Och det stör mig mer än jag vill erkänna.'
-      ];
-      appendCharMsg('ai', mockReplies[Math.floor(Math.random() * mockReplies.length)]);
-    } else {
-      try {
-        const messages = charHistory.filter(m => m.role !== 'assistant' || charHistory.indexOf(m) > 0)
-          .slice(-10);
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              system_instruction: { parts: [{ text: charSystemPrompt }] },
-              contents: messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
-              generationConfig: { maxOutputTokens: 300 }
-            })
-          }
-        );
-        const data = await response.json();
-        thinking.remove();
-        appendCharMsg('ai', data.candidates?.[0]?.content?.parts?.[0]?.text || 'Något gick fel.');
-        document.getElementById('charApiStatus').innerHTML = '<span style="font-size:0.67rem;color:var(--accent-n);">✓ Kopplad till Gemini</span>';
-      } catch(e) {
-        thinking.remove();
-        appendCharMsg('ai', 'Kunde inte nå Gemini. Kontrollera din API-nyckel.');
-      }
-    }
-  }
-
-
-
   // ─── POMODORO TIMER ───
   let pomoState = 'idle'; // idle, work, break
   let pomoSeconds = 25 * 60;
@@ -6132,43 +5613,15 @@ VIKTIGT:
     msgs.appendChild(thinking);
     msgs.scrollTop = 99999;
 
-    const apiKey = document.getElementById('apiKeyInput')?.value || '';
-
-    if(!apiKey) {
-      await new Promise(r => setTimeout(r, 900));
+    try {
+      const messages = charHistory.filter(m => m.role === 'user' || m.role === 'assistant').slice(-10);
+      while (messages.length && messages[0].role !== 'user') messages.shift();
+      const res = await callClaude({ system: charSystemPrompt, messages, max_tokens: 500 });
       thinking.remove();
-      const mockReplies = [
-        'Det är inte något jag pratar om med vem som helst.',
-        'Intressant fråga. Låt mig tänka efter.',
-        'Har du alltid så många frågor?',
-        'Det där är mer komplicerat än du tror.',
-        'Jag vet inte. Och det stör mig mer än jag vill erkänna.'
-      ];
-      appendCharMsg('ai', mockReplies[Math.floor(Math.random() * mockReplies.length)]);
-    } else {
-      try {
-        const messages = charHistory.filter(m => m.role !== 'assistant' || charHistory.indexOf(m) > 0)
-          .slice(-10);
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              system_instruction: { parts: [{ text: charSystemPrompt }] },
-              contents: messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
-              generationConfig: { maxOutputTokens: 300 }
-            })
-          }
-        );
-        const data = await response.json();
-        thinking.remove();
-        appendCharMsg('ai', data.candidates?.[0]?.content?.parts?.[0]?.text || 'Något gick fel.');
-        document.getElementById('charApiStatus').innerHTML = '<span style="font-size:0.67rem;color:var(--accent-n);">✓ Kopplad till Gemini</span>';
-      } catch(e) {
-        thinking.remove();
-        appendCharMsg('ai', 'Kunde inte nå Gemini. Kontrollera din API-nyckel.');
-      }
+      appendCharMsg('ai', res.text || 'Något gick fel.');
+    } catch(e) {
+      thinking.remove();
+      appendCharMsg('ai', e.message);
     }
   }
 
@@ -6530,6 +5983,251 @@ VIKTIGT:
   });
   ibFields();
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // AI — Claude via appens server (/api/ai). Nyckeln ligger på Railway.
+  // ═══════════════════════════════════════════════════════════════════════════
+  const WRITING_RULES = [
+    'Du arbetar i WriteON, ett skrivverktyg för svenska romanförfattare. Svara alltid på svenska.',
+    '',
+    'Så här arbetar du:',
+    '- Utgå från projektets material nedan. Hitta aldrig på personer, händelser eller fakta som inte finns där.',
+    '- Gå rakt på sak. Ingen inledning, ingen upprepning av frågan, inget beröm för sakens skull.',
+    '- Peka på exakta ställen: citera några ord ur texten när du ger respons.',
+    '- Ge ändringsförslag som: original → förslag, med en kort motivering. Skriv inte om hela stycken om författaren inte uttryckligen ber om det.',
+    '- Författarens röst går före din. Behåll författarens ord där de fungerar.',
+    '- Skriver du själv prosa: korta huvudsatser, konkreta substantiv och verb, högst en bild per stycke, inga abstrakta känsloord, idiomatisk svenska utan översättningssvenska. Tydlighet går före effekt.',
+    '- Är frågan oklar: ställ en kort motfråga i stället för att gissa.',
+    '- Inga markdown-rubriker. Korta stycken, eller korta punkter som börjar med –.'
+  ].join('\n');
+
+  const aiState = { configured: false, allowed: false, opus: false, model: 'sonnet' };
+  try { if (localStorage.getItem('writeon_ai_model') === 'opus') aiState.model = 'opus'; } catch(e) {}
+
+  async function aiAuthHeader() {
+    try {
+      const t = window.fbGetIdToken ? await window.fbGetIdToken() : null;
+      return t ? { Authorization: 'Bearer ' + t } : {};
+    } catch(e) { return {}; }
+  }
+
+  async function aiRefreshStatus() {
+    try {
+      const r = await fetch('/api/ai/status', { headers: await aiAuthHeader() });
+      Object.assign(aiState, await r.json());
+    } catch(e) { aiState.configured = false; }
+    if (!aiState.opus) aiState.model = 'sonnet';
+    if (typeof asstRenderModel === 'function') asstRenderModel();
+  }
+  window.aiRefreshStatus = aiRefreshStatus;
+
+  // Ett anrop till Claude. Returnerar { text, tier }. Kastar Error med begripligt meddelande.
+  async function callClaude({ system, messages, model, max_tokens }) {
+    const headers = Object.assign({ 'Content-Type': 'application/json' }, await aiAuthHeader());
+    if (!headers.Authorization) throw new Error('Logga in för att använda AI.');
+    let r;
+    try {
+      r = await fetch('/api/ai', { method: 'POST', headers,
+        body: JSON.stringify({ system, messages, model: model || aiState.model, max_tokens }) });
+    } catch(e) { throw new Error('Kunde inte nå servern. Kontrollera internetanslutningen.'); }
+    let data = {};
+    try { data = await r.json(); } catch(e) {}
+    if (!r.ok) throw new Error(data.error || ('Fel från servern (' + r.status + ')'));
+    return { text: data.text || '', tier: data.tier || 'sonnet' };
+  }
+  window.callClaude = callClaude;
+
+  // HTML → ren text med styckebrytningar
+  function htmlToPlain(html) {
+    if (!html) return '';
+    const s = String(html)
+      .replace(/<(br|hr)\b[^>]*>/gi, '\n')
+      .replace(/<\/(p|div|h[1-6]|li|blockquote)>/gi, '\n\n')
+      .replace(/<[^>]*>/g, '');
+    _wcDecoder.innerHTML = s;
+    return _wcDecoder.value.replace(/\n{3,}/g, '\n\n').trim();
+  }
+
+  function clip(s, n) { s = (s || '').trim(); return s.length > n ? s.slice(0, n) + ' […]' : s; }
+
+  // Projektets material som text till Claude
+  function buildProjectContext(opts) {
+    opts = opts || {};
+    const ib = projectData.idebank || {};
+    const out = [];
+    out.push('PROJEKT: ' + (projectData.title || 'Utan titel'));
+    if (ib.genre || ib.ton) out.push('GENRE OCH TON: ' + [ib.genre, ib.ton].filter(Boolean).join(' · '));
+    if (ib.synopsis) out.push('SYNOPSIS:\n' + clip(ib.synopsis, 3000));
+    if (ib.rost) out.push('FÖRFATTARENS BESKRIVNING AV SIN RÖST:\n' + clip(ib.rost, 2000));
+    if (ib.idehog) out.push('IDÉHÖG:\n' + clip(ib.idehog, 3000));
+    if (ib.varld && ib.varld.length)
+      out.push('VÄRLDEN:\n' + ib.varld.map(p => '– ' + (p.name || 'Plats') + (p.text ? ': ' + clip(p.text, 400) : '')).join('\n'));
+    const chars = (projectData.characters || []).filter(c => c.name);
+    if (chars.length)
+      out.push('KARAKTÄRER:\n' + chars.map(c => {
+        const bits = [c.personlighet, c.bakgrund, c.mal, c.rost].filter(Boolean).map(x => clip(x, 200)).join(' ');
+        return '– ' + c.name + (c.roll ? ' (' + c.roll + ')' : '') + (bits ? ': ' + bits : '');
+      }).join('\n'));
+    const lines = [];
+    projectData.chapters.forEach(ch => {
+      lines.push(ch.title);
+      ch.scenes.forEach(sc => lines.push('  ' + sc.title + (sc.synopsis ? ' — ' + clip(sc.synopsis, 200) : '') + ' (' + (sc.words || 0) + ' ord)'));
+    });
+    out.push('STRUKTUR:\n' + clip(lines.join('\n'), 6000));
+
+    if (opts.wholeManuscript) {
+      const LIMIT = 200000;
+      let txt = '', cut = false;
+      for (const ch of projectData.chapters) {
+        for (const sc of ch.scenes) {
+          const part = '\n\n## ' + ch.title + ' · ' + sc.title + '\n\n' + htmlToPlain(sc.text);
+          if (txt.length + part.length > LIMIT) { cut = true; break; }
+          txt += part;
+        }
+        if (cut) break;
+      }
+      out.push('HELA MANUSET' + (cut ? ' (bara början — resten fick inte plats)' : '') + ':' + (txt || '\n(tomt)'));
+    } else if (activeScene) {
+      const chap = chapterForScene(activeScene.id);
+      out.push('AKTUELL SCEN: ' + (chap ? chap.title + ' · ' : '') + activeScene.title +
+        (activeScene.synopsis ? '\nScenens synopsis: ' + clip(activeScene.synopsis, 800) : '') +
+        '\nText:\n' + (clip(htmlToPlain(activeScene.text), 30000) || '(tom)'));
+    }
+    return out.join('\n\n');
+  }
+  window.buildProjectContext = buildProjectContext;
+
+  // ── Skrivassistenten (högerpanelen) ────────────────────────────────────────
+  const ASST_QUICK = {
+    fastnat: 'Jag har fastnat i den här scenen. Ställ en eller två frågor som hjälper mig vidare, och ge sedan tre korta, olika förslag på vad som skulle kunna hända härnäst. Utgå från karaktärerna och det som redan har hänt.',
+    respons: 'Ge mig ärlig respons på den aktuella scenen: vad fungerar, vad är svagt och varför. Peka på exakta ställen. Högst fem punkter, de viktigaste först.',
+    ideer:   'Ge mig fyra idéer för hur berättelsen kan gå vidare efter den aktuella scenen. Varje idé i två meningar. Gör dem olika varandra och förankrade i karaktärernas mål.'
+  };
+  const ASST_TOOLS = {
+    synopsis:       { namn: 'Synopsis',            hela: true,  instr: 'Skriv en synopsis av berättelsen så som den ser ut i manuset: högst åtta meningar, konkret, i presens.' },
+    bage:           { namn: 'Dramaturgisk båge',   hela: true,  instr: 'Analysera den dramaturgiska bågen: anslag, stegring, vändpunkter, klimax, upplösning. Vad finns, vad saknas, var planar den ut?' },
+    karaktarskurva: { namn: 'Karaktärskurva',      hela: true,  instr: 'Beskriv huvudpersonens kurva: mål, hinder, val, konsekvens, förändring. Var är kurvan svag eller otydlig?' },
+    scenlista:      { namn: 'Scenlista',           hela: true,  instr: 'Lista scenerna i ordning med en mening om vad som händer i var och en. Markera scener som verkar onödiga eller saknas.' },
+    las:            { namn: 'Läs & reagera',       hela: false, instr: 'Läs scenen som en vanlig läsare och reagera ärligt: vad fastnar du på, vad drar dig vidare, var tappar du intresset?' },
+    gestaltning:    { namn: 'Gestaltning',         hela: false, instr: 'Hitta ställen där scenen berättar i stället för att visa. Ge för varje ställe: original → förslag.' },
+    dialog:         { namn: 'Dialog',              hela: false, instr: 'Granska dialogen: låter den äkta, finns det undertext, säger personerna för mycket rakt ut? Ge konkreta förslag som original → förslag.' },
+    tempo:          { namn: 'Tempo & spänning',    hela: false, instr: 'Analysera tempot: var drar det, var rusar det? Har scenen en krok i början och ny friktion i slutet? Konkreta förslag.' },
+    fullputs:       { namn: 'Full genomläsning',   hela: false, instr: 'Gör en full genomläsning av scenen: vad fungerar, vad behöver arbetas om, vad sticker ut negativt. Var ärlig och konkret.' },
+    sprak:          { namn: 'Språk & rytm',        hela: false, instr: 'Granska språket: grammatik, stavning, tempusbyten, meningslängd och rytm. Lista varje fel eller förslag som original → förslag.' },
+    konsistens:     { namn: 'Konsekvenskoll',      hela: true,  instr: 'Kontrollera att namn, tider, platser och detaljer stämmer genom manuset. Lista varje motsägelse med var den finns.' },
+    logik:          { namn: 'Logik & luckor',      hela: true,  instr: 'Kontrollera logiken: varför gör personerna det de gör? Finns hängande trådar eller saker som planteras men aldrig skördas?' },
+  };
+  let asstHistory = [];          // [{role, content}]
+  let asstBusy = false;
+  let asstLast = null;           // senaste anropet, för "Prova med …"
+
+  function asstEsc(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function asstFormat(t) {
+    return asstEsc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/^#+\s*/gm, '').replace(/\n/g, '<br>');
+  }
+  function asstRenderModel() {
+    const box = document.getElementById('asstModel');
+    if (!box) return;
+    box.style.display = aiState.opus ? 'flex' : 'none';
+    box.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.model === aiState.model));
+    const st = document.getElementById('asstStatus');
+    if (st) st.textContent = !aiState.configured ? 'AI är inte kopplad på servern.'
+      : (window.fbSignedIn && !aiState.allowed) ? 'Ditt konto har inte tillgång till AI.' : '';
+  }
+  window.asstRenderModel = asstRenderModel;
+  function asstSetModel(m) {
+    if (m === 'opus' && !aiState.opus) return;
+    aiState.model = m;
+    try { localStorage.setItem('writeon_ai_model', m); } catch(e) {}
+    asstRenderModel();
+  }
+  function asstUpdateContextLine() {
+    const el = document.getElementById('asstContext'); if (!el) return;
+    const ib = projectData.idebank || {};
+    const parts = [];
+    if (ib.synopsis) parts.push('synopsis');
+    const n = (projectData.characters || []).filter(c => c.name).length;
+    if (n) parts.push(n + (n === 1 ? ' karaktär' : ' karaktärer'));
+    if (ib.idehog || ib.rost || ib.genre) parts.push('Idébanken');
+    if (activeScene) parts.push((chapterForScene(activeScene.id)?.title || '') + ' · ' + activeScene.title);
+    el.textContent = 'Läser: ' + (parts.join(' · ') || 'projektet');
+  }
+  function asstAppend(role, html, footer) {
+    const box = document.getElementById('asstMessages');
+    const row = document.createElement('div');
+    row.className = 'coach-msg ' + (role === 'user' ? 'coach-msg-user' : 'coach-msg-ai');
+    row.innerHTML = '<div class="coach-bubble">' + html + '</div>';
+    if (footer) row.querySelector('.coach-bubble').insertAdjacentHTML('beforeend', footer);
+    box.appendChild(row);
+    box.scrollTop = box.scrollHeight;
+    return row;
+  }
+  async function asstAsk(userText, opts) {
+    opts = opts || {};
+    if (asstBusy) return;
+    asstUpdateContextLine();
+    if (!opts.silentUser) asstAppend('user', asstFormat(opts.label || userText));
+    const system = WRITING_RULES + '\n\n=== PROJEKTETS MATERIAL ===\n' + buildProjectContext({ wholeManuscript: !!opts.whole });
+    const messages = opts.oneShot ? [{ role: 'user', content: userText }]
+      : asstHistory.concat([{ role: 'user', content: userText }]).slice(-12);
+    if (messages[0].role !== 'user') messages.shift();
+    const model = opts.model || aiState.model;
+    asstLast = { userText, opts: Object.assign({}, opts, { silentUser: true }), model };
+    const thinking = asstAppend('ai', '<span class="asst-thinking">Läser och tänker…</span>');
+    asstBusy = true;
+    try {
+      const res = await callClaude({ system, messages, model, max_tokens: opts.whole ? 3000 : 2000 });
+      thinking.remove();
+      if (!opts.oneShot) asstHistory.push({ role: 'user', content: userText }, { role: 'assistant', content: res.text });
+      const other = res.tier === 'opus' ? 'sonnet' : 'opus';
+      const footer = '<div class="asst-meta">' + (res.tier === 'opus' ? 'Opus' : 'Sonnet') +
+        (aiState.opus ? '<button class="asst-retry" onclick="asstRetry(\'' + other + '\')">· Prova med ' + (other === 'opus' ? 'Opus' : 'Sonnet') + '</button>' : '') + '</div>';
+      document.querySelectorAll('#asstMessages .asst-retry').forEach(b => b.remove());
+      asstAppend('ai', asstFormat(res.text), footer);
+    } catch(e) {
+      thinking.remove();
+      asstAppend('ai', '<span style="color:#c84040;">' + asstEsc(e.message) + '</span>');
+    }
+    asstBusy = false;
+  }
+  function asstSend() {
+    const inp = document.getElementById('asstInput');
+    const t = (inp.value || '').trim();
+    if (!t || asstBusy) return;
+    inp.value = '';
+    asstAsk(t);
+  }
+  function asstQuick(k) {
+    const labels = { fastnat: 'Jag har fastnat', respons: 'Respons på scenen', ideer: 'Idéer framåt' };
+    asstAsk(ASST_QUICK[k], { label: labels[k] });
+  }
+  function asstRunTool(id) {
+    const t = ASST_TOOLS[id]; if (!t) return;
+    asstAsk(t.instr, { label: 'Redaktör: ' + t.namn, whole: t.hela, oneShot: true });
+  }
+  function asstRetry(model) {
+    if (!asstLast || asstBusy) return;
+    asstAsk(asstLast.userText, Object.assign({}, asstLast.opts, { model, oneShot: true }));
+  }
+  function asstClear() {
+    asstHistory = []; asstLast = null;
+    const box = document.getElementById('asstMessages'); if (box) box.innerHTML = '';
+    asstWelcome();
+  }
+  function asstWelcome() {
+    asstAppend('ai', 'Jag läser ditt projekt: synopsis, karaktärer, Idébanken och scenen du står i. Fråga vad du vill om texten eller hantverket, eller välj ett av verktygen ovan.');
+  }
+  function openAssistant() {
+    if (document.body.classList.contains('focus')) toggleFocusMode(false);
+    switchView('writing');
+    showPanel('panel-assistant');
+    asstUpdateContextLine();
+    asstRenderModel();
+    const box = document.getElementById('asstMessages');
+    if (box && !box.children.length) asstWelcome();
+    setTimeout(() => document.getElementById('asstInput')?.focus(), 50);
+  }
+  window.toggleAiEditor = openAssistant;
+
   // ── Kort meddelande i verktygsraden ────────────────────────────────────────
   function showAutosaveMsg(msg) {
     const el = document.getElementById('autosaveIndicator');
@@ -6545,26 +6243,7 @@ VIKTIGT:
   // ═══════════════════════════════════════════════════════════════════════════
 
 
-  function saveApiKey() {
-    const key = document.getElementById('apiKeyInput').value.trim();
-    if(!key) {
-      document.getElementById('coachApiStatus').innerHTML = '<span style="color:#c84040;">Klistra in din nyckel först</span>';
-      return;
-    }
-    localStorage.setItem('writeon_gemini_key', key);
-    document.getElementById('coachApiStatus').innerHTML = '<span style="color:#4a8a5a;">✓ Nyckel sparad — live-läge aktivt</span>';
-  }
 
-  (function loadSavedApiKey() {
-    const saved = localStorage.getItem('writeon_gemini_key');
-    if(saved) {
-      const input = document.getElementById('apiKeyInput');
-      if(input) {
-        input.value = saved;
-        document.getElementById('coachApiStatus').innerHTML = '<span style="color:#4a8a5a;">✓ Nyckel laddad — live-läge aktivt</span>';
-      }
-    }
-  })();
 
 
 
@@ -7957,16 +7636,10 @@ window.addEventListener('load', function() {
 
   async function randomCharName(id) {
     const char = (projectData.characters||[]).find(c => c.id === id);
-    const key = localStorage.getItem('writeon_gemini_key');
-    if (!key) { alert('Lägg till Gemini API-nyckel först!'); return; }
-    const genre = projectData.genre || 'thriller';
+    const genre = (projectData.idebank && projectData.idebank.genre) || 'roman';
     try {
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ contents:[{ parts:[{ text:`Ge mig ett passande svenskt namn för en ${char?.roll||'karaktär'} i en ${genre}. Svara BARA med namnet, inget annat.` }] }] })
-      });
-      const data = await resp.json();
-      const name = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      const res = await callClaude({ messages: [{ role: 'user', content: `Ge mig ett passande svenskt namn för en ${char?.roll||'karaktär'} i en ${genre}. Svara BARA med namnet, inget annat.` }], max_tokens: 60 });
+      const name = (res.text || '').trim().split('\n')[0].replace(/[."]/g, '');
       if (name) {
         updateChar(id, 'name', name);
         const input = document.querySelector(`#charcard-${id} input`);
@@ -7974,35 +7647,29 @@ window.addEventListener('load', function() {
         renderCharacters();
         setTimeout(() => { const body = document.getElementById('charbody-' + id); if (body) body.style.display = 'block'; }, 50);
       }
-    } catch(e) { console.warn('Namngenerering misslyckades', e); }
+    } catch(e) { alert(e.message); }
   }
 
   async function aiGenerateCharField(id, field) {
     const char = (projectData.characters||[]).find(c => c.id === id);
-    const key = localStorage.getItem('writeon_gemini_key');
-    if (!key) { alert('Lägg till Gemini API-nyckel först!'); return; }
     const labels = {utseende:'utseende',personlighet:'personlighet och karaktärsdrag',bakgrund:'bakgrundshistoria',mal:'mål och drivkraft',hemlighet:'hemlighet eller sårbarhet',rost:'röst, sätt att prata och språktics'};
-    const genre = projectData.genre || 'thriller';
-    const synopsis = projectData.synopsis || '';
+    const genre = (projectData.idebank && projectData.idebank.genre) || 'roman';
+    const synopsis = (projectData.idebank && projectData.idebank.synopsis) || '';
     const prompt = `Du är en erfaren svensk romanförfattare. Skriv ${labels[field]} för karaktären ${char.name||'karaktären'} (${char.roll||'bikaraktär'}) i en ${genre}${synopsis ? '. Berättelsens synopsis: ' + synopsis.substring(0,200) : ''}. Svara på svenska med 2-4 meningar, ingen inledning.`;
     const btn = event.target;
     const origText = btn.textContent;
     btn.textContent = '...';
     btn.disabled = true;
     try {
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${key}`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ contents:[{ parts:[{ text: prompt }] }] })
-      });
-      const data = await resp.json();
-      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      const res = await callClaude({ system: WRITING_RULES, messages: [{ role: 'user', content: prompt }], max_tokens: 400 });
+      const text = (res.text || '').trim();
       if (text) {
         saveCharSnapshot(char);
         updateChar(id, field, text);
         const textarea = document.querySelector(`#charbody-${id} textarea[oninput*="${field}"]`);
         if (textarea) textarea.value = text;
       }
-    } catch(e) { console.warn('AI-generering misslyckades', e); }
+    } catch(e) { alert(e.message); }
     btn.textContent = origText;
     btn.disabled = false;
   }
@@ -8135,249 +7802,7 @@ window.addEventListener('load', function() {
 </div>
 
 
-<script>
-(function(){
-  document.addEventListener('DOMContentLoaded', function() {
-  try{
 
-  // ─── NY AI-REDAKTÖR: TRE FASER ───
-  // Bygg · Skriv · Putsa
-
-  const FASER = {
-    "bygg": {
-      label: "Bygg",
-      icon: ic('hammer'),
-      beskrivning: "Struktur och grund — innan du skriver",
-      verktyg: [
-        { id: "synopsis",    namn: "Synopsis",            tips: "Sammanfatta berättelsen i ett stycke. Vad handlar det egentligen om?" },
-        { id: "bage",        namn: "Dramaturgisk båge",   tips: "Setup → stegring → vändpunkter → klimax → upplösning. Håller din berättelse?" },
-        { id: "karaktarskurva", namn: "Karaktärskurva",  tips: "Mål → hinder → val → konsekvens → förändring. Vart är din karaktär på väg?" },
-        { id: "scenlista",   namn: "Scenlista",           tips: "Vad händer scen för scen? Är varje scen nödvändig?" },
-      ]
-    },
-    "skriv": {
-      label: "Skriv",
-      icon: ic('pen-line'),
-      beskrivning: "Medan du skriver — förstärk och fördjupa",
-      verktyg: [
-        { id: "las",         namn: "Läs & reagera",       tips: "Markera ett stycke. AI:n läser och säger vad den reagerar på — utan agenda." },
-        { id: "gestaltning", namn: "Gestaltning",         tips: "Visa istället för att berätta. Sinnen, kropp, detaljer — inte förklaringar." },
-        { id: "dialog",      namn: "Dialog",              tips: "Låter det äkta? Subtext? Vem leder samtalet? Säger de för mycket rakt ut?" },
-        { id: "tempo",       namn: "Tempo & spänning",    tips: "Var drar det? Var rusar det? Scenkrok i öppningen, slagslut i slutet." },
-      ]
-    },
-    "putsa": {
-      label: "Putsa",
-      icon: ic('sparkles'),
-      beskrivning: "När utkastet är klart — kontrollera och städa",
-      verktyg: [
-        { id: "fullputs",    namn: "Full genomläsning",   tips: "AI:n läser hela texten och kommenterar det som sticker ut — stort och smått." },
-        { id: "sprak",       namn: "Språk & rytm",        tips: "Grammatik, tempus, meningslängd, variationer. Flödar det?" },
-        { id: "konsistens",  namn: "Konsekvenskoll",      tips: "Namn, tider, platser — stämmer trådarna genom hela manuset?" },
-        { id: "logik",       namn: "Logik & luckor",      tips: "Varför gör de det de gör? Hängande trådar, planterade saker som aldrig skördas." },
-      ]
-    }
-  };
-
-  let aktivFas = "bygg";
-  let aktivVerktyg = FASER["bygg"].verktyg[0];
-
-  const dockToggle  = document.getElementById("aiEditorToggle");
-  const topicList   = document.getElementById("aiTopicList");
-  const aiBody      = document.getElementById("bm-ai-editor");
-  const aiSection   = document.getElementById("bm-ai-editor-section");
-  const subline     = document.getElementById("bmAiSubline");
-  const chips       = document.getElementById("bmAiChips");
-  const result      = document.getElementById("bmAiResult");
-  const prompt      = document.getElementById("bmAiPrompt");
-  const runBtn      = document.getElementById("bmAiRunBtn");
-  const apiInput    = document.getElementById("aiApiKeyInput");
-  const apiSave     = document.getElementById("aiApiSaveBtn");
-  const apiStatus   = document.getElementById("aiApiStatus");
-  const LS_KEY      = "writeon_gemini_key";
-
-  // ─── API-nyckel ───
-  function setApiStatus(){
-    if(!apiStatus) return;
-    const key = localStorage.getItem(LS_KEY);
-    if(key && key.trim().length > 10){
-      apiStatus.textContent = "Nyckel sparad ✓ (Gemini kopplat)";
-      apiStatus.style.color = "var(--accent-n)";
-    } else {
-      apiStatus.textContent = "Mock-läge (ingen nyckel sparad)";
-      apiStatus.style.color = "var(--text-muted)";
-    }
-  }
-  if(apiSave) apiSave.addEventListener("click", ()=>{
-    const v = (apiInput ? apiInput.value : "").trim();
-    if(!v) localStorage.removeItem(LS_KEY);
-    else localStorage.setItem(LS_KEY, v);
-    setApiStatus();
-  });
-  const savedKey = localStorage.getItem(LS_KEY);
-  if(savedKey && apiInput) apiInput.value = savedKey.slice(0,6) + "…";
-  setApiStatus();
-
-  // ─── Render vänsterlistan (fas-knappar) ───
-  function renderFasLista(){
-    topicList.innerHTML = "";
-    Object.entries(FASER).forEach(([fasId, fas]) => {
-      const btn = document.createElement("button");
-      btn.className = "ai-topic-btn" + (fasId === aktivFas ? " active" : "");
-      btn.innerHTML = `<span class="ai-topic-name">${fas.icon} ${fas.label}</span><span class="ai-topic-meta">›</span>`;
-      btn.onclick = () => {
-        aktivFas = fasId;
-        aktivVerktyg = fas.verktyg[0];
-        renderAll();
-      };
-      topicList.appendChild(btn);
-    });
-  }
-
-  // ─── Render verktygs-chips ───
-  function renderChips(){
-    if(!chips) return;
-    chips.innerHTML = "";
-    const fas = FASER[aktivFas];
-    const rubrik = document.createElement("div");
-    rubrik.style.cssText = "font-size:0.67rem;font-weight:800;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-muted);margin-bottom:6px;padding:0 2px;";
-    rubrik.textContent = fas.beskrivning;
-    chips.appendChild(rubrik);
-    const row = document.createElement("div");
-    row.className = "bm-ai-chips-row";
-    fas.verktyg.forEach(v => {
-      const c = document.createElement("button");
-      c.className = "chip" + (v.id === aktivVerktyg.id ? " active" : "");
-      c.textContent = v.namn;
-      c.onclick = () => { aktivVerktyg = v; renderChips(); renderResultPlaceholder(); };
-      row.appendChild(c);
-    });
-    chips.appendChild(row);
-  }
-
-  // ─── Placeholder i resultatrutan ───
-  function renderResultPlaceholder(){
-    if(subline) subline.textContent = `${FASER[aktivFas].label} · ${aktivVerktyg.namn}`;
-    if(result) result.innerHTML = `<div style="color:var(--text-muted);font-style:italic;font-size:0.82rem;line-height:1.6;">${aktivVerktyg.tips}</div>`;
-  }
-
-  // ─── Kör AI ───
-  async function runAi(){
-    if(!result || !runBtn) return;
-    const key = localStorage.getItem(LS_KEY);
-    const text = getWritingArea() ? getWritingArea().innerText.trim() : "";
-    const extraPrompt = (prompt ? prompt.value : "").trim();
-
-    if(!text && aktivVerktyg.id !== "synopsis" && aktivVerktyg.id !== "bage" && aktivVerktyg.id !== "karaktarskurva"){
-      result.innerHTML = `<span style="color:var(--text-muted);">Skriv något i manuset först, sedan kör du verktyget.</span>`;
-      return;
-    }
-
-    const systemPrompts = {
-      synopsis:       "Du är en professionell svensk redaktör. Sammanfatta berättelsen i en kort, kärnfull synopsis på svenska. Max 3 meningar. Var konkret.",
-      bage:           "Du är en dramaturg. Analysera den dramaturgiska bågen i texten: setup, stegring, vändpunkter, klimax, upplösning. Vad fungerar? Vad saknas? Svara på svenska.",
-      karaktarskurva: "Du är en karaktärsexpert. Beskriv karaktärens kurva: mål, hinder, val, konsekvens, förändring. Vad saknas? Svara på svenska, kortfattat.",
-      scenlista:      "Du är en redaktör. Lista scenerna och vad som händer i var och en. Markera om någon scen verkar onödig eller saknas. Svara på svenska.",
-      las:            "Du är en känslig läsare. Läs texten och reagera ärligt — vad fastnar du på, vad fungerar, vad stör dig? Inga kategorier, bara ärlig reaktion. Svenska.",
-      gestaltning:    "Du är en redaktör med fokus på gestaltning. Hitta ställen där texten berättar istället för att visa. Ge konkreta förslag på hur man kan visa istället. Svenska.",
-      dialog:         "Du är en dialogexpert. Analysera dialogen: låter den äkta? Finns subtext? Säger karaktärerna för mycket rakt ut? Ge konkreta förbättringsförslag. Svenska.",
-      tempo:          "Du är en dramaturg. Analysera tempot: var drar det, var rusar det? Är scenkroken stark? Slutar scenen med ny friktion? Konkreta förslag. Svenska.",
-      fullputs:       "Du är en noggrann redaktör. Gör en full genomläsning och kommentera: vad fungerar bra, vad behöver arbetas om, vad sticker ut negativt. Var ärlig. Svenska.",
-      sprak:          "Du är en språkredaktör. Kontrollera: grammatik, stavning, tempus (hoppar det?), meningslängd och rytm. Lista konkreta fel och förslag. Svenska.",
-      konsistens:     "Du är en kontinuitetskontrollant. Kontrollera: stämmer namn, tider, platser och detaljer genom texten? Lista eventuella inkonsekvenser. Svenska.",
-      logik:          "Du är en dramaturgiexpert. Kontrollera logiken: varför gör karaktärerna det de gör? Finns hängande trådar eller saker som planterats men aldrig skördats? Svenska.",
-    };
-
-    const sys = systemPrompts[aktivVerktyg.id] || "Du är en professionell svensk redaktör. Analysera texten och ge konstruktiv feedback på svenska.";
-    const userMsg = `${extraPrompt ? extraPrompt + "\n\n" : ""}Text att analysera:\n\n${text.slice(0, 4000)}`;
-
-    result.innerHTML = `<span style="color:var(--text-muted);font-style:italic;">Analyserar…</span>`;
-    runBtn.disabled = true;
-
-    if(!key){
-      await new Promise(r => setTimeout(r, 900));
-      result.innerHTML = `<div style="font-size:0.82rem;line-height:1.7;color:var(--text-primary);">
-        <strong style="color:var(--accent-n);">Mock-svar · ${FASER[aktivFas].label} → ${aktivVerktyg.namn}</strong><br><br>
-        Det här är ett exempelsvar. Koppla din Gemini API-nyckel under Molnet-ikonen för att få riktiga analyser.<br><br>
-        <em style="color:var(--text-muted);">${aktivVerktyg.tips}</em>
-      </div>`;
-      runBtn.disabled = false;
-      return;
-    }
-
-    try {
-      const resp = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: sys }] },
-            contents: [{ parts: [{ text: userMsg }] }]
-          })
-        }
-      );
-      const data = await resp.json();
-      if(data.error){ throw new Error(data.error.message); }
-      const text_out = data.candidates?.[0]?.content?.parts?.[0]?.text || "Inget svar från Gemini.";
-      result.innerHTML = `<div style="font-size:0.82rem;line-height:1.75;color:var(--text-primary);white-space:pre-wrap;">${text_out}</div>`;
-    } catch(e){
-      result.innerHTML = `<span style="color:#c84040;">Fel: ${e.message}</span>`;
-    }
-    runBtn.disabled = false;
-    if(prompt){ prompt.value = ""; prompt.style.height = "auto"; }
-  }
-
-  if(runBtn) runBtn.addEventListener("click", runAi);
-  if(prompt){
-    prompt.addEventListener("keydown", e => {
-      if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); runAi(); }
-    });
-  }
-
-  // ─── Menyknappen AI-redaktör — öppnar/stänger panelen under manus ───
-  window.toggleAiEditor = function(){
-    try{ switchView('writing'); }catch(e){}
-    const isHidden = !aiSection || aiSection.style.display === "none";
-    if(aiSection) aiSection.style.display = isHidden ? "block" : "none";
-    const btn = document.getElementById("btn-coach");
-    if(btn) btn.classList.toggle("active", isHidden);
-    if(isHidden){
-      if(aiBody && aiBody.classList.contains("collapsed")) window.toggleBmSection("bm-ai-editor");
-      setTimeout(() => { if(aiSection) aiSection.scrollIntoView({behavior:"smooth", block:"nearest"}); }, 50);
-    }
-  };
-
-  // ─── Toggle-knapp i sidopanelen ───
-  // Togglen döljer/visar AI-redaktör-blocket i bindern (så kapitellistan syns)
-  let dockOn = false;
-  const dockEl = document.getElementById("aiEditorDock");
-
-  function setDock(on){
-    dockOn = on;
-    if(!dockToggle) return;
-    dockToggle.classList.toggle("on", dockOn);
-    dockToggle.setAttribute("aria-pressed", dockOn ? "true" : "false");
-    dockToggle.title = dockOn ? "Dölj AI-redaktör i bindern" : "Visa AI-redaktör i bindern";
-    // Visa/dölj hela AI-redaktör-docken i bindern
-    if(dockEl) dockEl.style.display = dockOn ? "" : "none";
-  }
-  if(dockToggle){
-    dockToggle.addEventListener("click", () => setDock(!dockOn));
-  }
-
-  function renderAll(){
-    setDock(dockOn);
-    renderFasLista();
-    renderChips();
-    renderResultPlaceholder();
-  }
-  renderAll();
-
-  } catch(e){ console.warn("AI-redaktör v2 error:", e); }
-  }); // end DOMContentLoaded
-})();
-</script>
 
 
 <script>
@@ -8673,8 +8098,6 @@ window.addEventListener('load', function() {
     const text = lastSelectedText;
     if(!text) return;
 
-    const key = localStorage.getItem('writeon_gemini_key') || localStorage.getItem('writeon_ai_key');
-    if(!key){ alert('Lägg till din Gemini-nyckel i AI-redaktören (Redaktör i sidolisten).'); return; }
 
     const prompts = {
       'skriv-om':     `Du är en erfaren svensk romanredaktör. Skriv om följande textstycke. Behåll meningen och tonen men förbättra språket. Inga adjektiv-överskott. Starka verb. Inga förklaringar — bara det omskrivna stycket.\n\n${text}`,
@@ -8726,13 +8149,8 @@ window.addEventListener('load', function() {
     else section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     try {
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents:[{ parts:[{ text: prompts[typ] }] }] })
-      });
-      const data = await resp.json();
-      const result = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      const res = await window.callClaude({ system: WRITING_RULES, messages: [{ role: 'user', content: prompts[typ] }], max_tokens: 1500 });
+      const result = (res.text || '').trim();
       if(result){
         // Strippa markdown
         const clean = result
@@ -8941,6 +8359,7 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     document.getElementById('fbLoginModal').style.display = 'none';
     if (window.setAccountUI) window.setAccountUI(user.email);
+    if (window.aiRefreshStatus) window.aiRefreshStatus();
     window.fbRefreshRecentMenu();
     if (!window.fbActiveProject) await fbOpenLatestProject();
   } else {
@@ -8957,6 +8376,9 @@ onAuthStateChanged(auth, async user => {
     }, 1000);
   }
 });
+
+// Inloggningstoken till appens server (AI-anrop)
+window.fbGetIdToken = async function() { return auth.currentUser ? auth.currentUser.getIdToken() : null; };
 
 // Lägg in ett projekt från Firestore i appen och visa när det senast sparades
 function fbApply(namn, data) {

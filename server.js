@@ -14,6 +14,7 @@ app.use(express.json({ limit: '2mb' }));
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
 const FIREBASE_WEB_KEY  = process.env.FIREBASE_WEB_API_KEY || 'AIzaSyC_q5vcLW1MvXxgythlXcEasw9uI-ICEPE'; // publik webbnyckel
 const ALLOWED_EMAILS    = (process.env.ALLOWED_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+const OPUS_EMAILS       = (process.env.OPUS_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
 const MODELS = {
   sonnet: process.env.CLAUDE_MODEL_SONNET || 'claude-sonnet-5-5',
   opus:   process.env.CLAUDE_MODEL_OPUS   || 'claude-opus-5-5',
@@ -75,9 +76,18 @@ function rateLimited(email) {
   return false;
 }
 
-// ── Är AI kopplad? (för appen att visa status) ──────────────────────────────
-app.get('/api/ai/status', (req, res) => {
-  res.json({ configured: !!ANTHROPIC_API_KEY, models: Object.keys(MODELS) });
+// ── Är AI kopplad, och vad får den här användaren? ──────────────────────────
+app.get('/api/ai/status', async (req, res) => {
+  const out = { configured: !!ANTHROPIC_API_KEY, signedIn: false, allowed: false, opus: false };
+  try {
+    const email = await verifyUser(req);
+    if (email) {
+      out.signedIn = true;
+      out.allowed = !ALLOWED_EMAILS.length || ALLOWED_EMAILS.includes(email);
+      out.opus = out.allowed && OPUS_EMAILS.includes(email);
+    }
+  } catch (e) {}
+  res.json(out);
 });
 
 // ── AI-anrop ────────────────────────────────────────────────────────────────
@@ -100,8 +110,10 @@ app.post('/api/ai', async (req, res) => {
     const size = clean.reduce((s, m) => s + m.content.length, 0) + (typeof system === 'string' ? system.length : 0);
     if (size > MAX_INPUT_CHARS) return res.status(413).json({ error: 'Texten är för lång för ett AI-anrop.' });
 
+    // Opus bara för konton i OPUS_EMAILS — alla andra får Sonnet
+    const wantOpus = model === 'opus' && OPUS_EMAILS.includes(email);
     const body = {
-      model: MODELS[model] || MODELS.sonnet,
+      model: wantOpus ? MODELS.opus : MODELS.sonnet,
       max_tokens: Math.max(100, Math.min(Number(max_tokens) || 2000, MAX_OUTPUT)),
       messages: clean,
     };
@@ -117,7 +129,7 @@ app.post('/api/ai', async (req, res) => {
     }
     const text = (r.json.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
     console.log('[AI]', email, body.model, 'in', r.json.usage && r.json.usage.input_tokens, 'ut', r.json.usage && r.json.usage.output_tokens);
-    res.json({ text, model: r.json.model, usage: r.json.usage || null, stop_reason: r.json.stop_reason });
+    res.json({ text, model: r.json.model, tier: wantOpus ? 'opus' : 'sonnet', usage: r.json.usage || null, stop_reason: r.json.stop_reason });
   } catch (e) {
     console.error('[AI] Serverfel', e);
     res.status(500).json({ error: 'Serverfel: ' + e.message });
