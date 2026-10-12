@@ -362,6 +362,51 @@
   .view-intro b { color: var(--text-primary); font-family: var(--font-text); font-size: 18px; margin-right: 8px; }
   .view-sub { font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.45; margin-top: 2px; }
 
+  /* ═══ Research: masonry-galleri. Rubrik 14 pt, text 12 pt ═══ */
+  .rs-page { max-width: 1100px; margin: 0 auto; padding: 26px 36px 60px; }
+  .rs-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
+  .rs-h1 { font-family: var(--font-text); font-weight: 600; font-size: 26px; }
+  .rs-add-wrap { position: relative; flex-shrink: 0; }
+  .rs-add { background: var(--action); color: var(--on-action); border: none; border-radius: 9px; padding: 9px 16px; font: 700 15px var(--font-ui); cursor: pointer; }
+  .rs-add-menu { display: none; position: absolute; right: 0; top: calc(100% + 6px); background: var(--bg-card); border: 1px solid var(--border); border-radius: 9px; box-shadow: 0 6px 28px rgba(0,0,0,0.14); padding: 4px 0; min-width: 170px; z-index: 50; }
+  .rs-add-menu.open { display: block; }
+  .rs-add-menu .nav-dd-item { justify-content: flex-start; gap: 9px; }
+  .rs-bar { display: flex; justify-content: space-between; align-items: center; margin: 18px 0; gap: 12px; flex-wrap: wrap; }
+  .rs-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+  .rs-tabs button { border: 1px solid transparent; background: none; border-radius: 8px; padding: 6px 12px; font: 600 15px var(--font-ui); color: var(--text-secondary); cursor: pointer; }
+  .rs-tabs button.on { background: var(--bg-card); border-color: var(--border); color: var(--text-primary); }
+  .rs-scene { font-size: 15px; color: var(--text-secondary); }
+  .rs-scene select { font: 600 15px var(--font-ui); color: var(--text-primary); background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 7px; padding: 4px 8px; margin-left: 4px; }
+  .rs-grid { columns: 3 280px; column-gap: 16px; }
+  .rs-card { break-inside: avoid; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+  .rs-img { background: repeating-linear-gradient(45deg, var(--bg-soft), var(--bg-soft) 10px, var(--bg-sidebar) 10px, var(--bg-sidebar) 20px); min-height: 120px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); }
+  .rs-img img { display: block; width: 100%; height: auto; }
+  .rs-img .ic { width: 28px; height: 28px; }
+  .rs-body { padding: 11px 14px 13px; }
+  .rs-typ { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
+  .rs-typ button { border: none; background: none; color: var(--action-text); font: 600 13px var(--font-ui); cursor: pointer; text-transform: none; letter-spacing: 0; padding: 0; }
+  .rs-t { font-size: 14pt; font-weight: 700; line-height: 1.3; margin: 4px 0 4px; color: var(--text-primary); }
+  .rs-x { font-family: var(--font-text); font-size: 12pt; line-height: 1.5; color: var(--text-secondary); }
+  .rs-q { font-family: var(--font-text); font-size: 12pt; font-style: italic; line-height: 1.5; color: var(--text-primary); border-left: 3px solid var(--accent-n); padding-left: 10px; }
+  .rs-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .rs-tag { font-size: 13px; color: var(--action-text); background: color-mix(in srgb, var(--action) 10%, transparent); padding: 2px 8px; border-radius: 10px; }
+  .rs-act { display: flex; gap: 12px; }
+  .rs-act a, .rs-act button { font: 600 14px var(--font-ui); color: var(--action-text); background: none; border: none; padding: 0; cursor: pointer; text-decoration: underline; }
+  .rs-empty { font-size: 15px; color: var(--text-muted); line-height: 1.5; padding: 10px 2px; column-span: all; }
+  .rs-panel-scope { padding: 8px 14px; font-size: 14px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+  .rs-panel-scope b { color: var(--text-primary); }
+  .rs-panel-scope button { border: none; background: none; padding: 0; color: var(--action-text); font: 600 14px var(--font-ui); cursor: pointer; text-decoration: underline; }
+  .rs-panel-list { flex: 1; overflow-y: auto; padding: 12px; min-height: 0; }
+  .rs-panel-foot { padding: 10px 12px; border-top: 1px solid var(--border); text-align: center; }
+  .rs-dlg { width: 560px; }
+  .rs-dlg label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary); }
+  .rs-dlg input[type=text], .rs-dlg input[type=url], .rs-dlg textarea, .rs-dlg select { display: block; width: 100%; box-sizing: border-box; margin-top: 5px; padding: 9px 11px; border-radius: 8px; border: 1.5px solid var(--border-strong); background: var(--bg); color: var(--text-primary); font: 15px var(--font-ui); }
+  .rs-dlg textarea { font-family: var(--font-text); font-size: 12pt; resize: vertical; }
+  .rs-dlg input[type=file] { display: block; margin-top: 7px; font: 14px var(--font-ui); }
+  .rs-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .rs-preview img { max-width: 100%; max-height: 200px; border-radius: 8px; display: block; margin-bottom: 10px; }
+  .rs-status { font-size: 14px; color: #c84040; min-height: 18px; }
+
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   .nav-menu {
@@ -374,7 +419,7 @@
     border: none;
     background: transparent;
     font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
+    font-size: 12pt;
     font-weight: 500;
     color: var(--text-secondary);
     cursor: pointer;
@@ -2646,7 +2691,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 7px 16px;
-    font-size: 14px;
+    font-size: 12pt;
     font-family: 'DM Sans', sans-serif;
     color: var(--text-primary);
     cursor: pointer;
@@ -3303,7 +3348,7 @@
   <div class="rail-sep"></div>
   <button class="rail-btn" onclick="switchView('idebank')" id="btn-idebank" title="Idébanken"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg>Idébank</button>
   <button class="rail-btn" onclick="switchView('character')" id="btn-character" title="Karaktärer"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>Karaktärer</button>
-  <button class="rail-btn" onclick="switchView('research')" id="btn-research" title="Research"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg>Research</button>
+  <button class="rail-btn" onclick="switchView('research'); rsRender()" id="btn-research" title="Research"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg>Research</button>
   <div class="rail-sep"></div>
   <button class="rail-btn" onclick="toggleAiEditor()" id="btn-coach" title="Skrivassistent och redaktörens verktyg"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg>Assistent</button>
 </nav>
@@ -3703,6 +3748,17 @@
   </div>
 
   <!-- RIGHT PANEL — KARAKTÄRSCHAT (aktiveras efter byggaren) -->
+  <!-- RESEARCH I MARGINALEN -->
+  <div class="notes-panel" id="panel-research" style="display:none;width:340px;flex-direction:column;">
+    <div class="notes-header">
+      <div class="notes-title asst-title"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg> Research</div>
+      <button class="notes-close" onclick="closePanel()" title="Stäng">✕</button>
+    </div>
+    <div class="rs-panel-scope" id="rsPanelScope"></div>
+    <div class="rs-panel-list" id="rsPanelList"></div>
+    <div class="rs-panel-foot"><button class="rs-add" onclick="rsOpen('fakta', activeScene ? activeScene.id : '')">+ Lägg till</button></div>
+  </div>
+
   <!-- SKRIVASSISTENT -->
   <div class="notes-panel" id="panel-assistant" style="display:none;width:340px;">
     <div class="notes-header">
@@ -3751,6 +3807,7 @@
   <div class="icon-bar">
     <button class="icon-bar-btn active" id="ibtn-notes" data-tip="Kapitelnoter" onclick="showPanel('panel-notes')"><svg class="ic" aria-hidden="true"><use href="#i-clipboard-list"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-assistant" data-tip="Skrivassistent" onclick="openAssistant()"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></button>
+    <button class="icon-bar-btn" id="ibtn-research" data-tip="Research" onclick="openResearchPanel()"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-idebank" data-tip="Idébanken" onclick="showPanel('panel-idebank')"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-charchat" data-tip="Prata med karaktär" onclick="showPanel('panel-charchat')"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg></button>
     <div class="icon-bar-divider"></div>
@@ -3941,37 +3998,33 @@
 
 <!-- RESEARCH VIEW -->
 <div class="idebank-view-wrap" id="view-research">
-  <div class="idebank-view-inner" style="max-width:1000px;">
-
-    <div class="idebank-view-hdr">
-      <span style="display:flex;"><svg class="ic ic-lg" aria-hidden="true"><use href="#i-library"/></svg></span>
+  <div class="rs-page">
+    <div class="rs-head">
       <div>
-        <div style="font-family:'Source Serif 4',serif;font-size:1.2rem;font-weight:700;">Research</div>
-        <div class="view-sub">Fakta, bilder, källor och citat som du samlar till boken.</div>
+        <div class="rs-h1">Research</div>
+        <div class="view-sub">Fakta, bilder, källor och citat som du samlar till boken. Koppla dem till en scen, så visas de i marginalen när du skriver där.</div>
       </div>
-      <div style="margin-left:auto;display:flex;gap:8px;">
-        <button class="bs-add-btn" onclick="addResearchItem('fakta')">+ Fakta</button>
-        <button class="bs-add-btn" onclick="addResearchItem('bild')">+ Bild</button>
-        <button class="bs-add-btn" onclick="addResearchItem('kalla')">+ Källa</button>
-        <button class="bs-add-btn" onclick="addResearchItem('citat')">+ Citat</button>
-        <button class="bs-add-btn" onclick="addResearchItem('namn')">+ Namn</button>
+      <div class="rs-add-wrap" id="rsAddWrap">
+        <button class="rs-add" onclick="rsToggleAddMenu(event)">+ Lägg till ▾</button>
+        <div class="rs-add-menu" id="rsAddMenu">
+          <div class="nav-dd-item" onclick="rsOpen('bild')"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg> Bild</div>
+          <div class="nav-dd-item" onclick="rsOpen('fakta')"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg> Fakta</div>
+          <div class="nav-dd-item" onclick="rsOpen('kalla')"><svg class="ic" aria-hidden="true"><use href="#i-link"/></svg> Källa</div>
+          <div class="nav-dd-item" onclick="rsOpen('citat')"><svg class="ic" aria-hidden="true"><use href="#i-quote"/></svg> Citat</div>
+        </div>
       </div>
     </div>
-
-    <!-- Kategoriflikar -->
-    <div class="research-tabs" id="researchTabs">
-      <button class="research-tab active" onclick="filterResearch('alla', this)">Alla</button>
-      <button class="research-tab" onclick="filterResearch('fakta', this)"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg> Fakta</button>
-      <button class="research-tab" onclick="filterResearch('bild', this)"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg> Bilder</button>
-      <button class="research-tab" onclick="filterResearch('kalla', this)"><svg class="ic" aria-hidden="true"><use href="#i-link"/></svg> Källor</button>
-      <button class="research-tab" onclick="filterResearch('citat', this)"><svg class="ic" aria-hidden="true"><use href="#i-quote"/></svg> Citat</button>
-      <button class="research-tab" onclick="filterResearch('namn', this)"><svg class="ic" aria-hidden="true"><use href="#i-contact"/></svg> Namn & platser</button>
+    <div class="rs-bar">
+      <div class="rs-tabs" id="rsTabs">
+        <button data-f="alla" onclick="rsSetFilter('alla')">Allt</button>
+        <button data-f="bild" onclick="rsSetFilter('bild')">Bilder</button>
+        <button data-f="fakta" onclick="rsSetFilter('fakta')">Fakta</button>
+        <button data-f="kalla" onclick="rsSetFilter('kalla')">Källor</button>
+        <button data-f="citat" onclick="rsSetFilter('citat')">Citat</button>
+      </div>
+      <label class="rs-scene">Scen: <select id="rsSceneSel" onchange="rsScene=this.value; rsRender()"></select></label>
     </div>
-
-    <!-- Research grid -->
-    <div class="research-grid" id="researchGrid">
-
-    </div>
+    <div class="rs-grid" id="rsGrid"></div>
   </div>
 </div>
 
@@ -4157,15 +4210,15 @@
 
   // ─── PANEL SWITCHING ───
   function showPanel(id) {
-    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant'].forEach(p => {
+    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research'].forEach(p => {
       const el = document.getElementById(p);
       if(el) el.style.display = p === id ? 'flex' : 'none';
     });
-    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant'].forEach(b => {
+    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant','ibtn-research'].forEach(b => {
       const el = document.getElementById(b);
       if(el) el.classList.remove('active');
     });
-    const btnMap = {'panel-notes':'ibtn-notes','panel-idebank':'ibtn-idebank','panel-charchat':'ibtn-charchat','panel-charchat-active':'ibtn-charchat','panel-assistant':'ibtn-assistant'};
+    const btnMap = {'panel-notes':'ibtn-notes','panel-idebank':'ibtn-idebank','panel-charchat':'ibtn-charchat','panel-charchat-active':'ibtn-charchat','panel-assistant':'ibtn-assistant','panel-research':'ibtn-research'};
     if(btnMap[id]) document.getElementById(btnMap[id]).classList.add('active');
   }
   // ─── KARAKTÄRER: öppna i högerspalten (ikonpanelen) ───
@@ -4182,11 +4235,11 @@
 
 
   function closePanel() {
-    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant'].forEach(p => {
+    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research'].forEach(p => {
       const el = document.getElementById(p);
       if(el) el.style.display = 'none';
     });
-    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant'].forEach(b => {
+    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant','ibtn-research'].forEach(b => {
       const el = document.getElementById(b);
       if(el) el.classList.remove('active');
     });
@@ -4474,7 +4527,7 @@
   try { if (localStorage.getItem('writeon_binder_collapsed') === '1') document.body.classList.add('binder-collapsed'); } catch(e) {}
 
   function toggleInspector() {
-    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant']
+    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research']
       .some(id => { const el = document.getElementById(id); return el && el.style.display !== 'none'; });
     if (open) closePanel(); else showPanel('panel-notes');
   }
@@ -4896,6 +4949,7 @@
 
     updateWordCountDisplays(scene);
     if (document.getElementById('panel-assistant')?.style.display === 'flex') asstUpdateContextLine();
+    if (document.getElementById('panel-research')?.style.display === 'flex' && typeof rsRender === 'function') rsRender();
   }
 
   // ── Sync binder dot + outline row after any change to scene ──
@@ -5241,77 +5295,215 @@
     setTimeout(() => toast.classList.remove('visible'), 4000);
   }
 
-  // ─── RESEARCH ───
-  let researchFilter = 'alla';
+  // ═══ RESEARCH — galleri (masonry) på egen sida och i marginalen ═══
+  // Korten sparas i projektet (projectData.research). Uppladdade bilder sparas
+  // nedskalade som egna dokument i Firebase (bilder får inte plats i projektet).
+  const RS_TYPES = { bild: 'Bild', fakta: 'Fakta', kalla: 'Källa', citat: 'Citat' };
+  let rsFilter = 'alla', rsScene = 'alla', rsPanelAll = false, rsEditId = null, rsEditImg = null;
+  const rsImgCache = {};
 
-  function filterResearch(type, btn) {
-    researchFilter = type;
-    document.querySelectorAll('.research-tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.research-card').forEach(card => {
-      if(type === 'alla' || card.dataset.type === type) {
-        card.classList.remove('hidden');
-      } else {
-        card.classList.add('hidden');
-      }
+  function rsItems() { if (!Array.isArray(projectData.research)) projectData.research = []; return projectData.research; }
+  function rsEsc(s) { return String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function rsSafeUrl(u) { u = String(u || '').trim(); if (!u) return ''; if (!/^https?:\/\//i.test(u)) u = 'https://' + u; return u; }
+  function rsPlaceLabel(id) {
+    if (!id) return '';
+    for (const ch of projectData.chapters) {
+      if (ch.id === id) return ch.title;
+      const sc = ch.scenes.find(s => s.id === id); if (sc) return ch.title + ' · ' + sc.title;
+    }
+    return '';
+  }
+  function rsMatchesScene(it, sceneId) {
+    if (!sceneId) return false;
+    if (it.scen === sceneId) return true;
+    const ch = chapterForScene(sceneId); return !!(ch && it.scen === ch.id);
+  }
+  function rsImgSrc(it) {
+    if (!it.bild) return '';
+    if (it.bild.startsWith('url:')) return it.bild.slice(4);
+    if (rsImgCache[it.bild]) return rsImgCache[it.bild];
+    if (window.fbLoadImage) window.fbLoadImage(it.bild).then(data => {
+      if (!data) return; rsImgCache[it.bild] = data;
+      document.querySelectorAll('img[data-img="' + it.bild + '"]').forEach(im => { im.src = data; im.closest('.rs-img').classList.remove('loading'); });
     });
+    return '';
   }
+  function rsCardHtml(it) {
+    const src = rsImgSrc(it);
+    let h = '<div class="rs-card" data-id="' + it.id + '">';
+    if (it.typ === 'bild') h += '<div class="rs-img' + (src ? '' : ' loading') + '" onclick="rsEdit(\'' + it.id + '\')">' + (it.bild ? '<img data-img="' + rsEsc(it.bild) + '" src="' + rsEsc(src) + '" alt="">' : ic('image')) + '</div>';
+    h += '<div class="rs-body"><div class="rs-typ"><span>' + RS_TYPES[it.typ] + '</span><button onclick="rsEdit(\'' + it.id + '\')">Ändra</button></div>';
+    if (it.titel) h += '<div class="rs-t">' + rsEsc(it.titel) + '</div>';
+    if (it.typ === 'citat' && it.text) h += '<div class="rs-q">' + rsEsc(it.text) + '</div>';
+    else if (it.text) h += '<div class="rs-x">' + rsEsc(it.text).replace(/\n/g, '<br>') + '</div>';
+    const actions = [];
+    if (it.lank) actions.push('<a href="' + rsEsc(rsSafeUrl(it.lank)) + '" target="_blank" rel="noopener">Läs mer ↗</a>');
+    if (it.text || it.titel) actions.push('<button onclick="rsCopy(\'' + it.id + '\')">Kopiera</button>');
+    const place = rsPlaceLabel(it.scen);
+    if (actions.length || place) h += '<div class="rs-foot">' + (place ? '<span class="rs-tag">' + rsEsc(place) + '</span>' : '<span></span>') + '<span class="rs-act">' + actions.join('') + '</span></div>';
+    return h + '</div></div>';
+  }
+  function rsRender() {
+    const items = rsItems();
+    // egen sida
+    const grid = document.getElementById('rsGrid');
+    if (grid) {
+      const list = items.filter(it => (rsFilter === 'alla' || it.typ === rsFilter) && (rsScene === 'alla' || it.scen === rsScene || rsMatchesScene(it, rsScene)));
+      grid.innerHTML = list.length ? list.map(rsCardHtml).join('') :
+        '<div class="rs-empty">' + (items.length ? 'Inget här med det här filtret.' : 'Inget insamlat än. Börja med <b>+ Lägg till</b>: en bild, en faktaruta, en källa eller ett citat.') + '</div>';
+      document.querySelectorAll('#rsTabs button').forEach(b => b.classList.toggle('on', b.dataset.f === rsFilter));
+      const sel = document.getElementById('rsSceneSel');
+      if (sel) {
+        const opts = ['<option value="alla">Alla</option>'];
+        projectData.chapters.forEach(ch => { opts.push('<option value="' + ch.id + '">' + rsEsc(ch.title) + '</option>');
+          ch.scenes.forEach(sc => opts.push('<option value="' + sc.id + '">\u2003' + rsEsc(sc.title) + '</option>')); });
+        sel.innerHTML = opts.join(''); sel.value = rsScene;
+        if (sel.value !== rsScene) { rsScene = 'alla'; sel.value = 'alla'; }
+      }
+    }
+    // marginalen
+    const pl = document.getElementById('rsPanelList');
+    if (pl) {
+      const here = activeScene ? items.filter(it => rsMatchesScene(it, activeScene.id)) : [];
+      const list = rsPanelAll ? items : here;
+      const where = activeScene ? rsPlaceLabel(activeScene.id) : '';
+      document.getElementById('rsPanelScope').innerHTML = rsPanelAll
+        ? 'Visar: <b>allt</b> · <button onclick="rsPanelAll=false;rsRender()">Bara den här scenen</button>'
+        : 'Visar: <b>' + rsEsc(where || 'scenen') + '</b> · <button onclick="rsPanelAll=true;rsRender()">Visa allt</button>';
+      pl.innerHTML = list.length ? list.map(rsCardHtml).join('') :
+        '<div class="rs-empty">' + (rsPanelAll ? 'Inget insamlat än.' : 'Inget kopplat till den här scenen. Välj <b>Visa allt</b> eller lägg till något.') + '</div>';
+    }
+  }
+  window.rsRender = rsRender;
+  function rsSetFilter(f) { rsFilter = f; rsRender(); }
 
-  function addResearchItem(type) {
-    // Switch to research view if not there
-    switchView('research');
+  // ── Dialogen: lägg till och ändra ──
+  function rsFillPlaces(sel, value) {
+    const opts = ['<option value="">Inte kopplad</option>'];
+    projectData.chapters.forEach(ch => { opts.push('<option value="' + ch.id + '">' + rsEsc(ch.title) + '</option>');
+      ch.scenes.forEach(sc => opts.push('<option value="' + sc.id + '">\u2003' + rsEsc(ch.title + ' · ' + sc.title) + '</option>')); });
+    sel.innerHTML = opts.join(''); sel.value = value || '';
+  }
+  function rsOpen(typ, presetScene) {
+    _closeDropdowns();
+    rsEditId = null; rsEditImg = null;
+    rsShowDialog({ typ: typ || 'fakta', titel: '', text: '', lank: '', bild: '', scen: presetScene || '' });
+  }
+  function rsEdit(id) {
+    const it = rsItems().find(x => x.id === id); if (!it) return;
+    rsEditId = id; rsEditImg = null;
+    rsShowDialog(it);
+  }
+  function rsShowDialog(it) {
+    document.getElementById('rsDlgTitle').textContent = rsEditId ? 'Ändra' : 'Lägg till';
+    document.getElementById('rsTyp').value = it.typ;
+    document.getElementById('rsTitel').value = it.titel || '';
+    document.getElementById('rsText').value = it.text || '';
+    document.getElementById('rsLank').value = it.lank || '';
+    document.getElementById('rsBildUrl').value = it.bild && it.bild.startsWith('url:') ? it.bild.slice(4) : '';
+    document.getElementById('rsBildFil').value = '';
+    rsFillPlaces(document.getElementById('rsScen'), it.scen);
+    const prev = document.getElementById('rsPreview');
+    const src = it.bild ? (it.bild.startsWith('url:') ? it.bild.slice(4) : (rsImgCache[it.bild] || '')) : '';
+    prev.innerHTML = src ? '<img src="' + rsEsc(src) + '" alt="">' : '';
+    document.getElementById('rsDelete').style.display = rsEditId ? '' : 'none';
+    document.getElementById('rsStatus').textContent = '';
+    rsTypeChanged();
+    document.getElementById('rsModal').style.display = 'flex';
+    setTimeout(() => document.getElementById('rsTitel').focus(), 60);
+  }
+  function rsTypeChanged() {
+    const t = document.getElementById('rsTyp').value;
+    document.getElementById('rsBildRow').style.display = t === 'bild' ? '' : 'none';
+    document.getElementById('rsTextLbl').textContent = t === 'citat' ? 'Citat' : (t === 'bild' ? 'Text under bilden' : 'Text');
+    document.getElementById('rsTitelLbl').textContent = t === 'citat' ? 'Vem som sa det, och var' : 'Rubrik';
+  }
+  function rsClose() { document.getElementById('rsModal').style.display = 'none'; }
 
-    const labels = {
-      fakta: ic('file-text') + ' Fakta', bild: ic('image') + ' Bild',
-      kalla: ic('link') + ' Källa', citat: ic('quote') + ' Citat', namn: ic('contact') + ' Namn & platser'
+  // Bild från datorn: skalas ner i webbläsaren så att den får plats i ett eget dokument
+  function rsPickFile(input) {
+    const f = input.files && input.files[0]; if (!f) return;
+    const st = document.getElementById('rsStatus');
+    st.textContent = 'Förbereder bilden …';
+    const img = new Image();
+    img.onload = () => {
+      let max = 1400, q = 0.82, data = '';
+      for (let i = 0; i < 6; i++) {
+        const k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        data = c.toDataURL('image/jpeg', q);
+        if (data.length < 750000) break;
+        max = Math.round(max * 0.8); q = Math.max(0.6, q - 0.06);
+      }
+      URL.revokeObjectURL(img.src);
+      rsEditImg = data;
+      document.getElementById('rsBildUrl').value = '';
+      document.getElementById('rsPreview').innerHTML = '<img src="' + data + '" alt="">';
+      st.textContent = '';
     };
-    const grid = document.getElementById('researchGrid');
-    const card = document.createElement('div');
-    card.className = 'research-card';
-    card.dataset.type = type;
-
-    let inner = `<div class="research-card-type">${labels[type]}</div>
-      <div class="research-card-title" contenteditable="true">Ny titel...</div>`;
-
-    if(type === 'bild') {
-      inner += `<div class="research-img-placeholder">
-        <div style="font-size:2rem;color:var(--text-muted);">${ic('image')}</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-top:6px;">Klistra in bild-URL</div>
-        <input class="ib-input" style="margin-top:8px;font-size:13px;" placeholder="https://..." oninput="loadResearchImg(this)">
-      </div>`;
-    } else if(type === 'citat') {
-      inner += `<div class="research-card-quote" contenteditable="true">Skriv citat här...</div>`;
-    } else if(type === 'namn') {
-      inner += `<div class="research-card-body"><div class="research-name-grid"><span class="research-name-item" contenteditable="true">Namn</span></div></div>`;
-    } else {
-      inner += `<div class="research-card-body" contenteditable="true">Skriv här...</div>`;
-    }
-
-    if(type === 'kalla') {
-      inner += `<div class="research-card-link"><input class="ib-input" style="font-size:13px;" placeholder="URL eller ISBN..."></div>`;
-    }
-
-    inner += `<button class="research-card-del" onclick="this.closest('.research-card').remove()">✕</button>`;
-    card.innerHTML = inner;
-
-    // Apply current filter
-    if(researchFilter !== 'alla' && researchFilter !== type) card.classList.add('hidden');
-
-    grid.insertBefore(card, grid.firstChild);
-    card.querySelector('[contenteditable]')?.focus();
+    img.onerror = () => { st.textContent = 'Kunde inte läsa bilden.'; };
+    img.src = URL.createObjectURL(f);
+  }
+  function rsUrlChanged() {
+    const u = document.getElementById('rsBildUrl').value.trim();
+    rsEditImg = null; document.getElementById('rsBildFil').value = '';
+    document.getElementById('rsPreview').innerHTML = u ? '<img src="' + rsEsc(rsSafeUrl(u)) + '" alt="">' : '';
   }
 
-  function loadResearchImg(input) {
-    const url = input.value.trim();
-    if(!url) return;
-    const placeholder = input.closest('.research-img-placeholder');
-    if(!placeholder) return;
-    const img = document.createElement('img');
-    img.className = 'research-img-loaded';
-    img.src = url;
-    img.onerror = () => img.remove();
-    placeholder.parentNode.insertBefore(img, placeholder);
-    placeholder.style.display = 'none';
+  async function rsSave() {
+    const st = document.getElementById('rsStatus');
+    const typ = document.getElementById('rsTyp').value;
+    const titel = document.getElementById('rsTitel').value.trim();
+    const text = document.getElementById('rsText').value.trim();
+    const lank = document.getElementById('rsLank').value.trim();
+    const scen = document.getElementById('rsScen').value;
+    const url = document.getElementById('rsBildUrl').value.trim();
+    if (!titel && !text && !(typ === 'bild' && (rsEditImg || url))) { st.textContent = 'Skriv något först.'; return; }
+    const items = rsItems();
+    let it = rsEditId ? items.find(x => x.id === rsEditId) : null;
+    if (!it) { it = { id: 'rs-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), skapad: new Date().toISOString() }; items.unshift(it); }
+    Object.assign(it, { typ, titel, text, lank, scen });
+    if (typ === 'bild') {
+      if (rsEditImg) {
+        if (!window.fbSaveImage) { st.textContent = 'Bilder kan bara sparas när du är inloggad.'; return; }
+        st.textContent = 'Sparar bilden …';
+        const oldId = it.bild && !it.bild.startsWith('url:') ? it.bild : null;
+        const imgId = 'img-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        const ok = await window.fbSaveImage(imgId, rsEditImg);
+        if (!ok) { st.textContent = 'Bilden kunde inte sparas. Prova en bildlänk i stället.'; return; }
+        rsImgCache[imgId] = rsEditImg; it.bild = imgId;
+        if (oldId && window.fbDeleteImage) window.fbDeleteImage(oldId);
+      } else if (url) it.bild = 'url:' + rsSafeUrl(url);
+    }
+    rsClose(); rsRender(); scheduleAutoSave();
+  }
+  function rsDelete() {
+    if (!rsEditId || !confirm('Ta bort det här kortet?')) return;
+    const items = rsItems(); const i = items.findIndex(x => x.id === rsEditId);
+    if (i >= 0) {
+      const b = items[i].bild; items.splice(i, 1);
+      if (b && !b.startsWith('url:') && window.fbDeleteImage) window.fbDeleteImage(b);
+    }
+    rsClose(); rsRender(); scheduleAutoSave();
+  }
+  function rsCopy(id) {
+    const it = rsItems().find(x => x.id === id); if (!it) return;
+    const t = [it.titel, it.text, it.lank ? rsSafeUrl(it.lank) : ''].filter(Boolean).join('\n\n');
+    const fallback = () => {
+      const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      let ok = false; try { ok = document.execCommand('copy'); } catch(e) {}
+      ta.remove(); showAutosaveMsg(ok ? '✓ Kopierat' : '⚠ Kunde inte kopiera');
+    };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(() => showAutosaveMsg('✓ Kopierat'), fallback);
+    else fallback();
+  }
+  function rsToggleAddMenu(e) { e.stopPropagation(); document.getElementById('rsAddMenu').classList.toggle('open'); }
+  document.addEventListener('click', e => { if (!e.target.closest('#rsAddWrap')) document.getElementById('rsAddMenu')?.classList.remove('open'); });
+  function openResearchPanel() {
+    if (document.body.classList.contains('focus')) toggleFocusMode(false);
+    switchView('writing'); showPanel('panel-research'); rsRender();
   }
 
   // ─── LOCALSTORAGE AUTOSAVE ───
@@ -5609,6 +5801,7 @@ VIKTIGT:
     projectData.characters = Array.isArray(data.characters) ? data.characters : [];
     projectData.idebank    = (data.idebank && typeof data.idebank === 'object') ? data.idebank : {};
     projectData.format     = data.format === 'screenplay' ? 'screenplay' : 'prosa';
+    projectData.research   = Array.isArray(data.research) ? data.research : [];
     document.body.classList.toggle('screenplay-mode', projectData.format === 'screenplay');
     projectData.chapters.forEach(ch => { if (!Array.isArray(ch.scenes)) ch.scenes = []; });
     if (!projectData.chapters.length)
@@ -5622,6 +5815,7 @@ VIKTIGT:
     updateProjectTitle();
     renderProjectViews();
     renderIdebank();
+    if (typeof rsRender === 'function') rsRender();
   }
   window.applyProject = applyProject;
 
@@ -5775,6 +5969,14 @@ VIKTIGT:
 
     applyProject(data, namn);
     if (window.fbSetActiveProject) window.fbSetActiveProject(namn);
+    for (const it of (projectData.research || [])) {
+      if (it.bildData && window.fbSaveImage) {
+        const id = 'img-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        if (await window.fbSaveImage(id, it.bildData)) { rsImgCache[id] = it.bildData; it.bild = id; }
+      }
+      delete it.bildData;
+    }
+    rsRender();
     changeSeq++;
     const ok = await runSave();
     if (ok) {
@@ -6088,6 +6290,10 @@ VIKTIGT:
         const bits = [c.personlighet, c.bakgrund, c.mal, c.rost].filter(Boolean).map(x => clip(x, 200)).join(' ');
         return '– ' + c.name + (c.roll ? ' (' + c.roll + ')' : '') + (bits ? ': ' + bits : '');
       }).join('\n'));
+    const rs = (projectData.research || []).filter(it => it.titel || it.text);
+    if (rs.length)
+      out.push('RESEARCH:\n' + clip(rs.map(it => '– ' + ({bild:'Bild',fakta:'Fakta',kalla:'Källa',citat:'Citat'}[it.typ] || '') + ': ' +
+        [it.titel, it.text].filter(Boolean).join(' – ')).join('\n'), 4000));
     const lines = [];
     projectData.chapters.forEach(ch => {
       lines.push(ch.title);
@@ -6584,8 +6790,14 @@ VIKTIGT:
   }
   function closeBackupDialog() { document.getElementById('backupModal').style.display = 'none'; }
 
-  function downloadBackup() {
+  async function downloadBackup() {
     if (!projectData.title) { alert('Öppna eller skapa ett projekt först.'); return; }
+    const research = [];
+    for (const it of (projectData.research || [])) {
+      const c = Object.assign({}, it);
+      if (c.bild && !c.bild.startsWith('url:') && window.fbLoadImage) { const dta = rsImgCache[c.bild] || await window.fbLoadImage(c.bild); if (dta) c.bildData = dta; }
+      research.push(c);
+    }
     const data = {
       format: 'writeon-2',
       title: projectData.title,
@@ -6593,6 +6805,7 @@ VIKTIGT:
       chapters: projectData.chapters,
       characters: projectData.characters || [],
       idebank: projectData.idebank || {},
+      research,
       format: projectData.format || 'prosa',
       exportedAt: new Date().toISOString()
     };
@@ -8334,6 +8547,7 @@ window.firebaseSaveProject = async function() {
       chapters:   p.chapters || [],
       characters: p.characters || [],
       idebank:    p.idebank || {},
+      research:   p.research || [],
       format:     p.format || 'prosa',
       savedAt:    serverTimestamp()
     };
@@ -8372,6 +8586,10 @@ window.firebaseDeleteProject = async function(namn) {
   if (!user) return;
   try {
     await deleteDoc(doc(db, 'users', user.uid, 'projects', namn));
+    try {
+      const imgs = await getDocs(collection(db, 'users', user.uid, 'images'));
+      for (const im of imgs.docs) if (im.data().project === namn) await deleteDoc(doc(db, 'users', user.uid, 'images', im.id));
+    } catch(e) {}
     console.log('[Firebase] ✓ Raderade projekt:', namn);
     if (window.showAutosaveMsg) window.showAutosaveMsg(namn + ' borttaget');
     // Om det var det aktiva projektet — nollställ titeln
@@ -8439,6 +8657,22 @@ onAuthStateChanged(auth, async user => {
     }, 400);
   }
 });
+
+// ── Research-bilder: nedskalade, ett dokument per bild (users/{uid}/images/{id}) ──
+window.fbSaveImage = async function(id, data) {
+  const user = auth.currentUser; if (!user) return false;
+  try { await setDoc(doc(db, 'users', user.uid, 'images', id), { data, project: window.fbActiveProject || '', createdAt: serverTimestamp() }); return true; }
+  catch(e) { console.error('[Firebase] Bildfel:', e.code, e.message); return false; }
+};
+window.fbLoadImage = async function(id) {
+  const user = auth.currentUser; if (!user) return null;
+  try { const s = await getDoc(doc(db, 'users', user.uid, 'images', id)); return s.exists() ? s.data().data : null; }
+  catch(e) { return null; }
+};
+window.fbDeleteImage = async function(id) {
+  const user = auth.currentUser; if (!user) return;
+  try { await deleteDoc(doc(db, 'users', user.uid, 'images', id)); } catch(e) {}
+};
 
 // Inloggningstoken till appens server (AI-anrop)
 window.fbGetIdToken = async function() { return auth.currentUser ? auth.currentUser.getIdToken() : null; };
@@ -8557,6 +8791,10 @@ window.fbRaderaKonto = async function() {
   try {
     const snap = await getDocs(collection(db, 'users', user.uid, 'projects'));
     for (const d of snap.docs) await deleteDoc(doc(db, 'users', user.uid, 'projects', d.id));
+    try {
+      const imgs = await getDocs(collection(db, 'users', user.uid, 'images'));
+      for (const im of imgs.docs) await deleteDoc(doc(db, 'users', user.uid, 'images', im.id));
+    } catch(e) {}
     window.fbActiveProject = null;
     await user.delete();
     try { localStorage.removeItem('writeon_has_account'); } catch(e) {}
@@ -8606,6 +8844,32 @@ window.fbLoggaUt = async function() {
     </div>
   </div>
   <div class="stp-foot">WriteON · <button onclick="openPrivacy()">Så hanteras din text</button></div>
+</div>
+
+<!-- RESEARCH: LÄGG TILL / ÄNDRA -->
+<div id="rsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this) rsClose()">
+  <div class="wn-modal rs-dlg">
+    <div class="wn-modal-head"><h2 id="rsDlgTitle">Lägg till</h2><button class="wn-x" onclick="rsClose()">✕</button></div>
+    <div class="rs-row2">
+      <label>Typ<select id="rsTyp" onchange="rsTypeChanged()"><option value="bild">Bild</option><option value="fakta">Fakta</option><option value="kalla">Källa</option><option value="citat">Citat</option></select></label>
+      <label>Koppla till<select id="rsScen"></select></label>
+    </div>
+    <div id="rsBildRow">
+      <div class="rs-preview" id="rsPreview"></div>
+      <div class="rs-row2">
+        <label>Bild från datorn<input type="file" id="rsBildFil" accept="image/*" onchange="rsPickFile(this)"></label>
+        <label>… eller en bildlänk<input type="url" id="rsBildUrl" placeholder="https://" oninput="rsUrlChanged()"></label>
+      </div>
+    </div>
+    <label><span id="rsTitelLbl">Rubrik</span><input id="rsTitel" type="text"></label>
+    <label><span id="rsTextLbl">Text</span><textarea id="rsText" rows="4"></textarea></label>
+    <label>Länk för fördjupning<input id="rsLank" type="url" placeholder="https://"></label>
+    <div id="rsStatus" class="rs-status"></div>
+    <div class="wn-modal-foot" style="justify-content:space-between;">
+      <button class="wn-btn" id="rsDelete" style="color:#c84040;" onclick="rsDelete()">Ta bort</button>
+      <span style="display:flex;gap:8px;"><button class="wn-btn" onclick="rsClose()">Avbryt</button><button class="wn-btn wn-btn-primary" onclick="rsSave()">Spara</button></span>
+    </div>
+  </div>
 </div>
 
 <!-- SÅ HANTERAS DIN TEXT -->
