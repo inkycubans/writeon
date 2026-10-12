@@ -148,7 +148,7 @@
   /* ═══ ETAPP 2a — sidolist, en headerrad, markeringsrad, fokusläge ═══ */
   :root { --rail-w: 80px; }
   .writing-wrap, .corkboard-wrap, .outline-wrap, .coach-view-wrap,
-  .idebank-view-wrap, .brainstorm-wrap { margin-left: var(--rail-w); }
+  .idebank-view-wrap { margin-left: var(--rail-w); }
 
   /* Sidolisten */
   .app-rail { position: fixed; left: 0; top: var(--header-h); bottom: 0; width: var(--rail-w);
@@ -356,6 +356,11 @@
     .stp-top { padding: 18px 22px; }
     .stp-pitch h1 { font-size: 32px; }
   }
+
+  /* Ingresser överst i vyerna */
+  .view-intro { max-width: 1000px; margin: 18px auto 4px; padding: 0 28px; font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.5; }
+  .view-intro b { color: var(--text-primary); font-family: var(--font-text); font-size: 18px; margin-right: 8px; }
+  .view-sub { font-size: var(--fs-md); color: var(--text-secondary); line-height: 1.45; margin-top: 2px; }
 
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
@@ -3295,7 +3300,6 @@
   <button class="rail-btn active" onclick="switchView('writing')" id="btn-writing" title="Manus"><svg class="ic" aria-hidden="true"><use href="#i-pen-line"/></svg>Manus</button>
   <button class="rail-btn" onclick="switchView('corkboard')" id="btn-corkboard" title="Scenkort"><svg class="ic" aria-hidden="true"><use href="#i-layout-grid"/></svg>Scenkort</button>
   <button class="rail-btn" onclick="switchView('outline')" id="btn-outline" title="Outline"><svg class="ic" aria-hidden="true"><use href="#i-list-tree"/></svg>Outline</button>
-  <button class="rail-btn" onclick="switchView('brainstorm')" id="btn-brainstorm" title="Brainstorm"><svg class="ic" aria-hidden="true"><use href="#i-network"/></svg>Brainstorm</button>
   <div class="rail-sep"></div>
   <button class="rail-btn" onclick="switchView('idebank')" id="btn-idebank" title="Idébanken"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg>Idébank</button>
   <button class="rail-btn" onclick="switchView('character')" id="btn-character" title="Karaktärer"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>Karaktärer</button>
@@ -3477,7 +3481,6 @@
         </div>
         <div class="ib-section-body" id="ibsb-idehogg">
           <textarea class="ib-textarea" placeholder="Skriv allt du vet om boken — karaktärer, stämning, teman, vad som helst. Ingen struktur krävs."></textarea>
-          <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Generera synopsis</button>
         </div>
       </div>
 
@@ -3503,7 +3506,6 @@
         </div>
         <div class="ib-section-body" id="ibsb-rost">
           <textarea class="ib-textarea" placeholder="Beskriv din skrivstil. Korta meningar eller långa? Mycket dialog? Inre monolog?"></textarea>
-          <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Analysera min stil</button>
         </div>
       </div>
 
@@ -3516,7 +3518,6 @@
         </div>
         <div class="ib-section-body" id="ibsb-synopsis">
           <textarea class="ib-textarea" style="min-height:100px;" placeholder="Sammanfatta din berättelse i ett stycke."></textarea>
-          <button class="ib-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ Skriv om</button>
         </div>
       </div>
 
@@ -3553,33 +3554,14 @@
           <span class="ib-section-title">Visualize</span>
           <span class="ib-section-arrow" id="ibsa-vis">▼</span>
         </div>
-        <div class="ib-section-body" id="ibsb-vis">
-          <p style="font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:8px;">Generera bilder av dina karaktärer och platser baserat på dina beskrivningar.</p>
-          <div class="vis-grid">
-            <div class="vis-card">
-              <div class="vis-placeholder">
-                <svg class="ic ic-lg" aria-hidden="true"><use href="#i-user"/></svg>
-                <span style="font-size:13px;">Karaktär</span>
-              </div>
-              <button class="ib-ai-btn ib-ai-disabled" style="margin-top:6px;" title="Kräver API-koppling">✦ Generera</button>
-            </div>
-            <div class="vis-card">
-              <div class="vis-placeholder">
-                <svg class="ic ic-lg" aria-hidden="true"><use href="#i-map-pin"/></svg>
-                <span style="font-size:13px;">Plats</span>
-              </div>
-              <button class="ib-ai-btn ib-ai-disabled" style="margin-top:6px;" title="Kräver API-koppling">✦ Generera</button>
-            </div>
-          </div>
-        </div>
+        
       </div>
 
     </div><!-- end scroll -->
 
     <!-- Idébank footer -->
     <div class="ib-footer">
-      <span style="font-size:13px;color:var(--text-muted);">AI-coacherna läser din Idébank</span>
-      <div class="ib-api-badge">API ej kopplat</div>
+      <span style="font-size:13px;color:var(--text-muted);">Assistenten läser din Idébank</span>
     </div>
   </div>
 
@@ -3762,9 +3744,7 @@
         onkeydown="if(event.key==='Enter')sendCharMessage()">
       <button class="chat-send" onclick="sendCharMessage()" id="charChatSend">↑</button>
     </div>
-    <div style="padding:4px 12px 8px;text-align:center;display:none;" id="charApiStatus">
-      <span style="font-size:13px;color:var(--text-muted);">Mock-läge — klistra in API-nyckel i AI-coach</span>
-    </div>
+
   </div>
 
   <!-- FAR RIGHT ICON BAR -->
@@ -3782,6 +3762,7 @@
 
 <!-- CORKBOARD VIEW -->
 <div class="corkboard-wrap" id="view-corkboard">
+  <div class="view-intro"><b>Scenkort</b> Bokens scener som kort, kapitel för kapitel. Skriv titel och sammanfattning direkt på kortet, och klicka på kortets översta rad för att öppna scenen.</div>
   <div class="corkboard-subbar">
     <button class="cb-sub-btn active" onclick="setCorkMode('grid', this)"><svg class="ic" aria-hidden="true"><use href="#i-layout-grid"/></svg> Rutnät</button>
     <button class="cb-sub-btn" onclick="setCorkMode('timeline', this)"><svg class="ic" aria-hidden="true"><use href="#i-chart-gantt"/></svg> Tidslinje</button>
@@ -3833,6 +3814,7 @@
 
 <!-- OUTLINE VIEW -->
 <div class="outline-wrap" id="view-outline">
+  <div class="view-intro"><b>Outline</b> Hela boken som en lista. Ändra titlar, status och stämning direkt i tabellen.</div>
   <table class="outline-table" style="table-layout:fixed;">
     <colgroup>
       <col style="width:28%;">
@@ -3872,9 +3854,8 @@
       <span style="display:flex;"><svg class="ic ic-lg" aria-hidden="true"><use href="#i-lightbulb"/></svg></span>
       <div>
         <div style="font-family:'Source Serif 4',serif;font-size:1.2rem;font-weight:700;">Idébanken</div>
-        <div style="font-size:13px;color:var(--text-muted);">AI-coacherna läser allt du skriver här</div>
+        <div class="view-sub">Allt om boken som inte är själva texten: idéer, ton, röst och platser. Assistenten läser det innan den svarar.</div>
       </div>
-      <div class="ib-api-badge" style="margin-left:auto;">API ej kopplat</div>
     </div>
 
     <div class="idebank-view-grid">
@@ -3896,7 +3877,6 @@
         <div class="idebank-card">
           <div class="idebank-card-title"><svg class="ic" aria-hidden="true"><use href="#i-feather"/></svg> Din röst</div>
           <textarea class="ib-textarea" placeholder="Beskriv din skrivstil..."></textarea>
-          <button class="ib-ai-btn ib-ai-disabled" style="margin-top:8px;">✦ Analysera min stil</button>
         </div>
 
       </div>
@@ -3907,7 +3887,6 @@
         <div class="idebank-card">
           <div class="idebank-card-title" style="display:flex;justify-content:space-between;">
             <span><svg class="ic" aria-hidden="true"><use href="#i-book-open"/></svg> Synopsis</span>
-            <button class="ib-ai-btn ib-ai-disabled" style="padding:3px 10px;">✦ Generera</button>
           </div>
           <textarea class="ib-textarea" style="min-height:100px;" placeholder="Sammanfatta din berättelse i ett stycke."></textarea>
         </div>
@@ -3933,7 +3912,7 @@
         <span style="display:flex;"><svg class="ic ic-lg" aria-hidden="true"><use href="#i-users"/></svg></span>
         <div>
           <div style="font-family:'Source Serif 4',serif;font-size:1.15rem;font-weight:700;">Karaktärer</div>
-          <div style="font-size:13px;color:var(--text-muted);">Bygg och dokumentera dina karaktärer</div>
+          <div class="view-sub">Personerna i boken. Assistenten läser dem när den svarar.</div>
         </div>
       </div>
       <button onclick="addNewCharacter()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background: var(--action);color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;">
@@ -3968,7 +3947,7 @@
       <span style="display:flex;"><svg class="ic ic-lg" aria-hidden="true"><use href="#i-library"/></svg></span>
       <div>
         <div style="font-family:'Source Serif 4',serif;font-size:1.2rem;font-weight:700;">Research</div>
-        <div style="font-size:13px;color:var(--text-muted);">Fakta, bilder, inspirationer och källor kopplade till din bok</div>
+        <div class="view-sub">Fakta, bilder, källor och citat som du samlar till boken.</div>
       </div>
       <div style="margin-left:auto;display:flex;gap:8px;">
         <button class="bs-add-btn" onclick="addResearchItem('fakta')">+ Fakta</button>
@@ -3995,34 +3974,6 @@
     </div>
   </div>
 </div>
-
-<!-- BRAINSTORM VIEW -->
-<div class="brainstorm-wrap" id="view-brainstorm">
-  <div class="brainstorm-canvas" id="brainstormCanvas"><div class="bs-infinite" id="bsInfinite"><svg class="bs-svg" id="bsSvg"><defs><marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="rgba(176,144,208,0.7)"/></marker></defs></svg>
-  </div>
-  </div><!-- end bs-infinite -->
-  <div class="bs-connect-hint" id="bsHint"><span style="font-size:1.1rem;">⟷</span> Klicka på ett annat kort för att koppla — eller <span style="opacity:0.6;font-size:13px;">ESC för att avbryta</span></div>
-  <div class="bs-toolbar">
-    <div id="bsSaveStatus" style="font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:4px;margin-right:8px;">
-      <span id="bsSaveIcon"><svg class="ic" aria-hidden="true"><use href="#i-save"/></svg></span>
-      <span id="bsSaveText">Ej sparat</span>
-    </div>
-    <button class="bs-add-btn" onclick="addBsCard(&apos;ide&apos;)">+ Idé</button>
-    <button class="bs-add-btn" onclick="addBsCard(&apos;scen&apos;)">+ Scen</button>
-    <button class="bs-add-btn" onclick="addBsCard(&apos;karaktar&apos;)">+ Karaktär</button>
-    <button class="bs-add-btn" onclick="addBsCard(&apos;fraga&apos;)">+ Fråga</button>
-    <button class="bs-add-btn" onclick="addBsCard(&apos;uttryck&apos;)">+ Uttryck</button>
-    <div style="flex:1;"></div>
-    <div style="display:flex;align-items:center;gap:6px;margin-right:8px;">
-      <button class="bs-add-btn" onclick="bsScale=Math.max(bsScale-0.1,0.2);applyTransform();drawAllLines();document.getElementById('bsZoomLabel').textContent=Math.round(bsScale*100)+'%'" style="width:28px;padding:4px;font-size:1rem;">−</button>
-      <span id="bsZoomLabel" style="font-size:13px;font-weight:700;color:var(--text-muted);min-width:36px;text-align:center;">100%</span>
-      <button class="bs-add-btn" onclick="bsScale=Math.min(bsScale+0.1,3);applyTransform();drawAllLines();document.getElementById('bsZoomLabel').textContent=Math.round(bsScale*100)+'%'" style="width:28px;padding:4px;font-size:1rem;">+</button>
-      <button class="bs-add-btn" onclick="bsResetView()" style="font-size:13px;">↺ Återställ</button>
-    </div>
-    <button class="bs-ai-btn ib-ai-disabled" title="Kräver API-koppling">✦ AI-brainstorm</button>
-  </div>
-</div>
-
 
 <script>
 
@@ -4174,7 +4125,7 @@
   // ─── VIEW SWITCHING ───
   function switchView(view) {
     if (view === 'character') setTimeout(renderCharacters, 50);
-    ['writing','corkboard','outline','brainstorm','idebank','character','research'].forEach(v => {
+    ['writing','corkboard','outline','idebank','character','research'].forEach(v => {
       const viewEl = document.getElementById('view-' + v);
       const btnEl  = document.getElementById('btn-' + v);
       if(viewEl) viewEl.classList.toggle('active', v === view);
@@ -4286,7 +4237,6 @@
         <div class="char-field"><label>Drivkraft</label><input class="ib-input-sm" placeholder="Vad vill karaktären?"></div>
         <div class="char-field"><label>Dialogstil</label><input class="ib-input-sm" placeholder="Hur pratar karaktären?"></div>
         <div class="char-field"><label>Arc</label><input class="ib-input-sm" placeholder="Karaktärens resa..."></div>
-        <button class="ib-ai-btn ib-ai-disabled char-talk-btn" title="Kräver API-koppling">${ic('message-circle')} Prata med ${names[i].split(' ')[0]}</button>
       </div>`;
     list.insertBefore(card, addBtn);
   }
@@ -4300,272 +4250,6 @@
     list.insertBefore(card, addBtn);
     if (typeof collectWorld === 'function') { collectWorld(); scheduleAutoSave(); }
   }
-
-  // ─── BRAINSTORM ───
-  let bsCount = 0;
-  let bsConnecting = null; // card being connected from
-  let bsLines = []; // [{from, to, el}]
-  let bsCardId = 0;
-
-  function getBsCardCenter(card) {
-    return {
-      x: parseInt(card.style.left) + card.offsetWidth / 2,
-      y: parseInt(card.style.top) + card.offsetHeight / 2
-    };
-  }
-
-  function drawAllLines() {
-    bsLines.forEach(line => {
-      const from = getBsCardCenter(line.from);
-      const to = getBsCardCenter(line.to);
-      // Curved path
-      const dx = to.x - from.x;
-      const dy = to.y - from.y;
-      const cx1 = from.x + dx * 0.4;
-      const cy1 = from.y;
-      const cx2 = from.x + dx * 0.6;
-      const cy2 = to.y;
-      line.el.setAttribute('d', `M${from.x},${from.y} C${cx1},${cy1} ${cx2},${cy2} ${to.x},${to.y}`);
-    });
-  }
-
-  function addBsLine(fromCard, toCard) {
-    const svg = document.getElementById('bsSvg');
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.classList.add('bs-line');
-    path.setAttribute('marker-end', 'url(#arrowhead)');
-    svg.appendChild(path);
-    const lineObj = { from: fromCard, to: toCard, el: path };
-    bsLines.push(lineObj);
-    path.addEventListener('click', () => {
-      path.remove();
-      bsLines = bsLines.filter(l => l !== lineObj);
-    });
-    drawAllLines();
-  }
-
-  function startConnecting(card) {
-    if(bsConnecting === card) {
-      cancelConnecting(); return;
-    }
-    if(bsConnecting) {
-      addBsLine(bsConnecting, card);
-      cancelConnecting();
-    } else {
-      bsConnecting = card;
-      card.classList.add('bs-connecting');
-      document.getElementById('bsHint').classList.add('visible');
-    }
-  }
-
-  function cancelConnecting() {
-    if(bsConnecting) {
-      bsConnecting.classList.remove('bs-connecting');
-      bsConnecting = null;
-    }
-    document.getElementById('bsHint').classList.remove('visible');
-  }
-
-  // ESC to cancel connecting
-  document.addEventListener('keydown', e => {
-    if(e.key === 'Escape') cancelConnecting();
-  });
-
-  const BS_TYPES = {
-    ide:      ['lightbulb',   'Idé'],
-    scen:     ['drama',       'Scen'],
-    karaktar: ['user',        'Karaktär'],
-    fraga:    ['circle-help', 'Fråga'],
-    uttryck:  ['feather',     'Uttryck'],
-  };
-  function addBsCard(type) {
-    const bt = BS_TYPES[type];
-    if (bt) type = ic(bt[0]) + ' ' + bt[1];
-    bsCount++; bsCardId++;
-    const canvas = document.getElementById('brainstormCanvas');
-    const card = document.createElement('div');
-    card.className = 'bs-card';
-    card.dataset.id = bsCardId;
-    const x = 80 + ((bsCount - 1) % 4) * 220;
-    const y = 60 + Math.floor((bsCount - 1) / 4) * 150;
-    card.style.left = x + 'px';
-    card.style.top = y + 'px';
-    card.innerHTML = `
-      <div class="bs-card-hdr">
-        <span class="bs-card-label">${type}</span>
-        <div style="display:flex;gap:4px;">
-          <button class="bs-card-del" title="Koppla" onclick="startConnecting(this.closest('.bs-card'))" class="bs-connect-btn" style="font-size:14px;">⟷</button>
-          <button class="bs-card-del" onclick="deleteBsCard(this)">✕</button>
-        </div>
-      </div>
-      <div class="bs-card-body" contenteditable="true"></div>`;
-    makeBsDraggable(card);
-    canvas.appendChild(card);
-    card.querySelector('.bs-card-body').focus();
-  }
-
-  function deleteBsCard(btn) {
-    const card = btn.closest('.bs-card');
-    // Remove lines connected to this card
-    bsLines = bsLines.filter(l => {
-      if(l.from === card || l.to === card) { l.el.remove(); return false; }
-      return true;
-    });
-    if(bsConnecting === card) { bsConnecting = null; document.getElementById('bsHint').classList.remove('visible'); }
-    card.remove();
-  }
-
-  function makeBsDraggable(el) {
-    let startX, startY, startL, startT;
-    const hdr = el.querySelector('.bs-card-hdr');
-
-    // HEADER — panorerar hela canvasen
-    hdr.style.cursor = 'grab';
-    hdr.addEventListener('mousedown', e => {
-      if(e.target.tagName === 'BUTTON') return;
-      e.stopPropagation();
-      bsPanning = true;
-      bsPanStart = {x: e.clientX - bsPanX, y: e.clientY - bsPanY};
-      hdr.style.cursor = 'grabbing';
-      const onMove = e => {
-        bsPanX = e.clientX - bsPanStart.x;
-        bsPanY = e.clientY - bsPanStart.y;
-        applyTransform();
-        drawAllLines();
-      };
-      const onUp = () => {
-        bsPanning = false;
-        hdr.style.cursor = 'grab';
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-      };
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-    });
-
-    // BODY — flyttar kortet
-    const body = el.querySelector('.bs-card-body');
-    body.style.cursor = 'move';
-    body.addEventListener('mousedown', e => {
-      if(e.target.contentEditable === 'true') return;
-      e.stopPropagation();
-      startX = e.clientX; startY = e.clientY;
-      startL = parseInt(el.style.left)||0;
-      startT = parseInt(el.style.top)||0;
-      body.style.cursor = 'grabbing';
-      const onMove = e => {
-        el.style.left = (startL + e.clientX - startX) + 'px';
-        el.style.top = (startT + e.clientY - startY) + 'px';
-        drawAllLines();
-        bsScheduleSave();
-      };
-      const onUp = () => {
-        body.style.cursor = 'move';
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-      };
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
-    });
-  }
-
-  // Init existing cards + add connect buttons
-  document.querySelectorAll('.bs-card').forEach((card, i) => {
-    card.dataset.id = i + 1;
-    const hdr = card.querySelector('.bs-card-hdr');
-    const del = hdr.querySelector('.bs-card-del');
-    const connectBtn = document.createElement('button');
-    connectBtn.className = 'bs-card-del bs-connect-btn';
-    connectBtn.title = 'Koppla kort';
-    connectBtn.style.fontSize = '0.85rem';
-    connectBtn.textContent = '⟷';
-    connectBtn.onclick = () => startConnecting(card);
-    hdr.insertBefore(connectBtn, del);
-    makeBsDraggable(card);
-  });
-
-  // ─── INFINITE CANVAS — pan & zoom ───
-  let bsScale = 1;
-  let bsPanX = 0, bsPanY = 0;
-  let bsPanning = false;
-  let bsPanStart = {x:0, y:0};
-
-  function applyTransform() {
-    const inf = document.getElementById('bsInfinite');
-    inf.style.transform = `translate(${bsPanX}px, ${bsPanY}px) scale(${bsScale})`;
-    // Update background dot size with zoom
-    const dotSpacing = 28 * bsScale;
-    document.getElementById('brainstormCanvas').style.backgroundSize = dotSpacing + 'px ' + dotSpacing + 'px';
-  }
-
-  const canvas = document.getElementById('brainstormCanvas');
-
-  // Pan with middle mouse or space+drag
-  let spaceDown = false;
-  document.addEventListener('keydown', e => {
-    if(e.code === 'Space' && document.getElementById('view-brainstorm').classList.contains('active')) { spaceDown = true; canvas.style.cursor = 'grab'; e.preventDefault(); }
-    if(e.code === 'Escape' && bsConnecting) {
-      bsConnecting.classList.remove('bs-connecting');
-      bsConnecting = null;
-      document.getElementById('bsHint').classList.remove('visible');
-    }
-  });
-  document.addEventListener('keyup', e => { if(e.code === 'Space') { spaceDown = false; canvas.style.cursor = 'default'; }});
-
-  canvas.addEventListener('mousedown', e => {
-    // Pan on: middle mouse, spacebar+drag, or clicking empty canvas background
-    const target = e.target;
-    const isCanvas = target === canvas || target === document.getElementById('bsInfinite');
-    if(e.button === 1 || spaceDown || (e.button === 0 && isCanvas)) {
-      bsPanning = true;
-      bsPanStart = {x: e.clientX - bsPanX, y: e.clientY - bsPanY};
-      canvas.style.cursor = 'grabbing';
-      e.preventDefault();
-    }
-  });
-  document.addEventListener('mousemove', e => {
-    if(!bsPanning) return;
-    bsPanX = e.clientX - bsPanStart.x;
-    bsPanY = e.clientY - bsPanStart.y;
-    applyTransform();
-  });
-  document.addEventListener('mouseup', () => {
-    if(bsPanning) { bsPanning = false; canvas.style.cursor = spaceDown ? 'grab' : 'default'; }
-  });
-
-  // Zoom with Ctrl+scroll or trackpad pinch
-  canvas.addEventListener('wheel', e => {
-    if(e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-      const delta = e.deltaY > 0 ? 0.9 : 1.1;
-      const newScale = Math.min(Math.max(bsScale * delta, 0.2), 3);
-      // Zoom toward mouse position
-      bsPanX = mouseX - (mouseX - bsPanX) * (newScale / bsScale);
-      bsPanY = mouseY - (mouseY - bsPanY) * (newScale / bsScale);
-      bsScale = newScale;
-      applyTransform();
-      drawAllLines();
-      // Update zoom indicator
-      document.getElementById('bsZoomLabel').textContent = Math.round(bsScale * 100) + '%';
-    } else {
-      // Regular scroll = pan
-      bsPanX -= e.deltaX;
-      bsPanY -= e.deltaY;
-      applyTransform();
-      drawAllLines();
-    }
-  }, {passive: false});
-
-  // Reset view button
-  function bsResetView() {
-    bsScale = 1; bsPanX = 0; bsPanY = 0;
-    applyTransform(); drawAllLines();
-    document.getElementById('bsZoomLabel').textContent = '100%';
-  }
-
 
   // ─── CORKBOARD SUB-MODES ───
   function setCorkMode(mode, btn) {
