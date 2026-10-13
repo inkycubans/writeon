@@ -446,7 +446,39 @@
   .bg-chart .bg-handle { cursor: ns-resize; }
   .bg-chart .bg-ep-end { cursor: ew-resize; }
   .bg-chart .bg-ep-name { cursor: text; }
+  .bg-chart .bg-tid { cursor: pointer; }
   .bg-foot { font-size: 14px; color: var(--text-muted); margin-top: 14px; }
+
+  /* Research kopplat till ord */
+  .chapter-doc { position: relative; }
+  .scene-writing-area .rs-ref { text-decoration: none; border-radius: 2px; transition: background 0.15s; }
+  .scene-writing-area .rs-ref:hover, .scene-writing-area .rs-ref.hl { text-decoration: underline dotted var(--action-text); text-underline-offset: 3px; background: color-mix(in srgb, var(--action) 10%, transparent); }
+  .rs-mark { position: absolute; width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--action-text); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; z-index: 3; }
+  .rs-mark .ic { width: 14px; height: 14px; }
+  .rs-mark:hover { background: var(--action); color: var(--on-action); border-color: var(--action); }
+  body.focus .rs-mark { display: none; }
+  .rsl-search { width: 100%; box-sizing: border-box; padding: 9px 11px; border-radius: 8px; border: 1.5px solid var(--border-strong); background: var(--bg); color: var(--text-primary); font: 15px var(--font-ui); margin-bottom: 10px; }
+  .rsl-list { max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .rsl-item { text-align: left; border: 1px solid var(--border); background: var(--bg-card); border-radius: 8px; padding: 9px 12px; font: 600 15px var(--font-ui); color: var(--text-primary); cursor: pointer; }
+  .rsl-item:hover { border-color: var(--action-text); }
+  .rsl-typ { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-right: 8px; }
+
+  /* Lossa och fristående fönster */
+  .pop-detach { margin-left: auto; margin-right: 4px; border: none; background: none; color: var(--action-text); font: 700 14px var(--font-ui); cursor: pointer; }
+  body.pop-body { margin: 0; background: var(--bg-sidebar); color: var(--text-primary); font-family: var(--font-ui); }
+  .pop-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--bg-sidebar); border-bottom: 1px solid var(--border); }
+  .pop-title { font-size: 17px; font-weight: 700; margin-right: auto; }
+  .pop-btn { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-primary); border-radius: 8px; padding: 5px 10px; font: 600 14px var(--font-ui); cursor: pointer; }
+  .pop-scope { padding: 10px 16px; font-size: 14px; color: var(--text-muted); }
+  .pop-scope b { color: var(--text-primary); }
+  .pop-scope button { border: none; background: none; padding: 0; color: var(--action-text); font: 600 14px var(--font-ui); cursor: pointer; text-decoration: underline; }
+  .pop-list { padding: 4px 14px 30px; }
+  .pop-form { padding: 14px 16px 30px; }
+  .pop-lbl { display: block; font-size: 14px; font-weight: 700; margin: 12px 0 5px; }
+  .pop-form textarea, .pop-form input { width: 100%; box-sizing: border-box; padding: 9px 11px; border-radius: 8px; border: 1.5px solid var(--border-strong); background: var(--bg-card); color: var(--text-primary); font: 12pt/1.5 var(--font-text); }
+  .pop-note { font-size: 14px; color: var(--text-muted); margin-top: 16px; }
+  .nav-dd-item.sp-only { display: none; }
+  body.screenplay-mode .nav-dd-item.sp-only { display: flex; }
 
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
@@ -3315,8 +3347,11 @@
           <div class="nav-dd-sep"></div>
           <div class="nav-dd-item" onclick="_closeDropdowns(); saveNow();">Spara <span class="nav-dd-sc">Ctrl+S</span></div>
           <div class="nav-dd-sep"></div>
-          <div class="nav-dd-item" onclick="filImportera()">Importera</div>
+          <div class="nav-dd-item" onclick="importBook()">Importera bok (Word eller text) …</div>
+          <div class="nav-dd-item" onclick="filImportera()">Infoga text i scenen …</div>
           <div class="nav-dd-item" onclick="filExportera()">Exportera / Kompilera…</div>
+          <div class="nav-dd-item sp-only" onclick="exportFountain()">Exportera manus som Fountain</div>
+          <div class="nav-dd-item sp-only" onclick="exportScreenplayPdf()">Exportera manus som PDF</div>
           <div class="nav-dd-sep"></div>
           <div class="nav-dd-item" onclick="filSkrivUt()">Skriv ut <span class="nav-dd-sc">Ctrl+P</span></div>
           <div class="nav-dd-sep"></div>
@@ -3518,6 +3553,11 @@
           oninput="saveInspectorData()">
       </div>
 
+      <div class="inspector-section">
+        <div class="inspector-section-label">Berättelsens tid</div>
+        <input type="text" id="insp-tid" class="inspector-synopsis" style="min-height:auto;height:36px;font-family:'DM Sans',sans-serif;resize:none;font-size:14px;" placeholder="T.ex. 9 augusti 2026 eller Dag 12" oninput="setSceneTid(this.value)">
+      </div>
+
       <div class="inspector-section bg-mini-sec">
         <div class="inspector-section-label" style="display:flex;justify-content:space-between;align-items:center;">Bågen <button class="bg-link" style="margin:0;" onclick="switchView('bage'); bgRender()">Öppna</button></div>
         <div id="bgMini"></div>
@@ -3563,6 +3603,7 @@
         <span style="font-size:1rem;display:flex;"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></span>
         <div class="notes-title">Idébanken</div>
       </div>
+      <button class="pop-detach" onclick="popOpen('idebank')" title="Öppna i ett eget fönster">⧉ Lossa</button>
       <button class="notes-close" onclick="closePanel()">✕</button>
     </div>
     <div style="overflow-y:auto;flex:1;">
@@ -3802,6 +3843,7 @@
   <div class="notes-panel" id="panel-research" style="display:none;width:340px;flex-direction:column;">
     <div class="notes-header">
       <div class="notes-title asst-title"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg> Research</div>
+      <button class="pop-detach" onclick="popOpen('research')" title="Öppna i ett eget fönster">⧉ Lossa</button>
       <button class="notes-close" onclick="closePanel()" title="Stäng">✕</button>
     </div>
     <div class="rs-panel-scope" id="rsPanelScope"></div>
@@ -5049,7 +5091,9 @@
     updateWordCountDisplays(scene);
     if (document.getElementById('panel-assistant')?.style.display === 'flex') asstUpdateContextLine();
     if (document.getElementById('panel-research')?.style.display === 'flex' && typeof rsRender === 'function') rsRender();
+    if (typeof popRender === 'function') popRender('research');
     if (typeof bgRenderMini === 'function') bgRenderMini();
+    const tidEl = document.getElementById('insp-tid'); if (tidEl) tidEl.value = scene.tid || '';
   }
 
   // ── Sync binder dot + outline row after any change to scene ──
@@ -5463,7 +5507,13 @@
     }
     // marginalen
     const pl = document.getElementById('rsPanelList');
-    if (pl) {
+    if (pl && rsFocus && items.find(it => it.id === rsFocus.id)) {
+      const it = items.find(x => x.id === rsFocus.id);
+      document.getElementById('rsPanelScope').innerHTML = 'Kopplat till <b>”' + rsEsc((rsFocus.ref && rsFocus.ref.textContent || '').slice(0, 40)) + '”</b> · ' +
+        '<button onclick="rsUnlink()">Ta bort kopplingen</button> · <button onclick="rsFocus=null;rsRender()">Visa scenens kort</button>';
+      pl.innerHTML = rsCardHtml(it);
+    } else if (pl) {
+      rsFocus = null;
       const here = activeScene ? items.filter(it => rsMatchesScene(it, activeScene.id)) : [];
       const list = rsPanelAll ? items : here;
       const where = activeScene ? rsPlaceLabel(activeScene.id) : '';
@@ -5473,6 +5523,7 @@
       pl.innerHTML = list.length ? list.map(rsCardHtml).join('') :
         '<div class="rs-empty">' + (rsPanelAll ? 'Inget insamlat än.' : 'Inget kopplat till den här scenen. Välj <b>Visa allt</b> eller lägg till något.') + '</div>';
     }
+    if (typeof popRender === 'function') popRender('research');
   }
   window.rsRender = rsRender;
   function rsSetFilter(f) { rsFilter = f; rsRender(); }
@@ -5580,6 +5631,7 @@
       } else if (url) it.bild = 'url:' + rsSafeUrl(url);
     }
     rsClose(); rsRender(); scheduleAutoSave();
+    if (rsLinkPending) rsApplyLink(it.id);
   }
   function rsDelete() {
     if (!rsEditId || !confirm('Ta bort det här kortet?')) return;
@@ -5588,7 +5640,7 @@
       const b = items[i].bild; items.splice(i, 1);
       if (b && !b.startsWith('url:') && window.fbDeleteImage) window.fbDeleteImage(b);
     }
-    rsClose(); rsRender(); scheduleAutoSave();
+    rsClose(); rsRender(); scheduleAutoSave(); rsMarkers();
   }
   function rsCopy(id) {
     const it = rsItems().find(x => x.id === id); if (!it) return;
@@ -5692,9 +5744,10 @@
   // Geometri för den stora bågen (delas av ritning och drag)
   function bgGeo(nLanes) {
     const W = 1100, L = 138, R = 104, T = 26, CH = 330;            // kurvorna ritas mellan T och CH
-    const LBL = CH + 34, EP = LBL + 30, LANE = 30;
+    const TID = tlHasAny() ? 1 : 0;
+    const LBL = CH + 34, TA = LBL + 58, EP = LBL + 30 + TID * 82, LANE = 30;
     const H = EP + Math.max(1, nLanes) * LANE + 8;
-    return { W, L, R, T, CH, LBL, EP, LANE, H, B: 0 };
+    return { W, L, R, T, CH, LBL, TA, TID, EP, LANE, H, B: 0 };
   }
   function bgLanes(scenes) {
     const idx = id => scenes.findIndex(o => o.sc.id === id);
@@ -5734,7 +5787,13 @@
         if (o.ch !== prev) {
           const x = i ? X(i) - (g.W - g.L - g.R) / Math.max(1, n - 1) / 2 : g.L - 6;
           if (i) s += '<line x1="' + x.toFixed(1) + '" x2="' + x.toFixed(1) + '" y1="' + g.T + '" y2="' + (g.CH + 8) + '" stroke="var(--border-strong)" stroke-dasharray="3 4"/>';
-          s += '<text x="' + (x + 8).toFixed(1) + '" y="' + g.LBL + '" font-size="14" font-weight="700" fill="var(--text-primary)">' + rsEsc(o.ch.title).slice(0, 26) + '</text>';
+          let nextI = scenes.findIndex((q, j) => j > i && q.ch !== o.ch); if (nextI < 0) nextI = n;
+          const room = Math.max(40, (nextI - i) * (g.W - g.L - g.R) / Math.max(1, n - 1) - 12);
+          const maxCh = Math.max(4, Math.floor(room / 8));
+          let lbl = o.ch.title || '';
+          if (lbl.length > maxCh && lbl.includes(' — ')) lbl = lbl.split(' — ')[0];
+          if (lbl.length > maxCh) lbl = lbl.slice(0, maxCh - 1) + '…';
+          s += '<text x="' + (x + 8).toFixed(1) + '" y="' + g.LBL + '" font-size="14" font-weight="700" fill="var(--text-primary)"><title>' + rsEsc(o.ch.title) + '</title>' + rsEsc(lbl) + '</text>';
           prev = o.ch;
         }
         s += '<text x="' + X(i).toFixed(1) + '" y="' + (g.CH + 16) + '" text-anchor="middle" font-size="13" fill="var(--text-muted)">' + (i + 1) + '</text>';
@@ -5773,6 +5832,38 @@
         ? '<circle ' + cls + 'data-id="' + o.sc.id + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (mini ? 3.5 : (sOn ? 9 : 5)) + '" fill="' + DRAMA_COLORS[o.sc.drama].color + '" stroke="var(--bg-card)" stroke-width="' + (mini ? 1 : 3) + '" ' + (sOn || mini ? '' : 'opacity="0.6"') + '/>'
         : '<circle ' + cls + 'data-id="' + o.sc.id + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (mini ? 2.5 : 7) + '" fill="var(--bg-card)" stroke="var(--border-strong)" stroke-width="2"/>';
     });
+    // berättelsens tid
+    if (!mini && g.TID) {
+      const y = g.TA, timed = scenes.map((o, i) => ({ i, t: tlParse(o.sc.tid) })).filter(o => o.t);
+      s += '<text x="' + (g.L - 26) + '" y="' + (y + 4) + '" text-anchor="end" font-size="13" fill="var(--text-muted)">Berättelsens tid</text>';
+      const nu = {};                                    // senaste tiden hittills, per sort (datum/dag)
+      if (timed.length) nu[timed[0].t.kind] = timed[0].t.ord;
+      for (let k = 1; k < timed.length; k++) {
+        const a = timed[k - 1], b = timed[k], xa = X(a.i), xb = X(b.i);
+        const same = nu[b.t.kind] != null, diff = same ? b.t.ord - nu[b.t.kind] : null;
+        if (!same || b.t.ord > nu[b.t.kind]) nu[b.t.kind] = b.t.ord;
+        if (same && diff < 0) {
+          // tillbakablick: båge ovanför axeln som pekar bakåt
+          const back = timed.slice(0, k).reverse().find(o => o.t.kind === b.t.kind && o.t.ord <= b.t.ord) || timed[0];
+          const xt = X(back.i);
+          s += '<line x1="' + xa.toFixed(1) + '" x2="' + xb.toFixed(1) + '" y1="' + y + '" y2="' + y + '" stroke="#6E98C9" stroke-width="3"/>' +
+               '<path d="M' + xb.toFixed(1) + ',' + (y - 12) + ' C' + (xb - 30).toFixed(1) + ',' + (y - 44) + ' ' + (xt + 30).toFixed(1) + ',' + (y - 44) + ' ' + (xt + 6).toFixed(1) + ',' + (y - 14) + '" fill="none" stroke="#6E98C9" stroke-width="2"/>' +
+               '<path d="M' + (xt + 6).toFixed(1) + ',' + (y - 14) + ' l-1,-10 m1,10 l9,-4" fill="none" stroke="#6E98C9" stroke-width="2"/>' +
+               '<text x="' + ((xb + xt) / 2).toFixed(1) + '" y="' + (y - 30) + '" text-anchor="middle" font-size="13" fill="#6E98C9">tillbakablick</text>';
+        } else if (same && diff > 1) {
+          s += '<line x1="' + xa.toFixed(1) + '" x2="' + xb.toFixed(1) + '" y1="' + y + '" y2="' + y + '" stroke="#6E98C9" stroke-width="3" stroke-dasharray="2 6"/>' +
+               '<text x="' + ((xa + xb) / 2).toFixed(1) + '" y="' + (y - 8) + '" text-anchor="middle" font-size="13" fill="#6E98C9">+' + diff + ' ' + (b.t.kind === 'dag' ? 'dagar' : 'dagar') + '</text>';
+        } else {
+          s += '<line x1="' + xa.toFixed(1) + '" x2="' + xb.toFixed(1) + '" y1="' + y + '" y2="' + y + '" stroke="#6E98C9" stroke-width="3"/>';
+        }
+      }
+      scenes.forEach((o, i) => {
+        const t = tlParse(o.sc.tid), x = X(i).toFixed(1);
+        s += t
+          ? '<line x1="' + x + '" x2="' + x + '" y1="' + (y - 8) + '" y2="' + (y + 8) + '" stroke="#6E98C9" stroke-width="3"/><text class="bg-tid" data-id="' + o.sc.id + '" x="' + x + '" y="' + (y + 25) + '" text-anchor="middle" font-size="13" fill="var(--text-secondary)">' + rsEsc(t.label) + '</text>'
+          : '<text class="bg-tid" data-id="' + o.sc.id + '" x="' + x + '" y="' + (y + 25) + '" text-anchor="middle" font-size="13" fill="var(--text-muted)">+</text>';
+      });
+    }
     // episoder
     if (!mini && eps.length) {
       s += '<text x="' + (g.L - 26) + '" y="' + (g.EP + 4) + '" text-anchor="end" font-size="13" fill="var(--text-muted)">Episoder</text>';
@@ -5793,7 +5884,8 @@
       (bgLayer === id && id !== 'spanning' ? '<span class="bg-x" onclick="event.stopPropagation(); bgRemovePerson(\'' + id + '\')" title="Ta bort kurvan">✕</span>' : '') + '</button>';
     bar.innerHTML = chip('spanning', 'Spänning', 'var(--action)') + bgPeople().map(p => chip(p.id, p.namn, p.farg)).join('') +
       '<button class="bg-add" onclick="bgAddPerson()">+ Lägg till person</button><button class="bg-add" onclick="bgAddEpisode()">+ Ny episod</button>' +
-      '<button class="bg-add" onclick="bgToggleEditIdeal()">' + (bgEditIdeal ? '✓ Klar med målbågen' : 'Forma målbågen') + '</button>';
+      '<button class="bg-add" onclick="bgToggleEditIdeal()">' + (bgEditIdeal ? '✓ Klar med målbågen' : 'Forma målbågen') + '</button>' +
+      '<button class="bg-add" onclick="tlFromTitles()">Hämta tid ur kapitelrubrikerna</button>';
   }
 
   function bgRender() {
@@ -5808,7 +5900,8 @@
     document.getElementById('bgHint').textContent = bgEditIdeal
       ? 'Dra handtagen på den streckade linjen uppåt eller nedåt för att forma din målbåge.'
       : person ? 'Klicka i en scens kolumn eller dra punkterna för att visa hur ' + person.namn + ' mår. Dra episodernas ändar för att flytta dem.'
-      : (unset ? unset + (unset === 1 ? ' scen saknar' : ' scener saknar') + ' stämning och ligger längst ner. Dra upp dem till rätt nivå.' : 'Dra en punkt uppåt eller nedåt för att ändra scenens stämning. Dra episodernas ändar för att flytta dem.');
+      : (unset ? unset + (unset === 1 ? ' scen saknar' : ' scener saknar') + ' stämning och ligger längst ner. Dra upp dem till rätt nivå.' : 'Dra en punkt uppåt eller nedåt för att ändra scenens stämning. Dra episodernas ändar för att flytta dem.') +
+        (tlHasAny() ? ' Klicka på en tid under bågen för att ändra den.' : '');
     bgRenderCard();
     bgInitDrag();
   }
@@ -5867,7 +5960,14 @@
       else if (t.classList.contains('bg-ep-end')) bgDrag = { kind: 'ep', ep: t.dataset.ep, end: t.dataset.end };
       else if (t.classList.contains('bg-span')) bgDrag = { kind: 'span', id: t.dataset.id };
       else if (t.classList.contains('bg-emo')) bgDrag = { kind: 'emo', id: t.dataset.id };
-      else if (t.classList.contains('bg-ep-name')) {
+      else if (t.classList.contains('bg-tid')) {
+        const sc = allScenes().find(x => x.id === t.dataset.id);
+        if (sc) {
+          const v = prompt('När utspelar sig "' + sc.title + '"? Skriv ett datum (2026-08-09 eller 9 augusti 2026) eller en dag (Dag 12). Töm för att ta bort.', sc.tid || '');
+          if (v !== null) { sc.tid = v.trim(); touchScene(sc); bgRender(); if (activeScene && activeScene.id === sc.id) loadInspector(sc); }
+        }
+        return;
+      } else if (t.classList.contains('bg-ep-name')) {
         const ep = bgEpisodes().find(x => x.id === t.dataset.ep);
         if (ep) {
           const nytt = prompt('Episodens namn. Töm rutan för att ta bort episoden.', ep.namn);
@@ -5942,12 +6042,47 @@
   }
   window.bgRenderMini = bgRenderMini;
 
+  // ── Berättelsens tid: datum eller dag per scen ──
+  const SV_MON = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  function tlParse(s) {
+    s = String(s || '').trim(); if (!s) return null;
+    let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (m) { const ms = Date.UTC(+m[1], +m[2] - 1, +m[3]); return { kind: 'datum', ord: Math.round(ms / 864e5), label: (+m[3]) + ' ' + SV_MON[+m[2] - 1] }; }
+    m = s.match(/(\d{1,2})\s+(jan|feb|mar|apr|maj|jun|jul|aug|sep|okt|nov|dec)[a-zåäö]*\.?(?:\s+(\d{4}))?/i);
+    if (m) { const mo = SV_MON.indexOf(m[2].toLowerCase()), y = m[3] ? +m[3] : 2000;
+      return { kind: 'datum', ord: Math.round(Date.UTC(y, mo, +m[1]) / 864e5), label: (+m[1]) + ' ' + SV_MON[mo] }; }
+    m = s.match(/^(?:dag\s*)?(-?\d+)$/i);
+    if (m) return { kind: 'dag', ord: +m[1], label: 'Dag ' + m[1] };
+    return null;
+  }
+  function tlHasAny() { return allScenes().some(sc => tlParse(sc.tid)); }
+  // Dagboksromaner och liknande: hämta tiden ur kapitelrubrikerna
+  function tlFromTitles() {
+    let n = 0;
+    projectData.chapters.forEach(ch => {
+      const t = ch.title || '';
+      const dm = t.match(/(\d{1,2}\s+(?:januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december)(?:\s+\d{4})?)/i);
+      const dg = t.match(/dag\s*(\d+)/i);
+      const val = dm ? dm[1] : (dg ? 'Dag ' + dg[1] : '');
+      if (val) ch.scenes.forEach(sc => { if (!sc.tid) { sc.tid = val; n++; } });
+    });
+    if (n) { scheduleAutoSave(); showAutosaveMsg('✓ Tid hämtad för ' + n + (n === 1 ? ' scen' : ' scener')); }
+    else alert('Hittade inga datum eller "Dag N" i kapitelrubrikerna. Klicka på + under en scen i bågen för att ange tid.');
+    bgRender();
+  }
+  function setSceneTid(v) {
+    if (!activeScene) return;
+    activeScene.tid = v.trim(); touchScene(activeScene);
+    if (document.getElementById('view-bage')?.classList.contains('active')) bgRender();
+  }
+
   function bgAskAssistant() {
     const arc = BG_ARCS[projectData.bage] || BG_ARCS.treakter;
     const people = bgPeople(), lines = []; let i = 0;
     projectData.chapters.forEach(ch => ch.scenes.forEach(sc => { i++;
       const feel = people.filter(p => p.varden && p.varden[sc.id] != null).map(p => p.namn + ' ' + EMO_LABELS[p.varden[sc.id]].toLowerCase()).join(', ');
-      lines.push(i + '. ' + ch.title + ' · ' + sc.title + ': ' + (DRAMA_COLORS[sc.drama] || DRAMA_COLORS.ingen).label.replace(/^— /, '') + (feel ? ' (' + feel + ')' : '')); }));
+      const tt = tlParse(sc.tid);
+      lines.push(i + '. ' + ch.title + ' · ' + sc.title + (tt ? ' [' + tt.label + ']' : '') + ': ' + (DRAMA_COLORS[sc.drama] || DRAMA_COLORS.ingen).label.replace(/^— /, '') + (feel ? ' (' + feel + ')' : '')); }));
     const eps = bgEpisodes().map(ep => '– ' + ep.namn + ': ' + rsPlaceLabel(ep.fran) + ' till ' + rsPlaceLabel(ep.till)).join('\n');
     openAssistant();
     asstStarted = true; asstRenderCards(); asstShowCards(false);
@@ -5955,6 +6090,335 @@
       (eps ? '\n\nEpisoder:\n' + eps : '') +
       '\n\nVar följer boken bågen, var avviker den, och är avvikelserna ett problem eller ett medvetet val? Säg också något om hur personernas känslor och episoderna samspelar med spänningen. Peka på konkreta scener. Högst sex punkter.',
       { label: 'Fråga om bågen', oneShot: true });
+  }
+
+  // ═══ RESEARCH KOPPLAT TILL ETT ORD I TEXTEN ═══
+  // Det markerade ordet läggs i <span class="rs-ref" data-rs="kort-id">. Ingen blå länk i texten:
+  // ordet får en svag prickad linje när man pekar på det, och en symbol i sidans marginal.
+  let rsLinkRange = null, rsLinkPending = false, rsFocus = null;
+
+  function rsLinkOpen() {
+    const sel = window.getSelection();
+    if (!sel.rangeCount || sel.isCollapsed) return;
+    rsLinkRange = sel.getRangeAt(0).cloneRange();
+    const txt = sel.toString().trim();
+    document.getElementById('rsLinkWord').textContent = '”' + (txt.length > 60 ? txt.slice(0, 60) + '…' : txt) + '”';
+    document.getElementById('rsLinkSearch').value = '';
+    rsLinkList('');
+    document.getElementById('rsLinkModal').style.display = 'flex';
+    setTimeout(() => document.getElementById('rsLinkSearch').focus(), 60);
+  }
+  function rsLinkClose() { document.getElementById('rsLinkModal').style.display = 'none'; }
+  function rsLinkList(q) {
+    q = (q || '').toLowerCase();
+    const items = rsItems().filter(it => !q || (it.titel + ' ' + it.text).toLowerCase().includes(q));
+    document.getElementById('rsLinkItems').innerHTML = items.length
+      ? items.map(it => '<button class="rsl-item" onclick="rsApplyLink(\'' + it.id + '\')"><span class="rsl-typ">' + RS_TYPES[it.typ] + '</span>' +
+          rsEsc(it.titel || (it.text || '').slice(0, 60) || 'Utan rubrik') + '</button>').join('')
+      : '<div class="rs-empty">' + (rsItems().length ? 'Inget kort matchar.' : 'Du har inget i Research än.') + '</div>';
+  }
+  function rsLinkNew() {
+    rsLinkClose();
+    rsLinkPending = true;
+    rsOpen('fakta', activeScene ? activeScene.id : '');
+    document.getElementById('rsTitel').value = rsLinkRange ? rsLinkRange.toString().trim().slice(0, 80) : '';
+  }
+  function rsApplyLink(cardId) {
+    rsLinkClose();
+    const r = rsLinkRange; rsLinkRange = null; rsLinkPending = false;
+    if (!r) return;
+    const anc = r.commonAncestorContainer;
+    const area = (anc.nodeType === 1 ? anc : anc.parentElement).closest('.scene-writing-area');
+    if (!area) return;
+    const span = document.createElement('span');
+    span.className = 'rs-ref'; span.dataset.rs = cardId;
+    try { r.surroundContents(span); }
+    catch (e) { span.appendChild(r.extractContents()); r.insertNode(span); }
+    window.getSelection().removeAllRanges();
+    area.dispatchEvent(new Event('input', { bubbles: true }));
+    showAutosaveMsg('✓ Kopplat till research');
+    rsMarkers();
+  }
+
+  // Symbolerna i marginalen, en per koppling, i höjd med ordet
+  function rsMarkers() {
+    document.querySelectorAll('.rs-mark').forEach(m => m.remove());
+    const cards = rsItems();
+    document.querySelectorAll('.chapter-doc').forEach(doc => {
+      const dr = doc.getBoundingClientRect(), used = {};
+      doc.querySelectorAll('.rs-ref').forEach(ref => {
+        const it = cards.find(c => c.id === ref.dataset.rs);
+        if (!it) return;
+        const rr = ref.getClientRects()[0] || ref.getBoundingClientRect();
+        const top = Math.round(rr.top - dr.top + rr.height / 2 - 11);
+        const row = Math.round(top / 10); used[row] = (used[row] || 0) + 1;
+        const m = document.createElement('button');
+        m.className = 'rs-mark'; m.type = 'button';
+        m.style.top = top + 'px'; m.style.right = (18 + (used[row] - 1) * 26) + 'px';
+        m.title = RS_TYPES[it.typ] + ': ' + (it.titel || '');
+        m.innerHTML = ic(it.typ === 'bild' ? 'image' : it.typ === 'citat' ? 'quote' : it.typ === 'kalla' ? 'link' : 'library');
+        m.addEventListener('mouseenter', () => ref.classList.add('hl'));
+        m.addEventListener('mouseleave', () => ref.classList.remove('hl'));
+        m.addEventListener('click', () => rsShowLinked(ref));
+        doc.appendChild(m);
+      });
+    });
+  }
+  window.rsMarkers = rsMarkers;
+  function rsShowLinked(ref) {
+    rsFocus = { id: ref.dataset.rs, ref };
+    openResearchPanel();
+    ref.classList.add('hl'); setTimeout(() => ref.classList.remove('hl'), 1600);
+  }
+  function rsUnlink() {
+    if (!rsFocus || !rsFocus.ref) return;
+    const ref = rsFocus.ref, area = ref.closest('.scene-writing-area');
+    while (ref.firstChild) ref.parentNode.insertBefore(ref.firstChild, ref);
+    ref.remove();
+    rsFocus = null;
+    if (area) area.dispatchEvent(new Event('input', { bubbles: true }));
+    rsMarkers(); rsRender();
+  }
+  // Klick på ett kopplat ord i texten (med Ctrl/⌘) öppnar kortet
+  document.addEventListener('click', e => {
+    const ref = e.target.closest && e.target.closest('.scene-writing-area .rs-ref');
+    if (ref && (e.ctrlKey || e.metaKey)) { e.preventDefault(); rsShowLinked(ref); }
+  });
+  let rsMarkTimer = null;
+  document.addEventListener('input', e => {
+    if (e.target.classList && e.target.classList.contains('scene-writing-area')) { clearTimeout(rsMarkTimer); rsMarkTimer = setTimeout(rsMarkers, 300); }
+  });
+  window.addEventListener('resize', () => { clearTimeout(rsMarkTimer); rsMarkTimer = setTimeout(rsMarkers, 200); });
+  {
+    const _lc = loadChapter;
+    loadChapter = function(ch) { _lc(ch); setTimeout(rsMarkers, 0); };
+  }
+
+  // ═══ LOSSA: Research och Idébanken i ett eget fönster ═══
+  const popWins = {};
+  let popAll = false;
+  function popIsOpen(kind) { return popWins[kind] && !popWins[kind].closed; }
+  function popOpen(kind) {
+    let w = popWins[kind];
+    if (!w || w.closed) {
+      w = window.open('', 'writeon-' + kind, 'width=460,height=840');
+      if (!w) { alert('Webbläsaren stoppade fönstret. Tillåt popupfönster för WriteON och försök igen.'); return; }
+      popWins[kind] = w;
+      const d = w.document;
+      d.open();
+      d.write('<!DOCTYPE html><html lang="sv"><head><meta charset="utf-8"><title>' + (kind === 'research' ? 'Research' : 'Idébanken') + ' · WriteON</title></head><body class="pop-body"></body></html>');
+      d.close();
+      document.querySelectorAll('head style, head link[rel=stylesheet]').forEach(n => d.head.appendChild(d.importNode(n, true)));
+      const sprite = document.querySelector('body > svg'); if (sprite) d.body.appendChild(d.importNode(sprite, true));
+      const root = d.createElement('div'); root.id = 'popRoot'; d.body.appendChild(root);
+      d.addEventListener('input', e => { const el = e.target; if (el.dataset && el.dataset.ib) ibSetValue(el.dataset.ib, el.value, el); });
+      d.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) { e.preventDefault(); popAction(kind, b.dataset.act, b.dataset.id); } });
+    }
+    closePanel();
+    popRender(kind);
+    w.focus();
+  }
+  function popAction(kind, act, id) {
+    if (act === 'edit') { rsEdit(id); window.focus(); }
+    else if (act === 'copy') rsCopy(id);
+    else if (act === 'add') { rsOpen('fakta', activeScene ? activeScene.id : ''); window.focus(); }
+    else if (act === 'all') { popAll = !popAll; popRender('research'); }
+    else if (act === 'back') { popWins[kind].close(); if (kind === 'research') openResearchPanel(); else showPanel('panel-idebank'); }
+  }
+  function popRender(kind) {
+    if (!popIsOpen(kind)) return;
+    const d = popWins[kind].document, root = d.getElementById('popRoot'); if (!root) return;
+    d.body.classList.toggle('dark', document.body.classList.contains('dark'));
+    const head = (title, extra) => '<div class="pop-head"><div class="pop-title">' + title + '</div>' + extra +
+      '<button class="pop-btn" data-act="back" title="Lägg tillbaka i appen">Lägg tillbaka</button></div>';
+    if (kind === 'research') {
+      const items = rsItems();
+      const list = popAll || !activeScene ? items : items.filter(it => rsMatchesScene(it, activeScene.id));
+      const where = activeScene ? rsPlaceLabel(activeScene.id) : '';
+      const cards = list.map(rsCardHtml).join('')
+        .replace(/onclick="rsEdit\('([^']+)'\)"/g, 'data-act="edit" data-id="$1"')
+        .replace(/onclick="rsCopy\('([^']+)'\)"/g, 'data-act="copy" data-id="$1"');
+      root.innerHTML = head('Research', '') +
+        '<div class="pop-scope">Visar: <b>' + (popAll ? 'allt' : rsEsc(where || 'scenen')) + '</b> · <button data-act="all">' + (popAll ? 'Bara den här scenen' : 'Visa allt') + '</button> · <button data-act="add">+ Lägg till</button></div>' +
+        '<div class="pop-list">' + (cards || '<div class="rs-empty">' + (popAll ? 'Inget insamlat än.' : 'Inget kopplat till den här scenen.') + '</div>') + '</div>';
+    } else {
+      const ib = projectData.idebank || {};
+      const f = (key, lbl, rows) => '<label class="pop-lbl">' + lbl + '</label>' + (rows
+        ? '<textarea data-ib="' + key + '" rows="' + rows + '">' + rsEsc(ib[key] || '') + '</textarea>'
+        : '<input data-ib="' + key + '" value="' + rsEsc(ib[key] || '') + '">');
+      root.innerHTML = head('Idébanken', '') + '<div class="pop-form">' +
+        f('idehog', 'Idéhög', 7) + f('genre', 'Genre', 0) + f('ton', 'Ton och stämning', 0) + f('rost', 'Din röst', 4) + f('synopsis', 'Synopsis', 6) +
+        '<p class="pop-note">Det du skriver här sparas direkt och syns i appen.</p></div>';
+    }
+  }
+  function ibSetValue(key, value, src) {
+    projectData.idebank = projectData.idebank || {};
+    projectData.idebank[key] = value;
+    document.querySelectorAll('[data-ib="' + key + '"]').forEach(o => { if (o !== src) o.value = value; });
+    if (popIsOpen('idebank')) popWins.idebank.document.querySelectorAll('[data-ib="' + key + '"]').forEach(o => { if (o !== src) o.value = value; });
+    scheduleAutoSave();
+  }
+  window.addEventListener('beforeunload', () => { Object.values(popWins).forEach(w => { try { if (w && !w.closed) w.close(); } catch(e) {} }); });
+
+  // ═══ EXPORT AV FILMMANUS: Fountain och PDF i manusformat ═══
+  function spBlocks() {
+    const out = [];
+    projectData.chapters.forEach(ch => {
+      out.push({ el: 'section', t: ch.title });
+      ch.scenes.forEach(sc => {
+        const div = document.createElement('div'); div.innerHTML = sc.text || '';
+        [...div.children].forEach(p => { const t = p.textContent.trim(); if (t) out.push({ el: p.dataset.el || 'action', t }); });
+      });
+    });
+    return out;
+  }
+  function spDownload(name, text, type) {
+    const blob = new Blob([text], { type });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  function exportFountain() {
+    _closeDropdowns();
+    const lines = ['Title: ' + (projectData.title || 'Manus'), ''];
+    spBlocks().forEach(b => {
+      if (b.el === 'section') lines.push('', '# ' + b.t);
+      else if (b.el === 'scene') { const u = b.t.toUpperCase(); lines.push('', /^(INT|EXT|EST|I\/E|INT\/EXT|EXT\/INT)[\.\s]/.test(u) ? u : '.' + u); }
+      else if (b.el === 'character') lines.push('', b.t.toUpperCase());
+      else if (b.el === 'paren') lines.push(b.t.startsWith('(') ? b.t : '(' + b.t + ')');
+      else if (b.el === 'dialogue') lines.push(b.t);
+      else if (b.el === 'transition') { const u = b.t.toUpperCase(); lines.push('', u.endsWith('TO:') ? u : '> ' + u); }
+      else lines.push('', b.t);
+    });
+    spDownload(getProjectName() + '.fountain', lines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n', 'text/plain;charset=utf-8');
+    showAutosaveMsg('✓ Fountain-filen är nedladdad');
+  }
+  function exportScreenplayPdf() {
+    _closeDropdowns();
+    const w = window.open('', 'writeon-pdf', 'width=900,height=1000');
+    if (!w) { alert('Webbläsaren stoppade fönstret. Tillåt popupfönster för WriteON och försök igen.'); return; }
+    const e = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    const body = spBlocks().filter(b => b.el !== 'section').map(b => '<p class="' + b.el + '">' + e(b.t) + '</p>').join('');
+    w.document.open();
+    w.document.write('<!DOCTYPE html><html lang="sv"><head><meta charset="utf-8"><title>' + e(projectData.title || 'Manus') + '</title>' +
+      '<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">' +
+      '<style>@page{size:A4;margin:1in 1in 1in 1.5in}body{margin:0;font:12pt/1.0 "Courier Prime","Courier New",monospace;color:#000}' +
+      'p{margin:0;max-width:6in}.scene{text-transform:uppercase;font-weight:700;margin-top:24pt;page-break-after:avoid}.action{margin-top:12pt}' +
+      '.character{text-transform:uppercase;margin:12pt 0 0 2.2in;page-break-after:avoid}.paren{margin-left:1.6in;max-width:2in}.dialogue{margin-left:1in;max-width:3.5in}' +
+      '.transition{text-transform:uppercase;text-align:right;margin-top:12pt}.title{height:9in;display:flex;flex-direction:column;align-items:center;justify-content:center;page-break-after:always}' +
+      '.title h1{font:700 12pt "Courier Prime",monospace;text-transform:uppercase;margin:0}.title div{margin-top:12pt}' +
+      '.tip{font:14px system-ui;background:#fff8e1;padding:10px 14px;margin:0 0 20px}@media print{.tip{display:none}}</style></head><body>' +
+      '<div class="tip">Välj <b>Spara som PDF</b> i utskriftsdialogen. Rutan syns inte i PDF:en.</div>' +
+      '<div class="title"><h1>' + e(projectData.title || 'Manus') + '</h1><div>Manus</div></div>' + body + '</body></html>');
+    w.document.close();
+    setTimeout(() => { try { w.focus(); w.print(); } catch(err) {} }, 900);
+  }
+
+  // ═══ IMPORT AV EN HEL BOK: Word (även exporterad från Scrivener) eller text ═══
+  function importBook() {
+    _closeDropdowns();
+    if (!window.fbSignedIn) { document.getElementById('fbLoginModal').style.display = 'flex'; return; }
+    let inp = document.getElementById('wnImportBookInput');
+    if (!inp) {
+      inp = document.createElement('input'); inp.type = 'file'; inp.id = 'wnImportBookInput';
+      inp.accept = '.docx,.txt,.md,.markdown'; inp.style.display = 'none';
+      inp.addEventListener('change', () => { const f = inp.files && inp.files[0]; inp.value = ''; if (f) importBookFile(f); });
+      document.body.appendChild(inp);
+    }
+    inp.click();
+  }
+  const ibEsc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  async function docxBlocks(file) {
+    const zip = await JSZip.loadAsync(file);
+    const docXml = await zip.file('word/document.xml').async('string');
+    const stylesFile = zip.file('word/styles.xml');
+    const styles = {};
+    if (stylesFile) {
+      const sx = new DOMParser().parseFromString(await stylesFile.async('string'), 'application/xml');
+      [...sx.getElementsByTagName('w:style')].forEach(st => {
+        const id = st.getAttribute('w:styleId'), nm = st.getElementsByTagName('w:name')[0];
+        if (id) styles[id] = (nm && nm.getAttribute('w:val')) || id;
+      });
+    }
+    const x = new DOMParser().parseFromString(docXml, 'application/xml');
+    const blocks = [];
+    [...x.getElementsByTagName('w:p')].forEach(p => {
+      const ps = p.getElementsByTagName('w:pStyle')[0];
+      const sname = ps ? (styles[ps.getAttribute('w:val')] || ps.getAttribute('w:val')) : '';
+      let html = '', text = '';
+      [...p.getElementsByTagName('w:r')].forEach(r => {
+        const rp = r.getElementsByTagName('w:rPr')[0];
+        const it = rp && rp.getElementsByTagName('w:i').length, bd = rp && rp.getElementsByTagName('w:b').length;
+        let t = '';
+        [...r.childNodes].forEach(c => { if (c.nodeName === 'w:t') t += c.textContent; else if (c.nodeName === 'w:tab') t += ' '; else if (c.nodeName === 'w:br') t += '\n'; });
+        if (!t) return;
+        text += t;
+        let h = ibEsc(t).replace(/\n/g, '<br>');
+        if (it) h = '<em>' + h + '</em>'; if (bd) h = '<strong>' + h + '</strong>';
+        html += h;
+      });
+      if (!text.trim()) return;
+      const lvl = /^(heading|rubrik)\s*1$|^title$|^titel$/i.test(sname) ? 'h1' : /^(heading|rubrik)\s*2$/i.test(sname) ? 'h2' : 'p';
+      blocks.push({ typ: lvl, text: text.trim(), html });
+    });
+    return blocks;
+  }
+  function textBlocks(txt) {
+    const blocks = [];
+    txt.replace(/\r/g, '').split(/\n\s*\n|\n(?=#)/).forEach(chunk => {
+      chunk.split('\n').forEach(line => {
+        const l = line.trim(); if (!l) return;
+        const m = l.match(/^(#{1,2})\s+(.*)$/);
+        if (m) blocks.push({ typ: m[1] === '#' ? 'h1' : 'h2', text: m[2], html: ibEsc(m[2]) });
+        else blocks.push({ typ: 'p', text: l, html: ibEsc(l).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>') });
+      });
+    });
+    return blocks;
+  }
+  async function importBookFile(file) {
+    let blocks;
+    try { blocks = /\.docx$/i.test(file.name) ? await docxBlocks(file) : textBlocks(await file.text()); }
+    catch (e) { alert('Kunde inte läsa filen. Är det en Word-fil (.docx) eller en textfil?'); return; }
+    if (!blocks.length) { alert('Filen verkar vara tom.'); return; }
+    // Inga rubriker? Leta efter rader som "Dag 12 …", "Kapitel 3" eller "12." och gör dem till kapitel
+    if (!blocks.some(b => b.typ === 'h1'))
+      blocks.forEach(b => { if (b.typ === 'p' && b.text.length < 90 && /^(dag\s+\d+|kapitel\s+\d+|\d{1,3}\.?)(\b|\s|$)/i.test(b.text)) b.typ = 'h1'; });
+    const chapters = []; let ch = null, sc = null;
+    const now = new Date().toISOString();
+    const newChap = title => { ch = { id: 'chap-' + (chapters.length + 1), title, scenes: [] }; chapters.push(ch); sc = null; };
+    const newScene = title => { sc = { id: ch.id + '-scene-' + (ch.scenes.length + 1), title, status: 'draft', drama: 'ingen', pov: '', synopsis: '', notes: '', text: '', words: 0, dateCreated: now, dateChanged: now }; ch.scenes.push(sc); };
+    blocks.forEach(b => {
+      if (b.typ === 'h1') { newChap(b.text.slice(0, 120)); return; }
+      if (!ch) newChap('Inledning');
+      if (b.typ === 'h2') { newScene(b.text.slice(0, 120)); return; }
+      if (!sc) newScene('Scen 1');
+      sc.text += '<p>' + b.html + '</p>';
+    });
+    chapters.forEach(c => { if (!c.scenes.length) c.scenes.push({ id: c.id + '-scene-1', title: 'Scen 1', status: 'draft', drama: 'ingen', pov: '', synopsis: '', notes: '', text: '', words: 0, dateCreated: now, dateChanged: now }); });
+    const data = { chapters, characters: [], wordGoal: 80000, idebank: {}, format: 'prosa' };
+    const size = JSON.stringify(data).length;
+    if (size > 900000) {
+      alert('Boken är för stor för att sparas som ett enda projekt (' + Math.round(size / 1000) + ' kB, gränsen är 1 MB).\n\nDela upp den i två filer, till exempel första och andra halvan, och importera dem var för sig. Säg till utvecklaren, så höjs gränsen.');
+      return;
+    }
+    let namn = (prompt('Vad ska projektet heta?', file.name.replace(/\.(docx|txt|md|markdown)$/i, '')) || '').trim().replace(/\//g, '-');
+    if (!namn) return;
+    let befintliga = [];
+    try { befintliga = window.firebaseListProjects ? await window.firebaseListProjects() : []; } catch(e) {}
+    if (befintliga.includes(namn)) { let k = 2; while (befintliga.includes(namn + ' (import ' + k + ')')) k++; namn = namn + ' (import ' + k + ')'; }
+    if (!(await flushPendingSave()) && !confirm('De senaste ändringarna kunde inte sparas. Importera ändå?')) return;
+    applyProject(data, namn);
+    if (window.fbSetActiveProject) window.fbSetActiveProject(namn);
+    // dagboksrubriker ger berättelsens tid automatiskt
+    projectData.chapters.forEach(c => {
+      const dm = (c.title || '').match(/(\d{1,2}\s+(?:januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december)(?:\s+\d{4})?)/i);
+      const dg = (c.title || '').match(/dag\s*(\d+)/i);
+      const v = dm ? dm[1] : (dg ? 'Dag ' + dg[1] : '');
+      if (v) c.scenes.forEach(s => { if (!s.tid) s.tid = v; });
+    });
+    changeSeq++;
+    const ok = await runSave();
+    const words = totalWordCount();
+    if (ok) { showAutosaveMsg('✓ Importerade ' + chapters.length + ' kapitel och ' + fmtNum(words) + ' ord'); if (window.fbRefreshRecentMenu) window.fbRefreshRecentMenu(); }
   }
 
   function openResearchPanel() {
@@ -6278,6 +6742,8 @@ VIKTIGT:
     renderIdebank();
     if (typeof rsRender === 'function') rsRender();
     if (typeof bgRender === 'function') { bgRender(); bgRenderMini(); }
+    if (typeof rsMarkers === 'function') setTimeout(rsMarkers, 50);
+    if (typeof popRender === 'function') { popRender('research'); popRender('idebank'); }
   }
   window.applyProject = applyProject;
 
@@ -6490,6 +6956,7 @@ VIKTIGT:
       projectData.idebank = projectData.idebank || {};
       projectData.idebank[el.dataset.ib] = el.value;
       document.querySelectorAll('[data-ib="' + el.dataset.ib + '"]').forEach(o => { if (o !== el) o.value = el.value; });
+      if (typeof popIsOpen === 'function' && popIsOpen('idebank')) popWins.idebank.document.querySelectorAll('[data-ib="' + el.dataset.ib + '"]').forEach(o => { o.value = el.value; });
       scheduleAutoSave();
     } else if (el.closest && el.closest('#ibsb-varld')) {
       collectWorld(); scheduleAutoSave();
@@ -6759,9 +7226,9 @@ VIKTIGT:
     const lines = [];
     projectData.chapters.forEach(ch => {
       lines.push(ch.title);
-      ch.scenes.forEach(sc => lines.push('  ' + sc.title + (BG_LEVELS[sc.drama] ? ' [' + DRAMA_COLORS[sc.drama].label + ']' : '') + (sc.synopsis ? ' — ' + clip(sc.synopsis, 200) : '') + ' (' + (sc.words || 0) + ' ord)'));
+      ch.scenes.forEach(sc => lines.push('  ' + sc.title + (BG_LEVELS[sc.drama] ? ' [' + DRAMA_COLORS[sc.drama].label + ']' : '') + (sc.tid ? ' {tid: ' + sc.tid + '}' : '') + (sc.synopsis ? ' — ' + clip(sc.synopsis, 200) : '') + ' (' + (sc.words || 0) + ' ord)'));
     });
-    out.push('STRUKTUR (stämning inom hakparentes):\n' + clip(lines.join('\n'), 6000));
+    out.push('STRUKTUR (stämning inom hakparentes, berättelsens tid inom klammer):\n' + clip(lines.join('\n'), 6000));
     const bArc = BG_ARCS[projectData.bage];
     if (bArc && bgArcValues(projectData.bage)) out.push('VALD DRAMATISK BÅGE: ' + bArc.namn + ' – ' + bArc.text);
     if ((projectData.episoder || []).length) out.push('EPISODER:\n' + projectData.episoder.map(ep => '– ' + ep.namn + ': ' + rsPlaceLabel(ep.fran) + ' till ' + rsPlaceLabel(ep.till)).join('\n'));
@@ -8729,6 +9196,7 @@ window.addEventListener('load', function() {
   </div>
   <button class="ai-popup-btn fmt" data-cmd="insertUnorderedList" title="Punktlista"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg></button>
   <button class="ai-popup-btn fmt" id="popQuoteBtn" title="Citat"><svg class="ic" aria-hidden="true"><use href="#i-quote"/></svg></button>
+  <button class="ai-popup-btn fmt" id="popRsBtn" title="Koppla till research"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg></button>
   <div class="ai-popup-divider"></div>
   <button class="ai-popup-btn ai primary" onclick="runAiOnSelection('skriv-om')" title="Skriv om"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></button>
   <button class="ai-popup-btn ai" onclick="runAiOnSelection('analys')" title="Analys"><svg class="ic" aria-hidden="true"><use href="#i-scan-text"/></svg></button>
@@ -8830,6 +9298,9 @@ window.addEventListener('load', function() {
   document.querySelectorAll('#popStyleMenu button').forEach(b => b.addEventListener('mousedown', e => {
     e.preventDefault(); setBlock(b.dataset.block); document.getElementById('popStyleMenu').classList.remove('open');
   }));
+  document.getElementById('popRsBtn').addEventListener('mousedown', e => {
+    e.preventDefault(); rsLinkOpen(); hidePopup();
+  });
   document.getElementById('popQuoteBtn').addEventListener('mousedown', e => {
     e.preventDefault(); setBlock(currentBlockTag() === 'BLOCKQUOTE' ? 'p' : 'blockquote');
   });
@@ -9342,6 +9813,17 @@ window.fbLoggaUt = async function() {
       <button class="wn-btn" id="rsDelete" style="color:#c84040;" onclick="rsDelete()">Ta bort</button>
       <span style="display:flex;gap:8px;"><button class="wn-btn" onclick="rsClose()">Avbryt</button><button class="wn-btn wn-btn-primary" onclick="rsSave()">Spara</button></span>
     </div>
+  </div>
+</div>
+
+<!-- KOPPLA ORD TILL RESEARCH -->
+<div id="rsLinkModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this) rsLinkClose()">
+  <div class="wn-modal" style="width:500px;">
+    <div class="wn-modal-head"><h2>Koppla till research</h2><button class="wn-x" onclick="rsLinkClose()">✕</button></div>
+    <p class="wn-p" style="margin-bottom:10px;">Markerat: <b id="rsLinkWord"></b></p>
+    <input id="rsLinkSearch" class="rsl-search" type="text" placeholder="Sök bland dina kort …" oninput="rsLinkList(this.value)">
+    <div class="rsl-list" id="rsLinkItems"></div>
+    <div class="wn-modal-foot" style="justify-content:space-between;"><button class="wn-btn" onclick="rsLinkNew()">+ Nytt kort med det här</button><button class="wn-btn" onclick="rsLinkClose()">Avbryt</button></div>
   </div>
 </div>
 
