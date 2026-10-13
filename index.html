@@ -448,6 +448,24 @@
   .bg-chart .bg-ep-name { cursor: text; }
   .bg-chart .bg-tid { cursor: pointer; }
   .bg-foot { font-size: 14px; color: var(--text-muted); margin-top: 14px; }
+  .bg-main { display: grid; grid-template-columns: 1fr 260px; gap: 16px; align-items: start; }
+  .bg-help { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; }
+  .bg-help-h { font-size: 14pt; font-weight: 700; margin-bottom: 6px; }
+  .bg-help ul { margin: 0; padding-left: 18px; }
+  .bg-help li { font-size: 14px; line-height: 1.45; color: var(--text-secondary); margin-bottom: 8px; }
+  .bg-help b { color: var(--text-primary); }
+  @media (max-width: 1250px) { .bg-main { grid-template-columns: 1fr; } }
+  .bg-seg { display: inline-flex; background: var(--bg-soft); border-radius: 9px; padding: 3px; margin-right: 6px; }
+  .bg-seg button { border: none; background: none; padding: 5px 12px; border-radius: 7px; font: 700 14px var(--font-ui); color: var(--text-muted); cursor: pointer; }
+  .bg-seg button.on { background: var(--bg-card); color: var(--text-primary); box-shadow: var(--shadow); }
+  .bg-chart .bg-phase { cursor: ew-resize; }
+  .bg-tag { display: inline-flex; align-items: center; margin-left: 6px; padding: 4px; cursor: pointer; flex-shrink: 0; }
+  .bg-tag i { width: 9px !important; height: 9px !important; }
+  .bg-tag i, .bg-chaptag i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .bg-chaptag { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--border); background: var(--bg-soft); color: var(--text-secondary); border-radius: 14px; padding: 4px 11px; font: 600 13px var(--font-ui); cursor: pointer; margin-bottom: 14px; }
+  .bg-chaptag:hover { border-color: var(--action-text); color: var(--text-primary); }
+  .bg-chaptag-n { color: var(--text-muted); font-weight: 500; margin-left: 4px; }
+  body.focus .bg-chaptag { display: none; }
 
   /* Research kopplat till ord */
   .chapter-doc { position: relative; }
@@ -4094,7 +4112,7 @@
     <div class="bg-head">
       <div>
         <div class="rs-h1">Dramabåge</div>
-        <div class="view-sub">Varje punkt är en scen, i bokens ordning, och höjden är scenens spänning. Under bågen kan du följa personernas känslor, berättelsens tid och episoderna, scen för scen i samma kolumner.*</div>
+        <div class="view-sub">Bokens kapitel längs en dramaturgisk båge. Under bågen syns berättelsens tid och episoderna.*</div>
       </div>
       <label class="bg-arc">Jämför med
         <select id="bgArcSel" onchange="bgSetArc(this.value)">
@@ -4110,7 +4128,22 @@
     </div>
     <div class="bg-about" id="bgAbout"></div>
     <div class="bg-layers" id="bgLayers"></div>
-    <div class="bg-chart" id="bgChart"></div>
+    <div class="bg-main">
+      <div class="bg-chart" id="bgChart"></div>
+      <aside class="bg-help">
+        <div class="bg-help-h">Så fungerar bågen</div>
+        <ul>
+          <li><b>Varje punkt är ett kapitel.</b> Höjden visar hur mycket som står på spel, från Svacka till Klimax.</li>
+          <li><b>Dra en punkt</b> uppåt eller nedåt för att ändra kapitlets stämning.</li>
+          <li><b>Ljusa punkter</b> har ingen egen stämning. Den räknas fram ur kapitlets scener.</li>
+          <li><b>De skuggade fälten</b> är bågens faser, till exempel Akt I–III. Dra i handtagen ovanför för att flytta gränserna.</li>
+          <li><b>Den streckade linjen</b> är bågen du jämför med. Byt uppe till höger eller forma en egen.</li>
+          <li><b>Klicka på ett kapitel</b> för att se var det ligger och öppna det.</li>
+          <li><b>När du skriver</b> syns kapitlets plats ovanför kapitelrubriken, i kapitellistan och i inspektören.</li>
+          <li><b>Scener</b> uppe till vänster visar bågen i finare steg.</li>
+        </ul>
+      </aside>
+    </div>
     <div class="bg-hint" id="bgHint"></div>
     <div class="bg-row">
       <div class="bg-card" id="bgCard"></div>
@@ -4120,7 +4153,7 @@
         <button class="bg-link" onclick="bgAskAssistant()">Fråga om bågen</button>
       </div>
     </div>
-    <div class="bg-foot">Spänning, känslor och episoder i samma bild bygger på Torbjörn Flygts tre sorters tidslinjer: övergripande, episoder och känslomässiga (Skriva nr 2, 2026).</div>
+    <div class="bg-foot">* Tidslinjen och episoderna bygger på Torbjörn Flygts metod med tidslinjer (Skriva nr 2, 2026).</div>
   </div>
 </div>
 
@@ -5691,33 +5724,40 @@
     }
   });
 
-  // ═══ DRAMABÅGE — spänning, känslor per person, episoder och en målbåge ═══
-  // Lager efter Torbjörn Flygts tre tidslinjer (övergripande, episoder, känslomässiga).
-  // Allt går att forma grafiskt: dra punkter, episodernas ändar och målbågens handtag.
+  // ═══ DRAMABÅGE — bokens kapitel längs en dramaturgisk båge ═══
+  // Varje punkt är ett kapitel (eller en scen). Bågens faser (t.ex. Akt I–III) ligger som fält bakom
+  // kurvan och kan flyttas. Samma placering visas där man skriver: i kapitellistan, ovanför
+  // kapitelrubriken och i inspektören.
   const BG_LEVELS = { svacka: 0.6, lugn: 1.5, upptrappning: 2.5, vändpunkt: 3.5, klimax: 4.5 };
   const BG_ORDER = ['svacka', 'lugn', 'upptrappning', 'vändpunkt', 'klimax'];
-  const EMO_LABELS = ['Förtvivlad', 'Nere', 'Neutral', 'Glad', 'Lycklig'];          // värde 0–4
-  const EMO_COLORS = ['#141413', '#C6789A', '#6E98C9', '#B07A12', '#7A5CA8', '#3E8E5E'];
   const BG_ARCS = {
     treakter: { namn: 'Tre akter', text: 'Anslag, stegring, ett mörkt ögonblick och sedan klimax nära slutet.',
       ursprung: 'Går tillbaka på Aristoteles idé om början, mitt och slut. Blev standard för film och roman genom manusläraren Syd Field.',
-      v: [0.2, 0.35, 0.5, 0.55, 0.62, 0.4, 0.95, 0.3] },
+      v: [0.2, 0.35, 0.5, 0.55, 0.62, 0.4, 0.95, 0.3],
+      faser: [['Akt I', 0, 0.25], ['Akt II', 0.25, 0.75], ['Akt III', 0.75, 1]] },
     fichte: { namn: 'Fichtes kurva', text: 'Rakt in i handlingen. Spänningen stiger genom en rad kriser med små dalar emellan. Klimax sent och ett kort slut.',
       ursprung: 'Beskriven av den amerikanske författaren John Gardner i boken The Art of Fiction, uppkallad efter filosofen Fichte. Vanlig i spänningsromaner och deckare.',
-      v: [0.35, 0.5, 0.4, 0.6, 0.5, 0.72, 0.62, 0.85, 0.75, 1.0, 0.35] },
+      v: [0.35, 0.5, 0.4, 0.6, 0.5, 0.72, 0.62, 0.85, 0.75, 1.0, 0.35],
+      faser: [['Anslag', 0, 0.1], ['Kriserna', 0.1, 0.82], ['Klimax', 0.82, 0.93], ['Slut', 0.93, 1]] },
     freytag: { namn: 'Freytags pyramid', text: 'Stiger mot en höjdpunkt i mitten och faller sedan mot upplösningen.',
       ursprung: 'Gustav Freytag beskrev dramats fem delar i Die Technik des Dramas (1863): inledning, stegring, höjdpunkt, fall och upplösning.',
-      v: [0.1, 0.3, 0.55, 0.8, 1.0, 0.75, 0.5, 0.3, 0.15] },
+      v: [0.1, 0.3, 0.55, 0.8, 1.0, 0.75, 0.5, 0.3, 0.15],
+      faser: [['Inledning', 0, 0.2], ['Stegring', 0.2, 0.42], ['Höjdpunkt', 0.42, 0.58], ['Fall', 0.58, 0.8], ['Upplösning', 0.8, 1]] },
     hal: { namn: 'Mannen i hålet', text: 'Det går bra, sedan sämre och sämre, och till sist bättre än i början.',
       ursprung: 'En av berättelsernas grundformer i Kurt Vonneguts föreläsning om berättelsers former.',
-      v: [0.6, 0.55, 0.35, 0.15, 0.1, 0.3, 0.6, 0.9] },
+      v: [0.6, 0.55, 0.35, 0.15, 0.1, 0.3, 0.6, 0.9],
+      faser: [['Före', 0, 0.2], ['Ner i hålet', 0.2, 0.5], ['Botten', 0.5, 0.65], ['Upp igen', 0.65, 1]] },
     noll: { namn: 'Från noll till allt', text: 'En jämn uppgång med motgångar på vägen, som i en utvecklingsroman.',
       ursprung: 'Vonneguts ”rags to riches”, från trasor till rikedom.',
-      v: [0.1, 0.2, 0.18, 0.35, 0.3, 0.5, 0.45, 0.7, 0.65, 0.9] },
-    egen: { namn: 'Egen båge', text: 'Din egen målbild. Dra i handtagen på den streckade linjen för att forma den.', ursprung: '', v: null },
-    ingen: { namn: 'Ingen jämförelse', text: 'Bara din egen båge, utan streckad linje.', ursprung: '', v: null },
+      v: [0.1, 0.2, 0.18, 0.35, 0.3, 0.5, 0.45, 0.7, 0.65, 0.9],
+      faser: [['Början', 0, 0.25], ['Uppgången', 0.25, 0.85], ['Målet', 0.85, 1]] },
+    egen: { namn: 'Egen båge', text: 'Din egen målbild. Dra i handtagen på den streckade linjen för att forma den.', ursprung: '', v: null,
+      faser: [['Akt I', 0, 0.25], ['Akt II', 0.25, 0.75], ['Akt III', 0.75, 1]] },
+    ingen: { namn: 'Ingen jämförelse', text: 'Bara din egen båge, utan streckad linje och utan faser.', ursprung: '', v: null, faser: [] },
   };
-  let bgSelected = null, bgLayer = 'spanning', bgEditIdeal = false, bgDrag = null, bgEmoOpen = true;
+  let bgSelected = null, bgEditIdeal = false, bgDrag = null;
+  let bgUnit = 'kapitel';
+  try { if (localStorage.getItem('writeon_bg_unit') === 'scen') bgUnit = 'scen'; } catch(e) {}
 
   function bgArcValues(key) {
     if (key === 'egen') return Array.isArray(projectData.egenBage) && projectData.egenBage.length > 1 ? projectData.egenBage : null;
@@ -5737,24 +5777,60 @@
     }
     return d;
   }
-  function bgPeople() { if (!Array.isArray(projectData.kanslor)) projectData.kanslor = []; return projectData.kanslor; }
   function bgEpisodes() { if (!Array.isArray(projectData.episoder)) projectData.episoder = []; return projectData.episoder; }
   function bgScenes() { const a = []; projectData.chapters.forEach(ch => ch.scenes.forEach(sc => a.push({ sc, ch }))); return a; }
 
-  // Geometri för den stora bågen (delas av ritning och drag)
-  function bgGeo(nLanes) {
-    const W = 1100, L = 138, R = 40, T = 26, CH = 330;             // dramabågen ritas mellan T och CH
-    const LBL = CH + 34;                                          // kapitelnamn
-    const EMO = bgPeople().length && bgEmoOpen ? 1 : 0;           // känsloraden, under bågen
-    const ET = LBL + 56, ECH = ET + 150;
-    const base = EMO ? ECH + 14 : LBL;
-    const TID = tlHasAny() ? 1 : 0;
-    const TA = base + 58, EP = base + 30 + TID * 82, LANE = 30;
-    const H = EP + Math.max(1, nLanes) * LANE + 8;
-    return { W, L, R, T, CH, LBL, EMO, ET, ECH, TA, TID, EP, LANE, H, B: 0 };
+  // Kapitlets stämning: den du har satt, annars den starkaste bland kapitlets scener
+  function chapLevel(ch) {
+    if (BG_LEVELS[ch.drama]) return { key: ch.drama, own: true };
+    let best = null;
+    ch.scenes.forEach(sc => { if (BG_LEVELS[sc.drama] && (!best || BG_LEVELS[sc.drama] > BG_LEVELS[best])) best = sc.drama; });
+    return { key: best, own: false };
   }
-  function bgLanes(scenes) {
-    const idx = id => scenes.findIndex(o => o.sc.id === id);
+  function bgPoints(unit) {
+    if ((unit || bgUnit) === 'scen')
+      return bgScenes().map(o => ({ id: o.sc.id, kind: 'scen', ch: o.ch, sc: o.sc, title: o.sc.title, key: BG_LEVELS[o.sc.drama] ? o.sc.drama : null, own: true, sceneIds: [o.sc.id] }));
+    return projectData.chapters.map(ch => { const l = chapLevel(ch); return { id: ch.id, kind: 'kapitel', ch, title: ch.title, key: l.key, own: l.own, sceneIds: ch.scenes.map(s => s.id) }; });
+  }
+  function bgShort(t, max) {
+    t = String(t || '');
+    if (t.length > max && t.includes(' — ')) t = t.split(' — ')[0];
+    if (t.length > max && t.includes(' – ')) t = t.split(' – ')[0];
+    return t.length > max ? t.slice(0, Math.max(3, max - 1)) + '…' : t;
+  }
+
+  // Bågens faser, med gränser som författaren kan flytta
+  function bgPhases() {
+    const defs = (BG_ARCS[projectData.bage] || BG_ARCS.treakter).faser || [];
+    if (!defs.length) return [];
+    projectData.faser = projectData.faser || {};
+    let b = projectData.faser[projectData.bage];
+    if (!Array.isArray(b) || b.length !== defs.length - 1) b = defs.slice(1).map(f => f[1]);
+    const out = []; let start = 0;
+    defs.forEach((f, i) => { const end = i < defs.length - 1 ? b[i] : 1; out.push({ namn: f[0], start, end }); start = end; });
+    return out;
+  }
+  function bgT(i, n) { return n < 2 ? 0.5 : i / (n - 1); }
+  function bgPhaseAt(t) { const ph = bgPhases(); return ph.find(p => t >= p.start && t < p.end) || ph[ph.length - 1] || null; }
+  // Var ligger kapitlet i bågen? Används där man skriver.
+  function bgChapterInfo(chId) {
+    const chs = projectData.chapters, i = chs.findIndex(c => c.id === chId);
+    if (i < 0) return null;
+    const l = chapLevel(chs[i]), ph = bgPhaseAt(bgT(i, chs.length));
+    return { index: i, count: chs.length, key: l.key, own: l.own, phase: ph ? ph.namn : '' };
+  }
+
+  function bgGeo(nLanes) {
+    // Bredden följer rutan, så att 1 enhet = 1 pixel och texten behåller sin grad
+    const box = document.getElementById('bgChart');
+    const W = Math.max(600, Math.round(((box && box.clientWidth) || 1112) - 12)), L = 128, R = 40, T = 50, CH = 350;
+    const LBL = CH + 36, TID = tlHasAny() ? 1 : 0;
+    const TA = LBL + 62, EP = LBL + 34 + TID * 82, LANE = 30;
+    const H = EP + Math.max(1, nLanes) * LANE + 8;
+    return { W, L, R, T, CH, LBL, TA, TID, EP, LANE, H };
+  }
+  function bgLanes(points) {
+    const idx = id => points.findIndex(p => p.sceneIds.includes(id));
     const lanes = [];
     return bgEpisodes().map(ep => {
       let a = idx(ep.fran), b = idx(ep.till); if (a < 0) a = 0; if (b < 0) b = a; if (b < a) [a, b] = [b, a];
@@ -5765,117 +5841,106 @@
 
   function bgSvg(opts) {
     const mini = !!opts.mini;
-    const scenes = bgScenes(), n = scenes.length;
-    const eps = mini ? [] : bgLanes(scenes);
+    const pts = bgPoints(mini ? 'kapitel' : bgUnit), n = pts.length;
+    const eps = mini ? [] : bgLanes(pts);
     const nL = eps.reduce((m, e) => Math.max(m, e.lane + 1), 0);
     const g = mini ? { W: 300, L: 8, R: 8, T: 8, CH: 64, H: 74 } : bgGeo(nL);
     const X = i => n < 2 ? (g.L + g.W - g.R) / 2 : g.L + i * (g.W - g.L - g.R) / (n - 1);
+    const XT = t => g.L + t * (g.W - g.L - g.R);
     const Y = v => g.T + (g.CH - g.T) * (1 - v / 5);
     const arcV = bgArcValues(projectData.bage);
+    const step = (g.W - g.L - g.R) / Math.max(1, n - 1);
     let s = '<svg viewBox="0 0 ' + g.W + ' ' + g.H + '" width="100%" ' + (mini ? 'height="' + g.H + '"' : '') + ' class="bg-svg" font-family="DM Sans">';
+    // faserna som fält bakom kurvan
+    bgPhases().forEach((ph, k) => {
+      const x0 = XT(ph.start), x1 = XT(ph.end);
+      s += '<rect x="' + x0.toFixed(1) + '" y="' + (mini ? 2 : g.T - 26) + '" width="' + Math.max(0, x1 - x0).toFixed(1) + '" height="' + (mini ? g.H - 4 : g.CH - g.T + 34) + '" fill="' + (k % 2 ? 'var(--bg-soft)' : 'transparent') + '" opacity="0.7"/>';
+      if (!mini) s += '<text x="' + ((x0 + x1) / 2).toFixed(1) + '" y="' + (g.T - 32) + '" text-anchor="middle" font-size="14" font-weight="700" fill="var(--text-secondary)">' + rsEsc(ph.namn) + '</text>';
+    });
     if (!mini) {
-      const people = bgPeople();
-      BG_ORDER.forEach((k, li) => {
+      BG_ORDER.forEach(k => {
         const y = Y(BG_LEVELS[k]).toFixed(1);
         s += '<line x1="' + g.L + '" x2="' + (g.W - g.R) + '" y1="' + y + '" y2="' + y + '" stroke="var(--border)"/>' +
              '<text x="' + (g.L - 26) + '" y="' + (+y + 4) + '" text-anchor="end" font-size="13" fill="var(--text-muted)">' + DRAMA_COLORS[k].label + '</text>';
       });
-      // klickbara kolumner, en per scen
-      scenes.forEach((o, i) => {
-        const w = (g.W - g.L - g.R) / Math.max(1, n - 1);
-        s += '<rect class="bg-col" data-i="' + i + '" x="' + (X(i) - w / 2).toFixed(1) + '" y="' + g.T + '" width="' + w.toFixed(1) + '" height="' + (g.CH - g.T) + '" fill="transparent"/>';
+      // flyttbara fasgränser
+      bgPhases().slice(1).forEach((ph, k) => {
+        const x = XT(ph.start).toFixed(1);
+        s += '<line x1="' + x + '" x2="' + x + '" y1="' + (g.T - 26) + '" y2="' + (g.CH + 8) + '" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="4 4"/>' +
+             '<rect class="bg-phase" data-b="' + k + '" x="' + (x - 7) + '" y="' + (g.T - 50) + '" width="14" height="26" rx="4" fill="var(--bg-card)" stroke="var(--text-muted)" stroke-width="1.5"/>';
       });
-      let prev = null;
-      scenes.forEach((o, i) => {
-        if (o.ch !== prev) {
-          const x = i ? X(i) - (g.W - g.L - g.R) / Math.max(1, n - 1) / 2 : g.L - 6;
-          if (i) s += '<line x1="' + x.toFixed(1) + '" x2="' + x.toFixed(1) + '" y1="' + g.T + '" y2="' + (g.CH + 8) + '" stroke="var(--border-strong)" stroke-dasharray="3 4"/>';
-          let nextI = scenes.findIndex((q, j) => j > i && q.ch !== o.ch); if (nextI < 0) nextI = n;
-          const room = Math.max(40, (nextI - i) * (g.W - g.L - g.R) / Math.max(1, n - 1) - 12);
-          const maxCh = Math.max(4, Math.floor(room / 8));
-          let lbl = o.ch.title || '';
-          if (lbl.length > maxCh && lbl.includes(' — ')) lbl = lbl.split(' — ')[0];
-          if (lbl.length > maxCh) lbl = lbl.slice(0, maxCh - 1) + '…';
-          s += '<text x="' + (x + 8).toFixed(1) + '" y="' + g.LBL + '" font-size="14" font-weight="700" fill="var(--text-primary)"><title>' + rsEsc(o.ch.title) + '</title>' + rsEsc(lbl) + '</text>';
-          prev = o.ch;
-        }
-        s += '<text x="' + X(i).toFixed(1) + '" y="' + (g.CH + 16) + '" text-anchor="middle" font-size="13" fill="var(--text-muted)">' + (i + 1) + '</text>';
-      });
+      // etiketter under punkterna
+      if (bgUnit === 'kapitel') {
+        const maxCh = Math.max(4, Math.floor(step / 7.5));
+        pts.forEach((p, i) => {
+          const anc = n > 1 && i === 0 ? 'start' : n > 1 && i === n - 1 ? 'end' : 'middle';
+          const lx = X(i) + (anc === 'start' ? -10 : anc === 'end' ? 10 : 0);
+          s += '<text x="' + X(i).toFixed(1) + '" y="' + (g.CH + 18) + '" text-anchor="middle" font-size="13" fill="var(--text-muted)">' + (i + 1) + '</text>' +
+               '<text x="' + lx.toFixed(1) + '" y="' + g.LBL + '" text-anchor="' + anc + '" font-size="13" font-weight="700" fill="var(--text-primary)"><title>' + rsEsc(p.title) + '</title>' + rsEsc(bgShort(p.title, maxCh)) + '</text>';
+        });
+      } else {
+        let prev = null;
+        pts.forEach((p, i) => {
+          if (p.ch !== prev) {
+            let nextI = pts.findIndex((q, j) => j > i && q.ch !== p.ch); if (nextI < 0) nextI = n;
+            const x = i ? X(i) - step / 2 : g.L - 6;
+            if (i) s += '<line x1="' + x.toFixed(1) + '" x2="' + x.toFixed(1) + '" y1="' + g.T + '" y2="' + (g.CH + 8) + '" stroke="var(--border-strong)" stroke-dasharray="3 4"/>';
+            s += '<text x="' + (x + 8).toFixed(1) + '" y="' + g.LBL + '" font-size="13" font-weight="700" fill="var(--text-primary)"><title>' + rsEsc(p.ch.title) + '</title>' + rsEsc(bgShort(p.ch.title, Math.max(4, Math.floor(((nextI - i) * step - 12) / 7.5)))) + '</text>';
+            prev = p.ch;
+          }
+          s += '<text x="' + X(i).toFixed(1) + '" y="' + (g.CH + 18) + '" text-anchor="middle" font-size="13" fill="var(--text-muted)">' + (i + 1) + '</text>';
+        });
+      }
     }
     // målbågen
     if (arcV && n > 1) {
-      const pts = []; for (let k = 0; k <= 60; k++) { const t = k / 60; pts.push([g.L + t * (g.W - g.L - g.R), Y(0.4 + bgArcAt(arcV, t) * 4.2)]); }
-      s += '<path d="' + bgPath(pts) + '" fill="none" stroke="var(--text-muted)" stroke-opacity="0.6" stroke-width="' + (mini ? 1.5 : 2) + '" stroke-dasharray="' + (mini ? '4 4' : '7 6') + '"/>';
+      const p2 = []; for (let k = 0; k <= 60; k++) { const t = k / 60; p2.push([XT(t), Y(0.4 + bgArcAt(arcV, t) * 4.2)]); }
+      s += '<path d="' + bgPath(p2) + '" fill="none" stroke="var(--text-muted)" stroke-opacity="0.65" stroke-width="' + (mini ? 1.5 : 2) + '" stroke-dasharray="' + (mini ? '4 4' : '7 6') + '"/>';
       if (!mini && bgEditIdeal && projectData.bage === 'egen')
         arcV.forEach((v, k) => {
-          const x = g.L + (k / (arcV.length - 1)) * (g.W - g.L - g.R), y = Y(0.4 + v * 4.2);
+          const x = XT(k / (arcV.length - 1)), y = Y(0.4 + v * 4.2);
           s += '<rect class="bg-handle" data-k="' + k + '" x="' + (x - 7).toFixed(1) + '" y="' + (y - 7).toFixed(1) + '" width="14" height="14" rx="3" fill="var(--bg-card)" stroke="var(--text-secondary)" stroke-width="2"/>';
         });
     }
-    // känslorna: egen rad med egen skala, under bågen
-    const YE = v => g.ET + (g.ECH - g.ET) * (1 - (v + 0.5) / 5);
-    if (!mini && g.EMO) {
-      s += '<rect x="' + (g.L - 14) + '" y="' + (g.ET - 16) + '" width="' + (g.W - g.R - g.L + 28) + '" height="' + (g.ECH - g.ET + 28) + '" rx="10" fill="var(--bg-soft)" opacity="0.55"/>';
-      s += '<text x="' + (g.L - 26) + '" y="' + (g.ET - 24) + '" text-anchor="end" font-size="13" font-weight="700" fill="var(--text-secondary)" letter-spacing="0.06em">KÄNSLOR</text>';
-      EMO_LABELS.forEach((lbl, v) => {
-        const y = YE(v).toFixed(1);
-        s += '<line x1="' + g.L + '" x2="' + (g.W - g.R) + '" y1="' + y + '" y2="' + y + '" stroke="var(--border)"/>' +
-             '<text x="' + (g.L - 26) + '" y="' + (+y + 4) + '" text-anchor="end" font-size="13" fill="var(--text-muted)">' + lbl + '</text>';
-      });
-      scenes.forEach((o, i) => { s += '<line x1="' + X(i).toFixed(1) + '" x2="' + X(i).toFixed(1) + '" y1="' + g.ET + '" y2="' + g.ECH + '" stroke="var(--border)" stroke-dasharray="2 4"/>'; });
-    }
-    if (!mini && g.EMO) bgPeople().forEach(p => {
-      const on = bgLayer === p.id;
-      const pts = scenes.map((o, i) => p.varden && p.varden[o.sc.id] != null ? [X(i), YE(p.varden[o.sc.id]), o.sc.id] : null).filter(Boolean);
-      if (pts.length > 1) s += '<path d="' + bgPath(pts) + '" fill="none" stroke="' + p.farg + '" stroke-width="' + (on ? 3 : 2) + '" stroke-opacity="' + (on || bgLayer === 'spanning' ? 0.95 : 0.4) + '"/>';
-      pts.forEach(([x, y, id]) => {
-        s += '<circle class="' + (on ? 'bg-dot bg-emo' : '') + '" data-id="' + id + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (on ? 7 : 3.5) + '" fill="' + p.farg + '" stroke="var(--bg-card)" stroke-width="' + (on ? 2.5 : 1) + '" ' + (on ? '' : 'pointer-events="none"') + '/>';
-      });
-    });
-    // spänningskurvan
-    const sOn = bgLayer === 'spanning';
-    const own = scenes.map((o, i) => BG_LEVELS[o.sc.drama] ? [X(i), Y(BG_LEVELS[o.sc.drama])] : null).filter(Boolean);
-    if (own.length > 1) s += '<path d="' + bgPath(own) + '" fill="none" stroke="var(--action)" stroke-width="' + (mini ? 2 : 3) + '" stroke-opacity="' + (mini || sOn ? 1 : 0.45) + '"/>';
-    scenes.forEach((o, i) => {
-      const lv = BG_LEVELS[o.sc.drama], x = X(i), y = lv ? Y(lv) : g.CH - (mini ? 2 : 4);
-      const active = activeScene && o.sc.id === activeScene.id, sel = !mini && o.sc.id === bgSelected;
-      if (active) s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (mini ? 7 : 16) + '" fill="none" stroke="var(--action)" stroke-width="2"/>';
-      if (sel && !active) s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="15" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="3 3"/>';
-      const cls = !mini && sOn ? 'class="bg-dot bg-span" ' : (mini ? '' : 'pointer-events="none" ');
-      s += lv
-        ? '<circle ' + cls + 'data-id="' + o.sc.id + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (mini ? 3.5 : (sOn ? 9 : 5)) + '" fill="' + DRAMA_COLORS[o.sc.drama].color + '" stroke="var(--bg-card)" stroke-width="' + (mini ? 1 : 3) + '" ' + (sOn || mini ? '' : 'opacity="0.6"') + '/>'
-        : '<circle ' + cls + 'data-id="' + o.sc.id + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (mini ? 2.5 : 7) + '" fill="var(--bg-card)" stroke="var(--border-strong)" stroke-width="2"/>';
+    // bokens egen kurva
+    const own = pts.map((p, i) => p.key ? [X(i), Y(BG_LEVELS[p.key])] : null).filter(Boolean);
+    if (own.length > 1) s += '<path d="' + bgPath(own) + '" fill="none" stroke="var(--action)" stroke-width="' + (mini ? 2 : 3) + '"/>';
+    const curCh = activeScene ? chapterForScene(activeScene.id) : null;
+    pts.forEach((p, i) => {
+      const x = X(i), y = p.key ? Y(BG_LEVELS[p.key]) : g.CH - (mini ? 2 : 4);
+      const active = p.kind === 'kapitel' ? (curCh && curCh.id === p.id) : (activeScene && activeScene.id === p.id);
+      if (active) s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (mini ? 7 : 17) + '" fill="none" stroke="var(--action)" stroke-width="2"/>';
+      if (!mini && p.id === bgSelected && !active) s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="16" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="3 3"/>';
+      const cls = mini ? '' : 'class="bg-dot" ';
+      s += p.key
+        ? '<circle ' + cls + 'data-id="' + p.id + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (mini ? 3.5 : 10) + '" fill="' + DRAMA_COLORS[p.key].color + '" fill-opacity="' + (p.own ? 1 : 0.45) + '" stroke="' + (p.own ? 'var(--bg-card)' : DRAMA_COLORS[p.key].color) + '" stroke-width="' + (mini ? 1 : 3) + '"' + (p.own ? '' : ' stroke-dasharray="3 2"') + '/>'
+        : '<circle ' + cls + 'data-id="' + p.id + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (mini ? 2.5 : 8) + '" fill="var(--bg-card)" stroke="var(--border-strong)" stroke-width="2"/>';
     });
     // berättelsens tid
     if (!mini && g.TID) {
-      const y = g.TA, timed = scenes.map((o, i) => ({ i, t: tlParse(o.sc.tid) })).filter(o => o.t);
+      const y = g.TA, timed = pts.map((p, i) => { const sc = p.sceneIds.map(id => allScenes().find(x => x.id === id)).find(sc => sc && tlParse(sc.tid)); return { i, t: sc ? tlParse(sc.tid) : null, id: p.sceneIds[0] }; }).filter(o => o.t);
       s += '<text x="' + (g.L - 26) + '" y="' + (y + 4) + '" text-anchor="end" font-size="13" fill="var(--text-muted)">Berättelsens tid</text>';
-      const nu = {};                                    // senaste tiden hittills, per sort (datum/dag)
-      if (timed.length) nu[timed[0].t.kind] = timed[0].t.ord;
+      const nu = {}; if (timed.length) nu[timed[0].t.kind] = timed[0].t.ord;
       for (let k = 1; k < timed.length; k++) {
         const a = timed[k - 1], b = timed[k], xa = X(a.i), xb = X(b.i);
         const same = nu[b.t.kind] != null, diff = same ? b.t.ord - nu[b.t.kind] : null;
         if (!same || b.t.ord > nu[b.t.kind]) nu[b.t.kind] = b.t.ord;
         if (same && diff < 0) {
-          // tillbakablick: båge ovanför axeln som pekar bakåt
-          const back = timed.slice(0, k).reverse().find(o => o.t.kind === b.t.kind && o.t.ord <= b.t.ord) || timed[0];
-          const xt = X(back.i);
+          const back = timed.slice(0, k).reverse().find(o => o.t.kind === b.t.kind && o.t.ord <= b.t.ord) || timed[0], xt = X(back.i);
           s += '<line x1="' + xa.toFixed(1) + '" x2="' + xb.toFixed(1) + '" y1="' + y + '" y2="' + y + '" stroke="#6E98C9" stroke-width="3"/>' +
                '<path d="M' + xb.toFixed(1) + ',' + (y - 12) + ' C' + (xb - 30).toFixed(1) + ',' + (y - 44) + ' ' + (xt + 30).toFixed(1) + ',' + (y - 44) + ' ' + (xt + 6).toFixed(1) + ',' + (y - 14) + '" fill="none" stroke="#6E98C9" stroke-width="2"/>' +
                '<path d="M' + (xt + 6).toFixed(1) + ',' + (y - 14) + ' l-1,-10 m1,10 l9,-4" fill="none" stroke="#6E98C9" stroke-width="2"/>' +
                '<text x="' + ((xb + xt) / 2).toFixed(1) + '" y="' + (y - 30) + '" text-anchor="middle" font-size="13" fill="#6E98C9">tillbakablick</text>';
         } else if (same && diff > 1) {
           s += '<line x1="' + xa.toFixed(1) + '" x2="' + xb.toFixed(1) + '" y1="' + y + '" y2="' + y + '" stroke="#6E98C9" stroke-width="3" stroke-dasharray="2 6"/>' +
-               '<text x="' + ((xa + xb) / 2).toFixed(1) + '" y="' + (y - 8) + '" text-anchor="middle" font-size="13" fill="#6E98C9">+' + diff + ' ' + (b.t.kind === 'dag' ? 'dagar' : 'dagar') + '</text>';
-        } else {
-          s += '<line x1="' + xa.toFixed(1) + '" x2="' + xb.toFixed(1) + '" y1="' + y + '" y2="' + y + '" stroke="#6E98C9" stroke-width="3"/>';
-        }
+               '<text x="' + ((xa + xb) / 2).toFixed(1) + '" y="' + (y - 8) + '" text-anchor="middle" font-size="13" fill="#6E98C9">+' + diff + ' dagar</text>';
+        } else s += '<line x1="' + xa.toFixed(1) + '" x2="' + xb.toFixed(1) + '" y1="' + y + '" y2="' + y + '" stroke="#6E98C9" stroke-width="3"/>';
       }
-      scenes.forEach((o, i) => {
-        const t = tlParse(o.sc.tid), x = X(i).toFixed(1);
-        s += t
-          ? '<line x1="' + x + '" x2="' + x + '" y1="' + (y - 8) + '" y2="' + (y + 8) + '" stroke="#6E98C9" stroke-width="3"/><text class="bg-tid" data-id="' + o.sc.id + '" x="' + x + '" y="' + (y + 25) + '" text-anchor="middle" font-size="13" fill="var(--text-secondary)">' + rsEsc(t.label) + '</text>'
-          : '<text class="bg-tid" data-id="' + o.sc.id + '" x="' + x + '" y="' + (y + 25) + '" text-anchor="middle" font-size="13" fill="var(--text-muted)">+</text>';
+      pts.forEach((p, i) => {
+        const o = timed.find(q => q.i === i), x = X(i).toFixed(1);
+        s += o
+          ? '<line x1="' + x + '" x2="' + x + '" y1="' + (y - 8) + '" y2="' + (y + 8) + '" stroke="#6E98C9" stroke-width="3"/><text class="bg-tid" data-id="' + p.sceneIds[0] + '" x="' + x + '" y="' + (y + 25) + '" text-anchor="middle" font-size="13" fill="var(--text-secondary)">' + rsEsc(o.t.label) + '</text>'
+          : '<text class="bg-tid" data-id="' + p.sceneIds[0] + '" x="' + x + '" y="' + (y + 25) + '" text-anchor="middle" font-size="13" fill="var(--text-muted)">+</text>';
       });
     }
     // episoder
@@ -5894,15 +5959,15 @@
 
   function bgRenderLayers() {
     const bar = document.getElementById('bgLayers'); if (!bar) return;
-    const chip = (id, namn, farg) => '<button class="bg-chip' + (bgLayer === id ? ' on' : '') + '" onclick="bgSetLayer(\'' + id + '\')"><i style="background:' + farg + '"></i>' + rsEsc(namn) +
-      (bgLayer === id && id !== 'spanning' ? '<span class="bg-x" onclick="event.stopPropagation(); bgRemovePerson(\'' + id + '\')" title="Ta bort kurvan">✕</span>' : '') + '</button>';
-    bar.innerHTML = chip('spanning', 'Spänning', 'var(--action)') + bgPeople().map(p => chip(p.id, p.namn, p.farg)).join('') +
-      '<button class="bg-add" onclick="bgAddPerson()">+ Lägg till person</button>' +
-      (bgPeople().length ? '<button class="bg-add" onclick="bgEmoOpen=!bgEmoOpen; if(!bgEmoOpen) bgLayer=\'spanning\'; bgRender()">' + (bgEmoOpen ? 'Dölj känslor' : 'Visa känslor') + '</button>' : '') +
+    bar.innerHTML = '<span class="bg-seg"><button class="' + (bgUnit === 'kapitel' ? 'on' : '') + '" onclick="bgSetUnit(\'kapitel\')">Kapitel</button>' +
+      '<button class="' + (bgUnit === 'scen' ? 'on' : '') + '" onclick="bgSetUnit(\'scen\')">Scener</button></span>' +
       '<button class="bg-add" onclick="bgAddEpisode()">+ Ny episod</button>' +
-      '<button class="bg-add" onclick="bgToggleEditIdeal()">' + (bgEditIdeal ? '✓ Klar med målbågen' : 'Forma målbågen') + '</button>' +
+      (projectData.bage !== 'ingen' ? '<button class="bg-add" onclick="bgToggleEditIdeal()">' + (bgEditIdeal ? '✓ Klar med målbågen' : 'Forma målbågen') + '</button>' : '') +
       '<button class="bg-add" onclick="tlFromTitles()">Hämta tid ur kapitelrubrikerna</button>';
   }
+  let bgResizeT = null;
+  window.addEventListener('resize', () => { clearTimeout(bgResizeT); bgResizeT = setTimeout(() => { if (document.getElementById('view-bage')?.classList.contains('active')) bgRender(); }, 200); });
+  function bgSetUnit(u) { bgUnit = u; bgSelected = null; try { localStorage.setItem('writeon_bg_unit', u); } catch(e) {} bgRender(); }
 
   function bgRender() {
     const box = document.getElementById('bgChart'); if (!box) return;
@@ -5911,34 +5976,39 @@
     document.getElementById('bgAbout').innerHTML = '<b>' + arc.namn + '</b> ' + arc.text + (arc.ursprung ? '<div class="bg-origin">Ursprung: ' + arc.ursprung + '</div>' : '');
     bgRenderLayers();
     box.innerHTML = bgSvg({});
-    const person = bgPeople().find(p => p.id === bgLayer);
-    const unset = allScenes().filter(sc => !BG_LEVELS[sc.drama]).length;
+    const unset = bgPoints().filter(p => !p.key).length;
     document.getElementById('bgHint').textContent = bgEditIdeal
       ? 'Dra handtagen på den streckade linjen uppåt eller nedåt för att forma din målbåge.'
-      : person ? 'Klicka i raden Känslor, under bågen, eller dra punkterna för att visa hur ' + person.namn + ' mår i varje scen.'
-      : (unset ? unset + (unset === 1 ? ' scen saknar' : ' scener saknar') + ' stämning och ligger längst ner. Dra upp dem till rätt nivå.' : 'Dra en punkt uppåt eller nedåt för att ändra scenens stämning. Dra episodernas ändar för att flytta dem.') +
-        (tlHasAny() ? ' Klicka på en tid under bågen för att ändra den.' : '');
+      : unset ? unset + (unset === 1 ? (bgUnit === 'kapitel' ? ' kapitel saknar' : ' scen saknar') : (bgUnit === 'kapitel' ? ' kapitel saknar' : ' scener saknar')) + ' stämning och ligger längst ner. Dra upp dem till rätt nivå.' : '';
     bgRenderCard();
     bgInitDrag();
+    bgDecorate();
   }
   window.bgRender = bgRender;
 
   function bgRenderCard() {
     const el = document.getElementById('bgCard'); if (!el) return;
-    const id = bgSelected || (activeScene && activeScene.id);
-    const sc = allScenes().find(s => s.id === id);
-    if (!sc) { el.innerHTML = ''; return; }
-    const ch = chapterForScene(sc.id), idx = allScenes().indexOf(sc) + 1;
-    const d = DRAMA_COLORS[sc.drama] || DRAMA_COLORS.ingen;
-    const feel = bgPeople().filter(p => p.varden && p.varden[sc.id] != null).map(p => '<span style="color:' + p.farg + ';font-weight:700;">' + rsEsc(p.namn) + '</span>: ' + EMO_LABELS[p.varden[sc.id]].toLowerCase()).join(' · ');
-    el.innerHTML = '<div class="bg-k">Scen ' + idx + ' av ' + allScenes().length + '</div><div class="bg-t">' + rsEsc(sc.title) + '</div>' +
-      (sc.synopsis ? '<div class="bg-x">' + rsEsc(sc.synopsis) + '</div>' : '') +
-      '<div class="bg-meta"><span class="bg-pill" style="background:' + (BG_LEVELS[sc.drama] ? d.color : 'var(--bg-soft)') + ';color:' + (BG_LEVELS[sc.drama] ? '#fff' : 'var(--text-secondary)') + '">' + d.label.replace(/^— /, '') + '</span> ' +
-      rsEsc(ch ? ch.title : '') + ' · ' + fmtNum(sc.words) + ' ord</div>' + (feel ? '<div class="bg-meta">' + feel + '</div>' : '') +
-      '<button class="bg-link" onclick="selectSceneById(\'' + sc.id + '\')">Öppna scenen</button>';
+    const pts = bgPoints();
+    let p = pts.find(q => q.id === bgSelected);
+    if (!p && activeScene) p = bgUnit === 'kapitel' ? pts.find(q => q.sceneIds.includes(activeScene.id)) : pts.find(q => q.id === activeScene.id);
+    if (!p) { el.innerHTML = ''; return; }
+    const i = pts.indexOf(p), ph = bgPhaseAt(bgT(i, pts.length));
+    const d = p.key ? DRAMA_COLORS[p.key] : DRAMA_COLORS.ingen;
+    const words = p.sceneIds.reduce((s, id) => s + ((allScenes().find(x => x.id === id) || {}).words || 0), 0);
+    el.innerHTML = '<div class="bg-k">' + (p.kind === 'kapitel' ? 'Kapitel ' : 'Scen ') + (i + 1) + ' av ' + pts.length + (ph ? ' · ' + rsEsc(ph.namn) : '') + '</div>' +
+      '<div class="bg-t">' + rsEsc(p.title) + '</div>' +
+      '<div class="bg-meta"><span class="bg-pill" style="background:' + (p.key ? d.color : 'var(--bg-soft)') + ';color:' + (p.key ? '#fff' : 'var(--text-secondary)') + '">' + d.label.replace(/^— /, '') + '</span>' +
+      (p.kind === 'kapitel' && p.key && !p.own ? ' räknad ur scenerna · ' : ' ') +
+      (p.kind === 'kapitel' ? p.sceneIds.length + (p.sceneIds.length === 1 ? ' scen' : ' scener') + ' · ' : rsEsc(p.ch.title) + ' · ') + fmtNum(words) + ' ord</div>' +
+      '<button class="bg-link" onclick="selectSceneById(\'' + p.sceneIds[0] + '\')">' + (p.kind === 'kapitel' ? 'Öppna kapitlet' : 'Öppna scenen') + '</button>' +
+      (p.kind === 'kapitel' && p.own ? ' <button class="bg-link" style="margin-left:14px;" onclick="bgResetChapter(\'' + p.id + '\')">Använd scenernas stämning</button>' : '');
+  }
+  function bgResetChapter(id) {
+    const ch = projectData.chapters.find(c => c.id === id); if (!ch) return;
+    delete ch.drama; scheduleAutoSave(); bgRender(); bgRenderMini();
   }
 
-  // ── Grafisk formning: punkter, kolumner, målbågens handtag och episodernas ändar ──
+  // ── Grafisk formning: punkter, fasgränser, målbågens handtag och episoder ──
   function bgInitDrag() {
     const box = document.getElementById('bgChart');
     if (!box || box.dataset.bound) return;
@@ -5947,36 +6017,39 @@
       const svg = box.querySelector('svg'), r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
       return { x: (e.clientX - r.left) * vb.width / r.width, y: (e.clientY - r.top) * vb.height / r.height };
     };
-    const geo = () => { const sc = bgScenes(); return { g: bgGeo(bgLanes(sc).reduce((m, x) => Math.max(m, x.lane + 1), 0)), n: sc.length, scenes: sc }; };
-    const levelEmo = y => { const { g } = geo(); const v = (1 - (y - g.ET) / (g.ECH - g.ET)) * 5 - 0.5; return Math.max(0, Math.min(4, Math.round(v))); };
+    const geo = () => { const p = bgPoints(); return { g: bgGeo(bgLanes(p).reduce((m, x) => Math.max(m, x.lane + 1), 0)), n: p.length, pts: p }; };
     const levelAt = y => { const { g } = geo(); const v = (1 - (y - g.T) / (g.CH - g.T)) * 5;
-      let best = 0; BG_ORDER.forEach((k, i) => { if (Math.abs(BG_LEVELS[k] - v) < Math.abs(BG_LEVELS[BG_ORDER[best]] - v)) best = i; }); return best; };
+      let best = 0; BG_ORDER.forEach((k, i) => { if (Math.abs(BG_LEVELS[k] - v) < Math.abs(BG_LEVELS[BG_ORDER[best]] - v)) best = i; }); return BG_ORDER[best]; };
     const indexAt = x => { const { g, n } = geo(); return Math.max(0, Math.min(n - 1, Math.round((x - g.L) / ((g.W - g.L - g.R) / Math.max(1, n - 1))))); };
-    const apply = (e) => {
-      const p = pt(e), d = bgDrag;
-      if (d.kind === 'span') {
-        const sc = allScenes().find(s => s.id === d.id), lv = BG_ORDER[levelAt(p.y)];
-        if (sc && sc.drama !== lv) { sc.drama = lv; touchScene(sc); bgSelected = sc.id; bgRender(); }
-      } else if (d.kind === 'emo') {
-        const person = bgPeople().find(x => x.id === bgLayer); if (!person) return;
-        person.varden = person.varden || {};
-        const v = levelEmo(p.y);
-        if (person.varden[d.id] !== v) { person.varden[d.id] = v; bgSelected = d.id; scheduleAutoSave(); bgRender(); }
+    const apply = e => {
+      const p = pt(e), d = bgDrag, { g, n, pts } = geo();
+      if (d.kind === 'pt') {
+        const lv = levelAt(p.y), q = pts.find(x => x.id === d.id); if (!q) return;
+        if (q.kind === 'kapitel') { if (q.ch.drama !== lv || !q.own) { q.ch.drama = lv; scheduleAutoSave(); bgSelected = q.id; bgRender(); } }
+        else if (q.sc.drama !== lv) { q.sc.drama = lv; touchScene(q.sc); bgSelected = q.id; bgRender(); }
       } else if (d.kind === 'ideal') {
-        const { g } = geo(), v = Math.max(0, Math.min(1, ((1 - (p.y - g.T) / (g.CH - g.T)) * 5 - 0.4) / 4.2));
+        const v = Math.max(0, Math.min(1, ((1 - (p.y - g.T) / (g.CH - g.T)) * 5 - 0.4) / 4.2));
         projectData.egenBage[d.k] = Math.round(v * 100) / 100; scheduleAutoSave(); bgRender();
+      } else if (d.kind === 'phase') {
+        const ph = bgPhases(); projectData.faser = projectData.faser || {};
+        const bounds = ph.slice(1).map(x => x.start);
+        let t = (p.x - g.L) / (g.W - g.L - g.R);
+        if (n > 1) t = (Math.round(t * (n - 1) - 0.5) + 0.5) / (n - 1);          // mellan två punkter
+        const lo = d.b > 0 ? bounds[d.b - 1] + 0.01 : 0.01, hi = d.b < bounds.length - 1 ? bounds[d.b + 1] - 0.01 : 0.99;
+        t = Math.max(lo, Math.min(hi, t));
+        if (Math.abs(bounds[d.b] - t) > 0.001) { bounds[d.b] = Math.round(t * 1000) / 1000; projectData.faser[projectData.bage] = bounds; scheduleAutoSave(); bgRender(); }
       } else if (d.kind === 'ep') {
-        const ep = bgEpisodes().find(x => x.id === d.ep), { scenes } = geo(); if (!ep) return;
-        const id = scenes[indexAt(p.x)].sc.id;
+        const ep = bgEpisodes().find(x => x.id === d.ep); if (!ep) return;
+        const q = pts[indexAt(p.x)], id = d.end === 'fran' ? q.sceneIds[0] : q.sceneIds[q.sceneIds.length - 1];
         if (ep[d.end] !== id) { ep[d.end] = id; scheduleAutoSave(); bgRender(); }
       }
     };
     box.addEventListener('pointerdown', e => {
       const t = e.target;
       if (t.classList.contains('bg-handle')) bgDrag = { kind: 'ideal', k: +t.dataset.k };
+      else if (t.classList.contains('bg-phase')) bgDrag = { kind: 'phase', b: +t.dataset.b };
       else if (t.classList.contains('bg-ep-end')) bgDrag = { kind: 'ep', ep: t.dataset.ep, end: t.dataset.end };
-      else if (t.classList.contains('bg-span')) bgDrag = { kind: 'span', id: t.dataset.id };
-      else if (t.classList.contains('bg-emo')) bgDrag = { kind: 'emo', id: t.dataset.id };
+      else if (t.classList.contains('bg-dot')) bgDrag = { kind: 'pt', id: t.dataset.id };
       else if (t.classList.contains('bg-tid')) {
         const sc = allScenes().find(x => x.id === t.dataset.id);
         if (sc) {
@@ -5991,11 +6064,6 @@
           if (nytt !== null) { if (nytt.trim()) ep.namn = nytt.trim(); else projectData.episoder = bgEpisodes().filter(x => x !== ep); scheduleAutoSave(); bgRender(); }
         }
         return;
-      } else if (bgLayer !== 'spanning') {
-        // var som helst i kurvytan: välj scenens kolumn utifrån var man klickar
-        const p = pt(e), { g, scenes } = geo();
-        if (!g.EMO || p.y < g.ET - 12 || p.y > g.ECH + 12 || !scenes.length) return;
-        bgDrag = { kind: 'emo', id: scenes[indexAt(p.x)].sc.id, moved: true }; apply(e);
       } else return;
       bgDrag.startY = e.clientY; bgDrag.startX = e.clientX;
       box.setPointerCapture(e.pointerId); e.preventDefault();
@@ -6007,33 +6075,17 @@
     });
     box.addEventListener('pointerup', () => {
       if (!bgDrag) return;
-      if (!bgDrag.moved && bgDrag.id) { bgSelected = bgDrag.id; bgRender(); }
-      else if (bgDrag.kind === 'span') {
-        if (activeScene && activeScene.id === bgDrag.id) loadInspector(activeScene);
-        renderOutline(); renderCorkGrid(); bgRenderMini();
-      }
+      if (!bgDrag.moved && bgDrag.kind === 'pt') { bgSelected = bgDrag.id; bgRender(); }
+      else if (bgDrag.kind === 'pt') { if (activeScene) loadInspector(activeScene); renderOutline(); renderCorkGrid(); bgRenderMini(); }
       bgDrag = null;
     });
     box.addEventListener('pointercancel', () => { bgDrag = null; });
   }
 
-  function bgSetLayer(id) { bgLayer = id; bgEditIdeal = false; if (id !== 'spanning') bgEmoOpen = true; bgRender(); }
-  function bgAddPerson() {
-    const forslag = (projectData.characters || []).map(c => c.name).filter(Boolean).filter(nm => !bgPeople().some(p => p.namn === nm));
-    const namn = (prompt('Vems känslor vill du följa?' + (forslag.length ? '\n\nFörslag: ' + forslag.slice(0, 6).join(', ') : ''), forslag[0] || '') || '').trim();
-    if (!namn) return;
-    const p = { id: 'emo-' + Date.now().toString(36), namn, farg: EMO_COLORS[bgPeople().length % EMO_COLORS.length], varden: {} };
-    bgPeople().push(p); bgLayer = p.id; bgEditIdeal = false; bgEmoOpen = true; scheduleAutoSave(); bgRender();
-  }
-  function bgRemovePerson(id) {
-    const p = bgPeople().find(x => x.id === id);
-    if (!p || !confirm('Ta bort kurvan för ' + p.namn + '?')) return;
-    projectData.kanslor = bgPeople().filter(x => x.id !== id); bgLayer = 'spanning'; scheduleAutoSave(); bgRender();
-  }
   function bgAddEpisode() {
     const namn = (prompt('Vad heter episoden? Till exempel Husköpet eller Gripandet.') || '').trim();
     if (!namn) return;
-    const sc = allScenes(), start = Math.max(0, Math.min(sc.length - 3, sc.findIndex(s => s.id === (bgSelected || activeScene?.id))));
+    const sc = allScenes(), start = Math.max(0, Math.min(sc.length - 3, sc.findIndex(s => s.id === (activeScene?.id))));
     bgEpisodes().push({ id: 'ep-' + Date.now().toString(36), namn, fran: sc[start].id, till: sc[Math.min(sc.length - 1, start + 2)].id });
     scheduleAutoSave(); bgRender();
   }
@@ -6050,14 +6102,50 @@
   }
   function bgSetArc(k) { projectData.bage = k; bgEditIdeal = false; if (k === 'egen' && !bgArcValues('egen')) { projectData.bage = 'treakter'; bgToggleEditIdeal(); return; } bgRender(); bgRenderMini(); scheduleAutoSave(); }
 
+  // ── Där man skriver: kapitlets plats i bågen ──
+  function bgTagHtml(info) {
+    const d = info.key ? DRAMA_COLORS[info.key] : null;
+    return '<i style="background:' + (d ? d.color : 'var(--border-strong)') + '"></i>' + rsEsc([info.phase, d ? d.label.replace(/^— /, '') : ''].filter(Boolean).join(' · ') || 'Ingen stämning');
+  }
+  function bgShowChapter(chId) {
+    bgSelected = bgUnit === 'kapitel' ? chId : ((projectData.chapters.find(c => c.id === chId) || {}).scenes || [{}])[0].id;
+    switchView('bage'); bgRender();
+  }
+  function bgDecorate() {
+    document.querySelectorAll('.chapter-group[data-chap-id]').forEach(gr => {
+      const info = bgChapterInfo(gr.dataset.chapId), row = gr.querySelector('.chapter-row'), name = row && row.querySelector('.chapter-name');
+      if (!info || !name) return;
+      let tag = row.querySelector('.bg-tag');
+      if (!tag) { tag = document.createElement('span'); tag.className = 'bg-tag'; name.after(tag);
+        tag.addEventListener('click', e => { e.stopPropagation(); bgShowChapter(gr.dataset.chapId); }); }
+      const dd = info.key ? DRAMA_COLORS[info.key] : null;
+      tag.innerHTML = '<i style="background:' + (dd ? dd.color : 'var(--border-strong)') + '"></i>';
+      tag.title = [info.phase, dd ? dd.label.replace(/^— /, '') : 'Ingen stämning'].filter(Boolean).join(' · ') + '. Klicka för att se kapitlet i Dramabågen.';
+    });
+    document.querySelectorAll('.chapter-doc[data-chap-id]').forEach(doc => {
+      const info = bgChapterInfo(doc.dataset.chapId), title = doc.querySelector('.chapter-doc-title');
+      if (!info || !title) return;
+      let tag = doc.querySelector('.bg-chaptag');
+      if (!tag) { tag = document.createElement('button'); tag.type = 'button'; tag.className = 'bg-chaptag'; title.before(tag);
+        tag.addEventListener('click', () => bgShowChapter(doc.dataset.chapId)); }
+      tag.innerHTML = bgTagHtml(info) + '<span class="bg-chaptag-n">Kapitel ' + (info.index + 1) + ' av ' + info.count + ' · Visa i bågen</span>';
+    });
+  }
+  window.bgDecorate = bgDecorate;
+
   function bgRenderMini() {
     const el = document.getElementById('bgMini'); if (!el) return;
-    const arc = BG_ARCS[projectData.bage] || BG_ARCS.treakter;
     el.innerHTML = bgSvg({ mini: true });
     const lbl = document.getElementById('bgMiniLbl');
-    if (lbl && activeScene) lbl.textContent = 'Scen ' + (allScenes().indexOf(activeScene) + 1) + ' av ' + allScenes().length + ' · ' + arc.namn;
+    const ch = activeScene ? chapterForScene(activeScene.id) : null, info = ch ? bgChapterInfo(ch.id) : null;
+    if (lbl) lbl.textContent = info ? 'Kapitel ' + (info.index + 1) + ' av ' + info.count + (info.phase ? ' · ' + info.phase : '') + (info.key ? ' · ' + DRAMA_COLORS[info.key].label : '') : '';
+    bgDecorate();
   }
   window.bgRenderMini = bgRenderMini;
+  {
+    const _rb = renderBinder;
+    renderBinder = function() { _rb.apply(this, arguments); bgDecorate(); };
+  }
 
   // ── Berättelsens tid: datum eller dag per scen ──
   const SV_MON = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
@@ -6095,17 +6183,16 @@
 
   function bgAskAssistant() {
     const arc = BG_ARCS[projectData.bage] || BG_ARCS.treakter;
-    const people = bgPeople(), lines = []; let i = 0;
-    projectData.chapters.forEach(ch => ch.scenes.forEach(sc => { i++;
-      const feel = people.filter(p => p.varden && p.varden[sc.id] != null).map(p => p.namn + ' ' + EMO_LABELS[p.varden[sc.id]].toLowerCase()).join(', ');
-      const tt = tlParse(sc.tid);
-      lines.push(i + '. ' + ch.title + ' · ' + sc.title + (tt ? ' [' + tt.label + ']' : '') + ': ' + (DRAMA_COLORS[sc.drama] || DRAMA_COLORS.ingen).label.replace(/^— /, '') + (feel ? ' (' + feel + ')' : '')); }));
+    const lines = projectData.chapters.map((ch, i) => {
+      const info = bgChapterInfo(ch.id), sc = ch.scenes.map(s => { const tt = tlParse(s.tid); return s.title + (tt ? ' [' + tt.label + ']' : '') + ': ' + (DRAMA_COLORS[s.drama] || DRAMA_COLORS.ingen).label.replace(/^— /, ''); }).join('; ');
+      return (i + 1) + '. ' + ch.title + (info.phase ? ' [' + info.phase + ']' : '') + ': ' + (info.key ? DRAMA_COLORS[info.key].label : 'ingen stämning') + (info.own ? '' : ' (räknad ur scenerna)') + ' — scener: ' + sc;
+    });
     const eps = bgEpisodes().map(ep => '– ' + ep.namn + ': ' + rsPlaceLabel(ep.fran) + ' till ' + rsPlaceLabel(ep.till)).join('\n');
     openAssistant();
     asstStarted = true; asstRenderCards(); asstShowCards(false);
-    asstAsk('Jämför bokens dramatiska båge med ' + arc.namn + ' (' + arc.text + '). Scenernas stämning i ordning, med personernas känslor inom parentes:\n' + lines.join('\n') +
+    asstAsk('Jämför bokens dramatiska båge med ' + arc.namn + ' (' + arc.text + '). Kapitlen i ordning, med fas inom hakparentes och stämning:\n' + lines.join('\n') +
       (eps ? '\n\nEpisoder:\n' + eps : '') +
-      '\n\nVar följer boken bågen, var avviker den, och är avvikelserna ett problem eller ett medvetet val? Säg också något om hur personernas känslor och episoderna samspelar med spänningen. Peka på konkreta scener. Högst sex punkter.',
+      '\n\nLigger kapitlen i rätt fas? Var följer boken bågen, var avviker den, och är avvikelserna ett problem eller ett medvetet val? Peka på konkreta kapitel. Högst sex punkter.',
       { label: 'Fråga om bågen', oneShot: true });
   }
 
@@ -6742,6 +6829,7 @@ VIKTIGT:
     projectData.bage       = BG_ARCS[data.bage] ? data.bage : 'treakter';
     projectData.egenBage   = Array.isArray(data.egenBage) ? data.egenBage : null;
     projectData.kanslor    = Array.isArray(data.kanslor) ? data.kanslor : [];
+    projectData.faser      = (data.faser && typeof data.faser === 'object') ? data.faser : {};
     projectData.episoder   = Array.isArray(data.episoder) ? data.episoder : [];
     if (projectData.bage === 'egen' && !projectData.egenBage) projectData.bage = 'treakter';
     document.body.classList.toggle('screenplay-mode', projectData.format === 'screenplay');
@@ -7242,7 +7330,8 @@ VIKTIGT:
         [it.titel, it.text].filter(Boolean).join(' – ')).join('\n'), 4000));
     const lines = [];
     projectData.chapters.forEach(ch => {
-      lines.push(ch.title);
+      const inf = bgChapterInfo(ch.id);
+      lines.push(ch.title + (inf && inf.phase ? ' (' + inf.phase + (inf.key ? ', ' + DRAMA_COLORS[inf.key].label : '') + ')' : ''));
       ch.scenes.forEach(sc => lines.push('  ' + sc.title + (BG_LEVELS[sc.drama] ? ' [' + DRAMA_COLORS[sc.drama].label + ']' : '') + (sc.tid ? ' {tid: ' + sc.tid + '}' : '') + (sc.synopsis ? ' — ' + clip(sc.synopsis, 200) : '') + ' (' + (sc.words || 0) + ' ord)'));
     });
     out.push('STRUKTUR (stämning inom hakparentes, berättelsens tid inom klammer):\n' + clip(lines.join('\n'), 6000));
@@ -7758,6 +7847,7 @@ VIKTIGT:
       bage: projectData.bage || 'treakter',
       egenBage: projectData.egenBage || null,
       kanslor: projectData.kanslor || [],
+      faser: projectData.faser || {},
       episoder: projectData.episoder || [],
       format: projectData.format || 'prosa',
       exportedAt: new Date().toISOString()
@@ -9508,6 +9598,7 @@ window.firebaseSaveProject = async function() {
       bage:       p.bage || 'treakter',
       egenBage:   p.egenBage || null,
       kanslor:    p.kanslor || [],
+      faser:      p.faser || {},
       episoder:   p.episoder || [],
       format:     p.format || 'prosa',
       savedAt:    serverTimestamp()
