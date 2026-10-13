@@ -4094,7 +4094,7 @@
     <div class="bg-head">
       <div>
         <div class="rs-h1">Dramabåge</div>
-        <div class="view-sub">Varje punkt är en scen, i bokens ordning. Höjden är scenens stämning. Lägg till personer för att följa deras känslor, och episoder för att se vad som pågår samtidigt.*</div>
+        <div class="view-sub">Varje punkt är en scen, i bokens ordning, och höjden är scenens spänning. Under bågen kan du följa personernas känslor, berättelsens tid och episoderna, scen för scen i samma kolumner.*</div>
       </div>
       <label class="bg-arc">Jämför med
         <select id="bgArcSel" onchange="bgSetArc(this.value)">
@@ -5717,7 +5717,7 @@
     egen: { namn: 'Egen båge', text: 'Din egen målbild. Dra i handtagen på den streckade linjen för att forma den.', ursprung: '', v: null },
     ingen: { namn: 'Ingen jämförelse', text: 'Bara din egen båge, utan streckad linje.', ursprung: '', v: null },
   };
-  let bgSelected = null, bgLayer = 'spanning', bgEditIdeal = false, bgDrag = null;
+  let bgSelected = null, bgLayer = 'spanning', bgEditIdeal = false, bgDrag = null, bgEmoOpen = true;
 
   function bgArcValues(key) {
     if (key === 'egen') return Array.isArray(projectData.egenBage) && projectData.egenBage.length > 1 ? projectData.egenBage : null;
@@ -5743,11 +5743,15 @@
 
   // Geometri för den stora bågen (delas av ritning och drag)
   function bgGeo(nLanes) {
-    const W = 1100, L = 138, R = 104, T = 26, CH = 330;            // kurvorna ritas mellan T och CH
+    const W = 1100, L = 138, R = 40, T = 26, CH = 330;             // dramabågen ritas mellan T och CH
+    const LBL = CH + 34;                                          // kapitelnamn
+    const EMO = bgPeople().length && bgEmoOpen ? 1 : 0;           // känsloraden, under bågen
+    const ET = LBL + 56, ECH = ET + 150;
+    const base = EMO ? ECH + 14 : LBL;
     const TID = tlHasAny() ? 1 : 0;
-    const LBL = CH + 34, TA = LBL + 58, EP = LBL + 30 + TID * 82, LANE = 30;
+    const TA = base + 58, EP = base + 30 + TID * 82, LANE = 30;
     const H = EP + Math.max(1, nLanes) * LANE + 8;
-    return { W, L, R, T, CH, LBL, TA, TID, EP, LANE, H, B: 0 };
+    return { W, L, R, T, CH, LBL, EMO, ET, ECH, TA, TID, EP, LANE, H, B: 0 };
   }
   function bgLanes(scenes) {
     const idx = id => scenes.findIndex(o => o.sc.id === id);
@@ -5775,7 +5779,6 @@
         const y = Y(BG_LEVELS[k]).toFixed(1);
         s += '<line x1="' + g.L + '" x2="' + (g.W - g.R) + '" y1="' + y + '" y2="' + y + '" stroke="var(--border)"/>' +
              '<text x="' + (g.L - 26) + '" y="' + (+y + 4) + '" text-anchor="end" font-size="13" fill="var(--text-muted)">' + DRAMA_COLORS[k].label + '</text>';
-        if (people.length) s += '<text x="' + (g.W - g.R + 14) + '" y="' + (+y + 4) + '" font-size="13" fill="var(--text-muted)" font-style="italic">' + EMO_LABELS[li] + '</text>';
       });
       // klickbara kolumner, en per scen
       scenes.forEach((o, i) => {
@@ -5809,10 +5812,21 @@
           s += '<rect class="bg-handle" data-k="' + k + '" x="' + (x - 7).toFixed(1) + '" y="' + (y - 7).toFixed(1) + '" width="14" height="14" rx="3" fill="var(--bg-card)" stroke="var(--text-secondary)" stroke-width="2"/>';
         });
     }
-    // känslokurvor
-    if (!mini) bgPeople().forEach(p => {
+    // känslorna: egen rad med egen skala, under bågen
+    const YE = v => g.ET + (g.ECH - g.ET) * (1 - (v + 0.5) / 5);
+    if (!mini && g.EMO) {
+      s += '<rect x="' + (g.L - 14) + '" y="' + (g.ET - 16) + '" width="' + (g.W - g.R - g.L + 28) + '" height="' + (g.ECH - g.ET + 28) + '" rx="10" fill="var(--bg-soft)" opacity="0.55"/>';
+      s += '<text x="' + (g.L - 26) + '" y="' + (g.ET - 24) + '" text-anchor="end" font-size="13" font-weight="700" fill="var(--text-secondary)" letter-spacing="0.06em">KÄNSLOR</text>';
+      EMO_LABELS.forEach((lbl, v) => {
+        const y = YE(v).toFixed(1);
+        s += '<line x1="' + g.L + '" x2="' + (g.W - g.R) + '" y1="' + y + '" y2="' + y + '" stroke="var(--border)"/>' +
+             '<text x="' + (g.L - 26) + '" y="' + (+y + 4) + '" text-anchor="end" font-size="13" fill="var(--text-muted)">' + lbl + '</text>';
+      });
+      scenes.forEach((o, i) => { s += '<line x1="' + X(i).toFixed(1) + '" x2="' + X(i).toFixed(1) + '" y1="' + g.ET + '" y2="' + g.ECH + '" stroke="var(--border)" stroke-dasharray="2 4"/>'; });
+    }
+    if (!mini && g.EMO) bgPeople().forEach(p => {
       const on = bgLayer === p.id;
-      const pts = scenes.map((o, i) => p.varden && p.varden[o.sc.id] != null ? [X(i), Y(BG_LEVELS[BG_ORDER[p.varden[o.sc.id]]]), o.sc.id] : null).filter(Boolean);
+      const pts = scenes.map((o, i) => p.varden && p.varden[o.sc.id] != null ? [X(i), YE(p.varden[o.sc.id]), o.sc.id] : null).filter(Boolean);
       if (pts.length > 1) s += '<path d="' + bgPath(pts) + '" fill="none" stroke="' + p.farg + '" stroke-width="' + (on ? 3 : 2) + '" stroke-opacity="' + (on || bgLayer === 'spanning' ? 0.95 : 0.4) + '"/>';
       pts.forEach(([x, y, id]) => {
         s += '<circle class="' + (on ? 'bg-dot bg-emo' : '') + '" data-id="' + id + '" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (on ? 7 : 3.5) + '" fill="' + p.farg + '" stroke="var(--bg-card)" stroke-width="' + (on ? 2.5 : 1) + '" ' + (on ? '' : 'pointer-events="none"') + '/>';
@@ -5883,7 +5897,9 @@
     const chip = (id, namn, farg) => '<button class="bg-chip' + (bgLayer === id ? ' on' : '') + '" onclick="bgSetLayer(\'' + id + '\')"><i style="background:' + farg + '"></i>' + rsEsc(namn) +
       (bgLayer === id && id !== 'spanning' ? '<span class="bg-x" onclick="event.stopPropagation(); bgRemovePerson(\'' + id + '\')" title="Ta bort kurvan">✕</span>' : '') + '</button>';
     bar.innerHTML = chip('spanning', 'Spänning', 'var(--action)') + bgPeople().map(p => chip(p.id, p.namn, p.farg)).join('') +
-      '<button class="bg-add" onclick="bgAddPerson()">+ Lägg till person</button><button class="bg-add" onclick="bgAddEpisode()">+ Ny episod</button>' +
+      '<button class="bg-add" onclick="bgAddPerson()">+ Lägg till person</button>' +
+      (bgPeople().length ? '<button class="bg-add" onclick="bgEmoOpen=!bgEmoOpen; if(!bgEmoOpen) bgLayer=\'spanning\'; bgRender()">' + (bgEmoOpen ? 'Dölj känslor' : 'Visa känslor') + '</button>' : '') +
+      '<button class="bg-add" onclick="bgAddEpisode()">+ Ny episod</button>' +
       '<button class="bg-add" onclick="bgToggleEditIdeal()">' + (bgEditIdeal ? '✓ Klar med målbågen' : 'Forma målbågen') + '</button>' +
       '<button class="bg-add" onclick="tlFromTitles()">Hämta tid ur kapitelrubrikerna</button>';
   }
@@ -5899,7 +5915,7 @@
     const unset = allScenes().filter(sc => !BG_LEVELS[sc.drama]).length;
     document.getElementById('bgHint').textContent = bgEditIdeal
       ? 'Dra handtagen på den streckade linjen uppåt eller nedåt för att forma din målbåge.'
-      : person ? 'Klicka i en scens kolumn eller dra punkterna för att visa hur ' + person.namn + ' mår. Dra episodernas ändar för att flytta dem.'
+      : person ? 'Klicka i raden Känslor, under bågen, eller dra punkterna för att visa hur ' + person.namn + ' mår i varje scen.'
       : (unset ? unset + (unset === 1 ? ' scen saknar' : ' scener saknar') + ' stämning och ligger längst ner. Dra upp dem till rätt nivå.' : 'Dra en punkt uppåt eller nedåt för att ändra scenens stämning. Dra episodernas ändar för att flytta dem.') +
         (tlHasAny() ? ' Klicka på en tid under bågen för att ändra den.' : '');
     bgRenderCard();
@@ -5932,6 +5948,7 @@
       return { x: (e.clientX - r.left) * vb.width / r.width, y: (e.clientY - r.top) * vb.height / r.height };
     };
     const geo = () => { const sc = bgScenes(); return { g: bgGeo(bgLanes(sc).reduce((m, x) => Math.max(m, x.lane + 1), 0)), n: sc.length, scenes: sc }; };
+    const levelEmo = y => { const { g } = geo(); const v = (1 - (y - g.ET) / (g.ECH - g.ET)) * 5 - 0.5; return Math.max(0, Math.min(4, Math.round(v))); };
     const levelAt = y => { const { g } = geo(); const v = (1 - (y - g.T) / (g.CH - g.T)) * 5;
       let best = 0; BG_ORDER.forEach((k, i) => { if (Math.abs(BG_LEVELS[k] - v) < Math.abs(BG_LEVELS[BG_ORDER[best]] - v)) best = i; }); return best; };
     const indexAt = x => { const { g, n } = geo(); return Math.max(0, Math.min(n - 1, Math.round((x - g.L) / ((g.W - g.L - g.R) / Math.max(1, n - 1))))); };
@@ -5943,7 +5960,7 @@
       } else if (d.kind === 'emo') {
         const person = bgPeople().find(x => x.id === bgLayer); if (!person) return;
         person.varden = person.varden || {};
-        const v = levelAt(p.y);
+        const v = levelEmo(p.y);
         if (person.varden[d.id] !== v) { person.varden[d.id] = v; bgSelected = d.id; scheduleAutoSave(); bgRender(); }
       } else if (d.kind === 'ideal') {
         const { g } = geo(), v = Math.max(0, Math.min(1, ((1 - (p.y - g.T) / (g.CH - g.T)) * 5 - 0.4) / 4.2));
@@ -5977,7 +5994,7 @@
       } else if (bgLayer !== 'spanning') {
         // var som helst i kurvytan: välj scenens kolumn utifrån var man klickar
         const p = pt(e), { g, scenes } = geo();
-        if (p.y < g.T - 10 || p.y > g.CH + 10 || !scenes.length) return;
+        if (!g.EMO || p.y < g.ET - 12 || p.y > g.ECH + 12 || !scenes.length) return;
         bgDrag = { kind: 'emo', id: scenes[indexAt(p.x)].sc.id, moved: true }; apply(e);
       } else return;
       bgDrag.startY = e.clientY; bgDrag.startX = e.clientX;
@@ -6000,13 +6017,13 @@
     box.addEventListener('pointercancel', () => { bgDrag = null; });
   }
 
-  function bgSetLayer(id) { bgLayer = id; bgEditIdeal = false; bgRender(); }
+  function bgSetLayer(id) { bgLayer = id; bgEditIdeal = false; if (id !== 'spanning') bgEmoOpen = true; bgRender(); }
   function bgAddPerson() {
     const forslag = (projectData.characters || []).map(c => c.name).filter(Boolean).filter(nm => !bgPeople().some(p => p.namn === nm));
     const namn = (prompt('Vems känslor vill du följa?' + (forslag.length ? '\n\nFörslag: ' + forslag.slice(0, 6).join(', ') : ''), forslag[0] || '') || '').trim();
     if (!namn) return;
     const p = { id: 'emo-' + Date.now().toString(36), namn, farg: EMO_COLORS[bgPeople().length % EMO_COLORS.length], varden: {} };
-    bgPeople().push(p); bgLayer = p.id; bgEditIdeal = false; scheduleAutoSave(); bgRender();
+    bgPeople().push(p); bgLayer = p.id; bgEditIdeal = false; bgEmoOpen = true; scheduleAutoSave(); bgRender();
   }
   function bgRemovePerson(id) {
     const p = bgPeople().find(x => x.id === id);
