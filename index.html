@@ -459,6 +459,14 @@
   .bg-seg button { border: none; background: none; padding: 5px 12px; border-radius: 7px; font: 700 14px var(--font-ui); color: var(--text-muted); cursor: pointer; }
   .bg-seg button.on { background: var(--bg-card); color: var(--text-primary); box-shadow: var(--shadow); }
   .bg-chart .bg-phase { cursor: ew-resize; }
+  .bg-page { position: relative; }
+  .bg-tip { position: absolute; z-index: 20; width: 260px; box-sizing: border-box; background: var(--text-primary); color: var(--bg); border-radius: 10px; padding: 10px 12px 10px 40px; font-size: 14px; line-height: 1.45; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+  .bg-tip b { color: var(--bg); }
+  .bg-tip-n { position: absolute; left: 10px; top: 10px; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-o); color: #141413; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+  .bg-tip.below::before, .bg-tip.above::after { content: ''; position: absolute; left: 50%; margin-left: -7px; border: 7px solid transparent; }
+  .bg-tip.below::before { top: -14px; border-bottom-color: var(--text-primary); }
+  .bg-tip.above::after { bottom: -14px; border-top-color: var(--text-primary); }
+  .bg-tip-ok { position: absolute; z-index: 21; }
   .bg-tag { display: inline-flex; align-items: center; margin-left: 6px; padding: 4px; cursor: pointer; flex-shrink: 0; }
   .bg-tag i { width: 9px !important; height: 9px !important; }
   .bg-tag i, .bg-chaptag i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
@@ -626,6 +634,83 @@
   .gl-in { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--text-secondary); }
   .gl-in input { width: 120px; }
   .gl-hint { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .gl-calc { grid-column: 1 / -1; background: var(--bg-soft); border-radius: 10px; padding: 12px 14px; }
+  .gl-calc-row { font-size: 15px; line-height: 2.1; color: var(--text-primary); }
+  .gl-calc-row input { width: 80px; padding: 4px 8px; }
+  .gl-calc-row select { display: inline-block; width: auto; margin: 0; padding: 4px 8px; }
+  .gl-calc-out { font-size: 15px; line-height: 1.55; color: var(--text-secondary); margin-top: 6px; }
+  .gl-calc-out b { color: var(--text-primary); }
+
+  /* ═══ Presentationssidan ═══ */
+  .lp { display: block; overflow-y: auto; scroll-behavior: smooth; }
+  .lp-top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 28px; padding: 14px 40px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+  .lp-nav { display: flex; gap: 22px; margin-left: auto; }
+  .lp-nav a { font-size: 15px; font-weight: 600; color: var(--text-secondary); text-decoration: none; }
+  .lp-nav a:hover { color: var(--text-primary); }
+  .lp-top-btns { display: flex; gap: 10px; }
+  .lp-btn { display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--action); background: var(--action); color: var(--on-action); border-radius: 10px; padding: 9px 18px; font: 700 15px var(--font-ui); cursor: pointer; text-decoration: none; }
+  .lp-btn.ghost { background: transparent; color: var(--action-text); }
+  .lp-btn.big { padding: 13px 26px; font-size: 16px; }
+  .lp-btn.light { background: var(--bg-card); color: var(--action); border-color: var(--bg-card); }
+  .lp-hero { text-align: center; max-width: 1180px; margin: 0 auto; padding: 64px 32px 40px; }
+  .lp-beta { display: inline-block; font-size: 14px; font-weight: 700; color: var(--action-text); background: color-mix(in srgb, var(--action) 12%, transparent); padding: 6px 14px; border-radius: 20px; margin-bottom: 22px; }
+  .lp-hero h1 { font-family: var(--font-text); font-weight: 600; font-size: 52px; line-height: 1.12; letter-spacing: -0.015em; margin: 0 0 20px; }
+  .lp-lead { font-size: 19px; line-height: 1.55; color: var(--text-secondary); max-width: 40em; margin: 0 auto 28px; }
+  .lp-hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .lp-trust { display: flex; justify-content: center; gap: 4px 16px; flex-wrap: wrap; margin-top: 18px; font-size: 14px; color: var(--text-muted); align-items: center; }
+  .lp-trust .ic { width: 15px; height: 15px; color: var(--action-text); vertical-align: -2px; }
+  .lp-frame { margin: 44px auto 0; max-width: 1120px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border-strong); box-shadow: 0 30px 80px rgba(20,20,19,0.18); background: var(--bg-card); }
+  .lp-dots { display: flex; gap: 7px; padding: 10px 14px; background: var(--bg-soft); border-bottom: 1px solid var(--border); }
+  .lp-dots i { width: 11px; height: 11px; border-radius: 50%; background: var(--border-strong); }
+  .lp-frame img, .lp-shot img { display: block; width: 100%; height: auto; }
+  .lp-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; max-width: 1080px; margin: 40px auto 30px; padding: 24px 32px 0; }
+  .lp-feat { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 22px 22px 18px; }
+  .lp-feat .ic { width: 26px; height: 26px; color: var(--accent-n); }
+  .lp-feat h3 { font-size: 19px; margin: 12px 0 6px; }
+  .lp-feat p { font-size: 15px; line-height: 1.55; color: var(--text-secondary); margin: 0; }
+  .lp-row { display: grid; grid-template-columns: 1fr 1.25fr; gap: 56px; align-items: center; max-width: 1120px; margin: 0 auto; padding: 56px 32px; }
+  .lp-row.rev .lp-row-text { order: 2; }
+  .lp-kicker { font-size: 14px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; color: var(--accent-n); margin-bottom: 8px; }
+  .lp-row h2, .lp-unique h2, .lp-who h2, .lp-price h2, .lp-faq h2, .lp-cta h2 { font-family: var(--font-text); font-weight: 600; font-size: 34px; line-height: 1.2; margin: 0 0 14px; }
+  .lp-row p { font-size: 17px; line-height: 1.6; color: var(--text-secondary); margin: 0 0 14px; }
+  .lp-row ul { padding-left: 0; list-style: none; margin: 0; }
+  .lp-row li { font-size: 16px; padding: 5px 0 5px 26px; position: relative; color: var(--text-primary); }
+  .lp-row li::before { content: '✓'; position: absolute; left: 0; color: var(--action-text); font-weight: 800; }
+  .lp-shot { border-radius: 12px; overflow: hidden; border: 1px solid var(--border-strong); box-shadow: 0 18px 50px rgba(20,20,19,0.14); background: var(--bg-card); }
+  .lp-unique, .lp-who, .lp-price, .lp-faq { max-width: 1080px; margin: 0 auto; padding: 56px 32px; text-align: center; }
+  .lp-uniq-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 24px; text-align: left; }
+  .lp-who-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 14px; }
+  .lp-who-grid span { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 22px; padding: 9px 18px; font-size: 16px; font-weight: 600; }
+  .lp-sub { font-size: 17px; color: var(--text-secondary); margin: 0 0 22px; }
+  .lp-price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 28px; text-align: left; }
+  .lp-pcard { position: relative; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+  .lp-pcard.best { border: 2px solid var(--action); box-shadow: 0 12px 34px rgba(58,107,102,0.18); }
+  .lp-tag { position: absolute; top: -12px; left: 22px; background: var(--action); color: var(--on-action); font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 10px; }
+  .lp-pcard h3 { font-size: 17px; margin: 0 0 8px; }
+  .lp-amount { font-family: var(--font-text); font-size: 38px; font-weight: 600; }
+  .lp-amount span { font: 500 15px var(--font-ui); color: var(--text-muted); margin-left: 4px; }
+  .lp-pcard p { font-size: 15px; color: var(--text-secondary); line-height: 1.5; margin: 8px 0 0; }
+  .lp-faq { text-align: left; max-width: 760px; }
+  .lp-faq h2 { text-align: center; }
+  .lp-faq details { border-bottom: 1px solid var(--border); padding: 16px 4px; }
+  .lp-faq summary { font-size: 17px; font-weight: 700; cursor: pointer; }
+  .lp-faq p { font-size: 16px; line-height: 1.6; color: var(--text-secondary); margin: 10px 0 0; }
+  .lp-link { border: none; background: none; padding: 0; color: var(--action-text); font: inherit; text-decoration: underline; cursor: pointer; }
+  .lp-cta { text-align: center; background: var(--action); color: var(--on-action); padding: 64px 32px; margin-top: 30px; }
+  .lp-cta h2 { color: var(--on-action); }
+  .lp-cta p { font-size: 17px; opacity: 0.9; margin: 0 0 24px; }
+  .lp-foot { padding: 24px; }
+  .lp-auth { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .lp-auth .stp-card { position: relative; width: 400px; max-width: 100%; }
+  .lp-auth-x { position: absolute; top: 10px; right: 10px; }
+  @media (max-width: 900px) {
+    .lp-nav { display: none; }
+    .lp-top { padding: 12px 18px; }
+    .lp-hero h1 { font-size: 34px; }
+    .lp-trio, .lp-uniq-grid, .lp-price-grid { grid-template-columns: 1fr; }
+    .lp-row { grid-template-columns: 1fr; gap: 24px; padding: 36px 20px; }
+    .lp-row.rev .lp-row-text { order: 0; }
+  }
 
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
@@ -3466,6 +3551,7 @@
   <symbol id="i-indent-increase" viewBox="0 0 24 24"><path d="M21 12H11"/><path d="M21 18H11"/><path d="M21 6H11"/><path d="m3 8 4 4-4 4"/></symbol>
   <symbol id="i-indent-decrease" viewBox="0 0 24 24"><path d="M21 12H11"/><path d="M21 18H11"/><path d="M21 6H11"/><path d="m7 8-4 4 4 4"/></symbol>
   <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
   <symbol id="i-spell-check" viewBox="0 0 24 24"><path d="m6 16 6-12 6 12"/><path d="M8 12h8"/><path d="m16 20 2 2 4-4"/></symbol>
 </svg>
 
@@ -4312,6 +4398,7 @@
           <li><b>När du skriver</b> syns kapitlets plats ovanför kapitelrubriken, i kapitellistan och i inspektören.</li>
           <li><b>Scener</b> uppe till vänster visar bågen i finare steg.</li>
         </ul>
+        <button class="bg-link" onclick="bgIntro(true)">Visa förklaringen i bilden igen</button>
       </aside>
     </div>
     <div class="bg-hint" id="bgHint"></div>
@@ -4911,6 +4998,8 @@
   }
   function startSubmit() { fbLoginAction(startMode === 'login' ? 'login' : 'register'); }
   function openPrivacy() { document.getElementById('privacyModal').style.display = 'flex'; }
+  function lpAuth(mode) { setStartMode(mode); document.getElementById('lpAuthBox').style.display = 'flex'; setTimeout(() => document.getElementById('fbEmail').focus(), 60); }
+  function lpAuthClose() { document.getElementById('lpAuthBox').style.display = 'none'; }
   document.addEventListener('DOMContentLoaded', function initStartPage() {
     const logo = document.getElementById('logoSvg'), slot = document.getElementById('startLogo');
     if (logo && slot) {
@@ -6193,8 +6282,38 @@
     bgRenderCard();
     bgInitDrag();
     bgDecorate();
+    if (!bgDrag) setTimeout(() => bgIntro(false), 60);
   }
   window.bgRender = bgRender;
+
+  // Första gången: rutor som pekar på det viktigaste i bilden
+  function bgIntro(force) {
+    let seen = false; try { seen = localStorage.getItem('writeon_bg_intro') === '1'; } catch (e) {}
+    if (seen && !force) return;
+    if (!document.getElementById('view-bage')?.classList.contains('active')) return;
+    document.querySelectorAll('.bg-tip, .bg-tip-ok').forEach(e => e.remove());
+    const page = document.querySelector('.bg-page'); if (!page) return;
+    const pr = page.getBoundingClientRect();
+    const place = (el, text, n, side) => {
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const t = document.createElement('div'); t.className = 'bg-tip ' + (side || 'below');
+      t.innerHTML = '<span class="bg-tip-n">' + n + '</span>' + text;
+      page.appendChild(t);
+      const x = r.left - pr.left + r.width / 2, y = side === 'above' ? r.top - pr.top - 10 : r.bottom - pr.top + 10;
+      t.style.left = Math.max(8, Math.min(pr.width - 268, x - 130)) + 'px';
+      t.style.top = (side === 'above' ? y - t.offsetHeight : y) + 'px';
+    };
+    const dots = document.querySelectorAll('#bgChart .bg-dot');
+    place(dots[Math.min(1, dots.length - 1)], '<b>Varje punkt är ett kapitel.</b> Dra den uppåt eller nedåt för att ändra hur mycket som står på spel.', 1, 'below');
+    place(document.querySelector('#bgChart .bg-phase'), '<b>Bågens faser.</b> Dra handtaget åt sidan för att flytta gränsen mellan till exempel Akt I och Akt II.', 2, 'above');
+    place(document.getElementById('bgArcSel'), '<b>Den streckade linjen</b> är bågen du jämför med. Välj en annan här.', 3, 'below');
+    const ok = document.createElement('button'); ok.className = 'bg-tip-ok lp-btn'; ok.textContent = 'Jag förstår';
+    ok.onclick = () => { document.querySelectorAll('.bg-tip, .bg-tip-ok').forEach(e => e.remove()); try { localStorage.setItem('writeon_bg_intro', '1'); } catch (e) {} };
+    page.appendChild(ok);
+    const ch = document.getElementById('bgChart').getBoundingClientRect();
+    ok.style.left = (ch.right - pr.left - 140) + 'px'; ok.style.top = (ch.top - pr.top + 14) + 'px';
+  }
 
   function bgRenderCard() {
     const el = document.getElementById('bgCard'); if (!el) return;
@@ -7191,6 +7310,9 @@
     document.getElementById('glDay').value = m.dagManuellt ? (m.dag || '') : '';
     document.getElementById('glDay').placeholder = daily.auto ? 'Räknas fram: ' + fmtNum(daily.mal) : 'T.ex. 500';
     document.querySelectorAll('.gl-unit-lbl').forEach(e => e.textContent = u);
+    if (!glCalc.inited && daily.mal && glGoal().enhet === 'ord') { document.getElementById('glcOrd').value = daily.mal; }
+    glCalc.inited = true;
+    glCalc();
   }
   // Staplar för de senaste 14 dagarna
   function glNice(v) { const p = Math.pow(10, Math.floor(Math.log10(v))), f = v / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; }
@@ -7217,6 +7339,27 @@
     });
     return s + '</svg>';
   }
+  // Hur långt räcker ett visst skrivtempo?
+  function glCalc() {
+    const out = document.getElementById('glcOut'); if (!out) return;
+    const m = glGoal(), perDay = Math.max(0, +document.getElementById('glcOrd').value || 0);
+    const dpv = +document.getElementById('glcDagar').value, len = Math.max(0, +document.getElementById('glcLangd').value || 0);
+    const weeks = document.getElementById('glcEnhet').value === 'manader' ? len * 52 / 12 : len;
+    const days = Math.round(weeks * dpv), words = perDay * days;
+    const per = GOAL_PAGE[m.sidformat].ord, pages = words / per;
+    const wordsNow = totalWordCount(), goalWords = m.enhet === 'tecken' ? Math.round(m.total / 6) : m.total;
+    const left = Math.max(0, goalWords - wordsNow);
+    let klar = '';
+    if (perDay && left) {
+      const writeDays = Math.ceil(left / perDay), calDays = Math.ceil(writeDays / dpv * 7);
+      const dt = new Date(); dt.setDate(dt.getDate() + calDays);
+      klar = 'I den takten är hela boken klar omkring <b>' + dt.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long', year: 'numeric' }) + '</b>, efter ' + fmtNum(writeDays) + ' skrivdagar.';
+    } else if (!left) klar = 'Du har redan nått målet för boken.';
+    out.innerHTML = '<b>' + fmtNum(days) + ' skrivdagar</b> ger <b>' + fmtNum(words) + ' ord</b>, ungefär <b>' + fmtNum(Math.round(pages)) + ' sidor</b> (' +
+      ({ a5: 'bok i A5', ms2: 'manus med dubbelt radavstånd', ms1: 'A4 med enkelt radavstånd' })[m.sidformat] + '). ' +
+      (goalWords ? 'Det är ' + Math.round(words / goalWords * 100) + ' % av målet för boken. ' : '') + klar;
+  }
+
   function glSave(from) {
     const m = glGoal();
     m.enhet = document.getElementById('glUnit').value;
@@ -10708,21 +10851,116 @@ window.fbLoggaUt = async function() {
 
 </script>
 
-<!-- STARTSIDA (visas när man inte är inloggad) -->
-<div id="fbLoginModal" class="start-page" style="display:none;">
-  <div class="stp-top">
+<!-- PRESENTATIONSSIDA (visas när man inte är inloggad) -->
+<!-- Bilderna ligger i mappen bilder/. Byt gärna mot egna illustrationer med samma filnamn. -->
+<div id="fbLoginModal" class="start-page lp" style="display:none;">
+  <header class="lp-top">
     <span class="stp-logo" id="startLogo"></span>
-    <span class="stp-beta">Beta · gratis under testperioden</span>
-  </div>
-  <div class="stp-main">
-    <div class="stp-pitch">
-      <h1>Skrivverktyget för svenska författare</h1>
-      <p class="stp-lead">Skriv, planera och redigera din bok på ett ställe, med en AI-redaktör som läser din text på svenska och aldrig skriver om den åt dig.</p>
-      <div class="stp-feat"><svg class="ic" aria-hidden="true"><use href="#i-pencil"/></svg><div><b>En redaktör som läser din text</b><span>Respons på scener, gestaltning, dialog och tempo. Förslag, aldrig omskrivningar.</span></div></div>
-      <div class="stp-feat"><svg class="ic" aria-hidden="true"><use href="#i-spell-check"/></svg><div><b>Finputs för hela boken</b><span>Stavning, grammatik och logiska kullerbyttor, kapitel för kapitel.</span></div></div>
-      <div class="stp-feat"><svg class="ic" aria-hidden="true"><use href="#i-clapperboard"/></svg><div><b>Mallar från roman till filmmanus</b><span>Roman, deckare, novell, dagboksroman och filmmanus med Enter och Tab som i Final Draft.</span></div></div>
+    <nav class="lp-nav"><a href="#lp-funktioner">Funktioner</a><a href="#lp-pris">Pris</a><a href="#lp-fragor">Vanliga frågor</a></nav>
+    <div class="lp-top-btns"><button class="lp-btn ghost" onclick="lpAuth('login')">Logga in</button><button class="lp-btn" onclick="lpAuth('register')">Prova gratis</button></div>
+  </header>
+
+  <section class="lp-hero">
+    <div class="lp-beta">Beta · gratis under testperioden</div>
+    <h1>Skriv din bok med en redaktör<br>som läser på svenska</h1>
+    <p class="lp-lead">WriteON samlar manus, planering och research på ett ställe, med en AI-redaktör som ger ärlig respons på din text och aldrig skriver om den åt dig.</p>
+    <div class="lp-hero-btns"><button class="lp-btn big" onclick="lpAuth('register')">Prova gratis</button><a class="lp-btn big ghost" href="#lp-funktioner">Se hur det fungerar</a></div>
+    <div class="lp-trust"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg> Sparas automatiskt i EU &nbsp; <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg> Fungerar i webbläsaren &nbsp; <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg> Inget kort behövs</div>
+    <div class="lp-frame"><div class="lp-dots"><i></i><i></i><i></i></div><img src="bilder/oversikt.jpg" alt="WriteON med manus, kapitellista och inspektör"></div>
+  </section>
+
+  <section class="lp-trio" id="lp-funktioner">
+    <div class="lp-feat"><svg class="ic" aria-hidden="true"><use href="#i-pencil"/></svg><h3>Skriv</h3><p>En lugn skrivyta som låter texten stå i centrum. Fokusläge, svensk typografi och filmmanus som i Final Draft.</p></div>
+    <div class="lp-feat"><svg class="ic" aria-hidden="true"><use href="#i-chart-gantt"/></svg><h3>Planera</h3><p>Kapitel och scener, scenkort, outline och en dramatisk båge som visar var boken tappar fart.</p></div>
+    <div class="lp-feat"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg><h3>Samla</h3><p>Karaktärer, idéer, miljöer och research med bilder och länkar, kopplat till scenerna där du behöver dem.</p></div>
+  </section>
+  
+    <section class="lp-row">
+      <div class="lp-row-text">
+        <div class="lp-kicker">Redaktören</div>
+        <h2>Respons som en lektör, när du behöver den</h2>
+        <p>Redaktören läser din scen, dina karaktärer och bokens synopsis innan den svarar. Den pekar ut vad som fungerar och vad som kan bli bättre, på svenska och med respekt för din röst.</p>
+        <ul><li>Respons på helheten, gestaltning, dialog, tempo och språk</li><li>Förslag när du har fastnat</li><li>Skriver aldrig om din text, föreslår bara</li></ul>
+      </div>
+      <div class="lp-shot"><img src="bilder/redaktoren.jpg" alt="Redaktören ger respons på en scen" loading="lazy"></div>
+    </section>
+  
+    <section class="lp-row rev">
+      <div class="lp-row-text">
+        <div class="lp-kicker">Dramabågen</div>
+        <h2>Se hela boken på en gång</h2>
+        <p>Kapitlen läggs ut längs en dramaturgisk båge, jämförd med klassiska former som tre akter eller Fichtes kurva. Du ser direkt var spänningen sjunker och var klimax hamnar.</p>
+        <ul><li>Dra punkterna för att ändra stämningen</li><li>Bågens faser syns där du skriver</li><li>Berättelsens tid och episoder under bågen</li></ul>
+      </div>
+      <div class="lp-shot"><img src="bilder/bagen.jpg" alt="Dramabågen visar bokens kapitel" loading="lazy"></div>
+    </section>
+  
+    <section class="lp-row">
+      <div class="lp-row-text">
+        <div class="lp-kicker">Research</div>
+        <h2>Allt du samlar, där du skriver</h2>
+        <p>Bilder, fakta och citat i ett galleri. Koppla dem till en scen eller till ett enskilt ord, så dyker de upp i marginalen när du behöver dem.</p>
+        <ul><li>Dra in bilder direkt från datorn</li><li>Länkar visar sidans bild och rubrik</li><li>Lossa panelen till en egen skärm</li></ul>
+      </div>
+      <div class="lp-shot"><img src="bilder/research.jpg" alt="Research med bilder, fakta och citat" loading="lazy"></div>
+    </section>
+  
+    <section class="lp-row rev">
+      <div class="lp-row-text">
+        <div class="lp-kicker">Projektmål</div>
+        <h2>Ett mål för boken och ett för i dag</h2>
+        <p>Sätt ett mål i ord, tecken eller sidor och ett datum då du vill vara klar. WriteON räknar ut hur mycket du behöver skriva varje dag och visar hur det går.</p>
+        <ul><li>250 sidor i A5 blir ungefär 56 000 ord</li><li>Diagram över de senaste två veckorna</li><li>Måltavlan blir grön när dagens mål är nått</li></ul>
+      </div>
+      <div class="lp-shot"><img src="bilder/projektmal.jpg" alt="Projektmål med dagsmål och diagram" loading="lazy"></div>
+    </section>
+
+  <section class="lp-unique">
+    <h2>Det du inte hittar någon annanstans</h2>
+    <div class="lp-uniq-grid">
+      <div class="lp-feat"><svg class="ic" aria-hidden="true"><use href="#i-spell-check"/></svg><h3>Finputs för hela boken</h3><p>Går igenom manuset kapitel för kapitel och hittar stavfel, grammatik och logiska kullerbyttor, som glassen som blev pommes frites i nästa kapitel.</p></div>
+      <div class="lp-feat"><svg class="ic" aria-hidden="true"><use href="#i-message-square-text"/></svg><h3>Kommentarer och ögonblicksbilder</h3><p>Kommentera i marginalen och spara en version av scenen innan du skriver om den. Du kan alltid gå tillbaka.</p></div>
+      <div class="lp-feat"><svg class="ic" aria-hidden="true"><use href="#i-clapperboard"/></svg><h3>Från roman till filmmanus</h3><p>Mallar för roman, deckare, novell, dagboksroman och filmmanus. Exportera till Word, PDF, ePub och Fountain.</p></div>
     </div>
+  </section>
+
+  <section class="lp-who">
+    <h2>För dig som skriver</h2>
+    <div class="lp-who-grid"><span>Romaner</span><span>Deckare och spänning</span><span>Dagboksromaner</span><span>Noveller</span><span>Film- och tv-manus</span><span>Memoarer</span></div>
+  </section>
+
+  <section class="lp-price" id="lp-pris">
+    <h2>Pris</h2>
+    <p class="lp-sub">Under testperioden är WriteON gratis. Därefter:</p>
+    <div class="lp-price-grid">
+      <div class="lp-pcard"><h3>Månad</h3><div class="lp-amount">79 kr<span>/mån</span></div><p>Avsluta när du vill.</p></div>
+      <div class="lp-pcard best"><div class="lp-tag">Grundare</div><h3>Grundarpris</h3><div class="lp-amount">49 kr<span>/mån</span></div><p>För dig som är med från början.</p></div>
+      <div class="lp-pcard"><h3>År</h3><div class="lp-amount">790 kr<span>/år</span></div><p>Två månader gratis jämfört med månadspris.</p></div>
+    </div>
+    <button class="lp-btn big" onclick="lpAuth('register')">Kom igång gratis</button>
+  </section>
+
+  <section class="lp-faq" id="lp-fragor">
+    <h2>Vanliga frågor</h2>
+    <details><summary>Var sparas min text?</summary><p>I Google Firebase i Frankfurt, inom EU. Bara du kommer åt dina projekt. Läs mer under <button class="lp-link" onclick="openPrivacy()">Så hanteras din text</button>.</p></details>
+    <details><summary>Skriver AI:n min bok?</summary><p>Nej. Redaktören läser och ger respons, och föreslår ändringar som du själv väljer att göra. Din text och din röst förblir dina.</p></details>
+    <details><summary>Kan jag flytta in en bok jag redan har skrivit?</summary><p>Ja. Importera en Word-fil, så blir rubrikerna kapitel. Från Scrivener exporterar du först till Word.</p></details>
+    <details><summary>Kan jag ta med mig texten härifrån?</summary><p>Ja, när som helst. Exportera till Word, PDF, ePub, text eller Markdown, eller ladda ner en säkerhetskopia av hela projektet.</p></details>
+    <details><summary>Behöver jag installera något?</summary><p>Nej. WriteON fungerar i webbläsaren på din dator, och allt sparas automatiskt.</p></details>
+  </section>
+
+  <section class="lp-cta">
+    <h2>Börja skriva i dag</h2>
+    <p>Gratis under testperioden. Inget kort behövs.</p>
+    <button class="lp-btn big light" onclick="lpAuth('register')">Prova gratis</button>
+  </section>
+
+  <footer class="stp-foot lp-foot">WriteON · <button onclick="openPrivacy()">Så hanteras din text</button></footer>
+
+  <!-- Inloggning och registrering -->
+  <div class="lp-auth" id="lpAuthBox" style="display:none;" onclick="if(event.target===this) lpAuthClose()">
     <div class="stp-card">
+      <button class="wn-x lp-auth-x" onclick="lpAuthClose()" title="Stäng">✕</button>
       <div class="stp-tabs">
         <button id="stpTabNew" onclick="setStartMode('register')">Skapa konto</button>
         <button id="stpTabLogin" onclick="setStartMode('login')">Logga in</button>
@@ -10737,7 +10975,6 @@ window.fbLoggaUt = async function() {
       <p class="stp-fine">Dina projekt sparas i EU och bara du kommer åt dem. <button onclick="openPrivacy()">Så hanteras din text</button></p>
     </div>
   </div>
-  <div class="stp-foot">WriteON · <button onclick="openPrivacy()">Så hanteras din text</button></div>
 </div>
 
 <!-- RESEARCH: LÄGG TILL / ÄNDRA -->
@@ -10806,6 +11043,14 @@ window.fbLoggaUt = async function() {
       <div class="gl-f"><label>… eller räkna i sidor</label><span class="gl-in"><input id="glPages" type="number" min="1" step="10" onchange="glSave('pages')"> sidor</span>
         <select id="glFormat" onchange="glSave()"><option value="a5">Bok, A5 (ca 225 ord per sida)</option><option value="ms2">Manus, A4 dubbelt radavstånd (ca 250 ord)</option><option value="ms1">A4 enkelt radavstånd (ca 500 ord)</option></select></div>
       <div class="gl-f"><label>Klar senast (valfritt)</label><input id="glEnd" type="date" onchange="glSave()"></div>
+      <div class="gl-f gl-calc">
+        <label>Räkna på ett skrivtempo</label>
+        <div class="gl-calc-row">Om jag skriver <input id="glcOrd" type="number" min="1" step="100" value="1500" oninput="glCalc()"> ord per dag,
+          <select id="glcDagar" onchange="glCalc()"><option value="5">fem dagar i veckan</option><option value="6">sex dagar i veckan</option><option value="7">sju dagar i veckan</option><option value="3">tre dagar i veckan</option></select>,
+          i <input id="glcLangd" type="number" min="1" step="1" value="2" oninput="glCalc()">
+          <select id="glcEnhet" onchange="glCalc()"><option value="manader">månader</option><option value="veckor">veckor</option></select></div>
+        <div class="gl-calc-out" id="glcOut"></div>
+      </div>
       <div class="gl-f"><label>Dagsmål</label><span class="gl-in"><input id="glDay" type="number" min="0" step="50" onchange="glSave()"> <span class="gl-unit-lbl">ord</span></span>
         <div class="gl-hint">Lämna tomt för att räkna fram dagsmålet från slutdatumet.</div></div>
     </div>

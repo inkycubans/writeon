@@ -10,6 +10,16 @@ const https = require('https');
 const app = express();
 app.use(express.json({ limit: '2mb' }));
 
+// Huvudadress: sätt Railway-variabeln CANONICAL_HOST (t.ex. textualis.se), så skickas
+// alla andra adresser (www, .com, Railways egen adress) vidare dit. Utan variabeln händer inget.
+const CANONICAL_HOST = (process.env.CANONICAL_HOST || '').trim().toLowerCase();
+app.use((req, res, next) => {
+  if (!CANONICAL_HOST) return next();
+  const host = (req.headers.host || '').split(':')[0].toLowerCase();
+  if (!host || host === CANONICAL_HOST || host === 'localhost' || host.startsWith('127.')) return next();
+  return res.redirect(301, 'https://' + CANONICAL_HOST + req.originalUrl);
+});
+
 // ── Inställningar (Railway → Variables) ─────────────────────────────────────
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
 const FIREBASE_WEB_KEY  = process.env.FIREBASE_WEB_API_KEY || 'AIzaSyC_q5vcLW1MvXxgythlXcEasw9uI-ICEPE'; // publik webbnyckel
