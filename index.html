@@ -525,6 +525,36 @@
   .help-keys td { padding: 5px 14px 5px 0; color: var(--text-secondary); }
   .help-keys td:first-child { font-weight: 700; color: var(--text-primary); white-space: nowrap; }
 
+  /* Kommentarer */
+  .scene-writing-area .cm-ref { background: rgba(252, 177, 54, 0.22); border-bottom: 2px solid rgba(252, 177, 54, 0.7); border-radius: 2px; }
+  .scene-writing-area .cm-ref.hl { background: rgba(252, 177, 54, 0.45); }
+  .cm-mark { position: absolute; left: 16px; height: 24px; min-width: 24px; padding: 0 4px; border-radius: 6px; border: 1px solid rgba(252,177,54,0.7); background: var(--bg-card); color: #b07a12; display: flex; align-items: center; gap: 2px; justify-content: center; cursor: pointer; z-index: 3; font: 700 13px var(--font-ui); }
+  .cm-mark .ic { width: 14px; height: 14px; }
+  .cm-mark:hover { background: #fcb136; color: #141413; }
+  body.focus .cm-mark { display: none; }
+  .cm-thread { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
+  .cm-thread.focus { border-color: #fcb136; box-shadow: 0 0 0 2px rgba(252,177,54,0.25); }
+  .cm-quote { font-family: var(--font-text); font-size: 14px; color: var(--text-muted); border-left: 3px solid #fcb136; padding-left: 8px; margin-bottom: 8px; cursor: pointer; }
+  .cm-post { margin-bottom: 8px; }
+  .cm-meta { font-size: 13px; color: var(--text-muted); } .cm-meta b { color: var(--text-primary); }
+  .cm-text { font-size: 15px; line-height: 1.45; color: var(--text-primary); margin-top: 2px; }
+  .cm-input { width: 100%; box-sizing: border-box; border: 1.5px solid var(--border-strong); border-radius: 8px; background: var(--bg); color: var(--text-primary); padding: 7px 9px; font: 15px var(--font-ui); resize: vertical; }
+  .cm-actions { display: flex; gap: 14px; margin-top: 6px; align-items: center; }
+  .cm-actions button { border: none; background: none; padding: 0; color: var(--action-text); font: 700 14px var(--font-ui); cursor: pointer; }
+  .cm-actions .cm-send { background: var(--action); color: var(--on-action); border-radius: 7px; padding: 5px 11px; }
+  .cm-actions .cm-del { color: var(--text-muted); margin-left: auto; font-weight: 600; }
+  #cmScope button { border: none; background: none; padding: 0; color: var(--action-text); font: 600 14px var(--font-ui); cursor: pointer; text-decoration: underline; }
+  /* Justering, stycken och scenbrytning */
+  #pageContainer .scene-writing-area { line-height: var(--ms-line, 1.75); }
+  body.ms-indent #pageContainer .scene-writing-area p { margin-top: 0; margin-bottom: 0; }
+  body.ms-indent #pageContainer .scene-writing-area p + p { text-indent: 1.5em; }
+  #pageContainer .scene-writing-area p.scene-break { text-align: center; text-indent: 0 !important; margin: 1em 0 !important; letter-spacing: 0.3em; }
+  #popAlignMenu { min-width: 190px; }
+  #popAlignMenu button { display: flex; align-items: center; gap: 8px; }
+  #popAlignMenu .ic { width: 15px; height: 15px; }
+  .ty-steps button.checked { background: var(--action); color: var(--on-action); }
+  .ty-steps button { min-width: 38px; }
+
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   .nav-menu {
@@ -3355,6 +3385,14 @@
   <symbol id="i-clapperboard" viewBox="0 0 24 24"><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></symbol>
   <symbol id="i-panel-right" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></symbol>
   <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+  <symbol id="i-message-square-plus" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v6"/><path d="M9 10h6"/></symbol>
+  <symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/></symbol>
+  <symbol id="i-align-left" viewBox="0 0 24 24"><path d="M15 12H3"/><path d="M17 18H3"/><path d="M21 6H3"/></symbol>
+  <symbol id="i-align-center" viewBox="0 0 24 24"><path d="M17 12H7"/><path d="M19 18H5"/><path d="M21 6H3"/></symbol>
+  <symbol id="i-align-right" viewBox="0 0 24 24"><path d="M21 12H9"/><path d="M21 18H7"/><path d="M21 6H3"/></symbol>
+  <symbol id="i-align-justify" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M3 18h18"/><path d="M3 6h18"/></symbol>
+  <symbol id="i-indent-increase" viewBox="0 0 24 24"><path d="M21 12H11"/><path d="M21 18H11"/><path d="M21 6H11"/><path d="m3 8 4 4-4 4"/></symbol>
+  <symbol id="i-indent-decrease" viewBox="0 0 24 24"><path d="M21 12H11"/><path d="M21 18H11"/><path d="M21 6H11"/><path d="m7 8-4 4 4 4"/></symbol>
   <symbol id="i-spell-check" viewBox="0 0 24 24"><path d="m6 16 6-12 6 12"/><path d="M8 12h8"/><path d="m16 20 2 2 4-4"/></symbol>
 </svg>
 
@@ -3418,6 +3456,25 @@
           <div class="nav-dd-row">Textstorlek
             <span class="stepper"><button onclick="stepFontSize(-1)" title="Mindre">−</button><span id="fmtSizeVal">12 pt</span><button onclick="stepFontSize(1)" title="Större">+</button></span>
           </div>
+          <div class="nav-dd-sep"></div>
+          <div class="nav-dd-label">Stycken</div>
+          <div class="nav-dd-item ty-para" data-v="blankrad" onclick="tySetPara('blankrad')">Blankrad mellan stycken</div>
+          <div class="nav-dd-item ty-para" data-v="indrag" onclick="tySetPara('indrag')">Indrag på första raden</div>
+          <div class="nav-dd-row">Radavstånd
+            <span class="stepper ty-steps"><button class="ty-line" data-v="1.4" onclick="tySetLine(1.4)">1,4</button><button class="ty-line" data-v="1.75" onclick="tySetLine(1.75)">1,75</button><button class="ty-line" data-v="2" onclick="tySetLine(2)">2</button></span>
+          </div>
+          <div class="nav-dd-sep"></div>
+          <div class="nav-dd-label">Där markören står</div>
+          <div class="nav-dd-item" onclick="tyAlign('left')"><svg class="ic" aria-hidden="true"><use href="#i-align-left"/></svg> Vänsterjustera</div>
+          <div class="nav-dd-item" onclick="tyAlign('center')"><svg class="ic" aria-hidden="true"><use href="#i-align-center"/></svg> Centrera</div>
+          <div class="nav-dd-item" onclick="tyAlign('right')"><svg class="ic" aria-hidden="true"><use href="#i-align-right"/></svg> Högerjustera</div>
+          <div class="nav-dd-item" onclick="tyAlign('justify')"><svg class="ic" aria-hidden="true"><use href="#i-align-justify"/></svg> Marginaljustera</div>
+          <div class="nav-dd-item" onclick="tyIndent(1)"><svg class="ic" aria-hidden="true"><use href="#i-indent-increase"/></svg> Öka indrag</div>
+          <div class="nav-dd-item" onclick="tyIndent(-1)"><svg class="ic" aria-hidden="true"><use href="#i-indent-decrease"/></svg> Minska indrag</div>
+          <div class="nav-dd-item" onclick="tySceneBreak()">Infoga scenbrytning (* * *)</div>
+          <div class="nav-dd-sep"></div>
+          <div class="nav-dd-item" id="tyTypo" onclick="tySetTypo(msDisplay.typografi === false)">Svensk typografi medan du skriver (” – …)</div>
+          <div class="nav-dd-sep"></div>
           <div class="nav-dd-row">Zoom
             <span class="stepper"><button onclick="stepZoom(-1)" title="Zooma ut">−</button><span id="fmtZoomVal">100 %</span><button onclick="stepZoom(1)" title="Zooma in">+</button></span>
           </div>
@@ -3886,6 +3943,16 @@
   </div>
 
   <!-- RIGHT PANEL — KARAKTÄRSCHAT (aktiveras efter byggaren) -->
+  <!-- KOMMENTARER -->
+  <div class="notes-panel" id="panel-comments" style="display:none;width:340px;flex-direction:column;">
+    <div class="notes-header">
+      <div class="notes-title asst-title"><svg class="ic" aria-hidden="true"><use href="#i-message-square-text"/></svg> Kommentarer</div>
+      <button class="notes-close" onclick="closePanel()" title="Stäng">✕</button>
+    </div>
+    <div class="rs-panel-scope" id="cmScope"></div>
+    <div class="rs-panel-list" id="cmList"></div>
+  </div>
+
   <!-- ÖGONBLICKSBILDER -->
   <div class="notes-panel" id="panel-snaps" style="display:none;width:340px;flex-direction:column;">
     <div class="notes-header">
@@ -3962,6 +4029,7 @@
     <button class="icon-bar-btn" id="ibtn-idebank" data-tip="Idébanken" onclick="showPanel('panel-idebank')"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-charchat" data-tip="Prata med karaktär" onclick="showPanel('panel-charchat')"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg></button>
     <div class="icon-bar-divider"></div>
+    <button class="icon-bar-btn" id="ibtn-comments" data-tip="Kommentarer" onclick="openComments()"><svg class="ic" aria-hidden="true"><use href="#i-message-square-text"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-snaps" data-tip="Ögonblicksbilder" onclick="openSnaps()"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg></button>
     <button class="icon-bar-btn" data-tip="Säkerhetskopia" id="ibtn-backup" onclick="openBackupDialog()"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg></button>
   </div>
@@ -4419,15 +4487,15 @@
 
   // ─── PANEL SWITCHING ───
   function showPanel(id) {
-    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps'].forEach(p => {
+    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps','panel-comments'].forEach(p => {
       const el = document.getElementById(p);
       if(el) el.style.display = p === id ? 'flex' : 'none';
     });
-    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant','ibtn-research','ibtn-snaps'].forEach(b => {
+    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant','ibtn-research','ibtn-snaps','ibtn-comments'].forEach(b => {
       const el = document.getElementById(b);
       if(el) el.classList.remove('active');
     });
-    const btnMap = {'panel-notes':'ibtn-notes','panel-idebank':'ibtn-idebank','panel-charchat':'ibtn-charchat','panel-charchat-active':'ibtn-charchat','panel-assistant':'ibtn-assistant','panel-research':'ibtn-research','panel-snaps':'ibtn-snaps'};
+    const btnMap = {'panel-notes':'ibtn-notes','panel-idebank':'ibtn-idebank','panel-charchat':'ibtn-charchat','panel-charchat-active':'ibtn-charchat','panel-assistant':'ibtn-assistant','panel-research':'ibtn-research','panel-snaps':'ibtn-snaps','panel-comments':'ibtn-comments'};
     if(btnMap[id]) document.getElementById(btnMap[id]).classList.add('active');
   }
   // ─── KARAKTÄRER: öppna i högerspalten (ikonpanelen) ───
@@ -4444,11 +4512,11 @@
 
 
   function closePanel() {
-    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps'].forEach(p => {
+    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps','panel-comments'].forEach(p => {
       const el = document.getElementById(p);
       if(el) el.style.display = 'none';
     });
-    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant','ibtn-research','ibtn-snaps'].forEach(b => {
+    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant','ibtn-research','ibtn-snaps','ibtn-comments'].forEach(b => {
       const el = document.getElementById(b);
       if(el) el.classList.remove('active');
     });
@@ -4736,14 +4804,14 @@
   try { if (localStorage.getItem('writeon_binder_collapsed') === '1') document.body.classList.add('binder-collapsed'); } catch(e) {}
 
   function toggleInspector() {
-    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps']
+    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps','panel-comments']
       .some(id => { const el = document.getElementById(id); return el && el.style.display !== 'none'; });
     if (open) closePanel(); else showPanel('panel-notes');
   }
 
   // Knappen uppe till höger lyser när högerpanelen är öppen
   function updateInspBtn() {
-    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps']
+    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps','panel-comments']
       .some(id => { const el = document.getElementById(id); return el && el.style.display !== 'none'; });
     document.getElementById('inspBtn')?.classList.toggle('on', open);
   }
@@ -4805,6 +4873,7 @@
 
   // ── Konto (profilbilden uppe till höger) ──
   function setAccountUI(email) {
+    window.fbUserEmail = email || '';
     const btn = document.getElementById('avatarBtn');
     if (btn) { btn.textContent = email ? email.trim()[0].toUpperCase() : '?'; btn.title = email || 'Inte inloggad'; }
     const em = document.getElementById('avatarEmail'); if (em) em.textContent = email || 'Inte inloggad';
@@ -6664,6 +6733,179 @@
     snapRender();
   }
 
+  // ═══ KOMMENTARER I MARGINALEN ═══
+  // Kommenterad text ligger i <span class="cm-ref" data-cm="id">. Trådarna sparas i projektet.
+  let cmPending = null, cmShowResolved = false, cmFocusId = null;
+  function cmItems() { if (!Array.isArray(projectData.kommentarer)) projectData.kommentarer = []; return projectData.kommentarer; }
+  function cmNow() { return new Date().toISOString(); }
+  function cmWhen(iso) { const d = new Date(iso); return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }); }
+  function cmAuthor() { return (window.fbUserEmail || '').split('@')[0] || 'Jag'; }
+
+  // Ny kommentar på markerad text
+  function cmStart() {
+    const sel = window.getSelection();
+    if (!sel.rangeCount || sel.isCollapsed) return;
+    const r = sel.getRangeAt(0);
+    const anc = r.commonAncestorContainer, area = (anc.nodeType === 1 ? anc : anc.parentElement).closest('.scene-writing-area');
+    if (!area) return;
+    const id = 'cm-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    const span = document.createElement('span'); span.className = 'cm-ref'; span.dataset.cm = id;
+    try { r.surroundContents(span); } catch (e) { span.appendChild(r.extractContents()); r.insertNode(span); }
+    sel.removeAllRanges();
+    const sceneId = area.id.replace('writingArea-', '');
+    cmItems().push({ id, sceneId, citat: span.textContent.slice(0, 200), inlagg: [], lost: false, skapad: cmNow() });
+    area.dispatchEvent(new Event('input', { bubbles: true }));
+    cmPending = id; cmFocusId = id;
+    openComments();
+  }
+  function openComments() {
+    if (document.body.classList.contains('focus')) toggleFocusMode(false);
+    switchView('writing'); showPanel('panel-comments'); cmRender();
+  }
+  function cmRef(id) { return document.querySelector('.scene-writing-area .cm-ref[data-cm="' + id + '"]'); }
+  function cmRender() {
+    const list = document.getElementById('cmList'); if (!list) return;
+    const ch = activeScene ? chapterForScene(activeScene.id) : null;
+    const inChap = c => ch && ch.scenes.some(s => s.id === c.sceneId);
+    const items = cmItems().filter(c => (cmShowResolved ? c.lost : !c.lost) && (cmShowResolved || inChap(c) || c.id === cmPending));
+    document.getElementById('cmScope').innerHTML = cmShowResolved
+      ? 'Visar: <b>lösta kommentarer</b> · <button onclick="cmShowResolved=false;cmRender()">Tillbaka</button>'
+      : 'Visar: <b>' + rsEsc(ch ? ch.title : 'kapitlet') + '</b> · <button onclick="cmShowResolved=true;cmRender()">Lösta (' + cmItems().filter(c => c.lost).length + ')</button>';
+    list.innerHTML = items.length ? items.map(c => {
+      const posts = c.inlagg.map(p => '<div class="cm-post"><div class="cm-meta"><b>' + rsEsc(p.av) + '</b> · ' + cmWhen(p.tid) + '</div><div class="cm-text">' + rsEsc(p.text).replace(/\n/g, '<br>') + '</div></div>').join('');
+      return '<div class="cm-thread' + (c.id === cmFocusId ? ' focus' : '') + '" data-id="' + c.id + '">' +
+        '<div class="cm-quote" onclick="cmGoto(\'' + c.id + '\')">”' + rsEsc(c.citat) + '”</div>' + posts +
+        (c.lost ? '<div class="cm-actions"><button onclick="cmReopen(\'' + c.id + '\')">Öppna igen</button><button class="cm-del" onclick="cmDelete(\'' + c.id + '\')">Ta bort</button></div>'
+          : '<textarea class="cm-input" rows="2" placeholder="' + (c.inlagg.length ? 'Svara …' : 'Skriv din kommentar …') + '" onkeydown="if(event.key===\'Enter\' && (event.ctrlKey||event.metaKey)) cmPost(\'' + c.id + '\', this)"></textarea>' +
+            '<div class="cm-actions"><button class="cm-send" onclick="cmPost(\'' + c.id + '\', this.parentElement.previousElementSibling)">' + (c.inlagg.length ? 'Svara' : 'Kommentera') + '</button>' +
+            '<button onclick="cmResolve(\'' + c.id + '\')">✓ Lös</button><button class="cm-del" onclick="cmDelete(\'' + c.id + '\')">Ta bort</button></div>') + '</div>';
+    }).join('') : '<div class="rs-empty">' + (cmShowResolved ? 'Inga lösta kommentarer.' : 'Inga kommentarer i det här kapitlet. Markera text och välj pratbubblan i markeringsraden för att kommentera.') + '</div>';
+    if (cmPending) { const ta = list.querySelector('.cm-thread[data-id="' + cmPending + '"] .cm-input'); if (ta) setTimeout(() => ta.focus(), 50); }
+  }
+  window.cmRender = cmRender;
+  function cmPost(id, ta) {
+    const c = cmItems().find(x => x.id === id), t = (ta && ta.value || '').trim(); if (!c || !t) return;
+    c.inlagg.push({ av: cmAuthor(), text: t, tid: cmNow() });
+    if (cmPending === id) cmPending = null;
+    scheduleAutoSave(); cmRender(); cmMarkers();
+  }
+  function cmUnwrap(id) {
+    const ref = cmRef(id); if (!ref) return;
+    const area = ref.closest('.scene-writing-area');
+    while (ref.firstChild) ref.parentNode.insertBefore(ref.firstChild, ref);
+    ref.remove(); area && area.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  function cmResolve(id) {
+    const c = cmItems().find(x => x.id === id); if (!c) return;
+    if (!c.inlagg.length) { cmDelete(id, true); return; }
+    c.lost = true; cmUnwrap(id); scheduleAutoSave(); cmRender(); cmMarkers();
+  }
+  function cmReopen(id) { const c = cmItems().find(x => x.id === id); if (c) { c.lost = false; scheduleAutoSave(); cmShowResolved = false; cmRender(); } }
+  function cmDelete(id, quiet) {
+    if (!quiet && !confirm('Ta bort kommentaren och hela tråden?')) return;
+    cmUnwrap(id); projectData.kommentarer = cmItems().filter(x => x.id !== id);
+    if (cmPending === id) cmPending = null;
+    scheduleAutoSave(); cmRender(); cmMarkers();
+  }
+  function cmGoto(id) {
+    const c = cmItems().find(x => x.id === id); if (!c) return;
+    if (!activeScene || activeScene.id !== c.sceneId) selectSceneById(c.sceneId);
+    setTimeout(() => { const ref = cmRef(id); if (ref) { ref.scrollIntoView({ behavior: 'smooth', block: 'center' }); ref.classList.add('hl'); setTimeout(() => ref.classList.remove('hl'), 1500); } }, 150);
+  }
+  // Pratbubblor i vänstra marginalen, i höjd med den kommenterade texten
+  function cmMarkers() {
+    document.querySelectorAll('.cm-mark').forEach(m => m.remove());
+    const items = cmItems();
+    document.querySelectorAll('.chapter-doc').forEach(doc => {
+      const dr = doc.getBoundingClientRect();
+      doc.querySelectorAll('.cm-ref').forEach(ref => {
+        const c = items.find(x => x.id === ref.dataset.cm); if (!c || c.lost) return;
+        const rr = ref.getClientRects()[0] || ref.getBoundingClientRect();
+        const m = document.createElement('button'); m.type = 'button'; m.className = 'cm-mark';
+        m.style.top = Math.round(rr.top - dr.top + rr.height / 2 - 12) + 'px';
+        m.innerHTML = ic('message-square-text') + (c.inlagg.length > 1 ? '<span>' + c.inlagg.length + '</span>' : '');
+        m.title = c.inlagg.length ? c.inlagg[0].text.slice(0, 120) : 'Ny kommentar';
+        m.addEventListener('mouseenter', () => ref.classList.add('hl'));
+        m.addEventListener('mouseleave', () => ref.classList.remove('hl'));
+        m.addEventListener('click', () => { cmFocusId = c.id; openComments(); });
+        doc.appendChild(m);
+      });
+    });
+  }
+  window.cmMarkers = cmMarkers;
+  document.addEventListener('click', e => {
+    const ref = e.target.closest && e.target.closest('.scene-writing-area .cm-ref');
+    if (ref && (e.ctrlKey || e.metaKey)) { e.preventDefault(); cmFocusId = ref.dataset.cm; openComments(); }
+  });
+  let cmT = null;
+  document.addEventListener('input', e => { if (e.target.classList && e.target.classList.contains('scene-writing-area')) { clearTimeout(cmT); cmT = setTimeout(cmMarkers, 320); } });
+  window.addEventListener('resize', () => { clearTimeout(cmT); cmT = setTimeout(cmMarkers, 220); });
+  { const _lc2 = loadChapter; loadChapter = function(ch) { _lc2(ch); setTimeout(cmMarkers, 0); if (document.getElementById('panel-comments')?.style.display === 'flex') cmRender(); }; }
+
+  // ═══ JUSTERING, INDRAG OCH SVENSK TYPOGRAFI ═══
+  let tyLastRange = null;
+  document.addEventListener('selectionchange', () => {
+    const s = window.getSelection(); if (!s.rangeCount) return;
+    const n = s.getRangeAt(0).commonAncestorContainer, el = n.nodeType === 1 ? n : n.parentElement;
+    if (el && el.closest && el.closest('.scene-writing-area')) tyLastRange = s.getRangeAt(0).cloneRange();
+  });
+  function tyBlocks() {
+    const r = tyLastRange; if (!r) return [];
+    const anc = r.commonAncestorContainer, area = (anc.nodeType === 1 ? anc : anc.parentElement).closest('.scene-writing-area');
+    if (!area) return [];
+    return [...area.children].filter(b => r.intersectsNode(b));
+  }
+  function tyApply(fn) {
+    const bl = tyBlocks(); if (!bl.length) { showAutosaveMsg('Ställ markören i texten först'); return; }
+    bl.forEach(fn);
+    bl[0].closest('.scene-writing-area').dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  function tyAlign(a) { _closeDropdowns(); tyApply(b => { b.style.textAlign = a === 'left' ? '' : a; }); }
+  function tyIndent(dir) {
+    _closeDropdowns();
+    tyApply(b => { const cur = parseFloat(b.style.marginLeft) || 0, nv = Math.max(0, Math.min(6, cur + dir * 2)); b.style.marginLeft = nv ? nv + 'em' : ''; });
+  }
+  function tySceneBreak() {
+    _closeDropdowns();
+    const bl = tyBlocks(); if (!bl.length) { showAutosaveMsg('Ställ markören i texten först'); return; }
+    const last = bl[bl.length - 1], p = document.createElement('p');
+    p.className = 'scene-break'; p.textContent = '* * *';
+    const after = document.createElement('p'); after.innerHTML = '<br>';
+    last.after(p); p.after(after);
+    const r = document.createRange(); r.setStart(after, 0); r.collapse(true);
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    last.closest('.scene-writing-area').dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  // Manusets stycken: indrag på första raden eller blankrad, samt radavstånd (sparas i webbläsaren)
+  function tySetPara(mode) { msDisplay.stycke = mode; saveDisplay(); }
+  function tySetLine(v) { msDisplay.radavstand = v; saveDisplay(); }
+  function tySetTypo(on) { msDisplay.typografi = on; saveDisplay(); }
+  function tyApplyDisplay() {
+    document.body.classList.toggle('ms-indent', msDisplay.stycke === 'indrag');
+    document.documentElement.style.setProperty('--ms-line', String(msDisplay.radavstand || 1.75));
+    document.querySelectorAll('.ty-para').forEach(el => el.classList.toggle('checked', el.dataset.v === (msDisplay.stycke || 'blankrad')));
+    document.querySelectorAll('.ty-line').forEach(el => el.classList.toggle('checked', +el.dataset.v === (msDisplay.radavstand || 1.75)));
+    const t = document.getElementById('tyTypo'); if (t) t.classList.toggle('checked', msDisplay.typografi !== false);
+  }
+  { const _sd = saveDisplay; saveDisplay = function() { _sd(); tyApplyDisplay(); }; }
+  document.addEventListener('DOMContentLoaded', tyApplyDisplay);
+
+  // Svensk typografi medan man skriver: ” ’ – och …
+  document.addEventListener('beforeinput', e => {
+    if (msDisplay.typografi === false || isScreenplay() || e.inputType !== 'insertText' || !e.data) return;
+    if (!e.target.closest || !e.target.closest('.scene-writing-area')) return;
+    const s = window.getSelection(); if (!s.rangeCount) return;
+    const r = s.getRangeAt(0); if (!r.collapsed) return;
+    const node = r.startContainer, off = r.startOffset, before = node.nodeType === 3 ? node.data.slice(0, off) : '';
+    const put = txt => { e.preventDefault(); document.execCommand('insertText', false, txt); };
+    if (e.data === '"') return put('”');
+    if (e.data === "'") return put('’');
+    if (e.data === '.' && before.endsWith('..')) { const rr = document.createRange(); rr.setStart(node, off - 2); rr.setEnd(node, off); s.removeAllRanges(); s.addRange(rr); return put('…'); }
+    if (e.data === ' ' && before.endsWith('-') && (before.length === 1 || /\s$/.test(before.slice(0, -1)))) {
+      const rr = document.createRange(); rr.setStart(node, off - 1); rr.setEnd(node, off); s.removeAllRanges(); s.addRange(rr); return put('– ');
+    }
+  });
+
   function openResearchPanel() {
     if (document.body.classList.contains('focus')) toggleFocusMode(false);
     switchView('writing'); showPanel('panel-research'); rsRender();
@@ -6969,6 +7211,7 @@ VIKTIGT:
     projectData.egenBage   = Array.isArray(data.egenBage) ? data.egenBage : null;
     projectData.kanslor    = Array.isArray(data.kanslor) ? data.kanslor : [];
     projectData.faser      = (data.faser && typeof data.faser === 'object') ? data.faser : {};
+    projectData.kommentarer = Array.isArray(data.kommentarer) ? data.kommentarer : [];
     projectData.episoder   = Array.isArray(data.episoder) ? data.episoder : [];
     if (projectData.bage === 'egen' && !projectData.egenBage) projectData.bage = 'treakter';
     document.body.classList.toggle('screenplay-mode', projectData.format === 'screenplay');
@@ -6988,6 +7231,7 @@ VIKTIGT:
     if (typeof rsRender === 'function') rsRender();
     if (typeof bgRender === 'function') { bgRender(); bgRenderMini(); }
     if (typeof rsMarkers === 'function') setTimeout(rsMarkers, 50);
+    if (typeof cmMarkers === 'function') setTimeout(cmMarkers, 60);
     if (typeof popRender === 'function') { popRender('research'); popRender('idebank'); }
   }
   window.applyProject = applyProject;
@@ -7988,6 +8232,7 @@ VIKTIGT:
       egenBage: projectData.egenBage || null,
       kanslor: projectData.kanslor || [],
       faser: projectData.faser || {},
+      kommentarer: projectData.kommentarer || [],
       episoder: projectData.episoder || [],
       format: projectData.format || 'prosa',
       exportedAt: new Date().toISOString()
@@ -9444,6 +9689,18 @@ window.addEventListener('load', function() {
   <button class="ai-popup-btn fmt" data-cmd="insertUnorderedList" title="Punktlista"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg></button>
   <button class="ai-popup-btn fmt" id="popQuoteBtn" title="Citat"><svg class="ic" aria-hidden="true"><use href="#i-quote"/></svg></button>
   <button class="ai-popup-btn fmt" id="popRsBtn" title="Koppla till research"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg></button>
+  <button class="ai-popup-btn fmt" id="popCmBtn" title="Kommentera"><svg class="ic" aria-hidden="true"><use href="#i-message-square-plus"/></svg></button>
+  <div class="pop-style-wrap">
+    <button class="ai-popup-btn fmt" id="popAlignBtn" title="Justering och indrag"><svg class="ic" aria-hidden="true"><use href="#i-align-left"/></svg> ▾</button>
+    <div class="pop-style-menu" id="popAlignMenu">
+      <button data-al="left"><svg class="ic" aria-hidden="true"><use href="#i-align-left"/></svg> Vänster</button>
+      <button data-al="center"><svg class="ic" aria-hidden="true"><use href="#i-align-center"/></svg> Centrerat</button>
+      <button data-al="right"><svg class="ic" aria-hidden="true"><use href="#i-align-right"/></svg> Höger</button>
+      <button data-al="justify"><svg class="ic" aria-hidden="true"><use href="#i-align-justify"/></svg> Marginaljustera</button>
+      <button data-in="1"><svg class="ic" aria-hidden="true"><use href="#i-indent-increase"/></svg> Öka indrag</button>
+      <button data-in="-1"><svg class="ic" aria-hidden="true"><use href="#i-indent-decrease"/></svg> Minska indrag</button>
+    </div>
+  </div>
   <div class="ai-popup-divider"></div>
   <button class="ai-popup-btn ai primary" onclick="runAiOnSelection('skriv-om')" title="Skriv om"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></button>
   <button class="ai-popup-btn ai" onclick="runAiOnSelection('analys')" title="Analys"><svg class="ic" aria-hidden="true"><use href="#i-scan-text"/></svg></button>
@@ -9545,6 +9802,17 @@ window.addEventListener('load', function() {
   document.querySelectorAll('#popStyleMenu button').forEach(b => b.addEventListener('mousedown', e => {
     e.preventDefault(); setBlock(b.dataset.block); document.getElementById('popStyleMenu').classList.remove('open');
   }));
+  document.getElementById('popCmBtn').addEventListener('mousedown', e => { e.preventDefault(); cmStart(); hidePopup(); });
+  document.getElementById('popAlignBtn').addEventListener('mousedown', e => {
+    e.preventDefault(); e.stopPropagation();
+    document.getElementById('popAlignMenu').classList.toggle('open');
+  });
+  document.getElementById('popAlignMenu').addEventListener('mousedown', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    e.preventDefault();
+    if (b.dataset.al) tyAlign(b.dataset.al); else tyIndent(+b.dataset.in);
+    document.getElementById('popAlignMenu').classList.remove('open'); hidePopup();
+  });
   document.getElementById('popRsBtn').addEventListener('mousedown', e => {
     e.preventDefault(); rsLinkOpen(); hidePopup();
   });
@@ -9755,6 +10023,7 @@ window.firebaseSaveProject = async function() {
       egenBage:   p.egenBage || null,
       kanslor:    p.kanslor || [],
       faser:      p.faser || {},
+      kommentarer: p.kommentarer || [],
       episoder:   p.episoder || [],
       format:     p.format || 'prosa',
       savedAt:    serverTimestamp()
@@ -10179,6 +10448,9 @@ window.fbLoggaUt = async function() {
       </ul></details>
       <details><summary>Skriva</summary><ul>
         <li><b>Markera text</b> så visas en rad med fet, kursiv, understruken, stycketyp, lista, citat, koppling till research och AI-verktygen.</li>
+        <li><b>Kommentarer:</b> markera text och välj pratbubblan i markeringsraden. Kommentaren syns i marginalen och i panelen Kommentarer, där du kan svara och markera den som löst.</li>
+        <li><b>Justering och indrag</b> finns i markeringsraden och i menyn Format. Där väljer du också indrag på första raden eller blankrad mellan stycken, radavstånd och scenbrytning.</li>
+        <li><b>Svensk typografi:</b> när du skriver blir " till ”, - och mellanslag till pratminus –, och tre punkter till …. Kan stängas av i Format.</li>
         <li><b>Fokusläge</b> visar bara texten. Slå på och av med Ctrl+Shift+F, eller Esc för att gå ur.</li>
         <li><b>Format</b> i menyn ändrar typsnitt, textstorlek och zoom för hela manuset.</li>
       </ul></details>
