@@ -498,6 +498,33 @@
   .nav-dd-item.sp-only { display: none; }
   body.screenplay-mode .nav-dd-item.sp-only { display: flex; }
 
+  /* Ögonblicksbilder */
+  .snap-intro { padding: 10px 14px; font-size: 14px; color: var(--text-secondary); line-height: 1.45; }
+  .snap-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
+  .snap-top { display: flex; justify-content: space-between; font-size: 15px; } .snap-top span { color: var(--text-muted); font-size: 14px; }
+  .snap-note { font-family: var(--font-text); font-size: 12pt; color: var(--text-secondary); margin-top: 4px; }
+  .snap-act { display: flex; gap: 14px; margin-top: 8px; }
+  .snap-act button { border: none; background: none; padding: 0; color: var(--action-text); font: 700 14px var(--font-ui); cursor: pointer; text-decoration: underline; }
+  .snap-act .snap-del { color: var(--text-muted); margin-left: auto; }
+  .snap-cmp { max-height: 60vh; overflow-y: auto; }
+  .snap-diff { font-family: var(--font-text); font-size: 12pt; line-height: 1.7; white-space: normal; }
+  .snap-diff del, .snap-legend del { background: rgba(200,64,64,0.14); color: #a33; text-decoration: line-through; }
+  .snap-diff ins, .snap-legend ins { background: color-mix(in srgb, var(--action) 18%, transparent); color: var(--text-primary); text-decoration: none; }
+  .snap-legend { font-size: 14px; margin-bottom: 10px; display: flex; gap: 14px; }
+  .snap-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-family: var(--font-text); font-size: 12pt; }
+  .snap-h { font: 700 13px var(--font-ui); text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  /* Hjälp */
+  .help-dlg { width: 640px; }
+  .help-body { max-height: 70vh; overflow-y: auto; }
+  .help-body details { border-bottom: 1px solid var(--border); padding: 10px 0; }
+  .help-body summary { font-size: 16px; font-weight: 700; cursor: pointer; }
+  .help-body ul { margin: 8px 0 4px; padding-left: 20px; }
+  .help-body li { font-size: 15px; line-height: 1.5; color: var(--text-secondary); margin-bottom: 6px; }
+  .help-body li b { color: var(--text-primary); }
+  .help-keys { border-collapse: collapse; margin-top: 8px; font-size: 15px; }
+  .help-keys td { padding: 5px 14px 5px 0; color: var(--text-secondary); }
+  .help-keys td:first-child { font-weight: 700; color: var(--text-primary); white-space: nowrap; }
+
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   .nav-menu {
@@ -3327,6 +3354,7 @@
   <symbol id="i-log-in" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></symbol>
   <symbol id="i-clapperboard" viewBox="0 0 24 24"><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></symbol>
   <symbol id="i-panel-right" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol>
   <symbol id="i-spell-check" viewBox="0 0 24 24"><path d="m6 16 6-12 6 12"/><path d="M8 12h8"/><path d="m16 20 2 2 4-4"/></symbol>
 </svg>
 
@@ -3416,6 +3444,7 @@
       <button class="pomo-btn" onclick="togglePomo()" id="pomoBtn"><svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg></button>
       <span class="pomo-time" id="pomoTime" style="display:none;">25:00</span>
     </div>
+    <button class="hdr-btn" id="helpBtn" onclick="document.getElementById('helpModal').style.display='flex'" title="Hjälp"><svg class="ic" aria-hidden="true"><use href="#i-circle-help"/></svg></button>
     <button class="hdr-btn" id="inspBtn" onclick="toggleInspector()" title="Visa/dölj högerpanelen"><svg class="ic" aria-hidden="true"><use href="#i-panel-right"/></svg></button>
     <button class="hdr-btn" id="focusBtn" onclick="toggleFocusMode()" title="Fokusläge (Ctrl+Shift+F)"><svg class="ic" aria-hidden="true"><use href="#i-maximize-2"/></svg></button>
     <div class="toggle-wrap" title="Mörkt läge">
@@ -3857,6 +3886,18 @@
   </div>
 
   <!-- RIGHT PANEL — KARAKTÄRSCHAT (aktiveras efter byggaren) -->
+  <!-- ÖGONBLICKSBILDER -->
+  <div class="notes-panel" id="panel-snaps" style="display:none;width:340px;flex-direction:column;">
+    <div class="notes-header">
+      <div class="notes-title asst-title"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg> Ögonblicksbilder</div>
+      <button class="notes-close" onclick="closePanel()" title="Stäng">✕</button>
+    </div>
+    <div class="rs-panel-scope">Scen: <b id="snapScene"></b></div>
+    <div class="snap-intro">Spara en version av scenen innan du skriver om den. Du kan jämföra och gå tillbaka när som helst.</div>
+    <div style="padding:0 12px 10px;"><button class="rs-add" style="width:100%;" onclick="snapTakeAsk()"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg> Ta ögonblicksbild nu</button></div>
+    <div class="rs-panel-list" id="snapList"></div>
+  </div>
+
   <!-- RESEARCH I MARGINALEN -->
   <div class="notes-panel" id="panel-research" style="display:none;width:340px;flex-direction:column;">
     <div class="notes-header">
@@ -3921,6 +3962,7 @@
     <button class="icon-bar-btn" id="ibtn-idebank" data-tip="Idébanken" onclick="showPanel('panel-idebank')"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-charchat" data-tip="Prata med karaktär" onclick="showPanel('panel-charchat')"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg></button>
     <div class="icon-bar-divider"></div>
+    <button class="icon-bar-btn" id="ibtn-snaps" data-tip="Ögonblicksbilder" onclick="openSnaps()"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg></button>
     <button class="icon-bar-btn" data-tip="Säkerhetskopia" id="ibtn-backup" onclick="openBackupDialog()"><svg class="ic" aria-hidden="true"><use href="#i-history"/></svg></button>
   </div>
 
@@ -4265,8 +4307,14 @@
   }
 
   // Uppdatera dateChanged på aktiv scen
+  // Kapitel vars text har ändrats och behöver sparas (null = alla)
+  let fbDirtyAll = true; const fbDirty = new Set();
+  window.fbTakeDirtyChapters = function() { const out = fbDirtyAll ? null : new Set(fbDirty); fbDirtyAll = false; fbDirty.clear(); return out; };
+  window.fbMarkDirty = function(ids) { if (!ids) fbDirtyAll = true; else ids.forEach(id => fbDirty.add(id)); };
+
   function touchScene(scene) {
     scene = scene || activeScene;
+    if (scene) { const ch = chapterForScene(scene.id); if (ch) fbDirty.add(ch.id); }
     if (scene) {
       const now = new Date();
       const p = n => String(n).padStart(2,'0');
@@ -4371,15 +4419,15 @@
 
   // ─── PANEL SWITCHING ───
   function showPanel(id) {
-    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research'].forEach(p => {
+    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps'].forEach(p => {
       const el = document.getElementById(p);
       if(el) el.style.display = p === id ? 'flex' : 'none';
     });
-    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant','ibtn-research'].forEach(b => {
+    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant','ibtn-research','ibtn-snaps'].forEach(b => {
       const el = document.getElementById(b);
       if(el) el.classList.remove('active');
     });
-    const btnMap = {'panel-notes':'ibtn-notes','panel-idebank':'ibtn-idebank','panel-charchat':'ibtn-charchat','panel-charchat-active':'ibtn-charchat','panel-assistant':'ibtn-assistant','panel-research':'ibtn-research'};
+    const btnMap = {'panel-notes':'ibtn-notes','panel-idebank':'ibtn-idebank','panel-charchat':'ibtn-charchat','panel-charchat-active':'ibtn-charchat','panel-assistant':'ibtn-assistant','panel-research':'ibtn-research','panel-snaps':'ibtn-snaps'};
     if(btnMap[id]) document.getElementById(btnMap[id]).classList.add('active');
   }
   // ─── KARAKTÄRER: öppna i högerspalten (ikonpanelen) ───
@@ -4396,11 +4444,11 @@
 
 
   function closePanel() {
-    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research'].forEach(p => {
+    ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps'].forEach(p => {
       const el = document.getElementById(p);
       if(el) el.style.display = 'none';
     });
-    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant','ibtn-research'].forEach(b => {
+    ['ibtn-notes','ibtn-idebank','ibtn-charchat','ibtn-assistant','ibtn-research','ibtn-snaps'].forEach(b => {
       const el = document.getElementById(b);
       if(el) el.classList.remove('active');
     });
@@ -4688,14 +4736,14 @@
   try { if (localStorage.getItem('writeon_binder_collapsed') === '1') document.body.classList.add('binder-collapsed'); } catch(e) {}
 
   function toggleInspector() {
-    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research']
+    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps']
       .some(id => { const el = document.getElementById(id); return el && el.style.display !== 'none'; });
     if (open) closePanel(); else showPanel('panel-notes');
   }
 
   // Knappen uppe till höger lyser när högerpanelen är öppen
   function updateInspBtn() {
-    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research']
+    const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps']
       .some(id => { const el = document.getElementById(id); return el && el.style.display !== 'none'; });
     document.getElementById('inspBtn')?.classList.toggle('on', open);
   }
@@ -5125,6 +5173,7 @@
     if (document.getElementById('panel-assistant')?.style.display === 'flex') asstUpdateContextLine();
     if (document.getElementById('panel-research')?.style.display === 'flex' && typeof rsRender === 'function') rsRender();
     if (typeof popRender === 'function') popRender('research');
+    if (document.getElementById('panel-snaps')?.style.display === 'flex' && typeof snapRender === 'function') snapRender();
     if (typeof bgRenderMini === 'function') bgRenderMini();
     const tidEl = document.getElementById('insp-tid'); if (tidEl) tidEl.value = scene.tid || '';
   }
@@ -6499,9 +6548,9 @@
     });
     chapters.forEach(c => { if (!c.scenes.length) c.scenes.push({ id: c.id + '-scene-1', title: 'Scen 1', status: 'draft', drama: 'ingen', pov: '', synopsis: '', notes: '', text: '', words: 0, dateCreated: now, dateChanged: now }); });
     const data = { chapters, characters: [], wordGoal: 80000, idebank: {}, format: 'prosa' };
-    const size = JSON.stringify(data).length;
-    if (size > 900000) {
-      alert('Boken är för stor för att sparas som ett enda projekt (' + Math.round(size / 1000) + ' kB, gränsen är 1 MB).\n\nDela upp den i två filer, till exempel första och andra halvan, och importera dem var för sig. Säg till utvecklaren, så höjs gränsen.');
+    const big = chapters.map(c => ({ c, size: JSON.stringify(c).length })).filter(x => x.size > 900000);
+    if (big.length) {
+      alert('Kapitlet "' + big[0].c.title + '" är för stort för att sparas (' + Math.round(big[0].size / 1000) + ' kB, gränsen är 1 MB per kapitel).\n\nDela upp det med fler rubriker i Word-filen och importera igen.');
       return;
     }
     let namn = (prompt('Vad ska projektet heta?', file.name.replace(/\.(docx|txt|md|markdown)$/i, '')) || '').trim().replace(/\//g, '-');
@@ -6523,6 +6572,96 @@
     const ok = await runSave();
     const words = totalWordCount();
     if (ok) { showAutosaveMsg('✓ Importerade ' + chapters.length + ' kapitel och ' + fmtNum(words) + ' ord'); if (window.fbRefreshRecentMenu) window.fbRefreshRecentMenu(); }
+  }
+
+  // ═══ ÖGONBLICKSBILDER — sparade versioner av en scen (som i Scrivener) ═══
+  // Sparas som egna dokument i Firebase (users/{uid}/snapshots), så projektet inte växer.
+  let snapCache = [];
+
+  function snapScene() { return activeScene; }
+  async function snapTake(note, silent) {
+    const sc = snapScene(); if (!sc || !window.fbSaveSnapshot) return false;
+    const ok = await window.fbSaveSnapshot({ project: window.fbActiveProject || '', sceneId: sc.id, sceneTitle: sc.title,
+      text: sc.text || '', words: sc.words || 0, note: note || '' });
+    if (!silent) showAutosaveMsg(ok ? '✓ Ögonblicksbild sparad' : '⚠ Ögonblicksbilden kunde inte sparas');
+    if (document.getElementById('panel-snaps')?.style.display === 'flex') snapRender();
+    return ok;
+  }
+  window.snapTake = snapTake;
+  function snapTakeAsk() {
+    const note = prompt('Vill du skriva en kort notering till ögonblicksbilden? Till exempel "före omskrivningen". Det går bra att lämna tomt.', '');
+    if (note === null) return;
+    snapTake(note.trim());
+  }
+  function openSnaps() {
+    if (document.body.classList.contains('focus')) toggleFocusMode(false);
+    switchView('writing'); showPanel('panel-snaps'); snapRender();
+  }
+  function snapFmt(ms) {
+    if (!ms) return '';
+    const d = new Date(ms), now = new Date();
+    const t = d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+    return d.toDateString() === now.toDateString() ? 'I dag ' + t : d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined }) + ' ' + t;
+  }
+  async function snapRender() {
+    const sc = snapScene(), head = document.getElementById('snapScene'), list = document.getElementById('snapList');
+    if (!list) return;
+    head.textContent = sc ? ((chapterForScene(sc.id) || {}).title || '') + ' · ' + sc.title : '';
+    list.innerHTML = '<div class="rs-empty">Hämtar …</div>';
+    snapCache = sc && window.fbListSnapshots ? await window.fbListSnapshots(window.fbActiveProject || '', sc.id) : [];
+    if (!snapScene() || snapScene().id !== (sc && sc.id)) return;      // scenbyte under tiden
+    list.innerHTML = snapCache.length ? snapCache.map(s =>
+      '<div class="snap-item"><div class="snap-top"><b>' + rsEsc(snapFmt(s.createdMs)) + '</b><span>' + fmtNum(s.words) + ' ord</span></div>' +
+      (s.note ? '<div class="snap-note">' + rsEsc(s.note) + '</div>' : '') +
+      '<div class="snap-act"><button onclick="snapCompare(\'' + s.id + '\')">Jämför med nu</button><button onclick="snapRestore(\'' + s.id + '\')">Återställ</button><button class="snap-del" onclick="snapDelete(\'' + s.id + '\')">Ta bort</button></div></div>').join('')
+      : '<div class="rs-empty">Inga ögonblicksbilder av den här scenen än. Ta en innan du skriver om något, så kan du alltid gå tillbaka.</div>';
+  }
+  window.snapRender = snapRender;
+
+  // Ordvis jämförelse: vad har tagits bort och lagts till sedan ögonblicksbilden
+  function snapWords(html) { return htmlToPlain(html).split(/(\s+)/).filter(w => w !== ''); }
+  function snapDiff(a, b) {
+    const A = snapWords(a), B = snapWords(b);
+    if (A.length * B.length > 9e6) return null;                       // för långt för ordvis jämförelse
+    const n = A.length, m = B.length, dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+      dp[i][j] = A[i] === B[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    let i = 0, j = 0, out = '';
+    const esc = s => rsEsc(s).replace(/\n/g, '<br>');
+    while (i < n && j < m) {
+      if (A[i] === B[j]) { out += esc(A[i]); i++; j++; }
+      else if (dp[i + 1][j] >= dp[i][j + 1]) { out += '<del>' + esc(A[i]) + '</del>'; i++; }
+      else { out += '<ins>' + esc(B[j]) + '</ins>'; j++; }
+    }
+    while (i < n) out += '<del>' + esc(A[i++]) + '</del>';
+    while (j < m) out += '<ins>' + esc(B[j++]) + '</ins>';
+    return out;
+  }
+  function snapCompare(id) {
+    const s = snapCache.find(x => x.id === id), sc = snapScene(); if (!s || !sc) return;
+    const diff = snapDiff(s.text, sc.text);
+    document.getElementById('snapCmpTitle').textContent = 'Ögonblicksbild från ' + snapFmt(s.createdMs).replace(/^I dag/, 'i dag') + ', jämförd med nu';
+    document.getElementById('snapCmpBody').innerHTML = diff !== null
+      ? '<div class="snap-legend"><del>borttaget sedan dess</del> <ins>tillagt sedan dess</ins></div><div class="snap-diff">' + diff + '</div>'
+      : '<div class="snap-cols"><div><div class="snap-h">Ögonblicksbilden</div>' + s.text + '</div><div><div class="snap-h">Nu</div>' + sc.text + '</div></div>';
+    document.getElementById('snapCmpRestore').onclick = () => { snapClose(); snapRestore(id); };
+    document.getElementById('snapCmpModal').style.display = 'flex';
+  }
+  function snapClose() { document.getElementById('snapCmpModal').style.display = 'none'; }
+  async function snapRestore(id) {
+    const s = snapCache.find(x => x.id === id), sc = snapScene(); if (!s || !sc) return;
+    if (!confirm('Återställa scenen till ögonblicksbilden från ' + snapFmt(s.createdMs).replace(/^I dag/, 'i dag') + '?\n\nTexten som finns nu sparas först som en egen ögonblicksbild, så inget går förlorat.')) return;
+    await snapTake('Före återställning', true);
+    sc.text = s.text; sc.words = countWordsInHtml(sc.text); touchScene(sc);
+    const area = document.getElementById('writingArea-' + sc.id); if (area) area.innerHTML = sc.text;
+    updateWordCountDisplays(sc);
+    showAutosaveMsg('✓ Scenen är återställd');
+    snapRender();
+  }
+  async function snapDelete(id) {
+    if (!confirm('Ta bort ögonblicksbilden?')) return;
+    if (window.fbDeleteSnapshot) await window.fbDeleteSnapshot(id);
+    snapRender();
   }
 
   function openResearchPanel() {
@@ -6842,6 +6981,7 @@ VIKTIGT:
     allScenes().forEach(sc => { sc.words = countWordsInHtml(sc.text); });
     activeScene = allScenes()[0];
     changeSeq = savedSeq = 0;
+    fbDirtyAll = false; fbDirty.clear();
     updateProjectTitle();
     renderProjectViews();
     renderIdebank();
@@ -9513,6 +9653,7 @@ window.addEventListener('load', function() {
     const result = window._aiLastResult;
     const range  = window._aiLastRange;
     if(!result || !range) return;
+    if (window.snapTake) window.snapTake('Före AI-ersättning', true);
     try {
       const anc = range.commonAncestorContainer;
       const area = (anc.nodeType === 1 ? anc : anc.parentElement)?.closest('.scene-writing-area');
@@ -9547,7 +9688,7 @@ window.addEventListener('load', function() {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, serverTimestamp }
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, serverTimestamp, query, where }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -9577,6 +9718,23 @@ function fbWaitForUser(timeoutMs = 6000) {
 
 // ── Spara det öppna projektet (anropas av runSave i huvudskriptet) ─────────────
 window.fbLastSaveError = null;
+// Kapitlens texter sparas i egna dokument (users/{uid}/projects/{namn}/kapitel/{kapitelId}),
+// så att boken inte slår i taket på 1 MB per dokument. Projektdokumentet håller strukturen.
+// Tillåter inte Firebase-reglerna kapiteldokument används det gamla sättet: allt i ett dokument.
+window.fbChapterStorage = true;
+const fbKnownChapters = {};            // projektnamn → Set med kapitel-id som finns sparade
+async function fbHydrate(namn, data) {
+  const user = auth.currentUser;
+  if (data && data.lagring === 'kapitel' && user) {
+    const snap = await getDocs(collection(db, 'users', user.uid, 'projects', namn, 'kapitel'));
+    const texts = {};
+    snap.docs.forEach(dd => Object.assign(texts, dd.data().texter || {}));
+    (data.chapters || []).forEach(ch => (ch.scenes || []).forEach(sc => { sc.text = texts[sc.id] || ''; }));
+    fbKnownChapters[namn] = new Set(snap.docs.map(dd => dd.id));
+  } else fbKnownChapters[namn] = null;
+  return data;
+}
+
 window.firebaseSaveProject = async function() {
   const user = auth.currentUser || await fbWaitForUser();
   if (!user) {
@@ -9586,12 +9744,10 @@ window.firebaseSaveProject = async function() {
   }
   const projektNamn = (window.fbActiveProject || '').trim();
   if (!projektNamn) { window.fbLastSaveError = 'Projektet saknar namn'; return false; }
-  try {
-    const p = window.projectData || {};
-    const data = {
+  const p = window.projectData || {};
+  const base = () => ({
       title:      projektNamn,
       wordGoal:   p.wordGoal || 100000,
-      chapters:   p.chapters || [],
       characters: p.characters || [],
       idebank:    p.idebank || {},
       research:   p.research || [],
@@ -9602,8 +9758,44 @@ window.firebaseSaveProject = async function() {
       episoder:   p.episoder || [],
       format:     p.format || 'prosa',
       savedAt:    serverTimestamp()
-    };
-    await setDoc(doc(db, 'users', user.uid, 'projects', projektNamn), data);
+  });
+  const chapters = p.chapters || [];
+  if (window.fbChapterStorage) {
+    const dirty = window.fbTakeDirtyChapters ? window.fbTakeDirtyChapters() : null;
+    try {
+      const known = fbKnownChapters[projektNamn];
+      // 1. kapitlens texter (bara de som ändrats eller är nya)
+      const writes = [];
+      for (const ch of chapters) {
+        if (known && known.has(ch.id) && dirty && !dirty.has(ch.id)) continue;
+        const texter = {}; (ch.scenes || []).forEach(sc => { texter[sc.id] = sc.text || ''; });
+        writes.push(setDoc(doc(db, 'users', user.uid, 'projects', projektNamn, 'kapitel', ch.id), { texter, savedAt: serverTimestamp() }));
+      }
+      // 2. kapitel som inte längre finns
+      if (known) for (const id of known) if (!chapters.some(c => c.id === id))
+        writes.push(deleteDoc(doc(db, 'users', user.uid, 'projects', projektNamn, 'kapitel', id)));
+      await Promise.all(writes);                          // parallellt, så att långa böcker sparas snabbt
+      // 3. projektdokumentet sist, så att det aldrig pekar på texter som saknas
+      const struktur = chapters.map(ch => Object.assign({}, ch, { scenes: (ch.scenes || []).map(sc => { const o = Object.assign({}, sc); delete o.text; return o; }) }));
+      await setDoc(doc(db, 'users', user.uid, 'projects', projektNamn), Object.assign(base(), { chapters: struktur, lagring: 'kapitel' }));
+      fbKnownChapters[projektNamn] = new Set(chapters.map(c => c.id));
+      window.fbLastSaveError = null;
+      return true;
+    } catch(e) {
+      if (window.fbMarkDirty) window.fbMarkDirty(dirty ? [...dirty] : null);
+      if (e.code === 'permission-denied') {
+        console.warn('[Firebase] Kapiteldokument tillåts inte av reglerna. Sparar allt i ett dokument.');
+        window.fbChapterStorage = false;
+      } else {
+        console.error('[Firebase] Sparfel:', e.code, e.message, e);
+        window.fbLastSaveError = 'Sparfel: ' + (e.code || e.message);
+        return false;
+      }
+    }
+  }
+  try {
+    await setDoc(doc(db, 'users', user.uid, 'projects', projektNamn), Object.assign(base(), { chapters, lagring: 'ett' }));
+    fbKnownChapters[projektNamn] = null;
     window.fbLastSaveError = null;
     return true;
   } catch(e) {
@@ -9617,7 +9809,7 @@ window.firebaseLoadProject = async function(projektNamn) {
   const user = auth.currentUser;
   if (!user) return null;
   const snap = await getDoc(doc(db, 'users', user.uid, 'projects', projektNamn));
-  return snap.exists() ? snap.data() : null;
+  return snap.exists() ? await fbHydrate(projektNamn, snap.data()) : null;
 };
 
 window.firebaseListProjects = async function() {
@@ -9637,10 +9829,17 @@ window.firebaseDeleteProject = async function(namn) {
   const user = auth.currentUser;
   if (!user) return;
   try {
+    try {
+      const kap = await getDocs(collection(db, 'users', user.uid, 'projects', namn, 'kapitel'));
+      for (const k of kap.docs) await deleteDoc(doc(db, 'users', user.uid, 'projects', namn, 'kapitel', k.id));
+    } catch(e) {}
     await deleteDoc(doc(db, 'users', user.uid, 'projects', namn));
+    delete fbKnownChapters[namn];
     try {
       const imgs = await getDocs(collection(db, 'users', user.uid, 'images'));
       for (const im of imgs.docs) if (im.data().project === namn) await deleteDoc(doc(db, 'users', user.uid, 'images', im.id));
+      const snaps = await getDocs(query(collection(db, 'users', user.uid, 'snapshots'), where('project', '==', namn)));
+      for (const sn of snaps.docs) await deleteDoc(doc(db, 'users', user.uid, 'snapshots', sn.id));
     } catch(e) {}
     console.log('[Firebase] ✓ Raderade projekt:', namn);
     if (window.showAutosaveMsg) window.showAutosaveMsg(namn + ' borttaget');
@@ -9726,6 +9925,25 @@ window.fbDeleteImage = async function(id) {
   try { await deleteDoc(doc(db, 'users', user.uid, 'images', id)); } catch(e) {}
 };
 
+// ── Ögonblicksbilder: ett dokument per version (users/{uid}/snapshots/{id}) ──
+window.fbSaveSnapshot = async function(s) {
+  const user = auth.currentUser; if (!user) return false;
+  const id = 'snap-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  try { await setDoc(doc(db, 'users', user.uid, 'snapshots', id), Object.assign({}, s, { createdMs: Date.now(), createdAt: serverTimestamp() })); return true; }
+  catch(e) { console.error('[Firebase] Ögonblicksbild:', e.code, e.message); return false; }
+};
+window.fbListSnapshots = async function(project, sceneId) {
+  const user = auth.currentUser; if (!user) return [];
+  try {
+    const snap = await getDocs(query(collection(db, 'users', user.uid, 'snapshots'), where('project', '==', project), where('sceneId', '==', sceneId)));
+    return snap.docs.map(d => Object.assign({ id: d.id }, d.data())).sort((a, b) => (b.createdMs || 0) - (a.createdMs || 0));
+  } catch(e) { console.error('[Firebase] Ögonblicksbilder:', e.code, e.message); return []; }
+};
+window.fbDeleteSnapshot = async function(id) {
+  const user = auth.currentUser; if (!user) return;
+  try { await deleteDoc(doc(db, 'users', user.uid, 'snapshots', id)); } catch(e) {}
+};
+
 // Inloggningstoken till appens server (AI-anrop)
 window.fbGetIdToken = async function() { return auth.currentUser ? auth.currentUser.getIdToken() : null; };
 
@@ -9756,7 +9974,7 @@ async function fbOpenLatestProject() {
       const t = data.savedAt && data.savedAt.toMillis ? data.savedAt.toMillis() : 0;
       if (!senaste || t > senaste.t) senaste = { namn: d.id, data, t };
     });
-    fbApply(senaste.namn, senaste.data);
+    fbApply(senaste.namn, await fbHydrate(senaste.namn, senaste.data));
   } catch(e) {
     console.error('[Firebase] Kunde inte hämta projekt:', e);
     window.setSyncStatus('error', 'Kunde inte hämta dina projekt');
@@ -9842,10 +10060,18 @@ window.fbRaderaKonto = async function() {
   if (prompt('Skriv RADERA för att bekräfta.') !== 'RADERA') return;
   try {
     const snap = await getDocs(collection(db, 'users', user.uid, 'projects'));
-    for (const d of snap.docs) await deleteDoc(doc(db, 'users', user.uid, 'projects', d.id));
+    for (const d of snap.docs) {
+      try {
+        const kap = await getDocs(collection(db, 'users', user.uid, 'projects', d.id, 'kapitel'));
+        for (const k of kap.docs) await deleteDoc(doc(db, 'users', user.uid, 'projects', d.id, 'kapitel', k.id));
+      } catch(e) {}
+      await deleteDoc(doc(db, 'users', user.uid, 'projects', d.id));
+    }
     try {
       const imgs = await getDocs(collection(db, 'users', user.uid, 'images'));
       for (const im of imgs.docs) await deleteDoc(doc(db, 'users', user.uid, 'images', im.id));
+      const snaps = await getDocs(collection(db, 'users', user.uid, 'snapshots'));
+      for (const sn of snaps.docs) await deleteDoc(doc(db, 'users', user.uid, 'snapshots', sn.id));
     } catch(e) {}
     window.fbActiveProject = null;
     await user.delete();
@@ -9935,6 +10161,80 @@ window.fbLoggaUt = async function() {
   </div>
 </div>
 
+<!-- HJÄLP -->
+<div id="helpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this) this.style.display='none'">
+  <div class="wn-modal help-dlg">
+    <div class="wn-modal-head"><h2>Hjälp</h2><button class="wn-x" onclick="document.getElementById('helpModal').style.display='none'">✕</button></div>
+    <div class="help-body">
+      <details open><summary>Kom igång</summary><ul>
+        <li><b>Nytt projekt</b> finns under Fil. Välj en mall: roman, roman i tre akter, deckare, novell, dagboksroman, filmmanus eller tomt.</li>
+        <li><b>Kapitel och scener</b> lägger du till längst ner i kapitellistan till vänster. Klicka på en scen för att skriva i den.</li>
+        <li><b>Sidolisten</b> längst till vänster växlar mellan vyerna: Manus, Scenkort, Outline, Båge, Idébank, Karaktärer, Research och Assistent.</li>
+        <li><b>Högerpanelen</b> visar inspektören, assistenten, Research, Idébanken och ögonblicksbilderna. Knappen uppe till höger visar och döljer den.</li>
+      </ul></details>
+      <details><summary>Sparande och säkerhet</summary><ul>
+        <li><b>Allt sparas automatiskt</b> i molnet ett par sekunder efter att du har skrivit. Märket bredvid projektnamnet visar läget: Ändrat, Sparar eller Sparat med klockslag.</li>
+        <li><b>Ögonblicksbilder</b> sparar en version av en scen innan du skriver om den. Du kan jämföra med den och gå tillbaka. De finns under klockan i ikonfältet till höger.</li>
+        <li><b>Säkerhetskopia</b> i menyn laddar ner hela projektet till datorn. Du öppnar kopian igen med Fil → Öppna.</li>
+      </ul></details>
+      <details><summary>Skriva</summary><ul>
+        <li><b>Markera text</b> så visas en rad med fet, kursiv, understruken, stycketyp, lista, citat, koppling till research och AI-verktygen.</li>
+        <li><b>Fokusläge</b> visar bara texten. Slå på och av med Ctrl+Shift+F, eller Esc för att gå ur.</li>
+        <li><b>Format</b> i menyn ändrar typsnitt, textstorlek och zoom för hela manuset.</li>
+      </ul></details>
+      <details><summary>Assistenten och Finputs</summary><ul>
+        <li><b>Assistenten</b> läser synopsis, karaktärer, Idébanken, Research och scenen du står i innan den svarar.</li>
+        <li><b>Korten</b> i assistenten ger respons på scenen, hjälper dig vidare eller granskar hela boken.</li>
+        <li><b>Finputs</b> går igenom boken kapitel för kapitel och letar efter stavfel, grammatik och logiska kullerbyttor. Den skriver aldrig om din text, den föreslår bara.</li>
+      </ul></details>
+      <details><summary>Research</summary><ul>
+        <li><b>Lägg till</b> bilder, fakta, källor och citat. Koppla dem till en scen, så visas de i marginalen när du skriver där.</li>
+        <li><b>Dra en bild</b> från datorn och släpp den på Research.</li>
+        <li><b>Koppla ett ord</b> till ett kort: markera ordet och välj bokhyllan i markeringsraden. En symbol i marginalen visar kopplingen.</li>
+        <li><b>Lossa</b> öppnar Research eller Idébanken i ett eget fönster.</li>
+      </ul></details>
+      <details><summary>Dramabåge</summary><ul>
+        <li><b>Bågen</b> visar bokens kapitel efter stämning, jämfört med en klassisk båge som tre akter eller Fichtes kurva.</li>
+        <li><b>Dra en punkt</b> för att ändra stämning, och dra faserna dit de passar din bok.</li>
+        <li><b>Ovanför kapitelrubriken</b> ser du var kapitlet ligger i bågen.</li>
+      </ul></details>
+      <details><summary>Filmmanus</summary><ul>
+        <li><b>Enter</b> går till nästa troliga element och <b>Tab</b> byter element, som i Final Draft. Alt+1–6 väljer element direkt.</li>
+        <li><b>INT. eller EXT.</b> i början av en rad blir automatiskt en scenrubrik.</li>
+        <li><b>Export</b> till Fountain och PDF i manusformat finns under Fil.</li>
+      </ul></details>
+      <details><summary>Import och export</summary><ul>
+        <li><b>Importera bok</b> under Fil läser en Word- eller textfil. Rubriker blir kapitel. Från Scrivener exporterar du först till Word.</li>
+        <li><b>Exportera</b> under Fil ger PDF, Word, ePub, text, Markdown eller HTML.</li>
+      </ul></details>
+      <details><summary>Kortkommandon</summary>
+        <table class="help-keys">
+          <tr><td>Ctrl+S</td><td>Spara direkt</td></tr>
+          <tr><td>Ctrl+O</td><td>Öppna en fil</td></tr>
+          <tr><td>Ctrl+P</td><td>Skriv ut</td></tr>
+          <tr><td>Ctrl+B / I / U</td><td>Fet, kursiv, understruken</td></tr>
+          <tr><td>Ctrl+Shift+F</td><td>Fokusläge</td></tr>
+          <tr><td>Esc</td><td>Lämna fokusläge</td></tr>
+          <tr><td>Alt+1–6</td><td>Element i filmmanus</td></tr>
+        </table>
+        <p class="wn-note">På Mac använder du ⌘ i stället för Ctrl.</p>
+      </details>
+      <details><summary>Konto och integritet</summary><ul>
+        <li><b>Profilbilden</b> uppe till höger har Logga ut, Radera konto och Så hanteras din text.</li>
+      </ul></details>
+    </div>
+  </div>
+</div>
+
+<!-- ÖGONBLICKSBILD: JÄMFÖRELSE -->
+<div id="snapCmpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this) snapClose()">
+  <div class="wn-modal" style="width:760px;">
+    <div class="wn-modal-head"><h2 id="snapCmpTitle">Jämförelse</h2><button class="wn-x" onclick="snapClose()">✕</button></div>
+    <div id="snapCmpBody" class="snap-cmp"></div>
+    <div class="wn-modal-foot" style="gap:8px;"><button class="wn-btn" onclick="snapClose()">Stäng</button><button class="wn-btn wn-btn-primary" id="snapCmpRestore">Återställ den här versionen</button></div>
+  </div>
+</div>
+
 <!-- SÅ HANTERAS DIN TEXT -->
 <div id="privacyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:100000;align-items:center;justify-content:center;" onclick="if(event.target===this) this.style.display='none'">
   <div class="wn-modal" style="width:560px;">
@@ -9944,6 +10244,7 @@ window.fbLoggaUt = async function() {
       <li><b>Appen</b> körs på servrar hos Railway i USA. När du använder AI passerar texten servern på vägen till och från AI:n, men den sparas inte där.</li>
       <li><b>När du använder AI</b> skickas den text som behövs för svaret, till exempel scenen du står i, synopsis och karaktärer, till Anthropic (Claude). Text som skickas via Anthropics API används inte för att träna deras modeller.</li>
       <li><b>Utseendet</b>, alltså typsnitt, textstorlek och mörkt läge, sparas bara i din webbläsare.</li>
+      <li><b>Ögonblicksbilder</b> av scener sparas tillsammans med dina projekt i Frankfurt och raderas med dem.</li>
       <li><b>Säkerhetskopior</b> som du laddar ner hamnar på din egen dator.</li>
       <li><b>Radera allt:</b> under din profilbild uppe till höger finns <i>Radera konto</i>. Då tas ditt konto och alla dina projekt bort för gott.</li>
     </ul>
