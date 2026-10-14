@@ -136,6 +136,64 @@ app.post('/api/ai', async (req, res) => {
   }
 });
 
+// ── Länkförhandsvisning för Research: titel och bild från en webbsida ───────
+// Hämtar bara offentliga http(s)-sidor, aldrig interna adresser, och läser högst 1,5 MB.
+const dnsP = require('dns').promises;
+const httpMod = require('http');
+const httpsMod = require('https');
+function isPrivateIp(ip) {
+  if (!ip) return true;
+  if (ip.includes(':')) { const l = ip.toLowerCase(); return l === '::1' || l.startsWith('fc') || l.startsWith('fd') || l.startsWith('fe80') || l.startsWith('::ffff:127.') || l.startsWith('::ffff:10.') || l.startsWith('::ffff:192.168.'); }
+  const [a, b] = ip.split('.').map(Number);
+  return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || a >= 224;
+}
+async function fetchPage(url, depth = 0) {
+  const u = new URL(url);
+  if (!/^https?:$/.test(u.protocol)) throw new Error('bara http och https');
+  const { address } = await dnsP.lookup(u.hostname);
+  if (isPrivateIp(address)) throw new Error('intern adress');
+  return new Promise((resolve, reject) => {
+    const mod = u.protocol === 'https:' ? httpsMod : httpMod;
+    const rq = mod.get(u, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WriteON-forhandsvisning)', 'Accept': 'text/html,*/*', 'Accept-Language': 'sv,en' }, timeout: 7000 }, res => {
+      if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && depth < 4) {
+        res.resume(); return resolve(fetchPage(new URL(res.headers.location, u).href, depth + 1));
+      }
+      let size = 0; const chunks = [];
+      res.on('data', c => { size += c.length; if (size > 1500000) rq.destroy(); else chunks.push(c); });
+      res.on('end', () => resolve({ html: Buffer.concat(chunks).toString('utf8'), url: u.href }));
+      res.on('error', reject);
+    });
+    rq.on('timeout', () => rq.destroy(new Error('timeout')));
+    rq.on('error', reject);
+  });
+}
+const decodeHtml = s => String(s || '').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n));
+function metaContent(html, names) {
+  for (const n of names) {
+    const tags = html.match(new RegExp('<meta[^>]+(?:property|name)=["\']' + n + '["\'][^>]*>', 'i'));
+    if (tags) { const c = tags[0].match(/content=["']([^"']*)["']/i); if (c) return c[1]; }
+    const rev = html.match(new RegExp('<meta[^>]+content=["\']([^"\']*)["\'][^>]+(?:property|name)=["\']' + n + '["\']', 'i'));
+    if (rev) return rev[1];
+  }
+  return '';
+}
+app.get('/api/preview', async (req, res) => {
+  const email = await verifyUser(req);
+  if (!email) return res.status(401).json({ error: 'Logga in för att hämta förhandsvisningar.' });
+  try {
+    const { html, url } = await fetchPage(String(req.query.url || ''));
+    const head = html.slice(0, 400000);
+    const title = decodeHtml(metaContent(head, ['og:title', 'twitter:title']) || (head.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || '').trim().slice(0, 200);
+    let image = decodeHtml(metaContent(head, ['og:image', 'og:image:url', 'og:image:secure_url', 'twitter:image']));
+    if (image) { try { image = new URL(image, url).href; } catch (e) { image = ''; } }
+    const description = decodeHtml(metaContent(head, ['og:description', 'description', 'twitter:description'])).trim().slice(0, 300);
+    const site = decodeHtml(metaContent(head, ['og:site_name'])) || new URL(url).hostname.replace(/^www\./, '');
+    res.json({ title, image: /^https?:\/\//.test(image) ? image : '', description, site });
+  } catch (e) {
+    res.json({ title: '', image: '', description: '', site: '' });
+  }
+});
+
 // ── Appen ───────────────────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname)));
 app.get('*', (req, res) => {

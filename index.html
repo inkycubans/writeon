@@ -482,7 +482,7 @@
   .rsl-typ { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-right: 8px; }
 
   /* Lossa och fristående fönster */
-  .pop-detach { margin-left: auto; margin-right: 4px; border: none; background: none; color: var(--action-text); font: 700 14px var(--font-ui); cursor: pointer; }
+  .pop-detach { white-space: nowrap; margin-left: auto; margin-right: 4px; border: none; background: none; color: var(--action-text); font: 700 14px var(--font-ui); cursor: pointer; }
   body.pop-body { margin: 0; background: var(--bg-sidebar); color: var(--text-primary); font-family: var(--font-ui); }
   .pop-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--bg-sidebar); border-bottom: 1px solid var(--border); }
   .pop-title { font-size: 17px; font-weight: 700; margin-right: auto; }
@@ -572,6 +572,32 @@
   .fr-ctx { display: block; font-family: var(--font-text); font-size: 14px; color: var(--text-secondary); }
   .fr-ctx mark { background: rgba(252,177,54,0.4); color: var(--text-primary); border-radius: 2px; }
   .fr-more { font-size: 13px; color: var(--text-muted); padding: 6px; }
+
+  /* Idébanken */
+  .ib-page { max-width: 860px; }
+  .ib-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
+  .ib-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+  .ib-title { display: flex; align-items: center; gap: 8px; font-size: 14pt; font-weight: 700; }
+  .ib-title .ic { width: 18px; height: 18px; color: var(--accent-n); }
+  .ib-help { font-size: 14px; color: var(--text-secondary); margin: 4px 0 10px; line-height: 1.45; }
+  .ib-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; }
+  .ib-page .ib-textarea, .ib-page .ib-input { width: 100%; box-sizing: border-box; font: 12pt/1.6 var(--font-text); color: var(--text-primary); background: var(--bg); border: 1.5px solid var(--border-strong); border-radius: 8px; padding: 10px 12px; }
+  .ib-page .ib-textarea { min-height: 110px; resize: vertical; }
+  .ib-page .ib-big { min-height: 240px; }
+  @media (max-width: 900px) { .ib-grid { grid-template-columns: 1fr; } }
+  /* Research: länkar och scenmarkering */
+  .rs-link { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 14px; font-weight: 600; color: var(--action-text); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rs-link .ic { width: 14px; height: 14px; flex-shrink: 0; }
+  .rs-link:hover { text-decoration: underline; }
+  .rs-preview-img { display: block; max-height: 220px; overflow: hidden; }
+  .rs-scene-mark { width: auto !important; padding: 0 6px; gap: 3px; font: 700 13px var(--font-ui); }
+  /* Redaktörens valknappar */
+  .asst-gt { font-size: 14px; color: var(--text-secondary); margin: 0 2px 8px; }
+  .asst-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .asst-chip { border: 1px solid var(--border-strong); background: var(--bg-card); color: var(--text-primary); border-radius: 16px; padding: 6px 12px; font: 600 14px var(--font-ui); cursor: pointer; }
+  .asst-chip:hover { border-color: var(--action); background: color-mix(in srgb, var(--action) 8%, var(--bg-card)); }
+  .asst-group { margin-top: 16px; }
+  #asstInput { resize: none; max-height: 45vh; overflow-y: auto; }
 
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
@@ -3544,15 +3570,15 @@
 <!-- SIDOLIST: vyerna -->
 <nav class="app-rail" aria-label="Vyer">
   <button class="rail-btn active" onclick="switchView('writing')" id="btn-writing" title="Manus"><svg class="ic" aria-hidden="true"><use href="#i-pen-line"/></svg>Manus</button>
+  <button class="rail-btn" onclick="switchView('character')" id="btn-character" title="Karaktärer"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>Karaktärer</button>
   <button class="rail-btn" onclick="switchView('corkboard')" id="btn-corkboard" title="Scenkort"><svg class="ic" aria-hidden="true"><use href="#i-layout-grid"/></svg>Scenkort</button>
   <button class="rail-btn" onclick="switchView('outline')" id="btn-outline" title="Outline"><svg class="ic" aria-hidden="true"><use href="#i-list-tree"/></svg>Outline</button>
   <button class="rail-btn" onclick="switchView('bage'); bgRender()" id="btn-bage" title="Dramabåge"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"/></svg>Båge</button>
   <div class="rail-sep"></div>
   <button class="rail-btn" onclick="switchView('idebank')" id="btn-idebank" title="Idébanken"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg>Idébank</button>
-  <button class="rail-btn" onclick="switchView('character')" id="btn-character" title="Karaktärer"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>Karaktärer</button>
   <button class="rail-btn" onclick="switchView('research'); rsRender()" id="btn-research" title="Research"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg>Research</button>
   <div class="rail-sep"></div>
-  <button class="rail-btn" onclick="toggleAiEditor()" id="btn-coach" title="Skrivassistent och redaktörens verktyg"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg>Assistent</button>
+  <button class="rail-btn" onclick="toggleAiEditor()" id="btn-coach" title="Redaktören"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg>Redaktör</button>
 </nav>
 
 <span id="autosaveIndicator" style="opacity:0;transition:opacity 0.5s;"></span>
@@ -3820,7 +3846,7 @@
 
     <!-- Idébank footer -->
     <div class="ib-footer">
-      <span style="font-size:13px;color:var(--text-muted);">Assistenten läser din Idébank</span>
+      <span style="font-size:13px;color:var(--text-muted);">Redaktören läser din Idébank</span>
     </div>
   </div>
 
@@ -3999,7 +4025,7 @@
   <!-- SKRIVASSISTENT -->
   <div class="notes-panel" id="panel-assistant" style="display:none;width:340px;">
     <div class="notes-header">
-      <div class="notes-title asst-title"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Skrivassistent</div>
+      <div class="notes-title asst-title"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Redaktören</div>
       <div class="asst-model" id="asstModel" style="display:none;">
         <button data-model="sonnet" onclick="asstSetModel('sonnet')" title="Snabb och billig — för löpande arbete">Sonnet</button>
         <button data-model="opus" onclick="asstSetModel('opus')" title="Djupare läsning — kostar mer">Opus</button>
@@ -4008,7 +4034,7 @@
     </div>
     <div class="asst-context" id="asstContext"><svg class="ic" aria-hidden="true"><use href="#i-book-open"/></svg> <span id="asstContextText">Läser projektet …</span></div>
     <div class="asst-bar" id="asstBar" style="display:none;">
-      <button class="asst-tools-btn" onclick="asstToggleCards()"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Verktyg <span id="asstToolsArrow">▾</span></button>
+      <button class="asst-tools-btn" onclick="asstToggleCards()"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg> Redaktörens verktyg <span id="asstToolsArrow">▾</span></button>
     </div>
     <div class="asst-cards" id="asstCards"></div>
     <div class="asst-messages" id="asstMessages"></div>
@@ -4043,10 +4069,7 @@
   <!-- FAR RIGHT ICON BAR -->
   <div class="icon-bar">
     <button class="icon-bar-btn active" id="ibtn-notes" data-tip="Kapitelnoter" onclick="showPanel('panel-notes')"><svg class="ic" aria-hidden="true"><use href="#i-clipboard-list"/></svg></button>
-    <button class="icon-bar-btn" id="ibtn-assistant" data-tip="Skrivassistent" onclick="openAssistant()"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-research" data-tip="Research" onclick="openResearchPanel()"><svg class="ic" aria-hidden="true"><use href="#i-library"/></svg></button>
-    <button class="icon-bar-btn" id="ibtn-idebank" data-tip="Idébanken" onclick="showPanel('panel-idebank')"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg></button>
-    <button class="icon-bar-btn" id="ibtn-charchat" data-tip="Prata med karaktär" onclick="showPanel('panel-charchat')"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg></button>
     <div class="icon-bar-divider"></div>
     <button class="icon-bar-btn" id="ibtn-comments" data-tip="Kommentarer" onclick="openComments()"><svg class="ic" aria-hidden="true"><use href="#i-message-square-text"/></svg></button>
     <button class="icon-bar-btn" id="ibtn-snaps" data-tip="Ögonblicksbilder" onclick="openSnaps()"><svg class="ic" aria-hidden="true"><use href="#i-camera"/></svg></button>
@@ -4144,56 +4167,44 @@
 
 <!-- IDÉBANKEN VIEW -->
 <div class="idebank-view-wrap" id="view-idebank">
-  <div class="idebank-view-inner">
-
-    <div class="idebank-view-hdr">
-      <span style="display:flex;"><svg class="ic ic-lg" aria-hidden="true"><use href="#i-lightbulb"/></svg></span>
+  <div class="idebank-view-inner ib-page">
+    <div class="ib-head">
       <div>
-        <div style="font-family:'Source Serif 4',serif;font-size:1.2rem;font-weight:700;">Idébanken</div>
-        <div class="view-sub">Allt om boken som inte är själva texten: idéer, ton, röst och platser. Assistenten läser det innan den svarar.</div>
+        <div class="rs-h1">Idébanken</div>
+        <div class="view-sub">Bokens grund: vad den handlar om, hur den ska låta och var den utspelar sig. Redaktören utgår från det du skriver här när den ger respons, så att svaren handlar om just din bok.</div>
+      </div>
+      <button class="pop-detach" onclick="popOpen('idebank')" title="Öppna i ett eget fönster bredvid texten">⧉ Lossa</button>
+    </div>
+
+    <div class="ib-card">
+      <div class="ib-title"><svg class="ic" aria-hidden="true"><use href="#i-book-open"/></svg> Synopsis</div>
+      <div class="ib-help">Vad handlar boken om? Börja med några meningar: vem det handlar om, vad som står på spel och vart det leder.</div>
+      <textarea class="ib-textarea ib-big" data-ib="synopsis" placeholder="Skriv bokens synopsis här …"></textarea>
+    </div>
+
+    <div class="ib-grid">
+      <div class="ib-card">
+        <div class="ib-title"><svg class="ic" aria-hidden="true"><use href="#i-drama"/></svg> Genre</div>
+        <div class="ib-help">Vilken sorts bok är det?</div>
+        <input class="ib-input" data-ib="genre" placeholder="T.ex. deckare, dagboksroman, relationsroman">
+      </div>
+      <div class="ib-card">
+        <div class="ib-title"><svg class="ic" aria-hidden="true"><use href="#i-feather"/></svg> Ton och berättarröst</div>
+        <div class="ib-help">Hur ska boken låta?</div>
+        <textarea class="ib-textarea" data-ib="rost" placeholder="T.ex. lakonisk jagberättare, korta meningar, torr humor, mörk stämning."></textarea>
       </div>
     </div>
 
-    <div class="idebank-view-grid">
+    <div class="ib-card">
+      <div class="ib-title"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg> Miljöer</div>
+      <div class="ib-help">Platserna där berättelsen utspelar sig: hur de ser ut, låter och luktar.</div>
+      <div id="ibv-varld"><button class="ib-add-btn" onclick="addWorldCard()">+ Ny miljö</button></div>
+    </div>
 
-      <!-- Vänster kolumn -->
-      <div class="idebank-col">
-
-        <div class="idebank-card">
-          <div class="idebank-card-title"><svg class="ic" aria-hidden="true"><use href="#i-brain"/></svg> Idéhög</div>
-          <textarea class="ib-textarea" style="min-height:120px;" placeholder="Skriv allt du vet om boken — karaktärer, stämning, teman, vad som helst."></textarea>
-        </div>
-
-        <div class="idebank-card">
-          <div class="idebank-card-title"><svg class="ic" aria-hidden="true"><use href="#i-drama"/></svg> Genre & ton</div>
-          <input class="ib-input" style="margin-bottom:8px;" placeholder="Genre...">
-          <input class="ib-input" placeholder="Ton och stämning...">
-        </div>
-
-        <div class="idebank-card">
-          <div class="idebank-card-title"><svg class="ic" aria-hidden="true"><use href="#i-feather"/></svg> Din röst</div>
-          <textarea class="ib-textarea" placeholder="Beskriv din skrivstil..."></textarea>
-        </div>
-
-      </div>
-
-      <!-- Höger kolumn -->
-      <div class="idebank-col">
-
-        <div class="idebank-card">
-          <div class="idebank-card-title" style="display:flex;justify-content:space-between;">
-            <span><svg class="ic" aria-hidden="true"><use href="#i-book-open"/></svg> Synopsis</span>
-          </div>
-          <textarea class="ib-textarea" style="min-height:100px;" placeholder="Sammanfatta din berättelse i ett stycke."></textarea>
-        </div>
-
-        <div class="idebank-card">
-          <div class="idebank-card-title"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg> Världen</div>
-          <button class="ib-add-btn" style="margin-top:8px;">+ Ny plats</button>
-        </div>
-
-      </div>
-
+    <div class="ib-card">
+      <div class="ib-title"><svg class="ic" aria-hidden="true"><use href="#i-lightbulb"/></svg> Idéer</div>
+      <div class="ib-help">Lösa idéer, scener du vill skriva och saker du inte vill glömma.</div>
+      <textarea class="ib-textarea" data-ib="idehog" placeholder="Skriv fritt …"></textarea>
     </div>
   </div>
 </div>
@@ -4208,7 +4219,7 @@
         <span style="display:flex;"><svg class="ic ic-lg" aria-hidden="true"><use href="#i-users"/></svg></span>
         <div>
           <div style="font-family:'Source Serif 4',serif;font-size:1.15rem;font-weight:700;">Karaktärer</div>
-          <div class="view-sub">Personerna i boken. Assistenten läser dem när den svarar.</div>
+          <div class="view-sub">Personerna i boken. Redaktören läser dem när den svarar. Pennstjärnan vid en person låter dig fråga redaktören om hen.</div>
         </div>
       </div>
       <button onclick="addNewCharacter()" style="display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background: var(--action);color:white;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;">
@@ -4291,7 +4302,7 @@
     <div class="rs-head">
       <div>
         <div class="rs-h1">Research</div>
-        <div class="view-sub">Fakta, bilder, källor och citat som du samlar till boken. Koppla dem till en scen, så visas de i marginalen när du skriver där.</div>
+        <div class="view-sub">Fakta, bilder och citat som du samlar till boken. Lägg gärna till en länk till källan. Kopplar du ett kort till en scen syns det med en symbol vid scenen och i Research-panelen när du skriver där.</div>
       </div>
       <div class="rs-add-wrap" id="rsAddWrap">
         <button class="rs-add" onclick="rsToggleAddMenu(event)">+ Lägg till ▾</button>
@@ -4299,7 +4310,6 @@
           <div class="nav-dd-note">Du kan också dra en bild hit.</div>
         <div class="nav-dd-item" onclick="rsOpen('bild')"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg> Bild</div>
           <div class="nav-dd-item" onclick="rsOpen('fakta')"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg> Fakta</div>
-          <div class="nav-dd-item" onclick="rsOpen('kalla')"><svg class="ic" aria-hidden="true"><use href="#i-link"/></svg> Källa</div>
           <div class="nav-dd-item" onclick="rsOpen('citat')"><svg class="ic" aria-hidden="true"><use href="#i-quote"/></svg> Citat</div>
         </div>
       </div>
@@ -4309,7 +4319,6 @@
         <button data-f="alla" onclick="rsSetFilter('alla')">Allt</button>
         <button data-f="bild" onclick="rsSetFilter('bild')">Bilder</button>
         <button data-f="fakta" onclick="rsSetFilter('fakta')">Fakta</button>
-        <button data-f="kalla" onclick="rsSetFilter('kalla')">Källor</button>
         <button data-f="citat" onclick="rsSetFilter('citat')">Citat</button>
       </div>
       <label class="rs-scene">Scen: <select id="rsSceneSel" onchange="rsScene=this.value; rsRender()"></select></label>
@@ -4515,7 +4524,7 @@
       if(el) el.classList.remove('active');
     });
     const btnMap = {'panel-notes':'ibtn-notes','panel-idebank':'ibtn-idebank','panel-charchat':'ibtn-charchat','panel-charchat-active':'ibtn-charchat','panel-assistant':'ibtn-assistant','panel-research':'ibtn-research','panel-snaps':'ibtn-snaps','panel-comments':'ibtn-comments'};
-    if(btnMap[id]) document.getElementById(btnMap[id]).classList.add('active');
+    if(btnMap[id] && document.getElementById(btnMap[id])) document.getElementById(btnMap[id]).classList.add('active');
   }
   // ─── KARAKTÄRER: öppna i högerspalten (ikonpanelen) ───
   function openCharactersInRightPanel(){
@@ -4591,11 +4600,11 @@
   }
 
   function addWorldCard() {
-    const list = document.getElementById('ibsb-varld');
+    const list = document.getElementById('ibv-varld');
     const addBtn = list.querySelector('.ib-add-btn');
     const card = document.createElement('div');
     card.className = 'world-card';
-    card.innerHTML = '<div class="world-card-name">' + ic('map-pin') + ' <span contenteditable="true">Ny plats</span></div><textarea class="ib-textarea-sm" placeholder="Beskriv platsen..."></textarea>';
+    card.innerHTML = '<div class="world-card-name">' + ic('map-pin') + ' <span contenteditable="true">Ny miljö</span></div><textarea class="ib-textarea-sm" placeholder="Beskriv platsen..."></textarea>';
     list.insertBefore(card, addBtn);
     if (typeof collectWorld === 'function') { collectWorld(); scheduleAutoSave(); }
   }
@@ -5616,7 +5625,23 @@
   let rsFilter = 'alla', rsScene = 'alla', rsPanelAll = false, rsEditId = null, rsEditImg = null;
   const rsImgCache = {};
 
-  function rsItems() { if (!Array.isArray(projectData.research)) projectData.research = []; return projectData.research; }
+  function rsItems() {
+    if (!Array.isArray(projectData.research)) projectData.research = [];
+    projectData.research.forEach(it => { if (it.typ === 'kalla') it.typ = 'fakta'; });   // Källa är numera en faktaruta med länk
+    return projectData.research;
+  }
+  function rsHost(u) { try { return new URL(rsSafeUrl(u)).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
+  function rsLooksLikeImage(u) { return /\.(jpe?g|png|gif|webp|avif|svg)(\?|#|$)/i.test(u); }
+  // Titel, bild och sajt från en webbsida (via appens server)
+  async function rsPreview(u) {
+    try {
+      const tok = window.fbGetIdToken ? await window.fbGetIdToken() : null;
+      const r = await fetch('/api/preview?url=' + encodeURIComponent(rsSafeUrl(u)), { headers: tok ? { Authorization: 'Bearer ' + tok } : {} });
+      if (!r.ok) return null;
+      const j = await r.json();
+      return (j && (j.title || j.image)) ? j : null;
+    } catch (e) { return null; }
+  }
   function rsEsc(s) { return String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
   function rsSafeUrl(u) { u = String(u || '').trim(); if (!u) return ''; if (!/^https?:\/\//i.test(u)) u = 'https://' + u; return u; }
   function rsPlaceLabel(id) {
@@ -5646,12 +5671,14 @@
     const src = rsImgSrc(it);
     let h = '<div class="rs-card" data-id="' + it.id + '">';
     if (it.typ === 'bild') h += '<div class="rs-img' + (src ? '' : ' loading') + '" onclick="rsEdit(\'' + it.id + '\')">' + (it.bild ? '<img data-img="' + rsEsc(it.bild) + '" src="' + rsEsc(src) + '" alt="">' : ic('image')) + '</div>';
+    else if (it.lankInfo && it.lankInfo.image) h += '<a class="rs-img rs-preview-img" href="' + rsEsc(rsSafeUrl(it.lank)) + '" target="_blank" rel="noopener"><img src="' + rsEsc(it.lankInfo.image) + '" alt="" onerror="this.parentElement.remove()"></a>';
     h += '<div class="rs-body"><div class="rs-typ"><span>' + RS_TYPES[it.typ] + '</span><button onclick="rsEdit(\'' + it.id + '\')">Ändra</button></div>';
     if (it.titel) h += '<div class="rs-t">' + rsEsc(it.titel) + '</div>';
     if (it.typ === 'citat' && it.text) h += '<div class="rs-q">' + rsEsc(it.text) + '</div>';
     else if (it.text) h += '<div class="rs-x">' + rsEsc(it.text).replace(/\n/g, '<br>') + '</div>';
+    if (it.lank) h += '<a class="rs-link" href="' + rsEsc(rsSafeUrl(it.lank)) + '" target="_blank" rel="noopener">' + ic('link') + ' ' +
+      rsEsc((it.lankInfo && it.lankInfo.title && it.lankInfo.title !== it.titel ? it.lankInfo.title + ' · ' : '') + (rsHost(it.lank) || it.lank)) + ' ↗</a>';
     const actions = [];
-    if (it.lank) actions.push('<a href="' + rsEsc(rsSafeUrl(it.lank)) + '" target="_blank" rel="noopener">Läs mer ↗</a>');
     if (it.text || it.titel) actions.push('<button onclick="rsCopy(\'' + it.id + '\')">Kopiera</button>');
     const place = rsPlaceLabel(it.scen);
     if (actions.length || place) h += '<div class="rs-foot">' + (place ? '<span class="rs-tag">' + rsEsc(place) + '</span>' : '<span></span>') + '<span class="rs-act">' + actions.join('') + '</span></div>';
@@ -5787,8 +5814,15 @@
     const items = rsItems();
     let it = rsEditId ? items.find(x => x.id === rsEditId) : null;
     if (!it) { it = { id: 'rs-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), skapad: new Date().toISOString() }; items.unshift(it); }
+    const lankAndrad = lank && lank !== it.lank;
     Object.assign(it, { typ, titel, text, lank, scen });
-    if (typ === 'bild') {
+    // En vanlig webbadress i bildfältet: hämta sidans bild
+    if (typ === 'bild' && !rsEditImg && url && !rsLooksLikeImage(url)) {
+      st.textContent = 'Hämtar bilden från sidan …';
+      const p = await rsPreview(url);
+      if (p && p.image) { it.bild = 'url:' + p.image; if (!it.lank) it.lank = url; if (!it.titel && p.title) it.titel = p.title; it.lankInfo = p; }
+      else { st.textContent = 'Hittade ingen bild på sidan. Använd en länk direkt till en bild, eller ladda upp bilden.'; return; }
+    } else if (typ === 'bild') {
       if (rsEditImg) {
         if (!window.fbSaveImage) { st.textContent = 'Bilder kan bara sparas när du är inloggad.'; return; }
         st.textContent = 'Sparar bilden …';
@@ -5800,7 +5834,14 @@
         if (oldId && window.fbDeleteImage) window.fbDeleteImage(oldId);
       } else if (url) it.bild = 'url:' + rsSafeUrl(url);
     }
-    rsClose(); rsRender(); scheduleAutoSave();
+    if (lankAndrad || (lank && !it.lankInfo)) {
+      st.textContent = 'Hämtar förhandsvisning av länken …';
+      const p = await rsPreview(lank);
+      it.lankInfo = p || { title: '', image: '', site: rsHost(lank) };
+      if (!it.titel && p && p.title) it.titel = p.title;
+    }
+    if (!lank) delete it.lankInfo;
+    rsClose(); rsRender(); scheduleAutoSave(); rsMarkers();
     if (rsLinkPending) rsApplyLink(it.id);
   }
   function rsDelete() {
@@ -6387,6 +6428,20 @@
     const cards = rsItems();
     document.querySelectorAll('.chapter-doc').forEach(doc => {
       const dr = doc.getBoundingClientRect(), used = {};
+      // Kort kopplade till en scen eller ett kapitel: symbol vid scenens början
+      doc.querySelectorAll('.scene-writing-area').forEach(area => {
+        const sid = area.id.replace('writingArea-', ''), ch = chapterForScene(sid);
+        const n = cards.filter(c => c.scen === sid || (ch && c.scen === ch.id && ch.scenes[0] && ch.scenes[0].id === sid)).length;
+        if (!n) return;
+        const ar = area.getBoundingClientRect();
+        const m = document.createElement('button'); m.type = 'button'; m.className = 'rs-mark rs-scene-mark';
+        m.style.top = Math.round(ar.top - dr.top - 2) + 'px'; m.style.right = '18px';
+        m.innerHTML = ic('library') + '<span>' + n + '</span>';
+        m.title = n + (n === 1 ? ' researchkort' : ' researchkort') + ' kopplade hit. Klicka för att visa dem.';
+        m.addEventListener('click', () => { if (!activeScene || activeScene.id !== sid) selectSceneById(sid); rsPanelAll = false; rsFocus = null; openResearchPanel(); });
+        doc.appendChild(m);
+        used[Math.round((ar.top - dr.top - 2) / 10)] = 1;
+      });
       doc.querySelectorAll('.rs-ref').forEach(ref => {
         const it = cards.find(c => c.id === ref.dataset.rs);
         if (!it) return;
@@ -6464,7 +6519,7 @@
     else if (act === 'copy') rsCopy(id);
     else if (act === 'add') { rsOpen('fakta', activeScene ? activeScene.id : ''); window.focus(); }
     else if (act === 'all') { popAll = !popAll; popRender('research'); }
-    else if (act === 'back') { popWins[kind].close(); if (kind === 'research') openResearchPanel(); else showPanel('panel-idebank'); }
+    else if (act === 'back') { popWins[kind].close(); if (kind === 'research') openResearchPanel(); else switchView('idebank'); }
   }
   function popRender(kind) {
     if (!popIsOpen(kind)) return;
@@ -6488,7 +6543,7 @@
         ? '<textarea data-ib="' + key + '" rows="' + rows + '">' + rsEsc(ib[key] || '') + '</textarea>'
         : '<input data-ib="' + key + '" value="' + rsEsc(ib[key] || '') + '">');
       root.innerHTML = head('Idébanken', '') + '<div class="pop-form">' +
-        f('idehog', 'Idéhög', 7) + f('genre', 'Genre', 0) + f('ton', 'Ton och stämning', 0) + f('rost', 'Din röst', 4) + f('synopsis', 'Synopsis', 6) +
+        f('synopsis', 'Synopsis', 8) + f('genre', 'Genre', 0) + f('rost', 'Ton och berättarröst', 4) + f('idehog', 'Idéer', 6) +
         '<p class="pop-note">Det du skriver här sparas direkt och syns i appen.</p></div>';
     }
   }
@@ -7478,13 +7533,16 @@ VIKTIGT:
     if (!inp) {
       inp = document.createElement('input');
       inp.type = 'file';
-      inp.accept = '.writeon,.json,application/json';
+      inp.accept = '.writeon,.json,application/json,.docx,.doc,.txt,.md';
       inp.id = 'wnOpenFileInput';
       inp.style.display = 'none';
       inp.addEventListener('change', () => {
         const f = inp.files && inp.files[0];
         inp.value = '';
-        if (f) importProjectFile(f);
+        if (!f) return;
+        if (/\.docx$|\.txt$|\.md$/i.test(f.name)) importBookFile(f);
+        else if (/\.doc$/i.test(f.name)) alert('Det här är det äldre Word-formatet (.doc), som inte går att läsa i webbläsaren.\n\nÖppna filen i Word och välj Spara som → Word-dokument (.docx). Öppna sedan den nya filen här.');
+        else importProjectFile(f);
       });
       document.body.appendChild(inp);
     }
@@ -7534,24 +7592,22 @@ VIKTIGT:
   const IB_KEYS_INPUT = ['genre', 'ton'];                 // .ib-input i ordning
   function ibFields() {
     const out = [];
-    ['#panel-idebank', '#view-idebank'].forEach(root => {
-      const r = document.querySelector(root); if (!r) return;
-      r.querySelectorAll('textarea.ib-textarea').forEach((el, i) => { if (IB_KEYS_TEXT[i]) { el.dataset.ib = IB_KEYS_TEXT[i]; out.push(el); } });
-      r.querySelectorAll('input.ib-input').forEach((el, i) => { if (IB_KEYS_INPUT[i]) { el.dataset.ib = IB_KEYS_INPUT[i]; out.push(el); } });
-    });
+    document.querySelectorAll('#view-idebank [data-ib]').forEach(el => out.push(el));
     return out;
   }
   function collectWorld() {
     projectData.idebank = projectData.idebank || {};
-    projectData.idebank.varld = [...document.querySelectorAll('#ibsb-varld .world-card')].map(c => ({
+    projectData.idebank.varld = [...document.querySelectorAll('#ibv-varld .world-card')].map(c => ({
       name: (c.querySelector('[contenteditable]')?.textContent || '').trim(),
       text: c.querySelector('textarea')?.value || ''
     }));
   }
   function renderIdebank() {
     const ib = projectData.idebank || {};
+    // Ton och röst är nu ett fält
+    if (ib.ton) { ib.rost = ib.ton + (ib.rost ? '\n' + ib.rost : ''); delete ib.ton; }
     ibFields().forEach(el => { el.value = ib[el.dataset.ib] || ''; });
-    const list = document.getElementById('ibsb-varld');
+    const list = document.getElementById('ibv-varld');
     if (list) {
       list.querySelectorAll('.world-card').forEach(c => c.remove());
       const addBtn = list.querySelector('.ib-add-btn');
@@ -7574,7 +7630,7 @@ VIKTIGT:
       document.querySelectorAll('[data-ib="' + el.dataset.ib + '"]').forEach(o => { if (o !== el) o.value = el.value; });
       if (typeof popIsOpen === 'function' && popIsOpen('idebank')) popWins.idebank.document.querySelectorAll('[data-ib="' + el.dataset.ib + '"]').forEach(o => { o.value = el.value; });
       scheduleAutoSave();
-    } else if (el.closest && el.closest('#ibsb-varld')) {
+    } else if (el.closest && el.closest('#ibv-varld')) {
       collectWorld(); scheduleAutoSave();
     }
   });
@@ -7823,16 +7879,16 @@ VIKTIGT:
     const out = [];
     out.push('PROJEKT: ' + (projectData.title || 'Utan titel'));
     if (isScreenplay()) out.push('FORMAT: Filmmanus i standardformat (scenrubriker, handling, roller, parenteser, repliker). Bedöm det som manus, inte som prosa. Föreslå ändringar i samma format.');
-    if (ib.genre || ib.ton) out.push('GENRE OCH TON: ' + [ib.genre, ib.ton].filter(Boolean).join(' · '));
+    if (ib.genre) out.push('GENRE: ' + ib.genre);
     if (ib.synopsis) out.push('SYNOPSIS:\n' + clip(ib.synopsis, 3000));
-    if (ib.rost) out.push('FÖRFATTARENS BESKRIVNING AV SIN RÖST:\n' + clip(ib.rost, 2000));
-    if (ib.idehog) out.push('IDÉHÖG:\n' + clip(ib.idehog, 3000));
+    if (ib.rost) out.push('TON OCH BERÄTTARRÖST:\n' + clip(ib.rost, 2000));
+    if (ib.idehog) out.push('IDÉER:\n' + clip(ib.idehog, 3000));
     if (ib.varld && ib.varld.length)
       out.push('VÄRLDEN:\n' + ib.varld.map(p => '– ' + (p.name || 'Plats') + (p.text ? ': ' + clip(p.text, 400) : '')).join('\n'));
-    const chars = (projectData.characters || []).filter(c => c.name);
+    const chars = (projectData.characters || []).filter(c => c.name && c.synlig !== false);
     if (chars.length)
       out.push('KARAKTÄRER:\n' + chars.map(c => {
-        const bits = [c.personlighet, c.bakgrund, c.mal, c.rost].filter(Boolean).map(x => clip(x, 200)).join(' ');
+        const bits = [c.yrke, c.personlighet, c.bakgrund, c.relationer, c.mal, c.rost].filter(Boolean).map(x => clip(x, 200)).join(' ');
         return '– ' + c.name + (c.roll ? ' (' + c.roll + ')' : '') + (bits ? ': ' + bits : '');
       }).join('\n'));
     const rs = (projectData.research || []).filter(it => it.titel || it.text);
@@ -7874,44 +7930,28 @@ VIKTIGT:
 
   // ── Skrivassistenten (högerpanelen) ────────────────────────────────────────
   // Korten i assistenten. All text samlad här (lätt att översätta senare).
+  // Redaktörens verktyg: en rad förklaring per grupp och korta valknappar
   const ASST_GROUPS = [
-    { rubrik: 'Komma vidare · scenen', kort: [
-      { id: 'nasta', ikon: 'network', titel: 'Föreslå nästa steg', text: 'Tre olika vägar framåt från där du står.',
-        prompt: 'Ge mig tre olika förslag på vad som skulle kunna hända härnäst, utifrån den aktuella scenen. Varje förslag i två, tre meningar, förankrat i karaktärernas mål och det som redan hänt. Gör dem verkligt olika varandra.' },
-      { id: 'loss', ikon: 'circle-help', titel: 'Hjälp mig loss', text: 'Frågor som får dig att tänka vidare när det tar stopp.',
-        prompt: 'Jag har fastnat i den här scenen. Ställ tre korta frågor som hjälper mig att se vad scenen behöver. Svara inte på dem själv, och skriv ingen text åt mig.' },
+    { rubrik: 'Kom vidare', text: 'När du har fastnat eller inte vet vart scenen ska.', kort: [
+      { id: 'nasta', titel: 'Föreslå vägar framåt', text: 'Tre olika vägar från där du står, och frågor som hjälper dig välja.',
+        prompt: 'Jag vet inte riktigt hur jag ska gå vidare. Ge mig tre verkligt olika vägar för vad som kan hända härnäst, förankrade i personernas mål och det som redan har hänt, två eller tre meningar var. Avsluta med två korta frågor som hjälper mig välja. Skriv ingen text åt mig.' },
     ]},
-    { rubrik: 'Få respons · scenen', kort: [
-      { id: 'las', ikon: 'book-open', titel: 'Läs som en läsare', text: 'Ärlig reaktion: var man fastnar och var man tappar intresset.',
-        prompt: 'Läs scenen som en vanlig läsare och reagera ärligt: vad fastnar du på, vad drar dig vidare, var tappar du intresset? Peka på exakta ställen.' },
-      { id: 'respons', ikon: 'pencil', titel: 'Redaktörens genomgång', text: 'Vad som fungerar och vad som behöver arbetas om.',
-        prompt: 'Ge ärlig respons på den aktuella scenen: vad fungerar, vad är svagt och varför. Peka på exakta ställen. Högst fem punkter, de viktigaste först.' },
-      { id: 'gestaltning', ikon: 'eye', titel: 'Gestaltning', text: 'Ställen där texten berättar i stället för att visa.',
-        prompt: 'Hitta ställen där scenen berättar i stället för att visa. Ge för varje ställe: original → förslag, med en kort motivering.' },
-    ], fler: [
-      { id: 'dialog', ikon: 'message-circle', titel: 'Dialog', text: 'Äkthet, undertext och repliker som säger för mycket.',
-        prompt: 'Granska dialogen: låter den äkta, finns det undertext, säger personerna för mycket rakt ut? Ge konkreta förslag som original → förslag.' },
-      { id: 'tempo', ikon: 'trending-up', titel: 'Tempo & spänning', text: 'Var det drar, var det rusar och hur scenen börjar och slutar.',
-        prompt: 'Analysera tempot: var drar det, var rusar det? Har scenen en krok i början och ny friktion i slutet? Konkreta förslag.' },
-      { id: 'sprak', ikon: 'spell-check', titel: 'Språk & rytm', text: 'Grammatik, tempusbyten, meningslängd och rytm.',
-        prompt: 'Granska språket i scenen: grammatik, stavning, tempusbyten, meningslängd och rytm. Lista varje fel eller förslag som original → förslag.' },
+    { rubrik: 'Respons på scenen', text: 'Välj vad du vill ha respons på.', kort: [
+      { id: 'respons', titel: 'Helheten', text: 'Vad som fungerar och vad som behöver arbetas om.', prompt: 'Ge ärlig respons på den aktuella scenen: vad fungerar, vad är svagt och varför. Peka på exakta ställen. Högst fem punkter, de viktigaste först.' },
+      { id: 'las', titel: 'Som läsare', text: 'Var man fastnar och var man tappar intresset.', prompt: 'Läs scenen som en vanlig läsare och reagera ärligt: vad fastnar du på, vad drar dig vidare, var tappar du intresset? Peka på exakta ställen.' },
+      { id: 'gestaltning', titel: 'Gestaltning', text: 'Där texten berättar i stället för att visa.', prompt: 'Hitta ställen där scenen berättar i stället för att visa. Ge för varje ställe: original → förslag, med en kort motivering.' },
+      { id: 'dialog', titel: 'Dialog', text: 'Äkthet, undertext och repliker som säger för mycket.', prompt: 'Granska dialogen: låter den äkta, finns det undertext, säger personerna för mycket rakt ut? Ge konkreta förslag som original → förslag.' },
+      { id: 'tempo', titel: 'Tempo', text: 'Var det drar och var det rusar.', prompt: 'Analysera tempot: var drar det, var rusar det? Har scenen en krok i början och ny friktion i slutet? Konkreta förslag.' },
+      { id: 'sprak', titel: 'Språk', text: 'Grammatik, tempus, meningslängd och rytm.', prompt: 'Granska språket i scenen: grammatik, stavning, tempusbyten, meningslängd och rytm. Lista varje fel eller förslag som original → förslag.' },
     ]},
-    { rubrik: 'Granska hela boken', hela: true, kort: [
-      { id: 'finputs', ikon: 'spell-check', titel: 'Finputs', text: 'Stavning, grammatik och logiska kullerbyttor genom hela boken, kapitel för kapitel.',
-        prompt: '' },
-      { id: 'bage', ikon: 'chart-gantt', titel: 'Dramaturgisk båge', text: 'Vändpunkter, klimax och var berättelsen planar ut.',
-        prompt: 'Analysera den dramaturgiska bågen i manuset: anslag, stegring, vändpunkter, klimax, upplösning. Vad finns, vad saknas, var planar den ut?' },
-      { id: 'konsistens', ikon: 'scan-text', titel: 'Konsekvenskoll', text: 'Namn, tider och detaljer som inte stämmer.',
-        prompt: 'Kontrollera att namn, tider, platser och detaljer stämmer genom manuset. Lista varje motsägelse: var den finns, vad som krockar och ett förslag.' },
-    ], fler: [
-      { id: 'synopsis', ikon: 'scroll-text', titel: 'Synopsis', text: 'En kort sammanfattning av berättelsen som den ser ut nu.',
-        prompt: 'Skriv en synopsis av berättelsen så som den ser ut i manuset: högst åtta meningar, konkret, i presens.' },
-      { id: 'karaktarskurva', ikon: 'users', titel: 'Karaktärskurva', text: 'Huvudpersonens mål, hinder, val och förändring.',
-        prompt: 'Beskriv huvudpersonens kurva: mål, hinder, val, konsekvens, förändring. Var är kurvan svag eller otydlig?' },
-      { id: 'scenlista', ikon: 'list-tree', titel: 'Scenlista', text: 'Vad som händer i varje scen, och vilka som kanske inte behövs.',
-        prompt: 'Lista scenerna i ordning med en mening om vad som händer i var och en. Markera scener som verkar onödiga eller saknas.' },
-      { id: 'logik', ikon: 'brain', titel: 'Logik & luckor', text: 'Varför personerna gör som de gör, och trådar som hänger lösa.',
-        prompt: 'Kontrollera logiken: varför gör personerna det de gör? Finns hängande trådar eller saker som planteras men aldrig skördas?' },
+    { rubrik: 'Hela boken', hela: true, text: 'Läser hela manuset. Tar lite längre tid.', kort: [
+      { id: 'finputs', titel: 'Finputs', text: 'Stavning, grammatik och logiska kullerbyttor, kapitel för kapitel.', prompt: '' },
+      { id: 'bage', titel: 'Dramaturgisk båge', text: 'Vändpunkter, klimax och var berättelsen planar ut.', prompt: 'Analysera den dramaturgiska bågen i manuset: anslag, stegring, vändpunkter, klimax, upplösning. Vad finns, vad saknas, var planar den ut?' },
+      { id: 'konsistens', titel: 'Konsekvens', text: 'Namn, tider och detaljer som inte stämmer.', prompt: 'Kontrollera att namn, tider, platser och detaljer stämmer genom manuset. Lista varje motsägelse: var den finns, vad som krockar och ett förslag.' },
+      { id: 'logik', titel: 'Logik', text: 'Varför personerna gör som de gör, och lösa trådar.', prompt: 'Kontrollera logiken: varför gör personerna det de gör? Finns hängande trådar eller saker som planteras men aldrig skördas?' },
+      { id: 'karaktarskurva', titel: 'Karaktärskurva', text: 'Huvudpersonens mål, hinder, val och förändring.', prompt: 'Beskriv huvudpersonens kurva: mål, hinder, val, konsekvens, förändring. Var är kurvan svag eller otydlig?' },
+      { id: 'scenlista', titel: 'Scenlista', text: 'Vad som händer i varje scen.', prompt: 'Lista scenerna i ordning med en mening om vad som händer i var och en. Markera scener som verkar onödiga eller saknas.' },
+      { id: 'synopsis', titel: 'Synopsis', text: 'En kort sammanfattning av berättelsen.', prompt: 'Skriv en synopsis av berättelsen så som den ser ut i manuset: högst åtta meningar, konkret, i presens.' },
     ]},
   ];
   let asstStarted = false;       // har samtalet börjat?
@@ -7957,19 +7997,12 @@ VIKTIGT:
   }
   function asstRenderCards() {
     const box = document.getElementById('asstCards'); if (!box) return;
-    let h = asstStarted ? '' : '<div class="asst-hello">Jag läser ditt projekt innan jag svarar. Välj vad du vill ha hjälp med, eller skriv en egen fråga längst ner.</div>';
-    ASST_GROUPS.forEach((g, gi) => {
-      h += '<div class="asst-group"><div class="asst-gh">' + g.rubrik + '</div>' + g.kort.map(k => asstCardHtml(k)).join('');
-      if (g.fler && g.fler.length)
-        h += '<div class="asst-fler" id="asstFler' + gi + '" style="display:none;">' + g.fler.map(k => asstCardHtml(k)).join('') + '</div>' +
-             '<button class="asst-more" id="asstMore' + gi + '" onclick="asstShowMore(' + gi + ')">+ ' + g.fler.map(k => k.titel).join(', ') + '</button>';
-      h += '</div>';
+    let h = asstStarted ? '' : '<div class="asst-hello">Redaktören läser ditt projekt innan den svarar. Välj vad du vill ha hjälp med, eller skriv en egen fråga längst ner.</div>';
+    ASST_GROUPS.forEach(g => {
+      h += '<div class="asst-group"><div class="asst-gh">' + g.rubrik + '</div><div class="asst-gt">' + g.text + '</div><div class="asst-chips">' +
+        g.kort.map(k => '<button class="asst-chip" title="' + k.text + '" onclick="asstRunCard(\'' + k.id + '\')">' + k.titel + '</button>').join('') + '</div></div>';
     });
     box.innerHTML = h;
-  }
-  function asstShowMore(gi) {
-    document.getElementById('asstFler' + gi).style.display = '';
-    document.getElementById('asstMore' + gi).style.display = 'none';
   }
   // Korten syns när samtalet är tomt; annars fälls de ihop bakom "Verktyg"
   function asstShowCards(show) {
@@ -7982,6 +8015,7 @@ VIKTIGT:
     bar.style.display = empty ? 'none' : '';
     msgs.style.display = empty ? 'none' : '';
     const ar = document.getElementById('asstToolsArrow'); if (ar) ar.textContent = show ? '▴' : '▾';
+    if (show && !empty) cards.scrollTop = 0;
   }
   function asstToggleCards() {
     asstShowCards(document.getElementById('asstCards').style.display === 'none');
@@ -8036,11 +8070,13 @@ VIKTIGT:
     }
     asstBusy = false;
   }
+  function asstGrow(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, Math.round(window.innerHeight * 0.45)) + 'px'; }
+  document.addEventListener('input', e => { if (e.target && e.target.id === 'asstInput') asstGrow(e.target); });
   function asstSend() {
     const inp = document.getElementById('asstInput');
     const t = (inp.value || '').trim();
     if (!t || asstBusy) return;
-    inp.value = '';
+    inp.value = ''; asstGrow(inp);
     if (!asstStarted) { asstStarted = true; asstRenderCards(); }
     asstShowCards(false);
     asstAsk(t);
@@ -9283,7 +9319,7 @@ window.addEventListener('load', function() {
   // KARAKTÄRER
   // ============================================================
 
-  const CHAR_ROLLER = ['Protagonist','Antagonist','Bikaraktär','Kärleksintresse','Sidokaraktär','Anpassad...'];
+  const CHAR_ROLLER = ['Huvudperson','Motspelare','Bifigur','Kärleksintresse','Berättare'];
   const CHAR_COLORS = [
     'linear-gradient(135deg,#c8b8e8,#b090d0)',
     'linear-gradient(135deg,#f8c8b8,#e0906a)',
@@ -9312,7 +9348,8 @@ window.addEventListener('load', function() {
 
       const initial = (char.name||'?')[0].toUpperCase();
       const color = CHAR_COLORS[char.color % CHAR_COLORS.length];
-      const rollOptions = CHAR_ROLLER.map(r => `<option value="${r}" ${char.roll===r?'selected':''}>${r}</option>`).join('');
+      const rollList = CHAR_ROLLER.includes(char.roll) || !char.roll ? CHAR_ROLLER : CHAR_ROLLER.concat([char.roll]);
+      const rollOptions = rollList.map(r => `<option value="${r}" ${char.roll===r?'selected':''}>${r}</option>`).join('');
       const dimmed = char.synlig === false ? 'opacity:0.5;' : '';
 
       card.innerHTML = `
@@ -9324,6 +9361,7 @@ window.addEventListener('load', function() {
           </div>
           <div style="display:flex;align-items:center;gap:8px;" onclick="event.stopPropagation()">
             <button title="${char.synlig===false?'Dold för AI':'Synlig för AI'}" onclick="toggleCharVisible('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text-muted);opacity:${char.synlig===false?'0.5':'1'};">${ic(char.synlig===false?'eye-off':'eye')}</button>
+            <button title="Fråga redaktören om karaktären" onclick="charAskEditor('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;color:var(--accent-o);">${ic('sparkles')}</button>
             <button title="Versionshistorik" onclick="openCharHistory('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text-muted);">${ic('history')}</button>
             <button title="Duplicera karaktär" onclick="duplicateChar('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text-muted);">${ic('copy')}</button>
             <button title="Ta bort karaktär" onclick="deleteChar('${char.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text-muted);">${ic('trash-2')}</button>
@@ -9352,22 +9390,29 @@ window.addEventListener('load', function() {
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
             <div>
-              <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:4px;">GRUPPER</label>
-              <input value="${char.grupper||''}" placeholder="t.ex. Polisen, Familj..." oninput="updateChar('${char.id}','grupper',this.value)" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text-primary);box-sizing:border-box;">
+              <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:4px;">YRKE</label>
+              <input value="${char.yrke||''}" placeholder="T.ex. kriminalinspektör, pensionerad lärare" oninput="updateChar('${char.id}','yrke',this.value)" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text-primary);box-sizing:border-box;">
             </div>
             <div>
               <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:4px;">ANDRA NAMN / SMEKNAMN</label>
               <input value="${char.andra_namn||''}" placeholder="Alias, smeknamn..." oninput="updateChar('${char.id}','andra_namn',this.value)" style="width:100%;padding:7px 10px;border-radius:7px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text-primary);box-sizing:border-box;">
             </div>
           </div>
-          ${['utseende','personlighet','bakgrund','mal','hemlighet','rost'].map(f => {
-            const labels = {utseende:'UTSEENDE',personlighet:'PERSONLIGHET',bakgrund:'BAKGRUND',mal:'MÅL & DRIVKRAFT',hemlighet:'HEMLIGHET',rost:'RÖST & SPRÅKTICS'};
+          ${['utseende','personlighet','bakgrund','relationer','mal','hemlighet','rost'].map(f => {
+            const labels = {utseende:'UTSEENDE',personlighet:'PERSONLIGHET',bakgrund:'BAKGRUND',relationer:'RELATIONER',mal:'MÅL OCH DRIVKRAFT',hemlighet:'HEMLIGHET',rost:'RÖST OCH SPRÅK'};
+            const tips = {utseende:'Det läsaren ser först: ålder, kropp, kläder, en detalj som sticker ut.',
+              personlighet:'Hur personen är och beter sig, och en motsägelse som gör hen levande.',
+              bakgrund:'Det som har format personen innan boken börjar.',
+              relationer:'T.ex. gift med Nora, syster till Hasse, ovän med grannen.',
+              mal:'Vad personen vill, och varför det är viktigt just nu.',
+              hemlighet:'Det personen döljer, för andra eller för sig själv.',
+              rost:'Hur personen pratar: ord, rytm och uttryck som bara hen använder.'};
             return `<div style="margin-bottom:12px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <label style="font-size:13px;color:var(--text-muted);">${labels[f]}</label>
                 <button onclick="aiGenerateCharField('${char.id}','${f}')" style="font-size:13px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0;">✦ Generera</button>
               </div>
-              <textarea oninput="updateChar('${char.id}','${f}',this.value)" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text-primary);resize:vertical;min-height:70px;box-sizing:border-box;line-height:1.5;">${char[f]||''}</textarea>
+              <textarea placeholder="${tips[f]}" oninput="updateChar('${char.id}','${f}',this.value)" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border-strong);background:var(--bg-soft);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text-primary);resize:vertical;min-height:70px;box-sizing:border-box;line-height:1.5;">${char[f]||''}</textarea>
             </div>`;
           }).join('')}
         </div>
@@ -9407,7 +9452,8 @@ window.addEventListener('load', function() {
   function addNewCharacter() {
     const id = 'c' + Date.now();
     const colorIdx = (projectData.characters||[]).length % CHAR_COLORS.length;
-    const newChar = { id, name:'Ny karaktär', roll:'Bikaraktär', pronomen:'', grupper:'', andra_namn:'', utseende:'', personlighet:'', bakgrund:'', mal:'', hemlighet:'', rost:'', synlig:true, color:colorIdx, history:[] };
+    const first = !(projectData.characters || []).length;
+    const newChar = { id, name: first ? 'Huvudperson' : 'Ny karaktär', roll: first ? 'Huvudperson' : 'Bifigur', pronomen:'', yrke:'', andra_namn:'', utseende:'', personlighet:'', bakgrund:'', relationer:'', mal:'', hemlighet:'', rost:'', synlig:true, color:colorIdx, history:[] };
     if (!projectData.characters) projectData.characters = [];
     projectData.characters.push(newChar);
     renderCharacters();
@@ -9510,18 +9556,31 @@ window.addEventListener('load', function() {
     } catch(e) { alert(e.message); }
   }
 
+  // Här ska redaktören hitta på: det är ett förslag som författaren själv ändrar
+  const CHAR_GEN_SYSTEM = 'Du hjälper en svensk romanförfattare att bygga en karaktär. Här får du hitta på, eftersom det är ett förslag som författaren ändrar själv. ' +
+    'Det du föreslår ska passa bokens genre, synopsis, de andra personerna och det som redan står om karaktären. ' +
+    'Svara bara med texten till fältet: två till fyra korta meningar på svenska med konkreta detaljer. Ingen rubrik, ingen inledning, inga frågor, inga alternativ.';
+  function charAskEditor(id) {
+    const c = (projectData.characters || []).find(x => x.id === id); if (!c) return;
+    openAssistant(); asstStarted = true; asstRenderCards(); asstShowCards(false);
+    asstAsk('Hjälp mig fördjupa ' + (c.name || 'karaktären') + ' (' + (c.roll || '') + '). Utgå från det som står om personen och från manuset. Vad är oklart eller platt? Föreslå en motsägelse som gör personen levande, och peka ut ställen i texten där personen kan få mer liv. Högst fem punkter.', { label: 'Om ' + (c.name || 'karaktären') });
+  }
+
   async function aiGenerateCharField(id, field) {
     const char = (projectData.characters||[]).find(c => c.id === id);
-    const labels = {utseende:'utseende',personlighet:'personlighet och karaktärsdrag',bakgrund:'bakgrundshistoria',mal:'mål och drivkraft',hemlighet:'hemlighet eller sårbarhet',rost:'röst, sätt att prata och språktics'};
-    const genre = (projectData.idebank && projectData.idebank.genre) || 'roman';
-    const synopsis = (projectData.idebank && projectData.idebank.synopsis) || '';
-    const prompt = `Du är en erfaren svensk romanförfattare. Skriv ${labels[field]} för karaktären ${char.name||'karaktären'} (${char.roll||'bikaraktär'}) i en ${genre}${synopsis ? '. Berättelsens synopsis: ' + synopsis.substring(0,200) : ''}. Svara på svenska med 2-4 meningar, ingen inledning.`;
+    const labels = {utseende:'utseende',personlighet:'personlighet och karaktärsdrag',bakgrund:'bakgrund',relationer:'relationer till andra personer',mal:'mål och drivkraft',hemlighet:'hemlighet eller sårbarhet',rost:'röst, sätt att prata och språk'};
+    const ib = projectData.idebank || {};
+    const known = ['yrke','utseende','personlighet','bakgrund','relationer','mal','hemlighet','rost'].filter(k => k !== field && char[k]).map(k => k + ': ' + char[k]).join('\n');
+    const others = (projectData.characters || []).filter(c => c.id !== id && c.name).map(c => c.name + ' (' + (c.roll || '') + ')').join(', ');
+    const prompt = 'Föreslå ' + labels[field] + ' för ' + (char.name || 'personen') + ' (' + (char.roll || 'bifigur') + ').\n' +
+      (ib.genre ? 'Genre: ' + ib.genre + '\n' : '') + (ib.synopsis ? 'Bokens synopsis: ' + ib.synopsis.substring(0, 1200) + '\n' : '') +
+      (others ? 'Andra personer i boken: ' + others + '\n' : '') + (known ? 'Det som redan står om ' + (char.name || 'personen') + ':\n' + known + '\n' : '');
     const btn = event.target;
     const origText = btn.textContent;
     btn.textContent = '...';
     btn.disabled = true;
     try {
-      const res = await callClaude({ system: WRITING_RULES, messages: [{ role: 'user', content: prompt }], max_tokens: 400 });
+      const res = await callClaude({ system: CHAR_GEN_SYSTEM, messages: [{ role: 'user', content: prompt }], max_tokens: 400 });
       const text = (res.text || '').trim();
       if (text) {
         saveCharSnapshot(char);
@@ -9534,6 +9593,9 @@ window.addEventListener('load', function() {
     btn.disabled = false;
   }
 
+  document.addEventListener('click', e => {
+    if (e.target.closest && e.target.closest('#btn-character') && !(projectData.characters || []).length && window.fbActiveProject) setTimeout(addNewCharacter, 30);
+  });
   // Rendera karaktärer när vyn öppnas
   const _origSwitchView = typeof switchView === 'function' ? switchView : null;
 
@@ -10525,7 +10587,7 @@ window.fbLoggaUt = async function() {
   <div class="wn-modal rs-dlg">
     <div class="wn-modal-head"><h2 id="rsDlgTitle">Lägg till</h2><button class="wn-x" onclick="rsClose()">✕</button></div>
     <div class="rs-row2">
-      <label>Typ<select id="rsTyp" onchange="rsTypeChanged()"><option value="bild">Bild</option><option value="fakta">Fakta</option><option value="kalla">Källa</option><option value="citat">Citat</option></select></label>
+      <label>Typ<select id="rsTyp" onchange="rsTypeChanged()"><option value="bild">Bild</option><option value="fakta">Fakta</option><option value="citat">Citat</option></select></label>
       <label>Koppla till<select id="rsScen"></select></label>
     </div>
     <div id="rsBildRow">
@@ -10537,7 +10599,7 @@ window.fbLoggaUt = async function() {
     </div>
     <label><span id="rsTitelLbl">Rubrik</span><input id="rsTitel" type="text"></label>
     <label><span id="rsTextLbl">Text</span><textarea id="rsText" rows="4"></textarea></label>
-    <label>Länk för fördjupning<input id="rsLank" type="url" placeholder="https://"></label>
+    <label>Länk till källan eller en fördjupning<input id="rsLank" type="url" placeholder="https://"></label>
     <div id="rsStatus" class="rs-status"></div>
     <div class="wn-modal-foot" style="justify-content:space-between;">
       <button class="wn-btn" id="rsDelete" style="color:#c84040;" onclick="rsDelete()">Ta bort</button>
@@ -10582,8 +10644,8 @@ window.fbLoggaUt = async function() {
       <details open><summary>Kom igång</summary><ul>
         <li><b>Nytt projekt</b> finns under Fil. Välj en mall: roman, roman i tre akter, deckare, novell, dagboksroman, filmmanus eller tomt.</li>
         <li><b>Kapitel och scener</b> lägger du till längst ner i kapitellistan till vänster. Klicka på en scen för att skriva i den.</li>
-        <li><b>Sidolisten</b> längst till vänster växlar mellan vyerna: Manus, Scenkort, Outline, Båge, Idébank, Karaktärer, Research och Assistent.</li>
-        <li><b>Högerpanelen</b> visar inspektören, assistenten, Research, Idébanken och ögonblicksbilderna. Knappen uppe till höger visar och döljer den.</li>
+        <li><b>Sidolisten</b> längst till vänster växlar mellan vyerna: Manus, Karaktärer, Scenkort, Outline, Båge, Idébank, Research och Redaktör.</li>
+        <li><b>Högerpanelen</b> visar inspektören, redaktören, Research, kommentarerna och ögonblicksbilderna. Knappen uppe till höger visar och döljer den.</li>
       </ul></details>
       <details><summary>Sparande och säkerhet</summary><ul>
         <li><b>Allt sparas automatiskt</b> i molnet ett par sekunder efter att du har skrivit. Märket bredvid projektnamnet visar läget: Ändrat, Sparar eller Sparat med klockslag.</li>
@@ -10599,16 +10661,16 @@ window.fbLoggaUt = async function() {
         <li><b>Fokusläge</b> visar bara texten. Slå på och av med Ctrl+Shift+F, eller Esc för att gå ur.</li>
         <li><b>Format</b> i menyn ändrar typsnitt, textstorlek och zoom för hela manuset.</li>
       </ul></details>
-      <details><summary>Assistenten och Finputs</summary><ul>
-        <li><b>Assistenten</b> läser synopsis, karaktärer, Idébanken, Research och scenen du står i innan den svarar.</li>
-        <li><b>Korten</b> i assistenten ger respons på scenen, hjälper dig vidare eller granskar hela boken.</li>
+      <details><summary>Redaktören och Finputs</summary><ul>
+        <li><b>Redaktören</b> läser synopsis, karaktärer, Idébanken, Research och scenen du står i innan den svarar.</li>
+        <li><b>Valknapparna</b> hos redaktören ger respons på scenen, hjälper dig vidare eller granskar hela boken.</li>
         <li><b>Finputs</b> går igenom boken kapitel för kapitel och letar efter stavfel, grammatik och logiska kullerbyttor. Den skriver aldrig om din text, den föreslår bara.</li>
       </ul></details>
       <details><summary>Research</summary><ul>
         <li><b>Lägg till</b> bilder, fakta, källor och citat. Koppla dem till en scen, så visas de i marginalen när du skriver där.</li>
         <li><b>Dra en bild</b> från datorn och släpp den på Research.</li>
         <li><b>Koppla ett ord</b> till ett kort: markera ordet och välj bokhyllan i markeringsraden. En symbol i marginalen visar kopplingen.</li>
-        <li><b>Lossa</b> öppnar Research eller Idébanken i ett eget fönster.</li>
+        <li><b>Lossa</b> öppnar Research-panelen eller Idébanken i ett eget fönster.</li>
       </ul></details>
       <details><summary>Dramabåge</summary><ul>
         <li><b>Bågen</b> visar bokens kapitel efter stämning, jämfört med en klassisk båge som tre akter eller Fichtes kurva.</li>
