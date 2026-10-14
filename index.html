@@ -600,7 +600,11 @@
   #asstInput { resize: none; max-height: 45vh; overflow-y: auto; }
 
   /* Projektmål */
-  .gl-nav { display: inline-flex; align-items: center; gap: 8px; }
+  .gl-nav { display: inline-flex; align-items: center; gap: 6px; }
+  .gl-nav .gl-target { width: 17px; height: 17px; color: var(--accent-o); }
+  .gl-nav.done .gl-target { color: var(--action-text); }
+  .gl-h { font-family: var(--font-text) !important; font-size: 24px !important; font-weight: 600 !important; }
+  .gl-intro { font-size: 15px; line-height: 1.5; color: var(--text-secondary); margin: 0 0 16px; }
   .gl-bars { display: inline-flex; flex-direction: column; gap: 3px; width: 54px; }
   .gl-bar { display: block; height: 5px; border-radius: 3px; background: var(--bg-soft); overflow: hidden; }
   .gl-bar i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--accent-o); transition: width 0.4s; }
@@ -3461,6 +3465,7 @@
   <symbol id="i-align-justify" viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M3 18h18"/><path d="M3 6h18"/></symbol>
   <symbol id="i-indent-increase" viewBox="0 0 24 24"><path d="M21 12H11"/><path d="M21 18H11"/><path d="M21 6H11"/><path d="m3 8 4 4-4 4"/></symbol>
   <symbol id="i-indent-decrease" viewBox="0 0 24 24"><path d="M21 12H11"/><path d="M21 18H11"/><path d="M21 6H11"/><path d="m7 8-4 4 4 4"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
   <symbol id="i-spell-check" viewBox="0 0 24 24"><path d="m6 16 6-12 6 12"/><path d="M8 12h8"/><path d="m16 20 2 2 4-4"/></symbol>
 </svg>
 
@@ -3560,9 +3565,7 @@
         </div>
       </div>
       <button class="nav-item" onclick="openBackupDialog()">Säkerhetskopia</button>
-      <button class="nav-item gl-nav" id="goalNav" onclick="glOpen()">Mål
-        <span class="gl-bars"><span class="gl-bar gl-bar-day"><i></i></span><span class="gl-bar gl-bar-tot"><i></i></span></span>
-      </button>
+      <button class="nav-item gl-nav" id="goalNav" onclick="glOpen()"><svg class="ic gl-target" aria-hidden="true"><use href="#i-target"/></svg>Projektmål</button>
     </div>
   </div>
 
@@ -7162,10 +7165,7 @@
   function glRenderNav() {
     const el = document.getElementById('goalNav'); if (!el) return;
     const daily = glDaily(), w = glToday_written(), m = glGoal(), cur = glCurrent();
-    const pctDay = daily.mal ? Math.min(100, w / daily.mal * 100) : 0, pctTot = Math.min(100, cur / m.total * 100);
-    el.querySelector('.gl-bar-day i').style.width = pctDay.toFixed(1) + '%';
-    el.querySelector('.gl-bar-tot i').style.width = pctTot.toFixed(1) + '%';
-    el.querySelector('.gl-bar-day').classList.toggle('done', daily.mal > 0 && w >= daily.mal);
+    el.classList.toggle('done', daily.mal > 0 && w >= daily.mal);
     el.title = 'I dag: ' + fmtNum(w) + (daily.mal ? ' av ' + fmtNum(daily.mal) : '') + ' ' + glUnit() + ' · Totalt: ' + fmtNum(cur) + ' av ' + fmtNum(m.total) + ' ' + glUnit();
   }
   function glOpen() { _closeDropdowns(); glRenderPanel(); document.getElementById('goalModal').style.display = 'flex'; }
@@ -7193,18 +7193,27 @@
     document.querySelectorAll('.gl-unit-lbl').forEach(e => e.textContent = u);
   }
   // Staplar för de senaste 14 dagarna
+  function glNice(v) { const p = Math.pow(10, Math.floor(Math.log10(v))), f = v / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; }
   function glChart() {
-    const db = projectData.dagbok || {}, days = [], daily = glDaily();
-    for (let i = 13; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); days.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')); }
-    const vals = days.map(k => db[k] ? Math.max(0, (k === glToday() ? glCurrent() : db[k].slut) - db[k].start) : 0);
-    const max = Math.max(1, daily.mal || 0, ...vals);
-    const W = 420, H = 110, bw = W / 14;
-    let s = '<div class="gl-chart-h">Skrivet de senaste två veckorna</div><svg viewBox="0 0 ' + W + ' ' + (H + 18) + '" width="100%" font-family="DM Sans">';
-    if (daily.mal) { const y = H - daily.mal / max * H; s += '<line x1="0" x2="' + W + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="var(--accent-o)" stroke-dasharray="4 4"/>'; }
+    const db = projectData.dagbok || {}, days = [], daily = glDaily(), u = glUnit();
+    for (let i = 13; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); days.push(d); }
+    const key = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const vals = days.map(d => { const k = key(d); return db[k] ? Math.max(0, (k === glToday() ? glCurrent() : db[k].slut) - db[k].start) : 0; });
+    const max = glNice(Math.max(glGoal().enhet === 'tecken' ? 1500 : 250, daily.mal || 0, ...vals));
+    const L = 52, W = 470, T = 16, H = 130, bw = (W - L) / 14, Y = v => T + H - v / max * H;
+    const mon = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+    let s = '<div class="gl-chart-h">Antal ' + u + ' per dag, de senaste två veckorna</div><svg viewBox="0 0 ' + W + ' ' + (T + H + 22) + '" width="100%" font-family="DM Sans">';
+    [0, max / 2, max].forEach(v => {
+      s += '<line x1="' + L + '" x2="' + W + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="var(--border)"/>' +
+           '<text x="' + (L - 8) + '" y="' + (Y(v) + 4).toFixed(1) + '" text-anchor="end" font-size="13" fill="var(--text-muted)">' + fmtNum(v) + '</text>';
+    });
+    if (daily.mal) s += '<line x1="' + L + '" x2="' + W + '" y1="' + Y(daily.mal).toFixed(1) + '" y2="' + Y(daily.mal).toFixed(1) + '" stroke="var(--accent-o)" stroke-width="1.5" stroke-dasharray="5 4"/>' +
+      '<text x="' + W + '" y="' + (Y(daily.mal) - 5).toFixed(1) + '" text-anchor="end" font-size="13" fill="#b07a12">dagsmål ' + fmtNum(daily.mal) + '</text>';
     vals.forEach((v, i) => {
-      const h = v / max * H;
-      s += '<rect x="' + (i * bw + 3).toFixed(1) + '" y="' + (H - h).toFixed(1) + '" width="' + (bw - 6).toFixed(1) + '" height="' + Math.max(h, v ? 2 : 0).toFixed(1) + '" rx="3" fill="' + (daily.mal && v >= daily.mal ? 'var(--action)' : 'var(--accent-n)') + '" opacity="' + (v ? 1 : 0.25) + '"><title>' + days[i] + ': ' + fmtNum(v) + ' ' + glUnit() + '</title></rect>';
-      if (i % 2 === 0 || i === 13) s += '<text x="' + (i * bw + bw / 2).toFixed(1) + '" y="' + (H + 14) + '" text-anchor="middle" font-size="13" fill="var(--text-muted)">' + (i === 13 ? 'i dag' : +days[i].slice(8)) + '</text>';
+      const x = L + i * bw, h = v / max * H;
+      if (v) s += '<rect x="' + (x + 4).toFixed(1) + '" y="' + Y(v).toFixed(1) + '" width="' + (bw - 8).toFixed(1) + '" height="' + Math.max(h, 2).toFixed(1) + '" rx="3" fill="' + (daily.mal && v >= daily.mal ? 'var(--action)' : 'var(--accent-n)') + '"><title>' + fmtNum(v) + ' ' + u + '</title></rect>' +
+        '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (Y(v) - 4).toFixed(1) + '" text-anchor="middle" font-size="13" fill="var(--text-secondary)">' + fmtNum(v) + '</text>';
+      if (i % 3 === 1 || i === 13) s += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (T + H + 17) + '" text-anchor="middle" font-size="13" fill="var(--text-muted)">' + (i === 13 ? 'i dag' : days[i].getDate() + ' ' + mon[days[i].getMonth()]) + '</text>';
     });
     return s + '</svg>';
   }
@@ -10788,7 +10797,8 @@ window.fbLoggaUt = async function() {
 <!-- PROJEKTMÅL -->
 <div id="goalModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this) glClose()">
   <div class="wn-modal gl-dlg">
-    <div class="wn-modal-head"><h2>Projektmål</h2><button class="wn-x" onclick="glClose()">✕</button></div>
+    <div class="wn-modal-head"><h2 class="gl-h">Projektmål</h2><button class="wn-x" onclick="glClose()">✕</button></div>
+    <p class="gl-intro">Sätt ett mål för hela boken i ord, tecken eller sidor, och ett dagsmål eller ett datum då du vill vara klar. Sidorna är ungefärliga och bygger på 12 punkters text: en bok på 250 sidor i A5 är ungefär 56 000 ord.</p>
     <div id="glSummary"></div>
     <div class="gl-form">
       <div class="gl-f"><label>Räkna i</label><select id="glUnit" onchange="glSave('unit')"><option value="ord">ord</option><option value="tecken">tecken (med mellanslag)</option></select></div>
@@ -10799,7 +10809,6 @@ window.fbLoggaUt = async function() {
       <div class="gl-f"><label>Dagsmål</label><span class="gl-in"><input id="glDay" type="number" min="0" step="50" onchange="glSave()"> <span class="gl-unit-lbl">ord</span></span>
         <div class="gl-hint">Lämna tomt för att räkna fram dagsmålet från slutdatumet.</div></div>
     </div>
-    <p class="wn-note">Sidorna är ungefärliga och bygger på 12 punkters text. En bok på 250 sidor i A5 är ungefär 56 000 ord.</p>
   </div>
 </div>
 
@@ -10817,7 +10826,7 @@ window.fbLoggaUt = async function() {
       <details><summary>Sparande och säkerhet</summary><ul>
         <li><b>Allt sparas automatiskt</b> i molnet ett par sekunder efter att du har skrivit. Märket bredvid projektnamnet visar läget: Ändrat, Sparar eller Sparat med klockslag.</li>
         <li><b>Ögonblicksbilder</b> sparar en version av en scen innan du skriver om den. Du kan jämföra med den och gå tillbaka. De finns under klockan i ikonfältet till höger.</li>
-        <li><b>Mål</b> i menyn visar två små mätare: dagens mål överst och hela boken under. Klicka för att sätta mål i ord, tecken eller sidor, ett slutdatum och ett dagsmål, och se vad du har skrivit de senaste två veckorna.</li>
+        <li><b>Projektmål</b> i menyn (måltavlan, som blir grön när dagens mål är nått). Klicka för att sätta mål i ord, tecken eller sidor, ett slutdatum och ett dagsmål, och se vad du har skrivit de senaste två veckorna.</li>
         <li><b>Säkerhetskopia</b> i menyn laddar ner hela projektet till datorn. Du öppnar kopian igen med Fil → Öppna.</li>
       </ul></details>
       <details><summary>Skriva</summary><ul>
