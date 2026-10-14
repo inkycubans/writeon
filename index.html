@@ -6769,17 +6769,17 @@
     const inChap = c => ch && ch.scenes.some(s => s.id === c.sceneId);
     const items = cmItems().filter(c => (cmShowResolved ? c.lost : !c.lost) && (cmShowResolved || inChap(c) || c.id === cmPending));
     document.getElementById('cmScope').innerHTML = cmShowResolved
-      ? 'Visar: <b>lösta kommentarer</b> · <button onclick="cmShowResolved=false;cmRender()">Tillbaka</button>'
-      : 'Visar: <b>' + rsEsc(ch ? ch.title : 'kapitlet') + '</b> · <button onclick="cmShowResolved=true;cmRender()">Lösta (' + cmItems().filter(c => c.lost).length + ')</button>';
+      ? 'Visar: <b>klara kommentarer</b> · <button onclick="cmShowResolved=false;cmRender()">Tillbaka</button>'
+      : 'Visar: <b>' + rsEsc(ch ? ch.title : 'kapitlet') + '</b> · <button onclick="cmShowResolved=true;cmRender()">Klara (' + cmItems().filter(c => c.lost).length + ')</button>';
     list.innerHTML = items.length ? items.map(c => {
       const posts = c.inlagg.map(p => '<div class="cm-post"><div class="cm-meta"><b>' + rsEsc(p.av) + '</b> · ' + cmWhen(p.tid) + '</div><div class="cm-text">' + rsEsc(p.text).replace(/\n/g, '<br>') + '</div></div>').join('');
       return '<div class="cm-thread' + (c.id === cmFocusId ? ' focus' : '') + '" data-id="' + c.id + '">' +
         '<div class="cm-quote" onclick="cmGoto(\'' + c.id + '\')">”' + rsEsc(c.citat) + '”</div>' + posts +
         (c.lost ? '<div class="cm-actions"><button onclick="cmReopen(\'' + c.id + '\')">Öppna igen</button><button class="cm-del" onclick="cmDelete(\'' + c.id + '\')">Ta bort</button></div>'
-          : '<textarea class="cm-input" rows="2" placeholder="' + (c.inlagg.length ? 'Svara …' : 'Skriv din kommentar …') + '" onkeydown="if(event.key===\'Enter\' && (event.ctrlKey||event.metaKey)) cmPost(\'' + c.id + '\', this)"></textarea>' +
-            '<div class="cm-actions"><button class="cm-send" onclick="cmPost(\'' + c.id + '\', this.parentElement.previousElementSibling)">' + (c.inlagg.length ? 'Svara' : 'Kommentera') + '</button>' +
-            '<button onclick="cmResolve(\'' + c.id + '\')">✓ Lös</button><button class="cm-del" onclick="cmDelete(\'' + c.id + '\')">Ta bort</button></div>') + '</div>';
-    }).join('') : '<div class="rs-empty">' + (cmShowResolved ? 'Inga lösta kommentarer.' : 'Inga kommentarer i det här kapitlet. Markera text och välj pratbubblan i markeringsraden för att kommentera.') + '</div>';
+          : '<textarea class="cm-input" rows="2" placeholder="' + (c.inlagg.length ? 'Lägg till en kommentar …' : 'Skriv din kommentar …') + '" onkeydown="if(event.key===\'Enter\' && (event.ctrlKey||event.metaKey)) cmPost(\'' + c.id + '\', this)"></textarea>' +
+            '<div class="cm-actions"><button class="cm-send" onclick="cmPost(\'' + c.id + '\', this.parentElement.previousElementSibling)">Kommentera</button>' +
+            '<button onclick="cmResolve(\'' + c.id + '\')" title="Markera som klar. Tråden försvinner ur texten men sparas under Klara.">✓ Klar</button><button class="cm-del" onclick="cmDelete(\'' + c.id + '\')">Ta bort</button></div>') + '</div>';
+    }).join('') : '<div class="rs-empty">' + (cmShowResolved ? 'Inga klara kommentarer.' : 'Inga kommentarer i det här kapitlet. Markera text och välj pratbubblan i markeringsraden för att kommentera.') + '</div>';
     if (cmPending) { const ta = list.querySelector('.cm-thread[data-id="' + cmPending + '"] .cm-input'); if (ta) setTimeout(() => ta.focus(), 50); }
   }
   window.cmRender = cmRender;
@@ -10448,7 +10448,7 @@ window.fbLoggaUt = async function() {
       </ul></details>
       <details><summary>Skriva</summary><ul>
         <li><b>Markera text</b> så visas en rad med fet, kursiv, understruken, stycketyp, lista, citat, koppling till research och AI-verktygen.</li>
-        <li><b>Kommentarer:</b> markera text och välj pratbubblan i markeringsraden. Kommentaren syns i marginalen och i panelen Kommentarer, där du kan svara och markera den som löst.</li>
+        <li><b>Kommentarer:</b> markera text och välj pratbubblan i markeringsraden. Kommentaren syns i marginalen och i panelen Kommentarer, där du kan lägga till fler kommentarer och markera tråden som klar. Klara trådar sparas under Klara.</li>
         <li><b>Justering och indrag</b> finns i markeringsraden och i menyn Format. Där väljer du också indrag på första raden eller blankrad mellan stycken, radavstånd och scenbrytning.</li>
         <li><b>Svensk typografi:</b> när du skriver blir " till ”, - och mellanslag till pratminus –, och tre punkter till …. Kan stängas av i Format.</li>
         <li><b>Fokusläge</b> visar bara texten. Slå på och av med Ctrl+Shift+F, eller Esc för att gå ur.</li>
