@@ -599,6 +599,30 @@
   .asst-group { margin-top: 16px; }
   #asstInput { resize: none; max-height: 45vh; overflow-y: auto; }
 
+  /* Projektmål */
+  .gl-nav { display: inline-flex; align-items: center; gap: 8px; }
+  .gl-bars { display: inline-flex; flex-direction: column; gap: 3px; width: 54px; }
+  .gl-bar { display: block; height: 5px; border-radius: 3px; background: var(--bg-soft); overflow: hidden; }
+  .gl-bar i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--accent-o); transition: width 0.4s; }
+  .gl-bar-tot i { background: var(--action); }
+  .gl-bar-day.done i { background: var(--action); }
+  .gl-dlg { width: 560px; }
+  .gl-row { margin-bottom: 14px; }
+  .gl-lbl { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 5px; }
+  .gl-lbl span { color: var(--text-secondary); }
+  .gl-big { height: 12px; border-radius: 6px; background: var(--bg-soft); overflow: hidden; }
+  .gl-big i { display: block; height: 100%; border-radius: 6px; background: var(--accent-o); }
+  .gl-big.tot i { background: var(--action); }
+  .gl-note { font-size: 14px; color: var(--text-muted); margin-top: 5px; }
+  .gl-chart-h { font-size: 14px; font-weight: 700; margin: 6px 0 4px; }
+  .gl-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px; }
+  .gl-f label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .gl-f input, .gl-f select { font: 15px var(--font-ui); padding: 7px 9px; border-radius: 8px; border: 1.5px solid var(--border-strong); background: var(--bg); color: var(--text-primary); box-sizing: border-box; }
+  .gl-f select { width: 100%; margin-top: 6px; }
+  .gl-in { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--text-secondary); }
+  .gl-in input { width: 120px; }
+  .gl-hint { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   .nav-menu {
@@ -3536,6 +3560,9 @@
         </div>
       </div>
       <button class="nav-item" onclick="openBackupDialog()">Säkerhetskopia</button>
+      <button class="nav-item gl-nav" id="goalNav" onclick="glOpen()">Mål
+        <span class="gl-bars"><span class="gl-bar gl-bar-day"><i></i></span><span class="gl-bar gl-bar-tot"><i></i></span></span>
+      </button>
     </div>
   </div>
 
@@ -4460,10 +4487,12 @@
     if (tb) tb.textContent = fmtNum(a) + ' ord i scenen';
     const ins = document.getElementById('insp-word-count');
     if (ins) ins.textContent = fmtNum(a) + ' ord i scenen';
-    const total = totalWordCount();
-    const goal  = projectData.wordGoal || 100000;
+    const tecken = projectData.mal && projectData.mal.enhet === 'tecken';
+    const total = tecken ? totalCharCount() : totalWordCount();
+    const goal  = (projectData.mal && projectData.mal.total) || projectData.wordGoal || 100000;
+    const unit  = tecken ? 'tecken' : 'ord';
     const lbl = document.querySelector('.inspector-progress-label');
-    if (lbl) lbl.innerHTML = '<span>' + fmtNum(total) + ' ord</span><span>Mål: ' + fmtNum(goal) + ' ord</span>';
+    if (lbl) lbl.innerHTML = '<span>' + fmtNum(total) + ' ' + unit + '</span><span>Mål: ' + fmtNum(goal) + ' ' + unit + '</span>';
     const fill = document.querySelector('.inspector-progress-fill');
     if (fill) fill.style.width = Math.min(100, total / goal * 100).toFixed(1) + '%';
   }
@@ -7088,6 +7117,119 @@
     } else if (e.key === 'Escape' && $fr('frBox')?.style.display === 'block') { frClose(); }
   });
 
+  // ═══ PROJEKTMÅL — totalt mål, dagsmål, sidor och skrivhistorik ═══
+  // Målet sparas i projectData.mal; ord per dag i projectData.dagbok { 'ÅÅÅÅ-MM-DD': { start, slut } }.
+  const GOAL_PAGE = {                       // ord per sida
+    a5:   { namn: 'Bok, A5 (ca 225 ord per sida)', ord: 225 },
+    ms2:  { namn: 'Manus, A4 dubbelt radavstånd (ca 250 ord)', ord: 250 },
+    ms1:  { namn: 'A4 enkelt radavstånd (ca 500 ord)', ord: 500 },
+  };
+  function glToday() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function glGoal() {
+    const m = projectData.mal = projectData.mal || {};
+    if (!m.enhet) m.enhet = 'ord';
+    if (!m.total) m.total = projectData.wordGoal || 80000;
+    if (!m.sidformat) m.sidformat = 'a5';
+    return m;
+  }
+  function totalCharCount() { return allScenes().reduce((s, sc) => s + htmlToPlain(sc.text || '').replace(/\n/g, '').length, 0); }
+  function glCurrent() { return glGoal().enhet === 'tecken' ? totalCharCount() : totalWordCount(); }
+  // Dagens start registreras första gången appen ser projektet en ny dag
+  function glTrack() {
+    if (!window.fbActiveProject) return;
+    const db = projectData.dagbok = projectData.dagbok || {}, t = glToday(), now = glCurrent();
+    if (!db[t]) {
+      const prev = Object.keys(db).sort().pop();
+      const prevEnd = prev ? (db[prev].slut != null ? db[prev].slut : db[prev].start) : now;
+      db[t] = { start: Math.min(prevEnd, now), slut: now };      // har text strukits sedan sist räknas dagen från nu
+      const keys = Object.keys(db).sort(); while (keys.length > 120) delete db[keys.shift()];   // högst fyra månader bakåt
+    } else db[t].slut = now;
+  }
+  function glDaily() {
+    const m = glGoal();
+    if (m.dagManuellt && m.dag) return { mal: m.dag, auto: false };
+    if (m.slut) {
+      const days = Math.max(1, Math.ceil((new Date(m.slut + 'T23:59') - new Date()) / 864e5));
+      const startToday = (projectData.dagbok && projectData.dagbok[glToday()]) ? projectData.dagbok[glToday()].start : glCurrent();
+      return { mal: Math.max(0, Math.ceil((m.total - startToday) / days)), auto: true, dagar: days };
+    }
+    return { mal: m.dag || 0, auto: false };
+  }
+  function glToday_written() { const d = projectData.dagbok && projectData.dagbok[glToday()]; return d ? Math.max(0, glCurrent() - d.start) : 0; }
+  function glUnit(n) { return glGoal().enhet === 'tecken' ? (n === 1 ? 'tecken' : 'tecken') : 'ord'; }
+
+  // Liten mätare i menyraden
+  function glRenderNav() {
+    const el = document.getElementById('goalNav'); if (!el) return;
+    const daily = glDaily(), w = glToday_written(), m = glGoal(), cur = glCurrent();
+    const pctDay = daily.mal ? Math.min(100, w / daily.mal * 100) : 0, pctTot = Math.min(100, cur / m.total * 100);
+    el.querySelector('.gl-bar-day i').style.width = pctDay.toFixed(1) + '%';
+    el.querySelector('.gl-bar-tot i').style.width = pctTot.toFixed(1) + '%';
+    el.querySelector('.gl-bar-day').classList.toggle('done', daily.mal > 0 && w >= daily.mal);
+    el.title = 'I dag: ' + fmtNum(w) + (daily.mal ? ' av ' + fmtNum(daily.mal) : '') + ' ' + glUnit() + ' · Totalt: ' + fmtNum(cur) + ' av ' + fmtNum(m.total) + ' ' + glUnit();
+  }
+  function glOpen() { _closeDropdowns(); glRenderPanel(); document.getElementById('goalModal').style.display = 'flex'; }
+  function glClose() { document.getElementById('goalModal').style.display = 'none'; }
+  function glRenderPanel() {
+    const m = glGoal(), cur = glCurrent(), daily = glDaily(), w = glToday_written(), u = glUnit();
+    const per = GOAL_PAGE[m.sidformat].ord, perUnit = m.enhet === 'tecken' ? per * 6 : per;   // ca 6 tecken per ord på svenska
+    const pages = cur / perUnit, goalPages = m.total / perUnit;
+    const pct = n => Math.min(100, n).toFixed(1) + '%';
+    document.getElementById('glSummary').innerHTML =
+      '<div class="gl-row"><div class="gl-lbl"><b>I dag</b><span>' + fmtNum(w) + (daily.mal ? ' av ' + fmtNum(daily.mal) : '') + ' ' + u + '</span></div>' +
+      '<div class="gl-big"><i style="width:' + pct(daily.mal ? w / daily.mal * 100 : 0) + '"></i></div>' +
+      '<div class="gl-note">' + (daily.mal ? (w >= daily.mal ? '✓ Dagens mål är nått.' : 'Kvar i dag: ' + fmtNum(daily.mal - w) + ' ' + u + (daily.auto ? ', räknat på ' + daily.dagar + (daily.dagar === 1 ? ' dag' : ' dagar') + ' kvar till slutdatum.' : '.')) : 'Sätt ett dagsmål eller ett slutdatum nedan.') + '</div></div>' +
+      '<div class="gl-row"><div class="gl-lbl"><b>Hela boken</b><span>' + fmtNum(cur) + ' av ' + fmtNum(m.total) + ' ' + u + ' · ' + Math.round(cur / m.total * 100) + ' %</span></div>' +
+      '<div class="gl-big tot"><i style="width:' + pct(cur / m.total * 100) + '"></i></div>' +
+      '<div class="gl-note">Motsvarar ungefär ' + fmtNum(Math.round(pages)) + ' av ' + fmtNum(Math.round(goalPages)) + ' sidor (' + ({ a5: 'bok i A5', ms2: 'manus med dubbelt radavstånd', ms1: 'A4 med enkelt radavstånd' })[m.sidformat] + ').</div></div>' +
+      glChart();
+    document.getElementById('glUnit').value = m.enhet;
+    document.getElementById('glTotal').value = m.total;
+    document.getElementById('glFormat').value = m.sidformat;
+    document.getElementById('glPages').value = Math.round(goalPages);
+    document.getElementById('glEnd').value = m.slut || '';
+    document.getElementById('glDay').value = m.dagManuellt ? (m.dag || '') : '';
+    document.getElementById('glDay').placeholder = daily.auto ? 'Räknas fram: ' + fmtNum(daily.mal) : 'T.ex. 500';
+    document.querySelectorAll('.gl-unit-lbl').forEach(e => e.textContent = u);
+  }
+  // Staplar för de senaste 14 dagarna
+  function glChart() {
+    const db = projectData.dagbok || {}, days = [], daily = glDaily();
+    for (let i = 13; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); days.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')); }
+    const vals = days.map(k => db[k] ? Math.max(0, (k === glToday() ? glCurrent() : db[k].slut) - db[k].start) : 0);
+    const max = Math.max(1, daily.mal || 0, ...vals);
+    const W = 420, H = 110, bw = W / 14;
+    let s = '<div class="gl-chart-h">Skrivet de senaste två veckorna</div><svg viewBox="0 0 ' + W + ' ' + (H + 18) + '" width="100%" font-family="DM Sans">';
+    if (daily.mal) { const y = H - daily.mal / max * H; s += '<line x1="0" x2="' + W + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="var(--accent-o)" stroke-dasharray="4 4"/>'; }
+    vals.forEach((v, i) => {
+      const h = v / max * H;
+      s += '<rect x="' + (i * bw + 3).toFixed(1) + '" y="' + (H - h).toFixed(1) + '" width="' + (bw - 6).toFixed(1) + '" height="' + Math.max(h, v ? 2 : 0).toFixed(1) + '" rx="3" fill="' + (daily.mal && v >= daily.mal ? 'var(--action)' : 'var(--accent-n)') + '" opacity="' + (v ? 1 : 0.25) + '"><title>' + days[i] + ': ' + fmtNum(v) + ' ' + glUnit() + '</title></rect>';
+      if (i % 2 === 0 || i === 13) s += '<text x="' + (i * bw + bw / 2).toFixed(1) + '" y="' + (H + 14) + '" text-anchor="middle" font-size="13" fill="var(--text-muted)">' + (i === 13 ? 'i dag' : +days[i].slice(8)) + '</text>';
+    });
+    return s + '</svg>';
+  }
+  function glSave(from) {
+    const m = glGoal();
+    m.enhet = document.getElementById('glUnit').value;
+    m.sidformat = document.getElementById('glFormat').value;
+    const per = GOAL_PAGE[m.sidformat].ord * (m.enhet === 'tecken' ? 6 : 1);
+    if (from === 'pages') m.total = Math.max(1, Math.round((+document.getElementById('glPages').value || 0) * per / 50) * 50);
+    else m.total = Math.max(1, +document.getElementById('glTotal').value || m.total);
+    m.slut = document.getElementById('glEnd').value || '';
+    const dv = +document.getElementById('glDay').value;
+    m.dagManuellt = !!dv; m.dag = dv || 0;
+    if (m.enhet === 'ord') projectData.wordGoal = m.total;
+    if (from === 'unit') {                       // ny enhet: ny räkning från i dag
+      const db = projectData.dagbok = projectData.dagbok || {}; db[glToday()] = { start: glCurrent(), slut: glCurrent() };
+    }
+    scheduleAutoSave(); glRenderPanel(); glRenderNav(); updateWordCountDisplays(activeScene);
+  }
+  // Uppdateras när texten ändras
+  let glT = null;
+  document.addEventListener('input', e => {
+    if (e.target.classList && e.target.classList.contains('scene-writing-area')) { clearTimeout(glT); glT = setTimeout(() => { glTrack(); glRenderNav(); }, 700); }
+  });
+
   function openResearchPanel() {
     if (document.body.classList.contains('focus')) toggleFocusMode(false);
     switchView('writing'); showPanel('panel-research'); rsRender();
@@ -7394,6 +7536,8 @@ VIKTIGT:
     projectData.kanslor    = Array.isArray(data.kanslor) ? data.kanslor : [];
     projectData.faser      = (data.faser && typeof data.faser === 'object') ? data.faser : {};
     projectData.kommentarer = Array.isArray(data.kommentarer) ? data.kommentarer : [];
+    projectData.mal        = (data.mal && typeof data.mal === 'object') ? data.mal : null;
+    projectData.dagbok     = (data.dagbok && typeof data.dagbok === 'object') ? data.dagbok : {};
     projectData.episoder   = Array.isArray(data.episoder) ? data.episoder : [];
     if (projectData.bage === 'egen' && !projectData.egenBage) projectData.bage = 'treakter';
     document.body.classList.toggle('screenplay-mode', projectData.format === 'screenplay');
@@ -7414,6 +7558,7 @@ VIKTIGT:
     if (typeof bgRender === 'function') { bgRender(); bgRenderMini(); }
     if (typeof rsMarkers === 'function') setTimeout(rsMarkers, 50);
     if (typeof cmMarkers === 'function') setTimeout(cmMarkers, 60);
+    if (typeof glTrack === 'function') setTimeout(() => { glTrack(); glRenderNav(); }, 80);
     if (typeof popRender === 'function') { popRender('research'); popRender('idebank'); }
   }
   window.applyProject = applyProject;
@@ -8396,6 +8541,8 @@ VIKTIGT:
       kanslor: projectData.kanslor || [],
       faser: projectData.faser || {},
       kommentarer: projectData.kommentarer || [],
+      mal: projectData.mal || null,
+      dagbok: projectData.dagbok || {},
       episoder: projectData.episoder || [],
       format: projectData.format || 'prosa',
       exportedAt: new Date().toISOString()
@@ -10213,6 +10360,8 @@ window.firebaseSaveProject = async function() {
       kanslor:    p.kanslor || [],
       faser:      p.faser || {},
       kommentarer: p.kommentarer || [],
+      mal:        p.mal || null,
+      dagbok:     p.dagbok || {},
       episoder:   p.episoder || [],
       format:     p.format || 'prosa',
       savedAt:    serverTimestamp()
@@ -10636,6 +10785,24 @@ window.fbLoggaUt = async function() {
   <div class="fr-list" id="frList" style="display:none;"></div>
 </div>
 
+<!-- PROJEKTMÅL -->
+<div id="goalModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this) glClose()">
+  <div class="wn-modal gl-dlg">
+    <div class="wn-modal-head"><h2>Projektmål</h2><button class="wn-x" onclick="glClose()">✕</button></div>
+    <div id="glSummary"></div>
+    <div class="gl-form">
+      <div class="gl-f"><label>Räkna i</label><select id="glUnit" onchange="glSave('unit')"><option value="ord">ord</option><option value="tecken">tecken (med mellanslag)</option></select></div>
+      <div class="gl-f"><label>Mål för hela boken</label><span class="gl-in"><input id="glTotal" type="number" min="1" step="1000" onchange="glSave()"> <span class="gl-unit-lbl">ord</span></span></div>
+      <div class="gl-f"><label>… eller räkna i sidor</label><span class="gl-in"><input id="glPages" type="number" min="1" step="10" onchange="glSave('pages')"> sidor</span>
+        <select id="glFormat" onchange="glSave()"><option value="a5">Bok, A5 (ca 225 ord per sida)</option><option value="ms2">Manus, A4 dubbelt radavstånd (ca 250 ord)</option><option value="ms1">A4 enkelt radavstånd (ca 500 ord)</option></select></div>
+      <div class="gl-f"><label>Klar senast (valfritt)</label><input id="glEnd" type="date" onchange="glSave()"></div>
+      <div class="gl-f"><label>Dagsmål</label><span class="gl-in"><input id="glDay" type="number" min="0" step="50" onchange="glSave()"> <span class="gl-unit-lbl">ord</span></span>
+        <div class="gl-hint">Lämna tomt för att räkna fram dagsmålet från slutdatumet.</div></div>
+    </div>
+    <p class="wn-note">Sidorna är ungefärliga och bygger på 12 punkters text. En bok på 250 sidor i A5 är ungefär 56 000 ord.</p>
+  </div>
+</div>
+
 <!-- HJÄLP -->
 <div id="helpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this) this.style.display='none'">
   <div class="wn-modal help-dlg">
@@ -10650,6 +10817,7 @@ window.fbLoggaUt = async function() {
       <details><summary>Sparande och säkerhet</summary><ul>
         <li><b>Allt sparas automatiskt</b> i molnet ett par sekunder efter att du har skrivit. Märket bredvid projektnamnet visar läget: Ändrat, Sparar eller Sparat med klockslag.</li>
         <li><b>Ögonblicksbilder</b> sparar en version av en scen innan du skriver om den. Du kan jämföra med den och gå tillbaka. De finns under klockan i ikonfältet till höger.</li>
+        <li><b>Mål</b> i menyn visar två små mätare: dagens mål överst och hela boken under. Klicka för att sätta mål i ord, tecken eller sidor, ett slutdatum och ett dagsmål, och se vad du har skrivit de senaste två veckorna.</li>
         <li><b>Säkerhetskopia</b> i menyn laddar ner hela projektet till datorn. Du öppnar kopian igen med Fil → Öppna.</li>
       </ul></details>
       <details><summary>Skriva</summary><ul>
