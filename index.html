@@ -555,6 +555,24 @@
   .ty-steps button.checked { background: var(--action); color: var(--on-action); }
   .ty-steps button { min-width: 38px; }
 
+  /* Sök och ersätt */
+  .fr-box { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); z-index: 900; width: 560px; max-width: 94vw; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.18); padding: 12px 14px; font-family: var(--font-ui); color: var(--text-primary); }
+  .fr-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 15px; }
+  .fr-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .fr-row input { flex: 1; min-width: 0; padding: 8px 10px; border-radius: 8px; border: 1.5px solid var(--border-strong); background: var(--bg); color: var(--text-primary); font: 15px var(--font-ui); }
+  .fr-row input:focus { border-color: var(--action); outline: none; }
+  .fr-count { font-size: 13px; color: var(--text-muted); white-space: nowrap; min-width: 70px; text-align: right; }
+  .fr-nav { border: 1px solid var(--border-strong); background: var(--bg-soft); color: var(--text-primary); border-radius: 7px; width: 32px; height: 32px; cursor: pointer; font-size: 15px; }
+  .fr-opts { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; color: var(--text-secondary); }
+  .fr-opts select { font: 14px var(--font-ui); border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg); color: var(--text-primary); padding: 2px 6px; }
+  .fr-list { max-height: 260px; overflow-y: auto; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 6px; }
+  .fr-hit { display: block; width: 100%; text-align: left; border: none; background: none; padding: 6px 6px; border-radius: 6px; cursor: pointer; }
+  .fr-hit:hover, .fr-hit.on { background: var(--bg-soft); }
+  .fr-where { display: block; font: 700 13px var(--font-ui); color: var(--text-muted); }
+  .fr-ctx { display: block; font-family: var(--font-text); font-size: 14px; color: var(--text-secondary); }
+  .fr-ctx mark { background: rgba(252,177,54,0.4); color: var(--text-primary); border-radius: 2px; }
+  .fr-more { font-size: 13px; color: var(--text-muted); padding: 6px; }
+
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   .nav-menu {
@@ -3501,6 +3519,7 @@
       <button class="pomo-btn" onclick="togglePomo()" id="pomoBtn"><svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg></button>
       <span class="pomo-time" id="pomoTime" style="display:none;">25:00</span>
     </div>
+    <button class="hdr-btn" id="frBtn" onclick="frOpen()" title="Sök och ersätt (Ctrl+F)"><svg class="ic" aria-hidden="true"><use href="#i-search"/></svg></button>
     <button class="hdr-btn" id="helpBtn" onclick="document.getElementById('helpModal').style.display='flex'" title="Hjälp"><svg class="ic" aria-hidden="true"><use href="#i-circle-help"/></svg></button>
     <button class="hdr-btn" id="inspBtn" onclick="toggleInspector()" title="Visa/dölj högerpanelen"><svg class="ic" aria-hidden="true"><use href="#i-panel-right"/></svg></button>
     <button class="hdr-btn" id="focusBtn" onclick="toggleFocusMode()" title="Fokusläge (Ctrl+Shift+F)"><svg class="ic" aria-hidden="true"><use href="#i-maximize-2"/></svg></button>
@@ -3658,12 +3677,12 @@
       </div>
 
       <div class="inspector-section">
-        <div class="inspector-section-label">Berättelsens tid</div>
+        <div class="inspector-field-label">Berättelsens tid</div>
         <input type="text" id="insp-tid" class="inspector-synopsis" style="min-height:auto;height:36px;font-family:'DM Sans',sans-serif;resize:none;font-size:14px;" placeholder="T.ex. 9 augusti 2026 eller Dag 12" oninput="setSceneTid(this.value)">
       </div>
 
       <div class="inspector-section bg-mini-sec">
-        <div class="inspector-section-label" style="display:flex;justify-content:space-between;align-items:center;">Bågen <button class="bg-link" style="margin:0;" onclick="switchView('bage'); bgRender()">Öppna</button></div>
+        <div class="inspector-field-label" style="display:flex;justify-content:space-between;align-items:center;">Bågen <button class="bg-link" style="margin:0;" onclick="switchView('bage'); bgRender()">Öppna</button></div>
         <div id="bgMini"></div>
         <div class="bg-mini-lbl" id="bgMiniLbl"></div>
       </div>
@@ -6904,6 +6923,114 @@
     if (e.data === ' ' && before.endsWith('-') && (before.length === 1 || /\s$/.test(before.slice(0, -1)))) {
       const rr = document.createRange(); rr.setStart(node, off - 1); rr.setEnd(node, off); s.removeAllRanges(); s.addRange(rr); return put('– ');
     }
+  });
+
+  // ═══ SÖK OCH ERSÄTT — i scenen, kapitlet eller hela boken ═══
+  const fr = { hits: [], idx: -1 };
+  const $fr = id => document.getElementById(id);
+  function frOpen() {
+    if (document.body.classList.contains('focus')) toggleFocusMode(false);
+    switchView('writing');
+    const box = $fr('frBox'); box.style.display = 'block';
+    const sel = window.getSelection(), t = sel && !sel.isCollapsed ? sel.toString().trim() : '';
+    if (t && t.length < 80 && !t.includes('\n')) $fr('frFind').value = t;
+    $fr('frFind').focus(); $fr('frFind').select();
+    frSearch();
+  }
+  function frClose() { $fr('frBox').style.display = 'none'; }
+  function frRegex() {
+    const q = $fr('frFind').value; if (!q) return null;
+    let src = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if ($fr('frWord').checked) src = '(?<![\\p{L}\\p{N}_])' + src + '(?![\\p{L}\\p{N}_])';
+    return new RegExp(src, 'g' + ($fr('frCase').checked ? '' : 'i') + 'u');
+  }
+  function frScenes() {
+    const scope = $fr('frScope').value;
+    if (scope === 'scen') return activeScene ? [activeScene] : [];
+    if (scope === 'kapitel') { const ch = activeScene ? chapterForScene(activeScene.id) : null; return ch ? ch.scenes : []; }
+    return allScenes();
+  }
+  function frRoot(sc) {
+    const area = document.getElementById('writingArea-' + sc.id);
+    if (area) return { root: area, live: true };
+    const div = document.createElement('div'); div.innerHTML = sc.text || '';
+    return { root: div, live: false };
+  }
+  function frNodes(root) { const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), out = []; let n; while ((n = w.nextNode())) out.push(n); return out; }
+  function frSearch(keepIdx) {
+    const re = frRegex(); fr.hits = [];
+    if (re) frScenes().forEach(sc => {
+      frNodes(frRoot(sc).root).forEach((n, ni) => {
+        re.lastIndex = 0; let m;
+        while ((m = re.exec(n.data))) {
+          if (!m[0].length) { re.lastIndex++; continue; }
+          fr.hits.push({ sceneId: sc.id, ni, off: m.index, len: m[0].length,
+            ctx: [n.data.slice(Math.max(0, m.index - 28), m.index), m[0], n.data.slice(m.index + m[0].length, m.index + m[0].length + 28)] });
+        }
+      });
+    });
+    fr.idx = fr.hits.length ? Math.min(keepIdx != null ? keepIdx : 0, fr.hits.length - 1) : -1;
+    frRenderList();
+  }
+  function frRenderList() {
+    const n = fr.hits.length, scenes = new Set(fr.hits.map(h => h.sceneId)).size;
+    $fr('frCount').textContent = !$fr('frFind').value ? '' : n ? (fr.idx + 1) + ' av ' + n + (scenes > 1 ? ' · ' + scenes + ' scener' : '') : 'Inga träffar';
+    const list = $fr('frList');
+    if (!n || $fr('frScope').value === 'scen') { list.innerHTML = ''; list.style.display = 'none'; return; }
+    list.style.display = '';
+    list.innerHTML = fr.hits.slice(0, 200).map((h, i) => {
+      const sc = allScenes().find(s => s.id === h.sceneId), ch = chapterForScene(h.sceneId);
+      return '<button class="fr-hit' + (i === fr.idx ? ' on' : '') + '" onclick="frGo(' + i + ')"><span class="fr-where">' + rsEsc(bgShort((ch ? ch.title + ' · ' : '') + (sc ? sc.title : ''), 40)) + '</span>' +
+        '<span class="fr-ctx">…' + rsEsc(h.ctx[0]) + '<mark>' + rsEsc(h.ctx[1]) + '</mark>' + rsEsc(h.ctx[2]) + '…</span></button>';
+    }).join('') + (n > 200 ? '<div class="fr-more">Visar de första 200 träffarna.</div>' : '');
+  }
+  function frGo(i) {
+    if (!fr.hits.length) return;
+    fr.idx = (i + fr.hits.length) % fr.hits.length;
+    const h = fr.hits[fr.idx];
+    if (!activeScene || activeScene.id !== h.sceneId || !document.getElementById('writingArea-' + h.sceneId)) selectSceneById(h.sceneId);
+    setTimeout(() => {
+      const area = document.getElementById('writingArea-' + h.sceneId); if (!area) return;
+      const n = frNodes(area)[h.ni]; if (!n) return;
+      const r = document.createRange(); r.setStart(n, h.off); r.setEnd(n, Math.min(n.data.length, h.off + h.len));
+      const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      (n.parentElement || area).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      frRenderList();
+    }, 60);
+  }
+  function frNext(dir) { if (fr.hits.length) frGo(fr.idx + (dir || 1)); }
+  const frLit = s => () => s;                                         // ersättningen tas bokstavligt ($ betyder inget)
+  function frReplaceOne() {
+    const h = fr.hits[fr.idx]; if (!h) return;
+    const sc = allScenes().find(s => s.id === h.sceneId); if (!sc) return;
+    if (!document.getElementById('writingArea-' + sc.id)) { frGo(fr.idx); setTimeout(frReplaceOne, 120); return; }
+    const area = document.getElementById('writingArea-' + sc.id), n = frNodes(area)[h.ni]; if (!n) return;
+    n.data = n.data.slice(0, h.off) + $fr('frRepl').value + n.data.slice(h.off + h.len);
+    area.dispatchEvent(new Event('input', { bubbles: true }));
+    const keep = fr.idx; frSearch(keep); if (fr.hits.length) frGo(fr.idx);
+  }
+  async function frReplaceAll() {
+    const re = frRegex(); if (!re || !fr.hits.length) return;
+    const ids = [...new Set(fr.hits.map(h => h.sceneId))], n = fr.hits.length, rep = $fr('frRepl').value;
+    if (!confirm('Ersätta ' + n + (n === 1 ? ' träff' : ' träffar') + ' i ' + ids.length + (ids.length === 1 ? ' scen' : ' scener') + ' med "' + rep + '"?\n\nEn ögonblicksbild tas först av varje scen som ändras, så du kan gå tillbaka.')) return;
+    for (const id of ids) {
+      const sc = allScenes().find(s => s.id === id); if (!sc) continue;
+      if (window.fbSaveSnapshot) await window.fbSaveSnapshot({ project: window.fbActiveProject || '', sceneId: sc.id, sceneTitle: sc.title, text: sc.text || '', words: sc.words || 0, note: 'Före Ersätt alla' });
+      const { root, live } = frRoot(sc);
+      frNodes(root).forEach(t => { re.lastIndex = 0; if (re.test(t.data)) { re.lastIndex = 0; t.data = t.data.replace(re, frLit(rep)); } });
+      if (live) root.dispatchEvent(new Event('input', { bubbles: true }));
+      else { sc.text = root.innerHTML; sc.words = countWordsInHtml(sc.text); touchScene(sc); }
+    }
+    renderBinder(); if (activeScene) updateWordCountDisplays(activeScene);
+    showAutosaveMsg('✓ Ersatte ' + n + (n === 1 ? ' träff' : ' träffar') + ' i ' + ids.length + (ids.length === 1 ? ' scen' : ' scener'));
+    frSearch();
+  }
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && (e.key === 'f' || e.key === 'F' || e.key === 'h' || e.key === 'H')) {
+      if (document.getElementById('fbLoginModal')?.style.display === 'flex') return;
+      e.preventDefault(); frOpen();
+      if (e.key.toLowerCase() === 'h') setTimeout(() => $fr('frRepl').focus(), 30);
+    } else if (e.key === 'Escape' && $fr('frBox')?.style.display === 'block') { frClose(); }
   });
 
   function openResearchPanel() {
@@ -10430,6 +10557,23 @@ window.fbLoggaUt = async function() {
   </div>
 </div>
 
+<!-- SÖK OCH ERSÄTT -->
+<div id="frBox" class="fr-box" style="display:none;">
+  <div class="fr-head"><b>Sök och ersätt</b><button class="wn-x" onclick="frClose()" title="Stäng (Esc)">✕</button></div>
+  <div class="fr-row">
+    <input id="frFind" type="text" placeholder="Sök efter …" oninput="frSearch()" onkeydown="if(event.key==='Enter'){event.preventDefault(); frNext(event.shiftKey ? -1 : 1);}">
+    <span class="fr-count" id="frCount"></span>
+    <button class="fr-nav" onclick="frNext(-1)" title="Föregående (Shift+Enter)">↑</button><button class="fr-nav" onclick="frNext(1)" title="Nästa (Enter)">↓</button>
+  </div>
+  <div class="fr-row"><input id="frRepl" type="text" placeholder="Ersätt med …"><button class="wn-btn" onclick="frReplaceOne()">Ersätt</button><button class="wn-btn wn-btn-primary" onclick="frReplaceAll()">Ersätt alla</button></div>
+  <div class="fr-opts">
+    <label><input type="checkbox" id="frCase" onchange="frSearch()"> Skilj på stora och små bokstäver</label>
+    <label><input type="checkbox" id="frWord" onchange="frSearch()"> Hela ord</label>
+    <label>Sök i <select id="frScope" onchange="frSearch()"><option value="bok">hela boken</option><option value="kapitel">kapitlet</option><option value="scen">scenen</option></select></label>
+  </div>
+  <div class="fr-list" id="frList" style="display:none;"></div>
+</div>
+
 <!-- HJÄLP -->
 <div id="helpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this) this.style.display='none'">
   <div class="wn-modal help-dlg">
@@ -10451,6 +10595,7 @@ window.fbLoggaUt = async function() {
         <li><b>Kommentarer:</b> markera text och välj pratbubblan i markeringsraden. Kommentaren syns i marginalen och i panelen Kommentarer, där du kan lägga till fler kommentarer och markera tråden som klar. Klara trådar sparas under Klara.</li>
         <li><b>Justering och indrag</b> finns i markeringsraden och i menyn Format. Där väljer du också indrag på första raden eller blankrad mellan stycken, radavstånd och scenbrytning.</li>
         <li><b>Svensk typografi:</b> när du skriver blir " till ”, - och mellanslag till pratminus –, och tre punkter till …. Kan stängas av i Format.</li>
+        <li><b>Sök och ersätt</b> (förstoringsglaset uppe till höger eller Ctrl+F) söker i scenen, kapitlet eller hela boken. Ersätt alla tar först en ögonblicksbild av varje scen som ändras.</li>
         <li><b>Fokusläge</b> visar bara texten. Slå på och av med Ctrl+Shift+F, eller Esc för att gå ur.</li>
         <li><b>Format</b> i menyn ändrar typsnitt, textstorlek och zoom för hela manuset.</li>
       </ul></details>
@@ -10484,6 +10629,7 @@ window.fbLoggaUt = async function() {
           <tr><td>Ctrl+S</td><td>Spara direkt</td></tr>
           <tr><td>Ctrl+O</td><td>Öppna en fil</td></tr>
           <tr><td>Ctrl+P</td><td>Skriv ut</td></tr>
+          <tr><td>Ctrl+F</td><td>Sök och ersätt</td></tr>
           <tr><td>Ctrl+B / I / U</td><td>Fet, kursiv, understruken</td></tr>
           <tr><td>Ctrl+Shift+F</td><td>Fokusläge</td></tr>
           <tr><td>Esc</td><td>Lämna fokusläge</td></tr>
