@@ -39,7 +39,7 @@
     --fs-xs: 13px; --fs-sm: 14px; --fs-md: 15px; --fs-lg: 17px; --fs-xl: 20px; --fs-title: 28px;
     --radius: 12px;
     --sidebar-w: 240px;
-    --notes-w: 260px;
+    --notes-w: 420px;
     --icons-w: 44px;
     --header-h: 52px;
     --toolbar-h: 44px;
@@ -712,6 +712,29 @@
     .lp-row.rev .lp-row-text { order: 0; }
   }
 
+  /* Högerpanelen: bredd som går att dra, inspektören med stor Synopsis och Notering */
+  .rp-resize { position: absolute; left: -4px; top: 0; bottom: 0; width: 8px; cursor: col-resize; z-index: 20; }
+  .rp-resize:hover, body.rp-dragging .rp-resize { background: color-mix(in srgb, var(--action) 35%, transparent); }
+  body.rp-dragging { cursor: col-resize; user-select: none; }
+  #insp-body { display: flex; flex-direction: column; }
+  #insp-body .insp-syn textarea, #insp-body .insp-notes-sec textarea { field-sizing: fixed !important; max-height: none !important; }
+  #insp-body .insp-syn { padding-bottom: 6px; }
+  #insp-body .insp-syn textarea { height: 150px; min-height: 60px; resize: none; overflow-y: auto; font: 12pt/1.55 var(--font-text); }
+  #insp-body .insp-notes-sec { padding-top: 6px; }
+  #insp-body .insp-notes-sec textarea { overflow-y: auto; }
+  .insp-split { flex: 0 0 auto; height: 12px; margin: 0 16px; cursor: row-resize; display: flex; align-items: center; justify-content: center; }
+  .insp-split i { width: 48px; height: 4px; border-radius: 2px; background: var(--border-strong); }
+  .insp-split:hover i, body.split-dragging .insp-split i { background: var(--action); }
+  body.split-dragging { cursor: row-resize; user-select: none; }
+  #insp-body .insp-notes-sec { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 220px; }
+  #insp-body .insp-notes-sec textarea { flex: 1 1 auto; min-height: 200px; height: auto; resize: none; font: 12pt/1.55 var(--font-text); }
+  .insp-details { border-top: 1px solid var(--border); }
+  .insp-details > summary { padding: 10px 16px; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--text-primary); list-style: none; }
+  .insp-details > summary::-webkit-details-marker { display: none; }
+  .insp-details > summary::before { content: '▸ '; color: var(--text-muted); }
+  .insp-details[open] > summary::before { content: '▾ '; }
+  .insp-details > summary span { font-weight: 500; color: var(--text-muted); font-size: 13px; margin-left: 4px; }
+
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
   .nav-menu {
@@ -1262,7 +1285,8 @@
   }
 
   .notes-panel {
-    width: var(--notes-w);
+    width: var(--notes-w) !important;
+    position: relative;
     background: var(--bg-sidebar);
     border-left: 1px solid var(--border);
     display: flex;
@@ -3764,6 +3788,26 @@
     <!-- Scrollable body — all sections visible at once -->
     <div class="inspector-body" id="insp-body">
 
+      <!-- SYNOPSIS -->
+      <div class="inspector-section insp-syn">
+        <div class="inspector-field-label">Synopsis</div>
+        <textarea class="inspector-synopsis" id="insp-synopsis"
+          placeholder="Beskriv vad som händer i scenen — kort och kärnfullt."
+          oninput="saveFromInspector()"
+          ></textarea>
+      </div>
+
+      <div class="insp-split" id="inspSplit" title="Dra för att fördela höjden mellan Synopsis och Notering"><i></i></div>
+      <!-- NOTERING -->
+      <div class="inspector-section insp-notes-sec">
+        <div class="inspector-field-label">Notering</div>
+        <textarea class="inspector-notes" id="insp-notes"
+          placeholder="Fria anteckningar: klistra in en tidigare version av kapitlet, research, saker att ändra eller frågor till dig själv."
+          oninput="saveFromInspector()"></textarea>
+      </div>
+
+      <details class="insp-details" id="inspDetails" ontoggle="try{localStorage.setItem('writeon_insp_details', this.open ? '1' : '0')}catch(e){}">
+        <summary>Detaljer <span>status, stämning, etikett, tid och bågen</span></summary>
       <!-- STATUS + DRAMA inline -->
       <div class="inspector-section" style="padding-bottom:12px;">
         <div class="inspector-status-row" style="margin-bottom:10px;">
@@ -3791,23 +3835,6 @@
         </div>
       </div>
 
-      <!-- SYNOPSIS -->
-      <div class="inspector-section">
-        <div class="inspector-field-label">Synopsis</div>
-        <textarea class="inspector-synopsis" id="insp-synopsis"
-          placeholder="Beskriv vad som händer i scenen — kort och kärnfullt."
-          oninput="autoGrow(this);saveFromInspector()"
-          ></textarea>
-      </div>
-
-      <!-- NOTERING -->
-      <div class="inspector-section">
-        <div class="inspector-field-label">Notering</div>
-        <textarea class="inspector-notes" id="insp-notes"
-          placeholder="Fria anteckningar — research, idéer, saker att ändra, frågor till dig själv..."
-          oninput="autoGrow(this);saveFromInspector()"></textarea>
-      </div>
-
       <!-- ETIKETT -->
       <div class="inspector-section">
         <div class="inspector-field-label">Etikett</div>
@@ -3832,6 +3859,8 @@
       <div class="inspector-word-count" id="insp-word-count" style="padding:8px 16px 16px;">
         0 ord i scenen
       </div>
+
+      </details>
 
       <!-- AI-REDAKTÖR RESULTAT (visas när man använt popup) -->
       <div class="inspector-section" id="insp-ai-section" style="display:none;">
@@ -4957,6 +4986,60 @@
   }
 
   // Knappen uppe till höger lyser när högerpanelen är öppen
+  // Högerpanelens bredd: dra i vänsterkanten, sparas i webbläsaren
+  (function () {
+    const MIN = 300, max = () => Math.min(Math.round(window.innerWidth * 0.55), 820);
+    const set = w => document.documentElement.style.setProperty('--notes-w', Math.max(MIN, Math.min(max(), w)) + 'px');
+    try { const w = +localStorage.getItem('writeon_panel_w'); set(w || Math.max(440, Math.min(640, Math.round(window.innerWidth * 0.32)))); } catch (e) {}
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.notes-panel').forEach(p => {
+        const h = document.createElement('div'); h.className = 'rp-resize'; h.title = 'Dra för att ändra bredden';
+        p.appendChild(h);
+        h.addEventListener('pointerdown', e => {
+          e.preventDefault(); h.setPointerCapture(e.pointerId); document.body.classList.add('rp-dragging');
+          const startX = e.clientX, startW = p.getBoundingClientRect().width;
+          const move = ev => set(startW + (startX - ev.clientX));
+          const up = () => {
+            h.removeEventListener('pointermove', move); h.removeEventListener('pointerup', up);
+            document.body.classList.remove('rp-dragging');
+            try { localStorage.setItem('writeon_panel_w', Math.round(p.getBoundingClientRect().width)); } catch (e) {}
+            if (typeof rsMarkers === 'function') rsMarkers(); if (typeof cmMarkers === 'function') cmMarkers();
+          };
+          h.addEventListener('pointermove', move); h.addEventListener('pointerup', up);
+        });
+      });
+      try { if (localStorage.getItem('writeon_insp_details') === '1') document.getElementById('inspDetails').open = true; } catch (e) {}
+      // Delaren mellan Synopsis och Notering
+      const sp = document.getElementById('inspSplit');
+      if (sp) sp.addEventListener('pointerdown', e => {
+        e.preventDefault(); sp.setPointerCapture(e.pointerId); document.body.classList.add('split-dragging');
+        const syn = document.getElementById('insp-synopsis'), startY = e.clientY, startH = syn.offsetHeight;
+        const move = ev => { inspSetSyn(startH + (ev.clientY - startY), true); };
+        const up = () => { sp.removeEventListener('pointermove', move); sp.removeEventListener('pointerup', up); document.body.classList.remove('split-dragging'); };
+        sp.addEventListener('pointermove', move); sp.addEventListener('pointerup', up);
+      });
+      document.getElementById('inspDetails')?.addEventListener('toggle', () => setTimeout(inspLayout, 0));
+      setTimeout(inspLayout, 50);
+    });
+    window.addEventListener('resize', () => setTimeout(inspLayout, 50));
+  })();
+  // Synopsis får en andel av höjden (sparas), Notering fyller resten. Båda rullar inuti när texten är lång.
+  function inspAvail() {
+    const body = document.getElementById('insp-body'); if (!body || !body.clientHeight) return 0;
+    const det = document.getElementById('inspDetails'), wc = document.getElementById('insp-word-count');
+    return body.clientHeight - 120 - (det ? det.offsetHeight : 0);
+  }
+  function inspSetSyn(px, save) {
+    const syn = document.getElementById('insp-synopsis'), avail = inspAvail(); if (!syn || !avail) return;
+    const h = Math.max(60, Math.min(avail - 140, px));
+    syn.style.height = h + 'px';
+    if (save) try { localStorage.setItem('writeon_insp_split', (h / avail).toFixed(3)); } catch (e) {}
+  }
+  function inspLayout() {
+    let f = 0.32; try { f = +localStorage.getItem('writeon_insp_split') || 0.32; } catch (e) {}
+    inspSetSyn(Math.round(inspAvail() * f), false);
+  }
+
   function updateInspBtn() {
     const open = ['panel-notes','panel-idebank','panel-charchat','panel-charchat-active','panel-assistant','panel-research','panel-snaps','panel-comments']
       .some(id => { const el = document.getElementById(id); return el && el.style.display !== 'none'; });
@@ -4964,7 +5047,7 @@
   }
   {
     const _show = showPanel, _close = closePanel;
-    showPanel = function(id) { _show(id); updateInspBtn(); };
+    showPanel = function(id) { _show(id); updateInspBtn(); if (id === 'panel-notes') setTimeout(inspLayout, 0); };
     closePanel = function() { _close(); updateInspBtn(); };
   }
   document.addEventListener('DOMContentLoaded', updateInspBtn);
