@@ -1,4 +1,4 @@
-// WriteON — server
+// Inkwrite — server
 // 1) Serverar appen (index.html)
 // 2) /api/ai: skickar AI-anrop vidare till Claude. API-nyckeln ligger som
 //    Railway-variabel (ANTHROPIC_API_KEY) och når aldrig webbläsaren.
@@ -211,4 +211,4 @@ app.get('*', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`WriteON körs på port ${PORT} · AI ${ANTHROPIC_API_KEY ? 'kopplad' : 'ej kopplad'}`));
+app.listen(PORT, () => console.log(`Inkwrite körs på port ${PORT} · AI ${ANTHROPIC_API_KEY ? 'kopplad' : 'ej kopplad'}`));

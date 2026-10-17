@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>WriteON</title>
+<title>Inkwrite</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
@@ -734,6 +734,9 @@
   .insp-details > summary::before { content: '▸ '; color: var(--text-muted); }
   .insp-details[open] > summary::before { content: '▾ '; }
   .insp-details > summary span { font-weight: 500; color: var(--text-muted); font-size: 13px; margin-left: 4px; }
+
+  /* Tillfällig textlogotyp. Byts mot den riktiga loggan när den finns. */
+  .wordmark { font-family: var(--font-text); font-weight: 600; font-size: 24px; line-height: 1; letter-spacing: -0.01em; color: var(--text-primary); white-space: nowrap; display: inline-block; }
 
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
@@ -3582,15 +3585,7 @@
 <!-- HEADER -->
 <header>
   <div class="logo-wrap">
-    <svg height="24" viewBox="0 0 338.26 58.51" xmlns="http://www.w3.org/2000/svg" id="logoSvg">
-      <path id="lp1" fill="#231f20" d="M33.01,41.77l6.55-22.74-4.74-15.08h-4.5v-1.5h24.48v1.5h-4.66l11.77,37.35L71.38,3.95h-7.98v-1.5h15.79v1.5h-5.21l-14.53,54.56h-7.03l-11.69-35.69-10.26,35.69h-6.87L3.71,3.95H0v-1.5h25.66v1.5h-5.53l12.87,37.82Z"/>
-      <path id="lp2" fill="#231f20" d="M105.25,22.35c-1.95,0-3.66,1.26-5.13,3.79-1.47,2.53-2.21,5.53-2.21,9v21.16h5.61v1.42h-24.64v-1.42h4.34V21.56h-4.34v-1.42h19.03v7.58c.68-2.68,2-4.75,3.95-6.2,1.95-1.45,4.16-2.17,6.63-2.17s4.49.7,6.04,2.09c1.55,1.4,2.33,3.37,2.33,5.92s-.58,4.51-1.74,5.88c-1.16,1.37-2.94,2.05-5.33,2.05s-4.16-.79-5.29-2.37c-1.13-1.58-1.28-3.76-.43-6.55h2.84c1.31-2.69.76-4.03-1.66-4.03Z"/>
-      <path id="lp3" fill="#231f20" d="M120.81,20.13h19.35v36.16h4.42v1.42h-23.45v-1.42h4.34V21.56h-4.66v-1.42ZM132.73,14.69c-2.79,0-4.78-.71-5.96-2.13-1.18-1.42-1.78-3.18-1.78-5.29s.64-3.84,1.93-5.21c1.29-1.37,3.25-2.05,5.88-2.05s4.63.62,6,1.86c1.37,1.24,2.05,3,2.05,5.29s-.66,4.12-1.97,5.49c-1.32,1.37-3.37,2.05-6.16,2.05Z"/>
-      <path id="lp4" fill="#231f20" d="M153.26,46.43v-24.87h-4.34v-1.42h4.34v-10.19l14.69-3.63v13.82h10.26v1.42h-10.26v26.61c0,2.48.25,4.29.75,5.45.5,1.16,1.54,1.74,3.12,1.74s2.96-.79,4.15-2.37c1.18-1.58,1.96-3.74,2.33-6.47l1.34.16c-.42,3.63-1.58,6.51-3.47,8.65s-5.03,3.2-9.4,3.2-7.71-.87-10.03-2.61c-2.32-1.74-3.47-4.9-3.47-9.48Z"/>
-      <path id="lp5" fill="#231f20" d="M189.07,53.26c-3.4-3.5-5.09-8.37-5.09-14.61s1.91-11.02,5.72-14.33c3.82-3.32,8.67-4.97,14.57-4.97,11.95,0,17.69,6,17.21,18h-22.27v3.08c0,5.16.66,9.05,1.97,11.69,1.32,2.63,3.61,3.95,6.87,3.95,6.11,0,10.11-3.26,12-9.79l1.42.24c-1,3.79-2.8,6.74-5.41,8.84-2.61,2.11-6.51,3.16-11.73,3.16-6.79,0-11.88-1.75-15.28-5.25ZM199.3,35.77h8.13v-3.87c0-4.26-.25-7.17-.75-8.73-.5-1.55-1.5-2.33-3-2.33s-2.61.83-3.32,2.49c-.71,1.66-1.07,4.51-1.07,8.57v3.87Z"/>
-      <path fill="#fcb136" d="M256.15,58.51c-8.79,0-15.36-2.38-19.7-7.15-4.34-4.76-6.51-11.66-6.51-20.69s2.33-16.13,6.99-21.32c4.66-5.18,11.25-7.78,19.78-7.78s14.96,2.46,19.31,7.38c4.34,4.92,6.51,11.91,6.51,20.96s-2.2,16.08-6.59,21.08c-4.4,5-10.99,7.5-19.78,7.5ZM266.25,33.32v-5.84c0-9.63-.47-15.71-1.42-18.24-1.05-2.89-2.55-4.68-4.5-5.37-1.11-.42-2.45-.63-4.03-.63s-2.94.21-4.07.63c-1.13.42-2.07,1.16-2.8,2.21-.74,1.05-1.33,2.16-1.78,3.32-.45,1.16-.8,2.79-1.07,4.9-.32,3.05-.47,7.55-.47,13.5v5.69c0,6.42.25,10.99.75,13.7.5,2.71,1.12,4.65,1.86,5.8,1.63,2.58,4.16,3.87,7.58,3.87,4.16,0,6.86-1.75,8.09-5.25,1.24-3.5,1.86-9.59,1.86-18.28Z"/>
-      <path fill="#4a8981" d="M333.92,3.95v53.77h-11.05l-27.08-51.09v49.59h4.34v1.5h-10.82v-1.5h4.34V3.95h-4.34v-1.5h21.79l20.69,39.64V3.95h-4.34v-1.5h10.82v1.5h-4.34Z"/>
-    </svg>
+    <span class="wordmark" id="logoSvg">Inkwrite</span>
   </div>
 
   <div class="project-title-area">
@@ -4482,7 +4477,7 @@
   window.ic = ic;
 
   // ╔══════════════════════════════════════════════════════════╗
-  // ║  projectData — SINGLE SOURCE OF TRUTH för WriteON       ║
+  // ║  projectData — SINGLE SOURCE OF TRUTH för Inkwrite       ║
   // ║  Alla vyer läser härifrån. Inspektören skriver hit.     ║
   // ╚══════════════════════════════════════════════════════════╝
   // Startläge: tomt projekt utan namn. Vid inloggning öppnas senast sparade projekt.
@@ -5100,7 +5095,7 @@
     const fn = typ === 'reset' ? window.fbGlomtLosenord : window.fbLogga;
     if (typeof fn === 'function') return typ === 'reset' ? fn() : fn(typ);
     const st = document.getElementById('fbStatus');
-    if (st) { st.style.color = '#c84040'; st.textContent = 'Inloggningen fungerar bara på WriteONs riktiga adress, inte i en förhandsvisning.'; }
+    if (st) { st.style.color = '#c84040'; st.textContent = 'Inloggningen fungerar bara på Inkwrites riktiga adress, inte i en förhandsvisning.'; }
   }
 
   // ── Konto (profilbilden uppe till höger) ──
@@ -6732,11 +6727,11 @@
     let w = popWins[kind];
     if (!w || w.closed) {
       w = window.open('', 'writeon-' + kind, 'width=460,height=840');
-      if (!w) { alert('Webbläsaren stoppade fönstret. Tillåt popupfönster för WriteON och försök igen.'); return; }
+      if (!w) { alert('Webbläsaren stoppade fönstret. Tillåt popupfönster för Inkwrite och försök igen.'); return; }
       popWins[kind] = w;
       const d = w.document;
       d.open();
-      d.write('<!DOCTYPE html><html lang="sv"><head><meta charset="utf-8"><title>' + (kind === 'research' ? 'Research' : 'Idébanken') + ' · WriteON</title></head><body class="pop-body"></body></html>');
+      d.write('<!DOCTYPE html><html lang="sv"><head><meta charset="utf-8"><title>' + (kind === 'research' ? 'Research' : 'Idébanken') + ' · Inkwrite</title></head><body class="pop-body"></body></html>');
       d.close();
       document.querySelectorAll('head style, head link[rel=stylesheet]').forEach(n => d.head.appendChild(d.importNode(n, true)));
       const sprite = document.querySelector('body > svg'); if (sprite) d.body.appendChild(d.importNode(sprite, true));
@@ -6825,7 +6820,7 @@
   function exportScreenplayPdf() {
     _closeDropdowns();
     const w = window.open('', 'writeon-pdf', 'width=900,height=1000');
-    if (!w) { alert('Webbläsaren stoppade fönstret. Tillåt popupfönster för WriteON och försök igen.'); return; }
+    if (!w) { alert('Webbläsaren stoppade fönstret. Tillåt popupfönster för Inkwrite och försök igen.'); return; }
     const e = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
     const body = spBlocks().filter(b => b.el !== 'section').map(b => '<p class="' + b.el + '">' + e(b.t) + '</p>').join('');
     w.document.open();
@@ -7611,7 +7606,7 @@ VIKTIGT:
   function updateProjectTitle() {
     const el = document.querySelector('.project-name');
     if (el) el.textContent = projectData.title || '';
-    document.title = projectData.title ? 'WriteON – ' + projectData.title : 'WriteON';
+    document.title = projectData.title ? 'Inkwrite – ' + projectData.title : 'Inkwrite';
   }
 
   function formatSavedAt(d) {
@@ -7933,7 +7928,7 @@ VIKTIGT:
     let data;
     try { data = JSON.parse(await file.text()); }
     catch(e) { alert('Kunde inte läsa filen.'); return; }
-    if (!data || !Array.isArray(data.chapters)) { alert('Det här är ingen WriteON-projektfil.'); return; }
+    if (!data || !Array.isArray(data.chapters)) { alert('Det här är ingen Inkwrite-projektfil.'); return; }
     if (!window.fbSignedIn) { document.getElementById('fbLoginModal').style.display = 'flex'; return; }
 
     let namn = String(data.title || file.name.replace(/\.(writeon|json)$/i, '') || 'Importerat')
@@ -8020,7 +8015,7 @@ VIKTIGT:
   // AI — Claude via appens server (/api/ai). Nyckeln ligger på Railway.
   // ═══════════════════════════════════════════════════════════════════════════
   const WRITING_RULES = [
-    'Du arbetar i WriteON, ett skrivverktyg för svenska romanförfattare. Svara alltid på svenska.',
+    'Du arbetar i Inkwrite, ett skrivverktyg för svenska romanförfattare. Svara alltid på svenska.',
     '',
     'Så här arbetar du:',
     '- Utgå från projektets material nedan. Hitta aldrig på personer, händelser eller fakta som inte finns där.',
@@ -10846,7 +10841,7 @@ window.fbSetActiveProject = function(namn) {
   window.fbActiveProject = namn;
   const titleEl = document.querySelector('.project-name, #projectTitle, .proj-title');
   if (titleEl) titleEl.textContent = namn;
-  document.title = 'WriteON – ' + namn;
+  document.title = 'Inkwrite – ' + namn;
   if (window.fbRefreshRecentMenu) window.fbRefreshRecentMenu();
 };
 
@@ -10946,10 +10941,10 @@ window.fbLoggaUt = async function() {
   <section class="lp-hero">
     <div class="lp-beta">Beta · gratis under testperioden</div>
     <h1>Skriv din bok med en redaktör<br>som läser på svenska</h1>
-    <p class="lp-lead">WriteON samlar manus, planering och research på ett ställe, med en AI-redaktör som ger ärlig respons på din text och aldrig skriver om den åt dig.</p>
+    <p class="lp-lead">Inkwrite samlar manus, planering och research på ett ställe, med en AI-redaktör som ger ärlig respons på din text och aldrig skriver om den åt dig.</p>
     <div class="lp-hero-btns"><button class="lp-btn big" onclick="lpAuth('register')">Prova gratis</button><a class="lp-btn big ghost" href="#lp-funktioner">Se hur det fungerar</a></div>
     <div class="lp-trust"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg> Sparas automatiskt i EU &nbsp; <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg> Fungerar i webbläsaren &nbsp; <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg> Inget kort behövs</div>
-    <div class="lp-frame"><div class="lp-dots"><i></i><i></i><i></i></div><img src="bilder/oversikt.jpg" alt="WriteON med manus, kapitellista och inspektör"></div>
+    <div class="lp-frame"><div class="lp-dots"><i></i><i></i><i></i></div><img src="bilder/oversikt.jpg" alt="Inkwrite med manus, kapitellista och inspektör"></div>
   </section>
 
   <section class="lp-trio" id="lp-funktioner">
@@ -10992,7 +10987,7 @@ window.fbLoggaUt = async function() {
       <div class="lp-row-text">
         <div class="lp-kicker">Projektmål</div>
         <h2>Ett mål för boken och ett för i dag</h2>
-        <p>Sätt ett mål i ord, tecken eller sidor och ett datum då du vill vara klar. WriteON räknar ut hur mycket du behöver skriva varje dag och visar hur det går.</p>
+        <p>Sätt ett mål i ord, tecken eller sidor och ett datum då du vill vara klar. Inkwrite räknar ut hur mycket du behöver skriva varje dag och visar hur det går.</p>
         <ul><li>250 sidor i A5 blir ungefär 56 000 ord</li><li>Diagram över de senaste två veckorna</li><li>Måltavlan blir grön när dagens mål är nått</li></ul>
       </div>
       <div class="lp-shot"><img src="bilder/projektmal.jpg" alt="Projektmål med dagsmål och diagram" loading="lazy"></div>
@@ -11014,7 +11009,7 @@ window.fbLoggaUt = async function() {
 
   <section class="lp-price" id="lp-pris">
     <h2>Pris</h2>
-    <p class="lp-sub">Under testperioden är WriteON gratis. Därefter:</p>
+    <p class="lp-sub">Under testperioden är Inkwrite gratis. Därefter:</p>
     <div class="lp-price-grid">
       <div class="lp-pcard"><h3>Månad</h3><div class="lp-amount">79 kr<span>/mån</span></div><p>Avsluta när du vill.</p></div>
       <div class="lp-pcard best"><div class="lp-tag">Grundare</div><h3>Grundarpris</h3><div class="lp-amount">49 kr<span>/mån</span></div><p>För dig som är med från början.</p></div>
@@ -11029,7 +11024,7 @@ window.fbLoggaUt = async function() {
     <details><summary>Skriver AI:n min bok?</summary><p>Nej. Redaktören läser och ger respons, och föreslår ändringar som du själv väljer att göra. Din text och din röst förblir dina.</p></details>
     <details><summary>Kan jag flytta in en bok jag redan har skrivit?</summary><p>Ja. Importera en Word-fil, så blir rubrikerna kapitel. Från Scrivener exporterar du först till Word.</p></details>
     <details><summary>Kan jag ta med mig texten härifrån?</summary><p>Ja, när som helst. Exportera till Word, PDF, ePub, text eller Markdown, eller ladda ner en säkerhetskopia av hela projektet.</p></details>
-    <details><summary>Behöver jag installera något?</summary><p>Nej. WriteON fungerar i webbläsaren på din dator, och allt sparas automatiskt.</p></details>
+    <details><summary>Behöver jag installera något?</summary><p>Nej. Inkwrite fungerar i webbläsaren på din dator, och allt sparas automatiskt.</p></details>
   </section>
 
   <section class="lp-cta">
@@ -11038,7 +11033,7 @@ window.fbLoggaUt = async function() {
     <button class="lp-btn big light" onclick="lpAuth('register')">Prova gratis</button>
   </section>
 
-  <footer class="stp-foot lp-foot">WriteON · <button onclick="openPrivacy()">Så hanteras din text</button></footer>
+  <footer class="stp-foot lp-foot">Inkwrite · <button onclick="openPrivacy()">Så hanteras din text</button></footer>
 
   <!-- Inloggning och registrering -->
   <div class="lp-auth" id="lpAuthBox" style="display:none;" onclick="if(event.target===this) lpAuthClose()">
