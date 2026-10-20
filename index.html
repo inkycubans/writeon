@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Inkwrite</title>
+<title>InkWrite</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
@@ -701,12 +701,16 @@
   .lp-cta p { font-size: 17px; opacity: 0.9; margin: 0 0 24px; }
   .lp-foot { padding: 24px; }
   .lp-banner { max-width: 1180px; margin: 36px auto 0; padding: 0 32px; }
-  .lp-banner img { display: block; width: 100%; height: auto; border-radius: 14px; box-shadow: 0 18px 50px rgba(20,20,19,0.14); }
+  .lp-banner img { display: block; width: 100%; height: 340px; object-fit: cover; object-position: center 55%; border-radius: 14px; box-shadow: 0 18px 50px rgba(20,20,19,0.14); }
+  @media (max-width: 900px) { .lp-banner img { height: 220px; } }
   .lp-gallery { max-width: 1120px; margin: 0 auto; padding: 48px 32px 8px; }
   .lp-gal { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
   .lp-gal img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 12px; display: block; box-shadow: 0 10px 30px rgba(20,20,19,0.12); }
   .lp-note { text-align: center; font-size: 13px; color: var(--text-muted); margin: 12px 0 0; }
   @media (max-width: 900px) { .lp-gal { grid-template-columns: repeat(2, 1fr); } }
+  .lp-lang { display: inline-flex; border: 1.5px solid var(--border-strong); border-radius: 9px; overflow: hidden; margin-right: 6px; }
+  .lp-lang button { border: none; background: transparent; color: var(--text-secondary); font: 700 13px var(--font-ui); padding: 6px 10px; cursor: pointer; }
+  .lp-lang button.on { background: var(--action); color: var(--on-action); }
   .lp-auth { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding: 20px; }
   .lp-auth .stp-card { position: relative; width: 400px; max-width: 100%; }
   .lp-auth-x { position: absolute; top: 10px; right: 10px; }
@@ -749,6 +753,11 @@
   body.dark .logo-light { display: none; }
   body.dark .logo-dark { display: block; }
   .stp-logo .logo-img { height: 36px; }
+
+  /* Engelska etiketter är längre: något mindre text så att de får plats */
+  html[lang=en] .rail-btn { font-size: 11px; }
+  html[lang=en] .nav-item { white-space: nowrap; font-size: 13px; }
+  html[lang=en] .inspector-field-label { font-size: 11px; }
 
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
@@ -3597,7 +3606,7 @@
 <!-- HEADER -->
 <header>
   <div class="logo-wrap">
-    <span class="logo-img-wrap" id="logoSvg"><img class="logo-img logo-light" src="bilder/logo_ljust.png" alt="Inkwrite"><img class="logo-img logo-dark" src="bilder/logo_morkt.png" alt=""></span>
+    <span class="logo-img-wrap" id="logoSvg"><img class="logo-img logo-light" src="bilder/logo_ljust.png" alt="InkWrite"><img class="logo-img logo-dark" src="bilder/logo_morkt.png" alt=""></span>
   </div>
 
   <div class="project-title-area">
@@ -3706,6 +3715,9 @@
         <div class="avatar-menu-email" id="avatarEmail">Inte inloggad</div>
         <div class="nav-dd-sep"></div>
         <div class="nav-dd-item" id="avatarLogin" onclick="closeAvatarMenu(); document.getElementById('fbLoginModal').style.display='flex'">Logga in</div>
+        <div class="nav-dd-label">Språk · Language</div>
+        <div class="nav-dd-item" id="langSvBtn" onclick="closeAvatarMenu(); appSetLang('sv')">Svenska</div>
+        <div class="nav-dd-item" id="langEnBtn" onclick="closeAvatarMenu(); appSetLang('en')">English</div>
         <div class="nav-dd-item" id="avatarPrivacy" onclick="closeAvatarMenu(); openPrivacy()">Så hanteras din text</div>
         <div class="nav-dd-item" id="avatarLogout" style="display:none;" onclick="closeAvatarMenu(); window.fbLoggaUt && window.fbLoggaUt()">Logga ut</div>
         <div class="nav-dd-item" id="avatarDelete" style="display:none;color:#c84040;" onclick="closeAvatarMenu(); window.fbRaderaKonto && window.fbRaderaKonto()">Radera konto …</div>
@@ -4489,7 +4501,7 @@
   window.ic = ic;
 
   // ╔══════════════════════════════════════════════════════════╗
-  // ║  projectData — SINGLE SOURCE OF TRUTH för Inkwrite       ║
+  // ║  projectData — SINGLE SOURCE OF TRUTH för InkWrite       ║
   // ║  Alla vyer läser härifrån. Inspektören skriver hit.     ║
   // ╚══════════════════════════════════════════════════════════╝
   // Startläge: tomt projekt utan namn. Vid inloggning öppnas senast sparade projekt.
@@ -5085,11 +5097,46 @@
     document.getElementById('stpForgot').style.visibility = m === 'login' ? 'visible' : 'hidden';
     document.getElementById('fbPass').autocomplete = m === 'login' ? 'current-password' : 'new-password';
     document.getElementById('fbStatus').textContent = '';
+    if (typeof lpSetLang === 'function') lpSetLang(lpCurrent());
   }
   function startSubmit() { fbLoginAction(startMode === 'login' ? 'login' : 'register'); }
   function openPrivacy() { document.getElementById('privacyModal').style.display = 'flex'; }
   function lpAuth(mode) { setStartMode(mode); document.getElementById('lpAuthBox').style.display = 'flex'; setTimeout(() => document.getElementById('fbEmail').focus(), 60); }
   function lpAuthClose() { document.getElementById('lpAuthBox').style.display = 'none'; }
+  // ═══ SPRÅK PÅ PRESENTATIONSSIDAN: svenska (standard) och engelska ═══
+  const LP_EN = {"Funktioner": "Features", "Pris": "Pricing", "Vanliga frågor": "FAQ", "Logga in": "Log in", "Prova gratis": "Try it free", "Beta · gratis under testperioden": "Beta · free during the test period", "Skriv din bok med en redaktör": "Write your book with an editor", "som läser på svenska": "who reads Swedish", "InkWrite samlar manus, planering och research på ett ställe, med en AI-redaktör som ger ärlig respons på din text och aldrig skriver om den åt dig.": "InkWrite brings together manuscript, planning and research in one place, with an AI editor that gives honest feedback on your text and never rewrites it for you.", "Se hur det fungerar": "See how it works", "Sparas automatiskt i EU": "Saved automatically in the EU", "Fungerar i webbläsaren": "Works in your browser", "Inget kort behövs": "No card needed", "Skriv": "Write", "En lugn skrivyta som låter texten stå i centrum. Fokusläge, svensk typografi och filmmanus som i Final Draft.": "A calm writing space that keeps the text in focus. Focus mode, Swedish typography and screenplay format like Final Draft.", "Planera": "Plan", "Kapitel och scener, scenkort, outline och en dramatisk båge som visar var boken tappar fart.": "Chapters and scenes, index cards, outline and a dramatic arc that shows where the book loses pace.", "Samla": "Gather", "Karaktärer, idéer, miljöer och research med bilder och länkar, kopplat till scenerna där du behöver dem.": "Characters, ideas, settings and research with images and links, connected to the scenes where you need them.", "Redaktören": "The Editor", "Respons som en lektör, när du behöver den": "Feedback like a reader, when you need it", "Redaktören läser din scen, dina karaktärer och bokens synopsis innan den svarar. Den pekar ut vad som fungerar och vad som kan bli bättre, på svenska och med respekt för din röst.": "The Editor reads your scene, your characters and the book's synopsis before it answers. It points out what works and what could be better, in Swedish, with respect for your voice.", "Respons på helheten, gestaltning, dialog, tempo och språk": "Feedback on the whole, showing vs telling, dialogue, pacing and language", "Förslag när du har fastnat": "Suggestions when you're stuck", "Skriver aldrig om din text, föreslår bara": "Never rewrites your text, only suggests", "Dramabågen": "The Story Arc", "Se hela boken på en gång": "See the whole book at once", "Kapitlen läggs ut längs en dramaturgisk båge, jämförd med klassiska former som tre akter eller Fichtes kurva. Du ser direkt var spänningen sjunker och var klimax hamnar.": "Your chapters are laid out along a dramatic arc, compared with classic forms such as three acts or Fichte's curve. You see at a glance where tension drops and where the climax falls.", "Dra punkterna för att ändra stämningen": "Drag the points to change the mood", "Bågens faser syns där du skriver": "The arc's phases show where you are as you write", "Berättelsens tid och episoder under bågen": "Story time and episodes under the arc", "Research": "Research", "Allt du samlar, där du skriver": "Everything you gather, where you write", "Bilder, fakta och citat i ett galleri. Koppla dem till en scen eller till ett enskilt ord, så dyker de upp i marginalen när du behöver dem.": "Images, facts and quotes in a gallery. Link them to a scene or a single word, and they appear in the margin when you need them.", "Dra in bilder direkt från datorn": "Drag images straight in from your computer", "Länkar visar sidans bild och rubrik": "Links show the page's image and title", "Lossa panelen till en egen skärm": "Detach the panel to its own screen", "Projektmål": "Project Goals", "Ett mål för boken och ett för i dag": "A goal for the book and one for today", "Sätt ett mål i ord, tecken eller sidor och ett datum då du vill vara klar. InkWrite räknar ut hur mycket du behöver skriva varje dag och visar hur det går.": "Set a goal in words, characters or pages and a date for when you want to be finished. InkWrite works out how much you need to write each day and shows how you're doing.", "250 sidor i A5 blir ungefär 56 000 ord": "250 A5 pages is roughly 56,000 words", "Diagram över de senaste två veckorna": "A chart of the last two weeks", "Måltavlan blir grön när dagens mål är nått": "The target turns green when today's goal is reached", "Det du inte hittar någon annanstans": "What you won't find anywhere else", "Finputs för hela boken": "Finputs for the whole book", "Går igenom manuset kapitel för kapitel och hittar stavfel, grammatik och logiska kullerbyttor, som glassen som blev pommes frites i nästa kapitel.": "Goes through the manuscript chapter by chapter and finds spelling errors, grammar and logical slips, like the ice cream that became fries in the next chapter.", "Kommentarer och ögonblicksbilder": "Comments and snapshots", "Kommentera i marginalen och spara en version av scenen innan du skriver om den. Du kan alltid gå tillbaka.": "Comment in the margin, and save a version of the scene before you rewrite it. You can always go back.", "Från roman till filmmanus": "From novel to screenplay", "Mallar för roman, deckare, novell, dagboksroman och filmmanus. Exportera till Word, PDF, ePub och Fountain.": "Templates for novels, crime, short stories, diary novels and screenplays. Export to Word, PDF, ePub and Fountain.", "För dig som skriver": "For those who write", "Romaner": "Novels", "Deckare och spänning": "Crime and thrillers", "Dagboksromaner": "Diary novels", "Noveller": "Short stories", "Film- och tv-manus": "Film and TV scripts", "Memoarer": "Memoirs", "Illustrationer": "Illustrations", "Under testperioden är InkWrite gratis. Därefter:": "During the test period InkWrite is free. After that:", "Månad": "Monthly", "/mån": "/month", "Avsluta när du vill.": "Cancel any time.", "Grundare": "Founder", "Grundarpris": "Founder's price", "För dig som är med från början.": "For those who join from the start.", "År": "Yearly", "/år": "/year", "Två månader gratis jämfört med månadspris.": "Two months free compared with the monthly price.", "Kom igång gratis": "Get started for free", "Var sparas min text?": "Where is my text stored?", "I Google Firebase i Frankfurt, inom EU. Bara du kommer åt dina projekt. Läs mer under": "In Google Firebase in Frankfurt, within the EU. Only you can access your projects. Read more under", "Så hanteras din text": "How we handle your text", "Skriver AI:n min bok?": "Does the AI write my book?", "Nej. Redaktören läser och ger respons, och föreslår ändringar som du själv väljer att göra. Din text och din röst förblir dina.": "No. The Editor reads and gives feedback, and suggests changes that you choose to make yourself. Your text and your voice stay yours.", "Kan jag flytta in en bok jag redan har skrivit?": "Can I bring in a book I've already written?", "Ja. Importera en Word-fil, så blir rubrikerna kapitel. Från Scrivener exporterar du först till Word.": "Yes. Import a Word file and the headings become chapters. From Scrivener, export to Word first.", "Kan jag ta med mig texten härifrån?": "Can I take my text with me?", "Ja, när som helst. Exportera till Word, PDF, ePub, text eller Markdown, eller ladda ner en säkerhetskopia av hela projektet.": "Yes, any time. Export to Word, PDF, ePub, text or Markdown, or download a backup of the whole project.", "Behöver jag installera något?": "Do I need to install anything?", "Nej. InkWrite fungerar i webbläsaren på din dator, och allt sparas automatiskt.": "No. InkWrite works in the browser on your computer, and everything is saved automatically.", "Börja skriva i dag": "Start writing today", "Gratis under testperioden. Inget kort behövs.": "Free during the test period. No card needed.", "Inloggning och registrering": "Log in and sign up", "Skapa konto": "Create account", "E-postadress": "Email address", "Lösenord": "Password", "Glömt lösenordet?": "Forgot password?", "Dina projekt sparas i EU och bara du kommer åt dem.": "Your projects are saved in the EU, and only you can access them.", "InkWrite med manus, kapitellista och inspektör": "InkWrite with manuscript, chapter list and inspector", "Dimmig kust med drivved och stenstrand": "Foggy coast with driftwood and a pebble beach", "Redaktören ger respons på en scen": "The Editor gives feedback on a scene", "Dramabågen visar bokens kapitel": "The Story Arc shows the book's chapters", "Research med bilder, fakta och citat": "Research with images, facts and quotes", "Projektmål med dagsmål och diagram": "Project Goals with daily targets and a chart", "Arbetsrum med lampa och fönster mot en fransk gata": "Study with a lamp and a window onto a French street", "Kvinna som står vid en balkongdörr": "Woman standing at a balcony door", "Vardagsrum med soffa och bergstavla": "Living room with a sofa and a mountain painting", "Herrgård i vinterkväll": "Manor house on a winter evening", "din@epost.se": "you@email.com", "minst 6 tecken": "at least 6 characters", "Stäng": "Close", "✕": "✕", "Dina projekt": "Your projects", "sparas i Google Firebase, i ett datacenter i Frankfurt (EU). Bara du kommer åt dem när du är inloggad.": "are saved in Google Firebase, in a data centre in Frankfurt (EU). Only you can access them when you are logged in.", "Appen": "The app", "körs på servrar hos Railway i USA. När du använder AI passerar texten servern på vägen till och från AI:n, men den sparas inte där.": "runs on servers at Railway in the USA. When you use AI, the text passes through the server on its way to and from the AI, but it is not stored there.", "När du använder AI": "When you use AI", "skickas den text som behövs för svaret, till exempel scenen du står i, synopsis och karaktärer, till Anthropic (Claude). Text som skickas via Anthropics API används inte för att träna deras modeller.": "the text needed for the answer is sent to Anthropic (Claude), for example the scene you are in, the synopsis and the characters. Text sent through Anthropic's API is not used to train their models.", "Utseendet": "Appearance", ", alltså typsnitt, textstorlek och mörkt läge, sparas bara i din webbläsare.": ", that is fonts, text size and dark mode, is saved only in your browser.", "Ögonblicksbilder": "Snapshots", "av scener sparas tillsammans med dina projekt i Frankfurt och raderas med dem.": "of scenes are saved together with your projects in Frankfurt and are deleted with them.", "Säkerhetskopior": "Backups", "som du laddar ner hamnar på din egen dator.": "that you download end up on your own computer.", "Radera allt:": "Delete everything:", "under din profilbild uppe till höger finns": "under your profile picture at the top right you'll find", "Radera konto": "Delete account", ". Då tas ditt konto och alla dina projekt bort för gott.": ". Your account and all your projects are then deleted for good."};
+  const LP_ROOTS = ['fbLoginModal', 'lpAuthBox', 'privacyModal'];
+  const lpOrig = new WeakMap();
+  function lpCurrent() { try { return localStorage.getItem('writeon_lang') === 'en' ? 'en' : 'sv'; } catch (e) { return 'sv'; } }
+  function lpSetLang(l) {
+    l = l === 'en' ? 'en' : 'sv';
+    try { localStorage.setItem('writeon_lang', l); } catch (e) {}
+    document.documentElement.lang = l;
+    document.querySelectorAll('.lp-lang button').forEach(b => b.classList.toggle('on', b.dataset.lang === l));
+    LP_ROOTS.forEach(id => {
+      const root = document.getElementById(id); if (!root) return;
+      const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); const nodes = []; let n;
+      while ((n = w.nextNode())) nodes.push(n);
+      nodes.forEach(node => {
+        const p = node.parentElement; if (!p || p.tagName === 'SCRIPT' || p.tagName === 'STYLE') return;
+        if (!lpOrig.has(node)) lpOrig.set(node, node.data);
+        const src = lpOrig.get(node), key = src.replace(/\s+/g, ' ').trim(); if (!key) return;
+        const lead = (src.match(/^\s*/) || [''])[0], trail = (src.match(/\s*$/) || [''])[0];
+        node.data = (l === 'en' && LP_EN[key]) ? lead + LP_EN[key] + trail : src;
+      });
+      root.querySelectorAll('[alt],[placeholder]').forEach(el => {
+        ['alt', 'placeholder'].forEach(attr => {
+          if (!el.hasAttribute(attr)) return;
+          const store = 'sv' + attr; if (!el.dataset[store]) el.dataset[store] = el.getAttribute(attr);
+          const src = el.dataset[store], key = src.trim();
+          el.setAttribute(attr, (l === 'en' && LP_EN[key]) ? LP_EN[key] : src);
+        });
+      });
+    });
+  }
+  window.lpSetLang = lpSetLang;
+  document.addEventListener('DOMContentLoaded', () => lpSetLang(lpCurrent()));
+
   document.addEventListener('DOMContentLoaded', function initStartPage() {
     const logo = document.getElementById('logoSvg'), slot = document.getElementById('startLogo');
     if (logo && slot) {
@@ -5107,7 +5154,7 @@
     const fn = typ === 'reset' ? window.fbGlomtLosenord : window.fbLogga;
     if (typeof fn === 'function') return typ === 'reset' ? fn() : fn(typ);
     const st = document.getElementById('fbStatus');
-    if (st) { st.style.color = '#c84040'; st.textContent = 'Inloggningen fungerar bara på Inkwrites riktiga adress, inte i en förhandsvisning.'; }
+    if (st) { st.style.color = '#c84040'; st.textContent = 'Inloggningen fungerar bara på InkWrites riktiga adress, inte i en förhandsvisning.'; }
   }
 
   // ── Konto (profilbilden uppe till höger) ──
@@ -6739,11 +6786,11 @@
     let w = popWins[kind];
     if (!w || w.closed) {
       w = window.open('', 'writeon-' + kind, 'width=460,height=840');
-      if (!w) { alert('Webbläsaren stoppade fönstret. Tillåt popupfönster för Inkwrite och försök igen.'); return; }
+      if (!w) { alert('Webbläsaren stoppade fönstret. Tillåt popupfönster för InkWrite och försök igen.'); return; }
       popWins[kind] = w;
       const d = w.document;
       d.open();
-      d.write('<!DOCTYPE html><html lang="sv"><head><meta charset="utf-8"><title>' + (kind === 'research' ? 'Research' : 'Idébanken') + ' · Inkwrite</title></head><body class="pop-body"></body></html>');
+      d.write('<!DOCTYPE html><html lang="sv"><head><meta charset="utf-8"><title>' + (kind === 'research' ? 'Research' : 'Idébanken') + ' · InkWrite</title></head><body class="pop-body"></body></html>');
       d.close();
       document.querySelectorAll('head style, head link[rel=stylesheet]').forEach(n => d.head.appendChild(d.importNode(n, true)));
       const sprite = document.querySelector('body > svg'); if (sprite) d.body.appendChild(d.importNode(sprite, true));
@@ -6832,7 +6879,7 @@
   function exportScreenplayPdf() {
     _closeDropdowns();
     const w = window.open('', 'writeon-pdf', 'width=900,height=1000');
-    if (!w) { alert('Webbläsaren stoppade fönstret. Tillåt popupfönster för Inkwrite och försök igen.'); return; }
+    if (!w) { alert('Webbläsaren stoppade fönstret. Tillåt popupfönster för InkWrite och försök igen.'); return; }
     const e = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
     const body = spBlocks().filter(b => b.el !== 'section').map(b => '<p class="' + b.el + '">' + e(b.t) + '</p>').join('');
     w.document.open();
@@ -7472,6 +7519,70 @@
     if (e.target.classList && e.target.classList.contains('scene-writing-area')) { clearTimeout(glT); glT = setTimeout(() => { glTrack(); glRenderNav(); }, 700); }
   });
 
+  // ═══ SPRÅK I APPEN (del 1: menyer, sidolist, projektpanel, inspektör) ═══
+  // Svensk text står kvar i koden. Engelska visas när språket är English. Nya texter som ritas om översätts automatiskt.
+  const APP_EN = {"0 ord": "0 words", "0 ord i scenen": "0 words in scene", "12 pt": "12 pt", "Andra utkast": "Second draft", "Berättelsens tid": "Story time", "Blankrad mellan stycken": "Blank line between paragraphs", "Båge": "Arc", "Bågen": "The arc", "Centrera": "Center", "Detaljer": "Details", "Där markören står": "At the cursor", "ETIKETT": "LABEL", "Etikett": "Label", "Exportera / Kompilera…": "Export / Compile…", "Exportera manus som Fountain": "Export script as Fountain", "Exportera manus som PDF": "Export script as PDF", "Fil": "File", "Fokusläge": "Focus mode", "Format": "Format", "Första utkast": "First draft", "Högerjustera": "Align right", "Idébank": "Idea bank", "Importera bok (Word eller text) …": "Import book (Word or text) …", "Indrag på första raden": "First-line indent", "Infoga scenbrytning (* * *)": "Insert scene break (* * *)", "Infoga text i scenen …": "Insert text into scene …", "Inga senaste projekt": "No recent projects", "Inspektör": "Inspector", "Inte inloggad": "Not logged in", "Karaktärer": "Characters", "Klart": "Done", "Klimax": "Climax", "Logga in": "Log in", "Logga ut": "Log out", "Lugn": "Calm", "Manus": "Manuscript", "Marginaljustera": "Justify", "Minska indrag": "Decrease indent", "Mörkt läge": "Dark mode", "NOTERING": "NOTES", "Notering": "Notes", "Nytt projekt …": "New project …", "Nytt kapitel": "New chapter", "+ Ny scen": "+ New scene", "Outline": "Outline", "Pris": "Pricing", "Projektmål": "Project goals", "Prova gratis": "Try it free", "Radavstånd": "Line spacing", "Radera konto …": "Delete account …", "Redaktör": "Editor", "Reviderat utkast": "Revised draft", "Research": "Research", "Scenkort": "Index cards", "Skriv om": "Rewrite", "Skriv ut": "Print", "Spara": "Save", "Stycken": "Paragraphs", "Stäng": "Close", "Svacka": "Low point", "Svensk typografi medan du skriver (” – …)": "Swedish typography while you write (” – …)", "Synopsis": "Synopsis", "SYNOPSIS": "SYNOPSIS", "Säkerhetskopia": "Backup", "Så hanteras din text": "How we handle your text", "Textstorlek": "Text size", "Typsnitt i manuset": "Manuscript font", "Upptrappning": "Rising action", "Vanliga frågor": "FAQ", "Vändpunkt": "Turning point", "Vänsterjustera": "Align left", "Vy": "View", "Zoom": "Zoom", "Öka indrag": "Increase indent", "Öppna": "Open", "Öppna senaste": "Open recent", "Öppna…": "Open…", "— Ingen": "— None", "Nytt kapitel ": "New chapter ", "Visa/dölj inspektören": "Show/hide inspector", "Visa/dölj kapitellistan": "Show/hide chapter list", "Scensynopsis bredvid manuset": "Scene synopsis beside the manuscript", "status, stämning, etikett, tid och bågen": "status, mood, label, time and arc", "Mål: 100 000 ord": "Goal: 100,000 words", "Ny scen": "New scene", "Kapitel": "Chapter", "Scen": "Scene"};
+  let appLang = 'sv';
+  const appOrig = new WeakMap(), appAttrOrig = new WeakMap();
+  const APP_SKIP = ['fbLoginModal', 'lpAuthBox', 'privacyModal'];
+  function appSkipped(node) {
+    let p = node.nodeType === 3 ? node.parentElement : node;
+    while (p) { if (APP_SKIP.includes(p.id)) return true; p = p.parentElement; }
+    return false;
+  }
+  function appTranslateText(node) {
+    const p = node.parentElement; if (!p || p.tagName === 'SCRIPT' || p.tagName === 'STYLE' || appSkipped(node)) return;
+    if (!appOrig.has(node)) appOrig.set(node, node.data);
+    const src = appOrig.get(node), key = src.replace(/\s+/g, ' ').trim(); if (!key) return;
+    const lead = (src.match(/^\s*/) || [''])[0], trail = (src.match(/\s*$/) || [''])[0];
+    const target = (appLang === 'en' && APP_EN[key]) ? lead + APP_EN[key] + trail : src;
+    if (node.data !== target) node.data = target;
+  }
+  function appTranslateAttrs(el) {
+    if (appSkipped(el)) return;
+    ['title', 'placeholder'].forEach(attr => {
+      if (!el.hasAttribute(attr)) return;
+      const store = 'sv' + attr; if (!el.dataset[store]) el.dataset[store] = el.getAttribute(attr);
+      const src = el.dataset[store], key = src.trim();
+      const target = (appLang === 'en' && APP_EN[key]) ? APP_EN[key] : src;
+      if (el.getAttribute(attr) !== target) el.setAttribute(attr, target);
+    });
+  }
+  function appTranslateTree(root) {
+    if (!root) return;
+    if (root.nodeType === 3) return appTranslateText(root);
+    if (root.nodeType !== 1) return;
+    appTranslateAttrs(root);
+    root.querySelectorAll('[title],[placeholder]').forEach(appTranslateAttrs);
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); const nodes = []; let n;
+    while ((n = w.nextNode())) nodes.push(n);
+    nodes.forEach(appTranslateText);
+  }
+  function appSetLang(l) {
+    appLang = l === 'en' ? 'en' : 'sv';
+    try { localStorage.setItem('writeon_lang', appLang); } catch (e) {}
+    document.documentElement.lang = appLang;
+    const sv = document.getElementById('langSvBtn'), en = document.getElementById('langEnBtn');
+    if (sv) sv.textContent = (appLang === 'sv' ? '✓ ' : '') + 'Svenska';
+    if (en) en.textContent = (appLang === 'en' ? '✓ ' : '') + 'English';
+    appTranslateTree(document.body);
+    if (window.fbSaveLang) window.fbSaveLang(appLang);
+  }
+  window.appSetLang = appSetLang;
+  // Ny text som ritas om (menyer, inspektör, listor) översätts direkt
+  new MutationObserver(muts => {
+    if (appLang !== 'en') return;
+    muts.forEach(m => {
+      if (m.type === 'characterData') appTranslateText(m.target);
+      else m.addedNodes.forEach(n => appTranslateTree(n));
+      if (m.type === 'attributes') appTranslateAttrs(m.target);
+    });
+  }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  document.addEventListener('DOMContentLoaded', () => {
+    let saved = 'sv'; try { saved = localStorage.getItem('writeon_lang') || 'sv'; } catch (e) {}
+    appSetLang(saved);
+  });
+
   function openResearchPanel() {
     if (document.body.classList.contains('focus')) toggleFocusMode(false);
     switchView('writing'); showPanel('panel-research'); rsRender();
@@ -7618,7 +7729,7 @@ VIKTIGT:
   function updateProjectTitle() {
     const el = document.querySelector('.project-name');
     if (el) el.textContent = projectData.title || '';
-    document.title = projectData.title ? 'Inkwrite – ' + projectData.title : 'Inkwrite';
+    document.title = projectData.title ? 'InkWrite – ' + projectData.title : 'InkWrite';
   }
 
   function formatSavedAt(d) {
@@ -7940,7 +8051,7 @@ VIKTIGT:
     let data;
     try { data = JSON.parse(await file.text()); }
     catch(e) { alert('Kunde inte läsa filen.'); return; }
-    if (!data || !Array.isArray(data.chapters)) { alert('Det här är ingen Inkwrite-projektfil.'); return; }
+    if (!data || !Array.isArray(data.chapters)) { alert('Det här är ingen InkWrite-projektfil.'); return; }
     if (!window.fbSignedIn) { document.getElementById('fbLoginModal').style.display = 'flex'; return; }
 
     let namn = String(data.title || file.name.replace(/\.(writeon|json)$/i, '') || 'Importerat')
@@ -8027,7 +8138,7 @@ VIKTIGT:
   // AI — Claude via appens server (/api/ai). Nyckeln ligger på Railway.
   // ═══════════════════════════════════════════════════════════════════════════
   const WRITING_RULES = [
-    'Du arbetar i Inkwrite, ett skrivverktyg för svenska romanförfattare. Svara alltid på svenska.',
+    'Du arbetar i InkWrite, ett skrivverktyg för svenska romanförfattare. Svara alltid på svenska.',
     '',
     'Så här arbetar du:',
     '- Utgå från projektets material nedan. Hitta aldrig på personer, händelser eller fakta som inte finns där.',
@@ -10738,6 +10849,7 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     document.getElementById('fbLoginModal').style.display = 'none';
     try { localStorage.setItem('writeon_has_account', '1'); } catch(e) {}
+    if (window.fbLoadLang) window.fbLoadLang().then(l => { if (l && l !== appLang) appSetLang(l); });
     if (window.setAccountUI) window.setAccountUI(user.email);
     if (window.aiRefreshStatus) window.aiRefreshStatus();
     window.fbRefreshRecentMenu();
@@ -10853,7 +10965,7 @@ window.fbSetActiveProject = function(namn) {
   window.fbActiveProject = namn;
   const titleEl = document.querySelector('.project-name, #projectTitle, .proj-title');
   if (titleEl) titleEl.textContent = namn;
-  document.title = 'Inkwrite – ' + namn;
+  document.title = 'InkWrite – ' + namn;
   if (window.fbRefreshRecentMenu) window.fbRefreshRecentMenu();
 };
 
@@ -10931,6 +11043,17 @@ window.fbRaderaKonto = async function() {
   }
 };
 
+// Språket sparas per konto. Misslyckas det (reglerna) gäller ändå språket i webbläsaren.
+window.fbSaveLang = async function(l) {
+  const user = auth.currentUser; if (!user) return;
+  try { await setDoc(doc(db, 'users', user.uid, 'settings', 'prefs'), { lang: l }, { merge: true }); } catch (e) { console.warn('[Firebase] Språket kunde inte sparas:', e.code); }
+};
+window.fbLoadLang = async function() {
+  const user = auth.currentUser; if (!user) return null;
+  try { const s = await getDoc(doc(db, 'users', user.uid, 'settings', 'prefs')); return s.exists() ? s.data().lang : null; }
+  catch (e) { return null; }
+};
+
 window.fbLoggaUt = async function() {
   if (window.flushPendingSave && !(await window.flushPendingSave())) {
     if (!confirm('De senaste ändringarna kunde inte sparas.\n\nLogga ut ändå?')) return;
@@ -10947,16 +11070,17 @@ window.fbLoggaUt = async function() {
   <header class="lp-top">
     <span class="stp-logo" id="startLogo"></span>
     <nav class="lp-nav"><a href="#lp-funktioner">Funktioner</a><a href="#lp-pris">Pris</a><a href="#lp-fragor">Vanliga frågor</a></nav>
+    <div class="lp-lang" role="group" aria-label="Språk / Language"><button data-lang="sv" class="on" onclick="lpSetLang('sv')">SV</button><button data-lang="en" onclick="lpSetLang('en')">EN</button></div>
     <div class="lp-top-btns"><button class="lp-btn ghost" onclick="lpAuth('login')">Logga in</button><button class="lp-btn" onclick="lpAuth('register')">Prova gratis</button></div>
   </header>
 
   <section class="lp-hero">
     <div class="lp-beta">Beta · gratis under testperioden</div>
     <h1>Skriv din bok med en redaktör<br>som läser på svenska</h1>
-    <p class="lp-lead">Inkwrite samlar manus, planering och research på ett ställe, med en AI-redaktör som ger ärlig respons på din text och aldrig skriver om den åt dig.</p>
+    <p class="lp-lead">InkWrite samlar manus, planering och research på ett ställe, med en AI-redaktör som ger ärlig respons på din text och aldrig skriver om den åt dig.</p>
     <div class="lp-hero-btns"><button class="lp-btn big" onclick="lpAuth('register')">Prova gratis</button><a class="lp-btn big ghost" href="#lp-funktioner">Se hur det fungerar</a></div>
     <div class="lp-trust"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg> Sparas automatiskt i EU &nbsp; <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg> Fungerar i webbläsaren &nbsp; <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg> Inget kort behövs</div>
-    <div class="lp-frame"><div class="lp-dots"><i></i><i></i><i></i></div><img src="bilder/oversikt.jpg" alt="Inkwrite med manus, kapitellista och inspektör"></div>
+    <div class="lp-frame"><div class="lp-dots"><i></i><i></i><i></i></div><img src="bilder/oversikt.jpg" alt="InkWrite med manus, kapitellista och inspektör"></div>
   </section>
 
   <figure class="lp-banner"><img src="bilder/bw_01_kust_dimma.jpg" alt="Dimmig kust med drivved och stenstrand" loading="lazy"></figure>
@@ -11001,7 +11125,7 @@ window.fbLoggaUt = async function() {
       <div class="lp-row-text">
         <div class="lp-kicker">Projektmål</div>
         <h2>Ett mål för boken och ett för i dag</h2>
-        <p>Sätt ett mål i ord, tecken eller sidor och ett datum då du vill vara klar. Inkwrite räknar ut hur mycket du behöver skriva varje dag och visar hur det går.</p>
+        <p>Sätt ett mål i ord, tecken eller sidor och ett datum då du vill vara klar. InkWrite räknar ut hur mycket du behöver skriva varje dag och visar hur det går.</p>
         <ul><li>250 sidor i A5 blir ungefär 56 000 ord</li><li>Diagram över de senaste två veckorna</li><li>Måltavlan blir grön när dagens mål är nått</li></ul>
       </div>
       <div class="lp-shot"><img src="bilder/projektmal.jpg" alt="Projektmål med dagsmål och diagram" loading="lazy"></div>
@@ -11033,7 +11157,7 @@ window.fbLoggaUt = async function() {
 
   <section class="lp-price" id="lp-pris">
     <h2>Pris</h2>
-    <p class="lp-sub">Under testperioden är Inkwrite gratis. Därefter:</p>
+    <p class="lp-sub">Under testperioden är InkWrite gratis. Därefter:</p>
     <div class="lp-price-grid">
       <div class="lp-pcard"><h3>Månad</h3><div class="lp-amount">79 kr<span>/mån</span></div><p>Avsluta när du vill.</p></div>
       <div class="lp-pcard best"><div class="lp-tag">Grundare</div><h3>Grundarpris</h3><div class="lp-amount">49 kr<span>/mån</span></div><p>För dig som är med från början.</p></div>
@@ -11048,7 +11172,7 @@ window.fbLoggaUt = async function() {
     <details><summary>Skriver AI:n min bok?</summary><p>Nej. Redaktören läser och ger respons, och föreslår ändringar som du själv väljer att göra. Din text och din röst förblir dina.</p></details>
     <details><summary>Kan jag flytta in en bok jag redan har skrivit?</summary><p>Ja. Importera en Word-fil, så blir rubrikerna kapitel. Från Scrivener exporterar du först till Word.</p></details>
     <details><summary>Kan jag ta med mig texten härifrån?</summary><p>Ja, när som helst. Exportera till Word, PDF, ePub, text eller Markdown, eller ladda ner en säkerhetskopia av hela projektet.</p></details>
-    <details><summary>Behöver jag installera något?</summary><p>Nej. Inkwrite fungerar i webbläsaren på din dator, och allt sparas automatiskt.</p></details>
+    <details><summary>Behöver jag installera något?</summary><p>Nej. InkWrite fungerar i webbläsaren på din dator, och allt sparas automatiskt.</p></details>
   </section>
 
   <section class="lp-cta">
@@ -11057,7 +11181,7 @@ window.fbLoggaUt = async function() {
     <button class="lp-btn big light" onclick="lpAuth('register')">Prova gratis</button>
   </section>
 
-  <footer class="stp-foot lp-foot">Inkwrite · <button onclick="openPrivacy()">Så hanteras din text</button></footer>
+  <footer class="stp-foot lp-foot">InkWrite · <button onclick="openPrivacy()">Så hanteras din text</button></footer>
 
   <!-- Inloggning och registrering -->
   <div class="lp-auth" id="lpAuthBox" style="display:none;" onclick="if(event.target===this) lpAuthClose()">
