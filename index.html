@@ -700,6 +700,13 @@
   .lp-cta h2 { color: var(--on-action); }
   .lp-cta p { font-size: 17px; opacity: 0.9; margin: 0 0 24px; }
   .lp-foot { padding: 24px; }
+  .lp-banner { max-width: 1180px; margin: 36px auto 0; padding: 0 32px; }
+  .lp-banner img { display: block; width: 100%; height: auto; border-radius: 14px; box-shadow: 0 18px 50px rgba(20,20,19,0.14); }
+  .lp-gallery { max-width: 1120px; margin: 0 auto; padding: 48px 32px 8px; }
+  .lp-gal { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .lp-gal img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 12px; display: block; box-shadow: 0 10px 30px rgba(20,20,19,0.12); }
+  .lp-note { text-align: center; font-size: 13px; color: var(--text-muted); margin: 12px 0 0; }
+  @media (max-width: 900px) { .lp-gal { grid-template-columns: repeat(2, 1fr); } }
   .lp-auth { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding: 20px; }
   .lp-auth .stp-card { position: relative; width: 400px; max-width: 100%; }
   .lp-auth-x { position: absolute; top: 10px; right: 10px; }
@@ -10952,6 +10959,8 @@ window.fbLoggaUt = async function() {
     <div class="lp-frame"><div class="lp-dots"><i></i><i></i><i></i></div><img src="bilder/oversikt.jpg" alt="Inkwrite med manus, kapitellista och inspektör"></div>
   </section>
 
+  <figure class="lp-banner"><img src="bilder/bw_01_kust_dimma.jpg" alt="Dimmig kust med drivved och stenstrand" loading="lazy"></figure>
+
   <section class="lp-trio" id="lp-funktioner">
     <div class="lp-feat"><svg class="ic" aria-hidden="true"><use href="#i-pencil"/></svg><h3>Skriv</h3><p>En lugn skrivyta som låter texten stå i centrum. Fokusläge, svensk typografi och filmmanus som i Final Draft.</p></div>
     <div class="lp-feat"><svg class="ic" aria-hidden="true"><use href="#i-chart-gantt"/></svg><h3>Planera</h3><p>Kapitel och scener, scenkort, outline och en dramatisk båge som visar var boken tappar fart.</p></div>
@@ -11010,6 +11019,16 @@ window.fbLoggaUt = async function() {
   <section class="lp-who">
     <h2>För dig som skriver</h2>
     <div class="lp-who-grid"><span>Romaner</span><span>Deckare och spänning</span><span>Dagboksromaner</span><span>Noveller</span><span>Film- och tv-manus</span><span>Memoarer</span></div>
+  </section>
+
+  <section class="lp-gallery" aria-label="Illustrationer">
+    <div class="lp-gal">
+      <img src="bilder/bw_02_arbetsrum_fonster.jpg" alt="Arbetsrum med lampa och fönster mot en fransk gata" loading="lazy">
+      <img src="bilder/bw_03_kvinna_balkong.jpg" alt="Kvinna som står vid en balkongdörr" loading="lazy">
+      <img src="bilder/bw_04_vardagsrum_berg.jpg" alt="Vardagsrum med soffa och bergstavla" loading="lazy">
+      <img src="bilder/bw_05_vinter_herrgard.jpg" alt="Herrgård i vinterkväll" loading="lazy">
+    </div>
+    <p class="lp-note">Illustrationer</p>
   </section>
 
   <section class="lp-price" id="lp-pris">
