@@ -735,8 +735,13 @@
   .insp-details[open] > summary::before { content: '▾ '; }
   .insp-details > summary span { font-weight: 500; color: var(--text-muted); font-size: 13px; margin-left: 4px; }
 
-  /* Tillfällig textlogotyp. Byts mot den riktiga loggan när den finns. */
-  .wordmark { font-family: var(--font-text); font-weight: 600; font-size: 24px; line-height: 1; letter-spacing: -0.01em; color: var(--text-primary); white-space: nowrap; display: inline-block; }
+  /* Loggan: ljus variant i ljust läge, mörk variant i mörkt läge */
+  .logo-img-wrap { display: inline-flex; align-items: center; }
+  .logo-img { height: 28px; width: auto; display: block; }
+  .logo-dark { display: none; }
+  body.dark .logo-light { display: none; }
+  body.dark .logo-dark { display: block; }
+  .stp-logo .logo-img { height: 36px; }
 
   @keyframes syncPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
@@ -3585,7 +3590,7 @@
 <!-- HEADER -->
 <header>
   <div class="logo-wrap">
-    <span class="wordmark" id="logoSvg">Inkwrite</span>
+    <span class="logo-img-wrap" id="logoSvg"><img class="logo-img logo-light" src="bilder/logo_ljust.png" alt="Inkwrite"><img class="logo-img logo-dark" src="bilder/logo_morkt.png" alt=""></span>
   </div>
 
   <div class="project-title-area">
