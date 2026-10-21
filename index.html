@@ -720,6 +720,8 @@
   .stp-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; padding: 6px; color: var(--text-secondary); display: flex; }
   .stp-eye .ic { width: 20px; height: 20px; }
   .stp-eye:hover { color: var(--text-primary); }
+  .lp-lang-row { margin: 0 0 14px; }
+  .lp-lang-row .lp-lang { margin-right: 0; }
   .lp-auth { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding: 20px; }
   .lp-auth .stp-card { position: relative; width: 400px; max-width: 100%; }
   .lp-auth-x { position: absolute; top: 10px; right: 10px; }
@@ -5135,6 +5137,7 @@
     l = l === 'en' ? 'en' : 'sv';
     try { localStorage.setItem('writeon_lang', l); } catch (e) {}
     document.documentElement.lang = l;
+    lpEyeLabel(l);
     document.querySelectorAll('.lp-lang button').forEach(b => b.classList.toggle('on', b.dataset.lang === l));
     LP_ROOTS.forEach(id => {
       const root = document.getElementById(id); if (!root) return;
@@ -5156,6 +5159,32 @@
         });
       });
     });
+  }
+  // Inloggningsrutans meddelanden följer språkvalet (SV/EN)
+  const LP_LOGIN_MSG = {"Fyll i e-post och lösenord.": "Enter your email and password.", "Skriv hela e-postadressen, till exempel namn@gmail.com.": "Write your full email address, for example name@gmail.com.", "Loggar in …": "Logging in …", "Skapar konto …": "Creating account …", "Ingen användare med den e-postadressen.": "No user with that email address.", "Fel lösenord.": "Wrong password.", "E-postadressen används redan.": "The email address is already in use.", "Lösenordet måste vara minst 6 tecken.": "The password must be at least 6 characters.", "Ogiltig e-postadress.": "Invalid email address.", "Fel e-post eller lösenord. Prova Glömt lösenordet? om du inte minns det.": "Wrong email or password. Try Forgot password? if you do not remember it.", "För många försök. Vänta några minuter, eller välj Glömt lösenordet?.": "Too many attempts. Wait a few minutes, or choose Forgot password?.", "Ingen kontakt med servern. Kontrollera internetanslutningen och försök igen.": "No connection to the server. Check your internet connection and try again.", "Kontot är avstängt.": "The account has been disabled.", "Logga in": "Log in", "Skapa konto": "Create account"};
+  function lpTrLoginMsg(el) {
+    if (!el) return;
+    const en = (localStorage.getItem('writeon_lang') === 'en'), t = el.textContent.trim();
+    if (!en || !t) return;
+    let out = LP_LOGIN_MSG[t];
+    if (!out) { const m = t.match(/^Det gick inte att logga in \((.*)\)\.$/); if (m) out = 'Could not log in (' + m[1] + ').'; }
+    if (out && el.textContent !== out) {
+      el.textContent = out;
+      const n = el.firstChild; if (n && n.nodeType === 3) lpOrig.set(n, t);   // minns svenska originalet
+    }
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    ['fbStatus', 'stpSubmit'].forEach(id => {
+      const el = document.getElementById(id); if (!el) return;
+      new MutationObserver(() => lpTrLoginMsg(el)).observe(el, { childList: true, characterData: true, subtree: true });
+    });
+  });
+  // Ögonknappens text följer språket
+  function lpEyeLabel(l) {
+    const eye = document.getElementById('stpEye'), inp = document.getElementById('fbPass'); if (!eye || !inp) return;
+    const shown = inp.type === 'text', en = l === 'en';
+    const t = shown ? (en ? 'Hide password' : 'Dölj lösenordet') : (en ? 'Show password' : 'Visa lösenordet');
+    eye.title = t; eye.setAttribute('aria-label', t);
   }
   window.lpSetLang = lpSetLang;
   document.addEventListener('DOMContentLoaded', () => lpSetLang(lpCurrent()));
@@ -11047,7 +11076,7 @@ window.fbLogga = async function(typ) {
     status.className = 'stp-status stp-err';
     status.textContent = msg;
   } finally {
-    if (sub) { sub.disabled = false; sub.textContent = subTxt; }
+    if (sub) { sub.disabled = false; sub.textContent = typ === 'login' ? 'Logga in' : 'Skapa konto'; }
   }
 };
 
@@ -11264,6 +11293,7 @@ window.fbLoggaUt = async function() {
   <div class="lp-auth" id="lpAuthBox" style="display:none;">
     <div class="stp-card">
       <button class="wn-x lp-auth-x" onclick="lpAuthClose()" title="Stäng">✕</button>
+      <div class="lp-lang-row"><div class="lp-lang" role="group" aria-label="Språk / Language"><button data-lang="sv" onclick="lpSetLang('sv')">SV</button><button data-lang="en" onclick="lpSetLang('en')">EN</button></div></div>
       <div class="stp-tabs">
         <button id="stpTabNew" onclick="setStartMode('register')">Skapa konto</button>
         <button id="stpTabLogin" onclick="setStartMode('login')">Logga in</button>
