@@ -715,6 +715,11 @@
   .stp-status.stp-ok { background: color-mix(in srgb, var(--action) 12%, transparent); }
   .stp-status.stp-err { background: rgba(200,64,64,0.10); }
   #stpForgot button:disabled { opacity: 0.6; cursor: default; }
+  .stp-passwrap { position: relative; }
+  .stp-passwrap input { padding-right: 44px; width: 100%; box-sizing: border-box; }
+  .stp-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; padding: 6px; color: var(--text-secondary); display: flex; }
+  .stp-eye .ic { width: 20px; height: 20px; }
+  .stp-eye:hover { color: var(--text-primary); }
   .lp-auth { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding: 20px; }
   .lp-auth .stp-card { position: relative; width: 400px; max-width: 100%; }
   .lp-auth-x { position: absolute; top: 10px; right: 10px; }
@@ -3604,6 +3609,8 @@
   <symbol id="i-indent-decrease" viewBox="0 0 24 24"><path d="M21 12H11"/><path d="M21 18H11"/><path d="M21 6H11"/><path d="m7 8-4 4 4 4"/></symbol>
   <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></symbol>
   <symbol id="i-spell-check" viewBox="0 0 24 24"><path d="m6 16 6-12 6 12"/><path d="M8 12h8"/><path d="m16 20 2 2 4-4"/></symbol>
 </svg>
 
@@ -5101,11 +5108,22 @@
     document.getElementById('stpForgot').style.visibility = m === 'login' ? 'visible' : 'hidden';
     document.getElementById('fbPass').autocomplete = m === 'login' ? 'current-password' : 'new-password';
     document.getElementById('fbStatus').textContent = '';
+    const pf = document.getElementById('fbPass'); if (pf) pf.setAttribute('autocomplete', m === 'login' ? 'current-password' : 'new-password');
     if (typeof lpSetLang === 'function') lpSetLang(lpCurrent());
   }
   function startSubmit() { fbLoginAction(startMode === 'login' ? 'login' : 'register'); }
   function openPrivacy() { document.getElementById('privacyModal').style.display = 'flex'; }
   function lpAuth(mode) { setStartMode(mode); document.getElementById('lpAuthBox').style.display = 'flex'; setTimeout(() => document.getElementById('fbEmail').focus(), 60); }
+  // Ögonknappen: visa eller dölj lösenordet. Skapa konto använder "nytt lösenord" så att webbläsaren inte fyller i ett gammalt.
+  function stpTogglePass() {
+    const inp = document.getElementById('fbPass'), btn = document.getElementById('stpEye');
+    const show = inp.type === 'password', en = (localStorage.getItem('writeon_lang') === 'en');
+    inp.type = show ? 'text' : 'password';
+    btn.querySelector('use').setAttribute('href', show ? '#i-eye-off' : '#i-eye');
+    const t = show ? (en ? 'Hide password' : 'Dölj lösenordet') : (en ? 'Show password' : 'Visa lösenordet');
+    btn.title = t; btn.setAttribute('aria-label', t);
+    inp.focus();
+  }
   function lpAuthClose() { document.getElementById('lpAuthBox').style.display = 'none'; }
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('lpAuthBox')?.style.display === 'flex') lpAuthClose(); });
   // ═══ SPRÅK PÅ PRESENTATIONSSIDAN: svenska (standard) och engelska ═══
@@ -11253,7 +11271,10 @@ window.fbLoggaUt = async function() {
       <label for="fbEmail">E-postadress</label>
       <input id="fbEmail" type="email" autocomplete="email" placeholder="din@epost.se" onkeydown="if(event.key==='Enter') startSubmit()">
       <label for="fbPass">Lösenord</label>
-      <input id="fbPass" type="password" placeholder="minst 6 tecken" onkeydown="if(event.key==='Enter') startSubmit()">
+      <div class="stp-passwrap">
+        <input id="fbPass" type="password" autocomplete="current-password" placeholder="minst 6 tecken" onkeydown="if(event.key==='Enter') startSubmit()">
+        <button type="button" class="stp-eye" id="stpEye" onclick="stpTogglePass()" title="Visa lösenordet" aria-label="Visa lösenordet"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg></button>
+      </div>
       <div class="stp-forgot" id="stpForgot"><button onclick="fbLoginAction('reset')">Glömt lösenordet?</button></div>
       <div id="fbStatus" class="stp-status"></div>
       <button class="stp-submit" id="stpSubmit" onclick="startSubmit()">Skapa konto</button>
