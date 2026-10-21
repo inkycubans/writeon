@@ -711,6 +711,10 @@
   .lp-lang { display: inline-flex; border: 1.5px solid var(--border-strong); border-radius: 9px; overflow: hidden; margin-right: 6px; }
   .lp-lang button { border: none; background: transparent; color: var(--text-secondary); font: 700 13px var(--font-ui); padding: 6px 10px; cursor: pointer; }
   .lp-lang button.on { background: var(--action); color: var(--on-action); }
+  .stp-status.stp-ok, .stp-status.stp-err { display: block; padding: 10px 12px; border-radius: 8px; font-size: 14px; line-height: 1.45; margin: 6px 0 10px; }
+  .stp-status.stp-ok { background: color-mix(in srgb, var(--action) 12%, transparent); }
+  .stp-status.stp-err { background: rgba(200,64,64,0.10); }
+  #stpForgot button:disabled { opacity: 0.6; cursor: default; }
   .lp-auth { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; padding: 20px; }
   .lp-auth .stp-card { position: relative; width: 400px; max-width: 100%; }
   .lp-auth-x { position: absolute; top: 10px; right: 10px; }
@@ -5103,6 +5107,7 @@
   function openPrivacy() { document.getElementById('privacyModal').style.display = 'flex'; }
   function lpAuth(mode) { setStartMode(mode); document.getElementById('lpAuthBox').style.display = 'flex'; setTimeout(() => document.getElementById('fbEmail').focus(), 60); }
   function lpAuthClose() { document.getElementById('lpAuthBox').style.display = 'none'; }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('lpAuthBox')?.style.display === 'flex') lpAuthClose(); });
   // ═══ SPRÅK PÅ PRESENTATIONSSIDAN: svenska (standard) och engelska ═══
   const LP_EN = {"Funktioner": "Features", "Pris": "Pricing", "Vanliga frågor": "FAQ", "Logga in": "Log in", "Prova gratis": "Try it free", "Beta · gratis under testperioden": "Beta · free during the test period", "Skriv din bok med en redaktör": "Write your book with an editor", "som läser på svenska": "who reads Swedish", "InkWrite samlar manus, planering och research på ett ställe, med en AI-redaktör som ger ärlig respons på din text och aldrig skriver om den åt dig.": "InkWrite brings together manuscript, planning and research in one place, with an AI editor that gives honest feedback on your text and never rewrites it for you.", "Se hur det fungerar": "See how it works", "Sparas automatiskt i EU": "Saved automatically in the EU", "Fungerar i webbläsaren": "Works in your browser", "Inget kort behövs": "No card needed", "Skriv": "Write", "En lugn skrivyta som låter texten stå i centrum. Fokusläge, svensk typografi och filmmanus som i Final Draft.": "A calm writing space that keeps the text in focus. Focus mode, Swedish typography and screenplay format like Final Draft.", "Planera": "Plan", "Kapitel och scener, scenkort, outline och en dramatisk båge som visar var boken tappar fart.": "Chapters and scenes, index cards, outline and a dramatic arc that shows where the book loses pace.", "Samla": "Gather", "Karaktärer, idéer, miljöer och research med bilder och länkar, kopplat till scenerna där du behöver dem.": "Characters, ideas, settings and research with images and links, connected to the scenes where you need them.", "Redaktören": "The Editor", "Respons som en lektör, när du behöver den": "Feedback like a reader, when you need it", "Redaktören läser din scen, dina karaktärer och bokens synopsis innan den svarar. Den pekar ut vad som fungerar och vad som kan bli bättre, på svenska och med respekt för din röst.": "The Editor reads your scene, your characters and the book's synopsis before it answers. It points out what works and what could be better, in Swedish, with respect for your voice.", "Respons på helheten, gestaltning, dialog, tempo och språk": "Feedback on the whole, showing vs telling, dialogue, pacing and language", "Förslag när du har fastnat": "Suggestions when you're stuck", "Skriver aldrig om din text, föreslår bara": "Never rewrites your text, only suggests", "Dramabågen": "The Story Arc", "Se hela boken på en gång": "See the whole book at once", "Kapitlen läggs ut längs en dramaturgisk båge, jämförd med klassiska former som tre akter eller Fichtes kurva. Du ser direkt var spänningen sjunker och var klimax hamnar.": "Your chapters are laid out along a dramatic arc, compared with classic forms such as three acts or Fichte's curve. You see at a glance where tension drops and where the climax falls.", "Dra punkterna för att ändra stämningen": "Drag the points to change the mood", "Bågens faser syns där du skriver": "The arc's phases show where you are as you write", "Berättelsens tid och episoder under bågen": "Story time and episodes under the arc", "Research": "Research", "Allt du samlar, där du skriver": "Everything you gather, where you write", "Bilder, fakta och citat i ett galleri. Koppla dem till en scen eller till ett enskilt ord, så dyker de upp i marginalen när du behöver dem.": "Images, facts and quotes in a gallery. Link them to a scene or a single word, and they appear in the margin when you need them.", "Dra in bilder direkt från datorn": "Drag images straight in from your computer", "Länkar visar sidans bild och rubrik": "Links show the page's image and title", "Lossa panelen till en egen skärm": "Detach the panel to its own screen", "Projektmål": "Project Goals", "Ett mål för boken och ett för i dag": "A goal for the book and one for today", "Sätt ett mål i ord, tecken eller sidor och ett datum då du vill vara klar. InkWrite räknar ut hur mycket du behöver skriva varje dag och visar hur det går.": "Set a goal in words, characters or pages and a date for when you want to be finished. InkWrite works out how much you need to write each day and shows how you're doing.", "250 sidor i A5 blir ungefär 56 000 ord": "250 A5 pages is roughly 56,000 words", "Diagram över de senaste två veckorna": "A chart of the last two weeks", "Måltavlan blir grön när dagens mål är nått": "The target turns green when today's goal is reached", "Det du inte hittar någon annanstans": "What you won't find anywhere else", "Finputs för hela boken": "Finputs for the whole book", "Går igenom manuset kapitel för kapitel och hittar stavfel, grammatik och logiska kullerbyttor, som glassen som blev pommes frites i nästa kapitel.": "Goes through the manuscript chapter by chapter and finds spelling errors, grammar and logical slips, like the ice cream that became fries in the next chapter.", "Kommentarer och ögonblicksbilder": "Comments and snapshots", "Kommentera i marginalen och spara en version av scenen innan du skriver om den. Du kan alltid gå tillbaka.": "Comment in the margin, and save a version of the scene before you rewrite it. You can always go back.", "Från roman till filmmanus": "From novel to screenplay", "Mallar för roman, deckare, novell, dagboksroman och filmmanus. Exportera till Word, PDF, ePub och Fountain.": "Templates for novels, crime, short stories, diary novels and screenplays. Export to Word, PDF, ePub and Fountain.", "För dig som skriver": "For those who write", "Romaner": "Novels", "Deckare och spänning": "Crime and thrillers", "Dagboksromaner": "Diary novels", "Noveller": "Short stories", "Film- och tv-manus": "Film and TV scripts", "Memoarer": "Memoirs", "Illustrationer": "Illustrations", "Under testperioden är InkWrite gratis. Därefter:": "During the test period InkWrite is free. After that:", "Månad": "Monthly", "/mån": "/month", "Avsluta när du vill.": "Cancel any time.", "Grundare": "Founder", "Grundarpris": "Founder's price", "För dig som är med från början.": "For those who join from the start.", "År": "Yearly", "/år": "/year", "Två månader gratis jämfört med månadspris.": "Two months free compared with the monthly price.", "Kom igång gratis": "Get started for free", "Var sparas min text?": "Where is my text stored?", "I Google Firebase i Frankfurt, inom EU. Bara du kommer åt dina projekt. Läs mer under": "In Google Firebase in Frankfurt, within the EU. Only you can access your projects. Read more under", "Så hanteras din text": "How we handle your text", "Skriver AI:n min bok?": "Does the AI write my book?", "Nej. Redaktören läser och ger respons, och föreslår ändringar som du själv väljer att göra. Din text och din röst förblir dina.": "No. The Editor reads and gives feedback, and suggests changes that you choose to make yourself. Your text and your voice stay yours.", "Kan jag flytta in en bok jag redan har skrivit?": "Can I bring in a book I've already written?", "Ja. Importera en Word-fil, så blir rubrikerna kapitel. Från Scrivener exporterar du först till Word.": "Yes. Import a Word file and the headings become chapters. From Scrivener, export to Word first.", "Kan jag ta med mig texten härifrån?": "Can I take my text with me?", "Ja, när som helst. Exportera till Word, PDF, ePub, text eller Markdown, eller ladda ner en säkerhetskopia av hela projektet.": "Yes, any time. Export to Word, PDF, ePub, text or Markdown, or download a backup of the whole project.", "Behöver jag installera något?": "Do I need to install anything?", "Nej. InkWrite fungerar i webbläsaren på din dator, och allt sparas automatiskt.": "No. InkWrite works in the browser on your computer, and everything is saved automatically.", "Börja skriva i dag": "Start writing today", "Gratis under testperioden. Inget kort behövs.": "Free during the test period. No card needed.", "Inloggning och registrering": "Log in and sign up", "Skapa konto": "Create account", "E-postadress": "Email address", "Lösenord": "Password", "Glömt lösenordet?": "Forgot password?", "Dina projekt sparas i EU och bara du kommer åt dem.": "Your projects are saved in the EU, and only you can access them.", "InkWrite med manus, kapitellista och inspektör": "InkWrite with manuscript, chapter list and inspector", "Dimmig kust med drivved och stenstrand": "Foggy coast with driftwood and a pebble beach", "Redaktören ger respons på en scen": "The Editor gives feedback on a scene", "Dramabågen visar bokens kapitel": "The Story Arc shows the book's chapters", "Research med bilder, fakta och citat": "Research with images, facts and quotes", "Projektmål med dagsmål och diagram": "Project Goals with daily targets and a chart", "Arbetsrum med lampa och fönster mot en fransk gata": "Study with a lamp and a window onto a French street", "Kvinna som står vid en balkongdörr": "Woman standing at a balcony door", "Vardagsrum med soffa och bergstavla": "Living room with a sofa and a mountain painting", "Herrgård i vinterkväll": "Manor house on a winter evening", "din@epost.se": "you@email.com", "minst 6 tecken": "at least 6 characters", "Stäng": "Close", "✕": "✕", "Dina projekt": "Your projects", "sparas i Google Firebase, i ett datacenter i Frankfurt (EU). Bara du kommer åt dem när du är inloggad.": "are saved in Google Firebase, in a data centre in Frankfurt (EU). Only you can access them when you are logged in.", "Appen": "The app", "körs på servrar hos Railway i USA. När du använder AI passerar texten servern på vägen till och från AI:n, men den sparas inte där.": "runs on servers at Railway in the USA. When you use AI, the text passes through the server on its way to and from the AI, but it is not stored there.", "När du använder AI": "When you use AI", "skickas den text som behövs för svaret, till exempel scenen du står i, synopsis och karaktärer, till Anthropic (Claude). Text som skickas via Anthropics API används inte för att träna deras modeller.": "the text needed for the answer is sent to Anthropic (Claude), for example the scene you are in, the synopsis and the characters. Text sent through Anthropic's API is not used to train their models.", "Utseendet": "Appearance", ", alltså typsnitt, textstorlek och mörkt läge, sparas bara i din webbläsare.": ", that is fonts, text size and dark mode, is saved only in your browser.", "Ögonblicksbilder": "Snapshots", "av scener sparas tillsammans med dina projekt i Frankfurt och raderas med dem.": "of scenes are saved together with your projects in Frankfurt and are deleted with them.", "Säkerhetskopior": "Backups", "som du laddar ner hamnar på din egen dator.": "that you download end up on your own computer.", "Radera allt:": "Delete everything:", "under din profilbild uppe till höger finns": "under your profile picture at the top right you'll find", "Radera konto": "Delete account", ". Då tas ditt konto och alla dina projekt bort för gott.": ". Your account and all your projects are then deleted for good."};
   const LP_ROOTS = ['fbLoginModal', 'lpAuthBox', 'privacyModal'];
@@ -10997,7 +11002,11 @@ window.fbLogga = async function(typ) {
   const email = document.getElementById('fbEmail').value.trim();
   const pass  = document.getElementById('fbPass').value;
   const status = document.getElementById('fbStatus');
+  const sub = document.getElementById('stpSubmit'), subTxt = sub ? sub.textContent : '';
+  status.className = 'stp-status'; status.style.color = '#c84040';
   if (!email || !pass) { status.textContent = 'Fyll i e-post och lösenord.'; return; }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { status.textContent = 'Skriv hela e-postadressen, till exempel namn@gmail.com.'; return; }
+  if (sub) { sub.disabled = true; sub.textContent = typ === 'login' ? 'Loggar in …' : 'Skapar konto …'; }
   try {
     if (typ === 'login') {
       await signInWithEmailAndPassword(auth, email, pass);
@@ -11012,23 +11021,50 @@ window.fbLogga = async function(typ) {
       'auth/email-already-in-use': 'E-postadressen används redan.',
       'auth/weak-password':     'Lösenordet måste vara minst 6 tecken.',
       'auth/invalid-email':     'Ogiltig e-postadress.',
-      'auth/invalid-credential': 'Fel e-post eller lösenord.'
-    }[e.code] || e.message;
+      'auth/invalid-credential': 'Fel e-post eller lösenord. Prova Glömt lösenordet? om du inte minns det.',
+      'auth/too-many-requests': 'För många försök. Vänta några minuter, eller välj Glömt lösenordet?.',
+      'auth/network-request-failed': 'Ingen kontakt med servern. Kontrollera internetanslutningen och försök igen.',
+      'auth/user-disabled': 'Kontot är avstängt.'
+    }[e.code] || ('Det gick inte att logga in (' + (e.code || 'okänt fel') + ').');
+    status.className = 'stp-status stp-err';
     status.textContent = msg;
+  } finally {
+    if (sub) { sub.disabled = false; sub.textContent = subTxt; }
   }
 };
 
+// Glömt lösenordet: tydlig återkoppling, och knappen spärras en minut så att man inte
+// råkar skicka flera mail (bara den senaste länken fungerar).
+let fbResetLock = 0;
 window.fbGlomtLosenord = async function() {
   const email = (document.getElementById('fbEmail').value || '').trim();
   const st = document.getElementById('fbStatus');
-  if (!email) { st.style.color = '#c84040'; st.textContent = 'Skriv din e-postadress först.'; return; }
+  const btn = document.querySelector('#stpForgot button');
+  const en = (localStorage.getItem('writeon_lang') === 'en');
+  const show = (txt, ok) => { st.style.color = ok ? 'var(--action-text)' : '#c84040'; st.className = 'stp-status ' + (ok ? 'stp-ok' : 'stp-err'); st.textContent = txt; };
+  if (Date.now() < fbResetLock) return;
+  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    show(en ? 'Write your full email address, for example name@gmail.com.' : 'Skriv hela e-postadressen, till exempel namn@gmail.com.', false); return;
+  }
+  auth.languageCode = en ? 'en' : 'sv';              // mailet och sidan för nytt lösenord på rätt språk
+  if (btn) { btn.disabled = true; btn.textContent = en ? 'Sending …' : 'Skickar …'; }
   try {
     await sendPasswordResetEmail(auth, email);
-    st.style.color = 'var(--action-text)';
-    st.textContent = 'Klart. Kolla din e-post för en länk där du väljer nytt lösenord.';
+    show(en
+      ? 'Sent to ' + email + '. Open the newest email and click the link within an hour. Check your spam folder if it does not arrive.'
+      : 'Skickat till ' + email + '. Öppna det senaste mailet och klicka på länken inom en timme. Titta i skräpposten om det inte kommer.', true);
+    fbResetLock = Date.now() + 60000;
+    let left = 60;
+    const tick = setInterval(() => {
+      left--;
+      if (btn) btn.textContent = en ? 'Send again in ' + left + ' s' : 'Skicka igen om ' + left + ' s';
+      if (left <= 0) { clearInterval(tick); if (btn) { btn.disabled = false; btn.textContent = en ? 'Forgot password?' : 'Glömt lösenordet?'; } }
+    }, 1000);
   } catch(e) {
-    st.style.color = '#c84040';
-    st.textContent = e.code === 'auth/invalid-email' ? 'E-postadressen ser inte rätt ut.' : 'Kunde inte skicka: ' + (e.code || e.message);
+    if (btn) { btn.disabled = false; btn.textContent = en ? 'Forgot password?' : 'Glömt lösenordet?'; }
+    show(e.code === 'auth/invalid-email' ? (en ? 'The email address does not look right.' : 'E-postadressen ser inte rätt ut.')
+       : e.code === 'auth/too-many-requests' ? (en ? 'Too many attempts. Wait a few minutes and try again.' : 'För många försök. Vänta några minuter och försök igen.')
+       : (en ? 'Could not send: ' : 'Kunde inte skicka: ') + (e.code || e.message), false);
   }
 };
 
@@ -11207,7 +11243,7 @@ window.fbLoggaUt = async function() {
   <footer class="stp-foot lp-foot">InkWrite · <button onclick="openPrivacy()">Så hanteras din text</button></footer>
 
   <!-- Inloggning och registrering -->
-  <div class="lp-auth" id="lpAuthBox" style="display:none;" onclick="if(event.target===this) lpAuthClose()">
+  <div class="lp-auth" id="lpAuthBox" style="display:none;">
     <div class="stp-card">
       <button class="wn-x lp-auth-x" onclick="lpAuthClose()" title="Stäng">✕</button>
       <div class="stp-tabs">
